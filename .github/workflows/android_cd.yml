@@ -1,0 +1,102 @@
+name: Orbit CD
+
+on:
+  push:
+    branches:
+      - release
+  pull_request:
+    branches:
+      - release
+
+jobs:
+  cd:
+    name: Continuous Deployment
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Code Checkout
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Gradle Cache
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # 3. JDK 17
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: 'corretto'
+          cache: gradle
+          
+
+      # 4. Grant Execute Permission
+      - name: Change gradlew permissions
+        run: chmod +x gradlew
+
+      # 5. google-services.json
+      - name: Decode google-services.json
+        env:
+          FIREBASE_SECRET: ${{ secrets.FIREBASE_SECRET }}
+        run: echo $FIREBASE_SECRET > app/google-services.json
+
+      # 6. local.properties
+      - name: Add local.properties
+        env:
+          BASE_URL: ${{ secrets.BASE_URL }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          echo "base.url=\"$BASE_URL\"" >> local.properties
+          echo "sentry.dsn=\"$SENTRY_DSN\"" >> local.properties
+
+      # 7. Ktlint
+      - name: Run Ktlint Check
+        run: ./gradlew ktlintCheck --stacktrace
+
+      # 8. Test Build (Optional)
+      - name: Run Unit Tests
+        run: ./gradlew test --stacktrace
+
+      # 9. Debug APK Build
+      - name: Build Debug APK
+        run: ./gradlew assembleDebug --stacktrace
+
+      # 10. Release AAB Build
+      - name: Build Release AAB
+        run: ./gradlew bundleRelease --stacktrace
+
+      # 11. Release APK Build
+      - name: Build Release APK
+        run: ./gradlew assembleRelease --stacktrace
+
+      # 12. AAB Artifact Upload
+      - name: Upload Release AAB
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-aab
+          path: app/build/outputs/bundle/release/app-release.aab
+
+      # 13. APK Artifact Upload
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: release-apk
+          path: app/build/outputs/apk/release/app-release.apk
+
+      # 14. Firebase App Distribution Upload
+      - name: Upload APK to Firebase App Distribution
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
+          --app ${{ secrets.FIREBASE_APP_ID }} \
+          --release-notes "새로운 릴리즈 버전입니다." \
+          --groups "internal-testers"
