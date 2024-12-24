@@ -58,6 +58,7 @@ jobs:
             else
               echo "baseUrl=$BASE_URL" >> local.properties
             fi
+        run: echo "baseUrl=\"$BASE_URL\"" >> local.properties
 
       # Run Lint and Build
       - name: Run lint and build
