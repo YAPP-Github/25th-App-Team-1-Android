@@ -26,7 +26,7 @@ internal val ExtensionContainer.libs: VersionCatalog
     get() = getByType<VersionCatalogsExtension>().named("libs")
 
 internal fun CommonExtension<*, *, *, *, *, *>.addBuildConfigFields(project: Project) {
-    val baseUrl = project.getLocalProperty("baseUrl")
+    val baseUrl = project.getLocalProperty("baseUrl", "https://default.example.com")
     val isDebug = project.providers.gradleProperty("isDebug").orNull?.toBoolean() ?: false
 
     buildTypes {
@@ -47,7 +47,7 @@ internal fun Project.getLocalProperty(key: String, defaultValue: String? = null)
         val properties = Properties().apply {
             load(propertiesFile.inputStream())
         }
-        return properties.getProperty(key, defaultValue)
+        return properties.getProperty(key) ?: defaultValue ?: ""
     }
-    return defaultValue ?: throw IllegalArgumentException("Property $key not found in local.properties and no default value provided")
+    return defaultValue ?: ""
 }
