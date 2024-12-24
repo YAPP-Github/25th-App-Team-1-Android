@@ -52,7 +52,12 @@ jobs:
       - name: Access Local Properties
         env:
           BASE_URL: ${{ secrets.BASE_URL }}
-        run: echo "baseUrl=\"$BASE_URL\"" >> local.properties
+        run: |
+            if [ -z "$BASE_URL" ]; then
+              echo "baseUrl=https://default.example.com" >> local.properties
+            else
+              echo "baseUrl=$BASE_URL" >> local.properties
+            fi
 
       # Run Lint and Build
       - name: Run lint and build
