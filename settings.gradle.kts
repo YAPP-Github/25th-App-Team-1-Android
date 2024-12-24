@@ -1,4 +1,6 @@
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             content {
@@ -21,3 +23,16 @@ dependencyResolutionManagement {
 
 rootProject.name = "Orbit"
 include(":app")
+include(":core:network")
+include(":core:designsystem")
+include(":core:common")
+include(":core:datastore")
+include(":core:buildconfig")
+include(":data")
+include(":domain")
+include(":feature")
+include(":core:security")
+include(":core:ui")
+include(":feature:home")
+include(":feature:navigator")
+include(":feature:mypage")
