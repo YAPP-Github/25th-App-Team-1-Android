@@ -1,6 +1,7 @@
 package com.yapp.designsystem.theme
 
 import Pretendard
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
@@ -161,3 +162,5 @@ data class OrbitTypography(
         letterSpacing = (-0.11).sp
     )
 )
+
+val LocalTypography = staticCompositionLocalOf { OrbitTypography() }

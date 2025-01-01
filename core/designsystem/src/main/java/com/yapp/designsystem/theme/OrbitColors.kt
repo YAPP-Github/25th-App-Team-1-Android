@@ -3,6 +3,7 @@ package com.yapp.designsystem.theme
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
 class OrbitColors(
@@ -111,3 +112,5 @@ class OrbitColors(
         success = other.success
     }
 }
+
+val LocalColors = staticCompositionLocalOf { OrbitColors() }

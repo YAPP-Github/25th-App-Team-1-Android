@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.ui.Modifier
-import com.yapp.orbit.ui.theme.OrbitTheme
+import com.yapp.designsystem.theme.OrbitTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
