@@ -10,6 +10,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.designsystem)
     implementation(libs.orbit.core)
     implementation(libs.orbit.compose)
     implementation(libs.orbit.viewmodel)
