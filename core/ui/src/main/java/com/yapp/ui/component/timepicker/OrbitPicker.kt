@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import java.util.Locale
 
 @Composable
 fun OrbitPicker() {
@@ -36,7 +37,7 @@ fun OrbitPicker() {
         ) {
             val amPmItems = remember { listOf("오후", "오전") }
             val hourItems = remember { (1..12).map { it.toString() } }
-            val minuteItems = remember { listOf("00", "10", "20", "30", "40", "50") }
+            val minuteItems = remember { (0..59).map { String.format(Locale.ROOT, "%02d", it) } }
 
             val amPmPickerState = rememberPickerState()
             val hourPickerState = rememberPickerState()
