@@ -10,5 +10,4 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.ui)
 }
