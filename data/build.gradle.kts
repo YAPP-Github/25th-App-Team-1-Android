@@ -14,6 +14,10 @@ dependencies {
     implementation(projects.core.network)
     implementation(projects.core.datastore)
 
+    ksp(libs.androidx.room.compiler)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.paging)
+
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.kotlin.serialization)

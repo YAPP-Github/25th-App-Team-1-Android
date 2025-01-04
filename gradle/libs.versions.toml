@@ -30,6 +30,7 @@ kotlinx-collections = "0.3.7"
 androidx-app-compat = "1.7.0"
 androidx-core = "1.15.0"
 androidx-datastore = "1.1.1"
+androidx-room = "2.6.1"
 
 androidx-lifecycle = "2.8.7"
 
@@ -85,6 +86,10 @@ kotlinx-collections = { group = "org.jetbrains.kotlinx", name = "kotlinx-collect
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-app-compat" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "androidx-core" }
 androidx-datastore = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidx-datastore" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "androidx-room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "androidx-room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "androidx-room" }
+androidx-room-paging = { group = "androidx.room", name = "room-paging", version.ref = "androidx-room" }
 
 ## Compose Libraries
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
