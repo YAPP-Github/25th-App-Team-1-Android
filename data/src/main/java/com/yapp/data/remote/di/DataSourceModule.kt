@@ -1,7 +1,7 @@
-package com.yapp.data.di
+package com.yapp.data.remote.di
 
-import com.yapp.data.datasource.DummyDataSource
-import com.yapp.data.datasource.DummyDataSourceImpl
+import com.yapp.data.remote.datasource.DummyDataSource
+import com.yapp.data.remote.datasource.DummyDataSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -13,7 +13,7 @@ import javax.inject.Singleton
 abstract class DataSourceModule {
     @Binds
     @Singleton
-    abstract fun bindDummyDataSource(
-        dummyDataSourceImpl: DummyDataSourceImpl,
+    abstract fun bindsDummyDataSource(
+        dummyDataSource: DummyDataSourceImpl,
     ): DummyDataSource
 }

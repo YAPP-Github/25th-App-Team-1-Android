@@ -1,6 +1,6 @@
-package com.yapp.data.di
+package com.yapp.data.remote.di
 
-import com.yapp.data.service.DummyService
+import com.yapp.data.remote.service.DummyService
 import com.yapp.network.di.NoneAuth
 import dagger.Module
 import dagger.Provides

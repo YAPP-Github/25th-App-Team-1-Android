@@ -1,4 +1,4 @@
-package com.yapp.data.utils
+package com.yapp.data.remote.utils
 
 import retrofit2.HttpException
 

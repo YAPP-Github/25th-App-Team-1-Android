@@ -1,7 +1,7 @@
-package com.yapp.data.datasource
+package com.yapp.data.remote.datasource
 
-import com.yapp.data.dto.request.RequestDummyDto
-import com.yapp.data.dto.response.ResponseDummyDto
+import com.yapp.data.remote.dto.request.RequestDummyDto
+import com.yapp.data.remote.dto.response.ResponseDummyDto
 import com.yapp.network.model.BaseResponse
 
 interface DummyDataSource {

@@ -1,10 +1,10 @@
-package com.yapp.data.repositoryimpl
+package com.yapp.data.remote.repositoryimpl
 
-import com.yapp.data.datasource.DummyDataSource
-import com.yapp.data.dto.request.toData
-import com.yapp.data.dto.response.toDomain
-import com.yapp.data.utils.ApiError
-import com.yapp.data.utils.safeApiCall
+import com.yapp.data.remote.datasource.DummyDataSource
+import com.yapp.data.remote.dto.request.toData
+import com.yapp.data.remote.dto.response.toDomain
+import com.yapp.data.remote.utils.ApiError
+import com.yapp.data.remote.utils.safeApiCall
 import com.yapp.domain.model.Dummy
 import com.yapp.domain.repository.DummyRepository
 import javax.inject.Inject

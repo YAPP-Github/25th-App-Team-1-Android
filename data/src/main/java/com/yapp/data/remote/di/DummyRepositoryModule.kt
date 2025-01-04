@@ -1,6 +1,6 @@
-package com.yapp.data.di
+package com.yapp.data.remote.di
 
-import com.yapp.data.repositoryimpl.DummyRepositoryImpl
+import com.yapp.data.remote.repositoryimpl.DummyRepositoryImpl
 import com.yapp.domain.repository.DummyRepository
 import dagger.Binds
 import dagger.Module
@@ -13,7 +13,7 @@ import javax.inject.Singleton
 abstract class DummyRepositoryModule {
     @Binds
     @Singleton
-    abstract fun bindDummyRepository(
-        dummyRepositoryImpl: DummyRepositoryImpl,
+    abstract fun bindsDummyRepository(
+        dummyRepository: DummyRepositoryImpl,
     ): DummyRepository
 }
