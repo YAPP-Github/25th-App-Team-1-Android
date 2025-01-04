@@ -23,5 +23,5 @@ data class Alarm(
     val soundUri: String = "",
     val soundVolume: Int = 70,
 
-    val isAlarmActive: Boolean = true
+    val isAlarmActive: Boolean = true,
 )

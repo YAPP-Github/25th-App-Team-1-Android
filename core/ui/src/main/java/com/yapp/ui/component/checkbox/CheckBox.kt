@@ -35,18 +35,18 @@ fun OrbitCheckBox(
             .size(20.dp)
             .background(
                 color = backgroundColor,
-                shape = RoundedCornerShape(4.dp)
+                shape = RoundedCornerShape(4.dp),
             )
             .clip(RoundedCornerShape(4.dp))
             .clickable {
                 onClick(!isSelected)
             },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Icon(
             painter = painterResource(core.designsystem.R.drawable.ic_check),
             contentDescription = "IC_CHECK",
-            tint = OrbitTheme.colors.gray_700
+            tint = OrbitTheme.colors.gray_700,
         )
     }
 }

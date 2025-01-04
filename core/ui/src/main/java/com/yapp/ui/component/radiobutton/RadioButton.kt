@@ -21,7 +21,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 @Composable
 fun OrbitRadioButton(
     isSelected: Boolean,
-    onClick: (Boolean) -> Unit
+    onClick: (Boolean) -> Unit,
 ) {
     val backgroundColor = if (isSelected) {
         OrbitTheme.colors.main.copy(alpha = 0.3f)
@@ -46,21 +46,21 @@ fun OrbitRadioButton(
             .size(20.dp)
             .background(
                 color = backgroundColor,
-                shape = CircleShape
+                shape = CircleShape,
             )
             .clip(CircleShape)
             .clickable {
                 onClick(!isSelected)
             },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Spacer(
             modifier = Modifier.size(circleSize)
                 .background(
                     color = circleColor,
-                    shape = CircleShape
+                    shape = CircleShape,
                 )
-                .clip(CircleShape)
+                .clip(CircleShape),
         )
     }
 }
@@ -75,7 +75,7 @@ fun OrbitRadioButtonPreview() {
             isSelected = isSelected,
             onClick = {
                 isSelected = it
-            }
+            },
         )
     }
 }

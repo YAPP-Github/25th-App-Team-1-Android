@@ -29,7 +29,7 @@ data class AlarmEntity(
     val soundUri: String = "",
     val soundVolume: Int = 70,
 
-    val isAlarmActive: Boolean = true
+    val isAlarmActive: Boolean = true,
 )
 
 fun AlarmEntity.toDomain() = Alarm(
@@ -46,7 +46,7 @@ fun AlarmEntity.toDomain() = Alarm(
     isSoundEnabled = isSoundEnabled,
     soundUri = soundUri,
     soundVolume = soundVolume,
-    isAlarmActive = isAlarmActive
+    isAlarmActive = isAlarmActive,
 )
 
 fun Alarm.toEntity() = AlarmEntity(
@@ -63,5 +63,5 @@ fun Alarm.toEntity() = AlarmEntity(
     isSoundEnabled = isSoundEnabled,
     soundUri = soundUri,
     soundVolume = soundVolume,
-    isAlarmActive = isAlarmActive
+    isAlarmActive = isAlarmActive,
 )

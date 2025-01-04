@@ -7,7 +7,7 @@ import com.yapp.domain.repository.AlarmRepository
 import javax.inject.Inject
 
 class AlarmRepositoryImpl @Inject constructor(
-    private val alarmLocalDataSource: AlarmLocalDataSource
+    private val alarmLocalDataSource: AlarmLocalDataSource,
 ) : AlarmRepository {
     override suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = runCatching {
         alarmLocalDataSource.getPagedAlarms(limit, offset)

@@ -37,8 +37,8 @@ fun OrbitSwitch(
                     .size(20.dp)
                     .background(
                         color = thumbColor,
-                        shape = CircleShape
-                    )
+                        shape = CircleShape,
+                    ),
             )
         },
         colors = SwitchDefaults.colors(
@@ -46,8 +46,8 @@ fun OrbitSwitch(
             checkedTrackColor = OrbitTheme.colors.main,
             uncheckedThumbColor = Color.Transparent,
             uncheckedTrackColor = OrbitTheme.colors.gray_600,
-            uncheckedBorderColor = Color.Transparent
-        )
+            uncheckedBorderColor = Color.Transparent,
+        ),
     )
 }
 
@@ -61,7 +61,7 @@ fun OrbitTogglePreview() {
             isSelected = isSelected,
             onClick = {
                 isSelected = it
-            }
+            },
         )
     }
 }
