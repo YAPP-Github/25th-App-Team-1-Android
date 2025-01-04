@@ -11,7 +11,7 @@ class AlarmLocalDataSourceImpl @Inject constructor(
 ) : AlarmLocalDataSource {
     override suspend fun getPagedAlarms(
         limit: Int,
-        offset: Int
+        offset: Int,
     ): List<Alarm> {
         return alarmDao.getAlarms(limit, offset).map {
             it.toDomain()
