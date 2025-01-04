@@ -22,7 +22,7 @@ class OrbitColors(
     gray_900: Color = Color(0xFF17191F),
     alert: Color = Color(0xFFF2544A),
     alert_pressed: Color = Color(0xFFE53D33),
-    success: Color = Color(0xFF22C55E)
+    success: Color = Color(0xFF22C55E),
 ) {
     var main by mutableStateOf(main)
         private set
@@ -73,7 +73,7 @@ class OrbitColors(
         gray_900: Color = this.gray_900,
         alert: Color = this.alert,
         alert_pressed: Color = this.alert_pressed,
-        success: Color = this.success
+        success: Color = this.success,
     ) = OrbitColors(
         main = main,
         sub_main = sub_main,
@@ -90,7 +90,7 @@ class OrbitColors(
         gray_900 = gray_900,
         alert = alert,
         alert_pressed = alert_pressed,
-        success = success
+        success = success,
     )
 
     fun updateColorFrom(other: OrbitColors) {
