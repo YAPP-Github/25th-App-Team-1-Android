@@ -20,13 +20,13 @@ fun OrbitTheme(
     colors: OrbitColors = orbitColors(),
     darkColors: OrbitColors = orbitColors(),
     typography: OrbitTypography = orbitFonts(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     val currentColor = remember { if (darkTheme) darkColors else colors }
     val rememberedColors = remember { currentColor.copy() }.apply { updateColorFrom(currentColor) }
     CompositionLocalProvider(
         LocalColors provides rememberedColors,
-        LocalTypography provides typography
+        LocalTypography provides typography,
     ) {
         ProvideTextStyle(typography.body2Medium, content = content)
     }
