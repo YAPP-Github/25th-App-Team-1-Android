@@ -9,29 +9,45 @@ import javax.inject.Inject
 class AlarmRepositoryImpl @Inject constructor(
     private val alarmLocalDataSource: AlarmLocalDataSource
 ) : AlarmRepository {
-    override suspend fun getPagedAlarms(limit: Int, offset: Int): List<Alarm> {
-        return alarmLocalDataSource.getPagedAlarms(limit, offset)
+    override suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = runCatching {
+        alarmLocalDataSource.getPagedAlarms(limit, offset)
+    }.onFailure {
+        return Result.failure(Exception("Failed to get paged alarms"))
     }
 
-    override suspend fun getAlarmCount(): Int {
-        return alarmLocalDataSource.getAlarmCount()
+    override suspend fun getAlarmCount(): Result<Int> = runCatching {
+        alarmLocalDataSource.getAlarmCount()
+    }.onFailure {
+        return Result.failure(Exception("Failed to get alarm count"))
     }
 
-    override suspend fun insertAlarm(alarm: Alarm): Alarm? {
+    override suspend fun insertAlarm(alarm: Alarm): Result<Alarm> = runCatching {
         val alarmId = alarmLocalDataSource.insertAlarm(alarm.toEntity())
-        return getAlarm(alarmId)
+        alarmLocalDataSource.getAlarm(alarmId)
+            ?: return Result.failure(Exception("Failed to insert alarm"))
+    }.onFailure {
+        return Result.failure(Exception("Failed to insert alarm"))
     }
 
-    override suspend fun updateAlarm(alarm: Alarm): Alarm? {
+    override suspend fun updateAlarm(alarm: Alarm): Result<Alarm> = runCatching {
         val alarmId = alarmLocalDataSource.updateAlarm(alarm.toEntity())
-        return getAlarm(alarmId)
+        alarmLocalDataSource.getAlarm(alarmId)
+            ?: return Result.failure(Exception("Failed to update alarm"))
+    }.onFailure {
+        return Result.failure(Exception("Failed to update alarm"))
     }
 
-    override suspend fun getAlarm(id: Long): Alarm? {
-        return alarmLocalDataSource.getAlarm(id)
+    override suspend fun getAlarm(id: Long): Result<Alarm> = runCatching {
+        alarmLocalDataSource.getAlarm(id)
+            ?: return Result.failure(Exception("Failed to get alarm"))
+    }.onFailure {
+        return Result.failure(Exception("Failed to get alarm"))
     }
 
-    override suspend fun deleteAlarm(id: Long): Long? {
-        return alarmLocalDataSource.deleteAlarm(id)
+    override suspend fun deleteAlarm(id: Long): Result<Long> = runCatching {
+        alarmLocalDataSource.deleteAlarm(id)
+            ?: return Result.failure(Exception("Failed to delete alarm"))
+    }.onFailure {
+        return Result.failure(Exception("Failed to delete alarm"))
     }
 }
