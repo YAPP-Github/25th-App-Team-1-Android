@@ -49,16 +49,10 @@ jobs:
         run: echo $FIREBASE_SECRET > app/google-services.json
 
       # Add Local Properties
-      - name: Access Local Properties
+      - name: Add Local Properties
         env:
           BASE_URL: ${{ secrets.BASE_URL }}
-        run: |
-            if [ -z "$BASE_URL" ]; then
-              echo "baseUrl=https://default.example.com" >> local.properties
-            else
-              echo "baseUrl=$BASE_URL" >> local.properties
-            fi
-        run: echo "baseUrl=\"$BASE_URL\"" >> local.properties
+        run: echo "baseUrl=$BASE_URL" >> local.properties
 
       # Run Lint and Build
       - name: Run lint and build
