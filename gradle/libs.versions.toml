@@ -25,7 +25,6 @@ kotlinx-coroutines = "1.9.0-RC"
 kotlinx-datetime = "0.4.0"
 kotlinx-collections = "0.3.7"
 
-
 ## AndroidX
 androidx-app-compat = "1.7.0"
 androidx-core = "1.15.0"
@@ -38,6 +37,7 @@ androidx-lifecycle = "2.8.7"
 compose-bom = "2024.11.00"
 compose-navigation = "2.8.4"
 compose-material3 = "1.3.1"
+compose-ui = "1.7.6"
 activity-compose = "1.9.3"
 
 ## Hilt
@@ -49,7 +49,6 @@ okhttp = "4.12.0"
 retrofit = "2.11.0"
 retrofit-kotlinx-serialization-json = "1.0.0"
 coil = "2.4.0"
-
 
 ## Test
 junit = "4.13.2"
@@ -68,6 +67,7 @@ process-pheonix = "3.0.0"
 lottie = "6.1.0"
 accompanist = "0.37.0"
 
+accompanist = "0.28.0"
 
 [libraries]
 
@@ -97,7 +97,7 @@ androidx-room-paging = { group = "androidx.room", name = "room-paging", version.
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 compose-navigation = { group = "androidx.navigation", name = "navigation-compose", version.ref = "compose-navigation" }
-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose-ui" }
 compose-material = { group = "androidx.compose.material", name = "material", version.ref = "compose-material3" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "compose-material3" }
 lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
@@ -111,6 +111,7 @@ compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-mani
 compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 compose-ui-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 compose-compiler-extension = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
+accompanist-systemui = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
 
 # Hilt
 hilt-core = { group = "com.google.dagger", name = "hilt-core", version.ref = "hilt" }
