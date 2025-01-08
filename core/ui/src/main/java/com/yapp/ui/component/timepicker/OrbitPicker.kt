@@ -17,14 +17,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 import java.util.Locale
 
 @Composable
-fun OrbitPicker() {
+fun OrbitPicker(
+    modifier: Modifier = Modifier,
+    itemSpacing: Dp = 4.dp,
+) {
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
     ) {
@@ -46,14 +50,14 @@ fun OrbitPicker() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 24.dp),
+                    .padding(horizontal = 20.dp),
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.Center)
-                        .height(48.dp)
-                        .background(OrbitTheme.colors.gray_700, shape = RoundedCornerShape(8.dp)),
+                        .height(50.dp)
+                        .background(OrbitTheme.colors.gray_700, shape = RoundedCornerShape(12.dp)),
                 )
                 Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     OrbitPickerItem(
@@ -63,6 +67,8 @@ fun OrbitPicker() {
                         infiniteScroll = false,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
+                        textStyle = OrbitTheme.typography.title2Medium,
+                        itemSpacing = itemSpacing,
                     )
                     OrbitPickerItem(
                         state = hourPickerState,
@@ -71,6 +77,8 @@ fun OrbitPicker() {
                         infiniteScroll = true,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
+                        textStyle = OrbitTheme.typography.title2Medium,
+                        itemSpacing = itemSpacing,
                     )
                     OrbitPickerItem(
                         state = minutePickerState,
@@ -79,6 +87,8 @@ fun OrbitPicker() {
                         infiniteScroll = true,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
+                        textStyle = OrbitTheme.typography.title2Medium,
+                        itemSpacing = itemSpacing,
                     )
                 }
             }
@@ -86,7 +96,7 @@ fun OrbitPicker() {
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun BottomSheetPickerPreview() {
     OrbitPicker()

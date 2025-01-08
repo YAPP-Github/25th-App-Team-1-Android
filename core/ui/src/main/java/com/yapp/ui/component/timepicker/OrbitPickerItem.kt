@@ -5,6 +5,7 @@ import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
@@ -15,17 +16,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlin.math.abs
 
 @Composable
 fun OrbitPickerItem(
@@ -36,6 +38,8 @@ fun OrbitPickerItem(
     visibleItemsCount: Int,
     textModifier: Modifier = Modifier,
     infiniteScroll: Boolean = true,
+    textStyle: TextStyle,
+    itemSpacing: Dp,
 ) {
     val visibleItemsMiddle = visibleItemsCount / 2
     val listScrollCount = if (infiniteScroll) Int.MAX_VALUE else items.size + visibleItemsMiddle * 2
@@ -62,6 +66,8 @@ fun OrbitPickerItem(
             .collect { item -> state.selectedItem = item }
     }
 
+    val totalItemHeight = itemHeightDp + itemSpacing
+
     Box(modifier = modifier) {
         LazyColumn(
             state = listState,
@@ -69,16 +75,24 @@ fun OrbitPickerItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(itemHeightDp * visibleItemsCount)
+                .height(totalItemHeight * visibleItemsCount)
                 .pointerInput(Unit) { detectVerticalDragGestures { change, _ -> change.consume() } },
         ) {
             items(listScrollCount) { index ->
+                val centerIndex = listState.firstVisibleItemIndex + visibleItemsMiddle
+                val distanceFromCenter = abs(index - centerIndex)
+                val maxDistance = visibleItemsMiddle.toFloat()
+                val alpha = ((maxDistance - distanceFromCenter) / maxDistance).coerceIn(0.2f, 1f)
+                val scaleY = 1f - (0.4f * (distanceFromCenter / maxDistance)).coerceIn(0f, 0.4f)
+
                 Text(
                     text = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle),
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = OrbitTheme.typography.title2SemiBold.copy(color = OrbitTheme.colors.white),
+                    style = textStyle,
+                    color = OrbitTheme.colors.white.copy(alpha = alpha),
                     modifier = Modifier
+                        .padding(vertical = itemSpacing / 2)
+                        .graphicsLayer(scaleY = scaleY)
                         .onSizeChanged { size -> itemHeightPixels.intValue = size.height }
                         .then(textModifier),
                 )
@@ -116,26 +130,6 @@ private fun getItemForIndex(index: Int, items: List<String>, infiniteScroll: Boo
     }
 }
 
-/**
- * 콘텐츠의 상단과 하단에 페이딩 효과를 그리는 Modifier를 반환합니다.
- */
-private fun Modifier.drawFadingEdge(): Modifier = this.then(
-    Modifier.drawWithContent {
-        drawContent()
-        val fadingEdgeGradient = Brush.verticalGradient(
-            colors = listOf(
-                Color.White.copy(alpha = 0.9f),
-                Color.White.copy(alpha = 0.8f),
-                Color.Transparent,
-                Color.Transparent,
-                Color.White.copy(alpha = 0.8f),
-                Color.White.copy(alpha = 0.9f),
-            ),
-        )
-        drawRect(fadingEdgeGradient, size = size)
-    },
-)
-
 @Composable
 @Preview
 fun OrbitPickerPreview() {
@@ -144,6 +138,8 @@ fun OrbitPickerPreview() {
             items = (0..100).map { it.toString() },
             state = rememberPickerState(),
             visibleItemsCount = 5,
+            textStyle = TextStyle.Default,
+            itemSpacing = 8.dp,
         )
     }
 }
