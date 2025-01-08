@@ -26,22 +26,22 @@ fun OrbitButton(
     label: String,
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
-    enabled: Boolean = true,
+    enabled: Boolean = false,
     height: Dp = 54.dp,
     containerColor: Color = OrbitTheme.colors.main,
     contentColor: Color = OrbitTheme.colors.gray_900,
-    pressedContentColor: Color = OrbitTheme.colors.gray_400,
-    disabledContainerColor: Color = OrbitTheme.colors.main.copy(alpha = 0.6f),
-    disabledContentColor: Color = OrbitTheme.colors.gray_400,
+    pressedContainerColor: Color = OrbitTheme.colors.main.copy(alpha = 0.8f),
+    pressedContentColor: Color = OrbitTheme.colors.gray_600,
+    disabledContainerColor: Color = OrbitTheme.colors.gray_700,
+    disabledContentColor: Color = OrbitTheme.colors.gray_600,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState().value
-    val currentContentColor = if (isPressed) pressedContentColor else contentColor
 
     val padding by animateDpAsState(
         targetValue = if (isPressed) 2.dp else 0.dp,
         animationSpec = tween(durationMillis = 100),
-        label = "",
+        label = "PaddingAnimation",
     )
 
     Button(
@@ -49,20 +49,20 @@ fun OrbitButton(
         enabled = enabled,
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = currentContentColor,
+            containerColor = if (isPressed) pressedContainerColor else containerColor,
+            contentColor = if (isPressed) pressedContentColor else contentColor,
             disabledContainerColor = disabledContainerColor,
             disabledContentColor = disabledContentColor,
         ),
         interactionSource = interactionSource,
         modifier = modifier
             .fillMaxWidth()
-            .padding(all = padding)
-            .height(height),
+            .padding(padding)
+            .height(height - padding * 2),
     ) {
         Text(
             text = label,
-            style = OrbitTheme.typography.heading1SemiBold,
+            style = OrbitTheme.typography.body1SemiBold,
         )
     }
 }
