@@ -30,11 +30,13 @@ class AlarmRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateAlarm(alarm: Alarm): Result<Alarm> = runCatching {
-        val alarmId = alarmLocalDataSource.updateAlarm(alarm.toEntity())
-        alarmLocalDataSource.getAlarm(alarmId)
-            ?: return Result.failure(Exception("Failed to update alarm"))
-    }.onFailure {
-        return Result.failure(Exception("Failed to update alarm"))
+        val updatedRows = alarmLocalDataSource.updateAlarm(alarm.toEntity())
+        if (updatedRows > 0) {
+            alarmLocalDataSource.getAlarm(alarm.id)
+                ?: throw Exception("Failed to fetch updated alarm")
+        } else {
+            throw Exception("No rows updated")
+        }
     }
 
     override suspend fun getAlarm(id: Long): Result<Alarm> = runCatching {
@@ -44,10 +46,12 @@ class AlarmRepositoryImpl @Inject constructor(
         return Result.failure(Exception("Failed to get alarm"))
     }
 
-    override suspend fun deleteAlarm(id: Long): Result<Long> = runCatching {
-        alarmLocalDataSource.deleteAlarm(id)
-            ?: return Result.failure(Exception("Failed to delete alarm"))
-    }.onFailure {
-        return Result.failure(Exception("Failed to delete alarm"))
+    override suspend fun deleteAlarm(id: Long): Result<Unit> = runCatching {
+        val deletedRows = alarmLocalDataSource.deleteAlarm(id)
+        if (deletedRows > 0) {
+            Unit
+        } else {
+            throw Exception("No rows deleted")
+        }
     }
 }

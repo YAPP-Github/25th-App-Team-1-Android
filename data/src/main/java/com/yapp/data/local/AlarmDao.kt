@@ -13,7 +13,7 @@ interface AlarmDao {
     suspend fun insertAlarm(alarm: AlarmEntity): Long
 
     @Update
-    suspend fun updateAlarm(alarm: AlarmEntity): Long
+    suspend fun updateAlarm(alarm: AlarmEntity): Int
 
     @Query("SELECT * FROM ${AlarmDatabase.DATABASE_NAME} WHERE id = :id")
     suspend fun getAlarm(id: Long): AlarmEntity?
@@ -25,5 +25,5 @@ interface AlarmDao {
     suspend fun getAlarmCount(): Int
 
     @Query("DELETE FROM ${AlarmDatabase.DATABASE_NAME} WHERE id = :id")
-    suspend fun deleteAlarm(id: Long): Long?
+    suspend fun deleteAlarm(id: Long): Int
 }

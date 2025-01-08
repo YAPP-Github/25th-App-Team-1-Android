@@ -23,9 +23,9 @@ import com.yapp.designsystem.theme.OrbitTheme
 import java.util.Locale
 
 @Composable
-fun OrbitPicker(
+fun OrbitYearMonthPicker(
     modifier: Modifier = Modifier,
-    itemSpacing: Dp = 4.dp,
+    itemSpacing: Dp = 12.dp,
 ) {
     Surface(
         modifier = modifier
@@ -39,13 +39,17 @@ fun OrbitPicker(
                 .wrapContentSize()
                 .background(OrbitTheme.colors.gray_900),
         ) {
-            val amPmItems = remember { listOf("오후", "오전") }
-            val hourItems = remember { (1..12).map { it.toString() } }
-            val minuteItems = remember { (0..59).map { String.format(Locale.ROOT, "%02d", it) } }
+            val lunarItems = remember { listOf("음력", "양력") }
+            val yearItems = remember { (1900..2025).map { it.toString() } }
+            val monthItems = remember { (1..12).map { it.toString() } }
+            val dayItems = remember {
+                (1..31).map { String.format(Locale.ROOT, "%02d", it) }
+            }
 
-            val amPmPickerState = rememberPickerState()
-            val hourPickerState = rememberPickerState()
-            val minutePickerState = rememberPickerState()
+            val lunarPickerState = rememberPickerState()
+            val yearPickerState = rememberPickerState()
+            val monthPickerState = rememberPickerState()
+            val dayPickerState = rememberPickerState()
 
             Box(
                 modifier = Modifier
@@ -59,35 +63,51 @@ fun OrbitPicker(
                         .height(50.dp)
                         .background(OrbitTheme.colors.gray_700, shape = RoundedCornerShape(12.dp)),
                 )
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 30.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     OrbitPickerItem(
-                        state = amPmPickerState,
-                        items = amPmItems,
+                        state = lunarPickerState,
+                        items = lunarItems,
                         visibleItemsCount = 3,
                         infiniteScroll = false,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
-                        textStyle = OrbitTheme.typography.title2Medium,
+                        textStyle = OrbitTheme.typography.title2SemiBold,
                         itemSpacing = itemSpacing,
                     )
                     OrbitPickerItem(
-                        state = hourPickerState,
-                        items = hourItems,
+                        state = yearPickerState,
+                        items = yearItems,
+                        visibleItemsCount = 5,
+                        infiniteScroll = true,
+                        startIndex = 90,
+                        modifier = Modifier.weight(1.5f),
+                        textModifier = Modifier.padding(8.dp),
+                        textStyle = OrbitTheme.typography.title2SemiBold,
+                        itemSpacing = itemSpacing,
+                    )
+                    OrbitPickerItem(
+                        state = monthPickerState,
+                        items = monthItems,
                         visibleItemsCount = 5,
                         infiniteScroll = true,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
-                        textStyle = OrbitTheme.typography.title2Medium,
+                        textStyle = OrbitTheme.typography.title2SemiBold,
                         itemSpacing = itemSpacing,
                     )
                     OrbitPickerItem(
-                        state = minutePickerState,
-                        items = minuteItems,
+                        state = dayPickerState,
+                        items = dayItems,
                         visibleItemsCount = 5,
                         infiniteScroll = true,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
-                        textStyle = OrbitTheme.typography.title2Medium,
+                        textStyle = OrbitTheme.typography.title2SemiBold,
                         itemSpacing = itemSpacing,
                     )
                 }
@@ -98,6 +118,6 @@ fun OrbitPicker(
 
 @Preview(showBackground = true)
 @Composable
-fun BottomSheetPickerPreview() {
-    OrbitPicker()
+fun OrbitYearMonthPickerPreview() {
+    OrbitYearMonthPicker()
 }
