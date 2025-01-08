@@ -26,7 +26,7 @@ class AlarmLocalDataSourceImpl @Inject constructor(
         return alarmDao.insertAlarm(alarm)
     }
 
-    override suspend fun updateAlarm(alarm: AlarmEntity): Long {
+    override suspend fun updateAlarm(alarm: AlarmEntity): Int {
         return alarmDao.updateAlarm(alarm)
     }
 
@@ -34,7 +34,7 @@ class AlarmLocalDataSourceImpl @Inject constructor(
         return alarmDao.getAlarm(id)?.toDomain()
     }
 
-    override suspend fun deleteAlarm(id: Long): Long? {
+    override suspend fun deleteAlarm(id: Long): Int {
         return alarmDao.deleteAlarm(id)
     }
 }
