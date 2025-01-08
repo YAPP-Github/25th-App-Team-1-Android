@@ -12,5 +12,5 @@ class AlarmUseCase @Inject constructor(
     suspend fun insertAlarm(alarm: Alarm): Result<Alarm> = alarmRepository.insertAlarm(alarm)
     suspend fun updateAlarm(alarm: Alarm): Result<Alarm> = alarmRepository.updateAlarm(alarm)
     suspend fun getAlarm(id: Long): Result<Alarm> = alarmRepository.getAlarm(id)
-    suspend fun deleteAlarm(id: Long): Result<Long> = alarmRepository.deleteAlarm(id)
+    suspend fun deleteAlarm(id: Long): Result<Unit> = alarmRepository.deleteAlarm(id)
 }
