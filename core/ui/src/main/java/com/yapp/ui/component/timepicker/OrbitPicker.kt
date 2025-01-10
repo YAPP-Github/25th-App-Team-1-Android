@@ -25,7 +25,7 @@ import java.util.Locale
 @Composable
 fun OrbitPicker(
     modifier: Modifier = Modifier,
-    itemSpacing: Dp = 4.dp,
+    itemSpacing: Dp = 2.dp,
 ) {
     Surface(
         modifier = modifier
@@ -48,18 +48,22 @@ fun OrbitPicker(
             val minutePickerState = rememberPickerState()
 
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.Center)
+                        .padding(horizontal = 20.dp)
                         .height(50.dp)
                         .background(OrbitTheme.colors.gray_700, shape = RoundedCornerShape(12.dp)),
                 )
-                Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 50.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     OrbitPickerItem(
                         state = amPmPickerState,
                         items = amPmItems,
