@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_step1_text_title">운세 기반 기상 알람 서비스</string>
+    <string name="onboarding_step1_text_subtitle">오르비 알람은 기상과 함께\n하루 운세를 제공해요</string>
+
+    <string name="onboarding_step2_text_title">몇시에 깨워 드릴까요?</string>
+    <string name="onboarding_step2_text_subtitle">설정한 시간에 하루 운세를 함께 드릴게요</string>
+
+    <string name="onboarding_step3_text_title">운세를 볼 수 있도록\n생년월일을 알려주세요</string>
+
+
+    <string name="onboarding_step4_text_title">태어난 시간을 알려주세요</string>
+    <string name="onboarding_step4_text_check">태어난 시간을 몰라요</string>
+    <string name="onboarding_step4_textfield_warning">입력한 숫자를 확인해 주세요</string>
+
+    <string name="onboarding_step5_text_title">어떤 이름으로 불리길\n원하시나요?</string>
+    <string name="onboarding_step5_textfield_warning">입력한 내용을 확인해 주세요</string>
+
+
+    <!--<string name="onboarding_text_bottom_subtitle">서비스 시작 시 이용약관 및 개인정보처리방침에 동의하게 됩니다.</string>-->
+
+</resources>
