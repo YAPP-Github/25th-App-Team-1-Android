@@ -1,6 +1,7 @@
 package com.yapp.designsystem.theme
 
 import android.app.Activity
+import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
@@ -37,6 +38,7 @@ fun OrbitTheme(
         SideEffect {
             val window = (view.context as Activity).window
             window.statusBarColor = colors.gray_900.toArgb()
+            window.setBackgroundDrawable(ColorDrawable(colors.gray_900.toArgb()))
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }
