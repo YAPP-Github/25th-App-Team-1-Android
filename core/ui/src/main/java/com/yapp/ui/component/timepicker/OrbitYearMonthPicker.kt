@@ -52,21 +52,20 @@ fun OrbitYearMonthPicker(
             val dayPickerState = rememberPickerState()
 
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.Center)
+                        .padding(horizontal = 20.dp)
                         .height(50.dp)
                         .background(OrbitTheme.colors.gray_700, shape = RoundedCornerShape(12.dp)),
                 )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 30.dp),
+                        .padding(horizontal = 50.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     OrbitPickerItem(
