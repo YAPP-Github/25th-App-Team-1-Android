@@ -46,6 +46,7 @@ fun OrbitTextField(
     hint: String,
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
+    warningMessage: String,
     onFocusChanged: (Boolean) -> Unit = {},
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -83,7 +84,7 @@ fun OrbitTextField(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 if (showWarning) {
-                    WarningMessage()
+                    WarningMessage(warningMessage)
                 }
             }
         }
@@ -91,7 +92,7 @@ fun OrbitTextField(
 }
 
 @Composable
-private fun WarningMessage() {
+private fun WarningMessage(message: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,7 +100,7 @@ private fun WarningMessage() {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = "입력한 숫자를 확인해 주세요",
+            text = message,
             color = OrbitTheme.colors.alert,
             style = OrbitTheme.typography.label1SemiBold,
         )
@@ -201,6 +202,7 @@ fun OrbitTextFieldPreview() {
             onTextChange = {},
             showWarning = true,
             hint = "이름을 입력해주세요",
+            warningMessage = "이름을 입력해주세요",
             modifier = Modifier
                 .fillMaxWidth(),
         )
