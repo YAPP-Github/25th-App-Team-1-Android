@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -27,6 +29,8 @@ fun OrbitYearMonthPicker(
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 12.dp,
 ) {
+    val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -54,18 +58,19 @@ fun OrbitYearMonthPicker(
             Box(
                 modifier = Modifier.fillMaxWidth(),
             ) {
+                val totalItemHeight = screenWidth * 0.15f
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.Center)
-                        .padding(horizontal = 20.dp)
-                        .height(50.dp)
+                        .padding(horizontal = screenWidth * 0.05f)
+                        .height(totalItemHeight)
                         .background(OrbitTheme.colors.gray_700, shape = RoundedCornerShape(12.dp)),
                 )
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 50.dp),
+                        .padding(horizontal = screenWidth * 0.1f),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     OrbitPickerItem(
@@ -73,7 +78,7 @@ fun OrbitYearMonthPicker(
                         items = lunarItems,
                         visibleItemsCount = 3,
                         infiniteScroll = false,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.width(screenWidth * 0.2f),
                         textModifier = Modifier.padding(8.dp),
                         textStyle = OrbitTheme.typography.title2SemiBold,
                         itemSpacing = itemSpacing,
@@ -84,7 +89,7 @@ fun OrbitYearMonthPicker(
                         visibleItemsCount = 5,
                         infiniteScroll = true,
                         startIndex = 90,
-                        modifier = Modifier.weight(1.5f),
+                        modifier = Modifier.width(screenWidth * 0.25f),
                         textModifier = Modifier.padding(8.dp),
                         textStyle = OrbitTheme.typography.title2SemiBold,
                         itemSpacing = itemSpacing,
@@ -94,7 +99,7 @@ fun OrbitYearMonthPicker(
                         items = monthItems,
                         visibleItemsCount = 5,
                         infiniteScroll = true,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         textStyle = OrbitTheme.typography.title2SemiBold,
                         itemSpacing = itemSpacing,
@@ -104,7 +109,7 @@ fun OrbitYearMonthPicker(
                         items = dayItems,
                         visibleItemsCount = 5,
                         infiniteScroll = true,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         textStyle = OrbitTheme.typography.title2SemiBold,
                         itemSpacing = itemSpacing,
