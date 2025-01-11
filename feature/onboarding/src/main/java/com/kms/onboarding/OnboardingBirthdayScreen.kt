@@ -17,7 +17,7 @@ import com.yapp.ui.utils.heightForScreenPercentage
 import feature.onboarding.R
 
 @Composable
-fun BirthdayScreen(
+fun OnboardingBirthdayScreen(
     state: OnboardingContract.State,
     currentStep: Int,
     totalSteps: Int,

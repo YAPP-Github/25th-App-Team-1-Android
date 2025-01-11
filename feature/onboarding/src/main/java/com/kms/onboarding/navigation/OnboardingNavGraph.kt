@@ -2,8 +2,8 @@ package com.kms.onboarding.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.kms.onboarding.BirthdayScreen
 import com.kms.onboarding.OnboardingAlarmTimeSelectionScreen
+import com.kms.onboarding.OnboardingBirthdayScreen
 import com.kms.onboarding.OnboardingContract
 import com.kms.onboarding.OnboardingExplainScreen
 
@@ -36,7 +36,7 @@ fun NavGraphBuilder.onboardingNavGraph(
     }
 
     composable(OnboardingDestination.Birthday.route) {
-        BirthdayScreen(
+        OnboardingBirthdayScreen(
             state = stateProvider(),
             currentStep = 2,
             totalSteps = 2,
