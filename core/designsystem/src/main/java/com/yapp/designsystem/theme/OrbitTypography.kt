@@ -77,19 +77,26 @@ data class OrbitTypography(
         lineHeight = 28.sp,
         letterSpacing = (-0.24).sp,
     ),
-    val heading1Medium: TextStyle = TextStyle(
+    val headline1SemiBold: TextStyle = TextStyle(
         fontFamily = Pretendard,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 18.sp,
         lineHeight = 26.sp,
-        letterSpacing = (-0.216).sp,
+        letterSpacing = (-0.18).sp,
     ),
-    val heading2Medium: TextStyle = TextStyle(
+    val headline2SemiBold: TextStyle = TextStyle(
+        fontFamily = Pretendard,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 17.sp,
+        lineHeight = 24.sp,
+        letterSpacing = (-0.17).sp,
+    ),
+    val headline2Medium: TextStyle = TextStyle(
         fontFamily = Pretendard,
         fontWeight = FontWeight.Medium,
         fontSize = 17.sp,
         lineHeight = 24.sp,
-        letterSpacing = (-0.204).sp,
+        letterSpacing = (-0.17).sp,
     ),
     val body1SemiBold: TextStyle = TextStyle(
         fontFamily = Pretendard,
@@ -112,16 +119,16 @@ data class OrbitTypography(
         lineHeight = 24.sp,
         letterSpacing = (-0.16).sp,
     ),
-    val body2SemiBold: TextStyle = TextStyle(
+    val body2Medium: TextStyle = TextStyle(
         fontFamily = Pretendard,
-        fontWeight = FontWeight.SemiBold,
+        fontWeight = FontWeight.Medium,
         fontSize = 15.sp,
         lineHeight = 22.sp,
         letterSpacing = (-0.15).sp,
     ),
-    val body2Medium: TextStyle = TextStyle(
+    val body2Regular: TextStyle = TextStyle(
         fontFamily = Pretendard,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         fontSize = 15.sp,
         lineHeight = 22.sp,
         letterSpacing = (-0.15).sp,
