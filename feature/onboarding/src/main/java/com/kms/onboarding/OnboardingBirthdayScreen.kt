@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.timepicker.OrbitYearMonthPicker
@@ -44,5 +45,19 @@ fun OnboardingBirthdayScreen(
                 modifier = Modifier.padding(top = 60.dp),
             )
         }
+    }
+}
+
+@Composable
+@Preview
+fun OnboardingBirthdayScreenPreview() {
+    OrbitTheme {
+        OnboardingBirthdayScreen(
+            state = OnboardingContract.State(),
+            currentStep = 3,
+            totalSteps = 3,
+            onNextClick = {},
+            onBackClick = {},
+        )
     }
 }
