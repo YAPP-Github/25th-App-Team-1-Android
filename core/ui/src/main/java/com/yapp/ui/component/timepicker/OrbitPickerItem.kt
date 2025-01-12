@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.ui.utils.toPx
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlin.math.abs
@@ -51,19 +52,28 @@ fun OrbitPickerItem(
         visibleItemsMiddle,
         startIndex,
     )
-
-    fun getItem(index: Int) = items.getOrNull(index % items.size) ?: ""
-
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = listStartIndex)
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
     val itemHeightPixels = remember { mutableIntStateOf(0) }
     val itemHeightDp = with(LocalDensity.current) { itemHeightPixels.intValue.toDp() }
 
     LaunchedEffect(listState) {
-        snapshotFlow { listState.firstVisibleItemIndex }
-            .map { index -> getItem(index + visibleItemsMiddle) }
+        snapshotFlow { listState.layoutInfo }
+            .map { layoutInfo ->
+                val centerOffset = layoutInfo.viewportStartOffset + (layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset) / 2
+
+                layoutInfo.visibleItemsInfo.minByOrNull { item ->
+                    val itemCenter = item.offset + (item.size / 2)
+                    abs(itemCenter - centerOffset)
+                }?.index
+            }
             .distinctUntilChanged()
-            .collect { item -> state.selectedItem = item }
+            .collect { centerIndex ->
+                if (centerIndex != null) {
+                    val adjustedIndex = centerIndex % items.size
+                    state.selectedItem = items[adjustedIndex]
+                }
+            }
     }
 
     val totalItemHeight = itemHeightDp + itemSpacing
@@ -79,17 +89,24 @@ fun OrbitPickerItem(
                 .pointerInput(Unit) { detectVerticalDragGestures { change, _ -> change.consume() } },
         ) {
             items(listScrollCount) { index ->
-                val centerIndex = listState.firstVisibleItemIndex + visibleItemsMiddle
-                val distanceFromCenter = abs(index - centerIndex)
-                val maxDistance = visibleItemsMiddle.toFloat()
+                val layoutInfo = listState.layoutInfo
+                val viewportCenterOffset = layoutInfo.viewportStartOffset +
+                    (layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset) / 2
+
+                val itemInfo = layoutInfo.visibleItemsInfo.find { it.index == index }
+                val itemCenterOffset = itemInfo?.offset?.let { it + (itemInfo.size / 2) } ?: 0
+
+                val distanceFromCenter = abs(viewportCenterOffset - itemCenterOffset)
+                val maxDistance = totalItemHeight.toPx() * visibleItemsMiddle
                 val alpha = ((maxDistance - distanceFromCenter) / maxDistance).coerceIn(0.2f, 1f)
                 val scaleY = 1f - (0.4f * (distanceFromCenter / maxDistance)).coerceIn(0f, 0.4f)
+                val isSelected = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle) == state.selectedItem
 
                 Text(
                     text = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle),
                     maxLines = 1,
                     style = textStyle,
-                    color = OrbitTheme.colors.white.copy(alpha = alpha),
+                    color = if (isSelected) OrbitTheme.colors.white else OrbitTheme.colors.white.copy(alpha = alpha),
                     modifier = Modifier
                         .padding(vertical = itemSpacing / 2)
                         .graphicsLayer(scaleY = scaleY)
