@@ -1,5 +1,6 @@
 package com.yapp.ui.component.timepicker
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import java.util.Locale
 fun OrbitYearMonthPicker(
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 12.dp,
+    onValueChange: (String, Int, Int, Int) -> Unit,
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
@@ -46,9 +48,7 @@ fun OrbitYearMonthPicker(
             val lunarItems = remember { listOf("음력", "양력") }
             val yearItems = remember { (1900..2025).map { it.toString() } }
             val monthItems = remember { (1..12).map { it.toString() } }
-            val dayItems = remember {
-                (1..31).map { String.format(Locale.ROOT, "%02d", it) }
-            }
+            val dayItems = remember { (1..31).map { String.format(Locale.ROOT, "%02d", it) } }
 
             val lunarPickerState = rememberPickerState()
             val yearPickerState = rememberPickerState()
@@ -67,6 +67,7 @@ fun OrbitYearMonthPicker(
                         .height(totalItemHeight)
                         .background(OrbitTheme.colors.gray_700, shape = RoundedCornerShape(12.dp)),
                 )
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -77,42 +78,46 @@ fun OrbitYearMonthPicker(
                         state = lunarPickerState,
                         items = lunarItems,
                         visibleItemsCount = 3,
-                        infiniteScroll = false,
+                        itemSpacing = itemSpacing,
+                        textStyle = OrbitTheme.typography.title2SemiBold,
                         modifier = Modifier.width(screenWidth * 0.2f),
                         textModifier = Modifier.padding(8.dp),
-                        textStyle = OrbitTheme.typography.title2SemiBold,
-                        itemSpacing = itemSpacing,
+                        infiniteScroll = false,
+                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) },
                     )
                     OrbitPickerItem(
                         state = yearPickerState,
                         items = yearItems,
                         visibleItemsCount = 5,
-                        infiniteScroll = true,
                         startIndex = 90,
+                        itemSpacing = itemSpacing,
+                        textStyle = OrbitTheme.typography.title2SemiBold,
                         modifier = Modifier.width(screenWidth * 0.25f),
                         textModifier = Modifier.padding(8.dp),
-                        textStyle = OrbitTheme.typography.title2SemiBold,
-                        itemSpacing = itemSpacing,
+                        infiniteScroll = true,
+                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) },
                     )
                     OrbitPickerItem(
                         state = monthPickerState,
                         items = monthItems,
                         visibleItemsCount = 5,
-                        infiniteScroll = true,
+                        itemSpacing = itemSpacing,
+                        textStyle = OrbitTheme.typography.title2SemiBold,
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
-                        textStyle = OrbitTheme.typography.title2SemiBold,
-                        itemSpacing = itemSpacing,
+                        infiniteScroll = true,
+                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) },
                     )
                     OrbitPickerItem(
                         state = dayPickerState,
                         items = dayItems,
                         visibleItemsCount = 5,
-                        infiniteScroll = true,
+                        itemSpacing = itemSpacing,
+                        textStyle = OrbitTheme.typography.title2SemiBold,
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
-                        textStyle = OrbitTheme.typography.title2SemiBold,
-                        itemSpacing = itemSpacing,
+                        infiniteScroll = true,
+                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) },
                     )
                 }
             }
@@ -120,8 +125,25 @@ fun OrbitYearMonthPicker(
     }
 }
 
+private fun onPickerValueChange(
+    lunarPickerState: PickerState,
+    yearPickerState: PickerState,
+    monthPickerState: PickerState,
+    dayPickerState: PickerState,
+    onValueChange: (String, Int, Int, Int) -> Unit,
+) {
+    val lunar = lunarPickerState.selectedItem
+    val year = yearPickerState.selectedItem.toIntOrNull() ?: 1900
+    val month = monthPickerState.selectedItem.toIntOrNull() ?: 1
+    val day = dayPickerState.selectedItem.toIntOrNull() ?: 1
+
+    onValueChange(lunar, year, month, day)
+}
+
 @Preview(showBackground = true)
 @Composable
 fun OrbitYearMonthPickerPreview() {
-    OrbitYearMonthPicker()
+    OrbitYearMonthPicker { lunar, year, month, day ->
+        Log.d("OrbitYearMonthPicker", "lunar: $lunar, year: $year, month: $month, day: $day")
+    }
 }

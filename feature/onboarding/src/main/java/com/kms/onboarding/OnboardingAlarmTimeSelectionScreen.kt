@@ -1,5 +1,6 @@
 package com.kms.onboarding
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,7 +52,9 @@ fun OnboardingAlarmTimeSelectionScreen(
             )
             OrbitPicker(
                 modifier = Modifier.padding(top = 90.dp),
-            )
+            ) { amPm, hour, minute ->
+                Log.d("OnboardingAlarmTimeSelectionScreen", "amPm: $amPm, hour: $hour, minute: $minute")
+            }
         }
     }
 }
