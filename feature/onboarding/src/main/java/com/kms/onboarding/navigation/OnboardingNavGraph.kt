@@ -1,5 +1,6 @@
 package com.kms.onboarding.navigation
 
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.kms.onboarding.OnboardingAlarmTimeSelectionScreen
@@ -52,6 +53,7 @@ fun NavGraphBuilder.onboardingNavGraph(
     }
 
     composable(OnboardingDestination.TimeOfBirth.route) {
+        val keyboardContract = LocalSoftwareKeyboardController.current
         OnboardingTimeOfBirthScreen(
             state = stateProvider(),
             currentStep = 3,
@@ -59,6 +61,7 @@ fun NavGraphBuilder.onboardingNavGraph(
             onNextClick = {
                 eventDispatcher(OnboardingContract.Action.NextStep)
                 eventDispatcher(OnboardingContract.Action.Reset)
+                keyboardContract?.hide()
             },
             onBackClick = {
                 eventDispatcher(OnboardingContract.Action.PreviousStep)
