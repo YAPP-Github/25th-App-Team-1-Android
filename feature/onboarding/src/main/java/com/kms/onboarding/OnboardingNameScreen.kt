@@ -62,7 +62,7 @@ fun OnboardingNameScreen(
                 warningMessage = stringResource(id = R.string.onboarding_step5_textfield_warning),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .paddingForScreenPercentage(horizontalPercentage = 0.192f, verticalPercentage = 0.086f),
+                    .paddingForScreenPercentage(horizontalPercentage = 0.192f, topPercentage = 0.086f),
             )
         }
     }

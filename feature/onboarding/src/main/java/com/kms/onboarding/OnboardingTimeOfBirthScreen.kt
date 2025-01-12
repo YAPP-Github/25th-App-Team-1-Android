@@ -82,14 +82,14 @@ fun OnboardingTimeOfBirthScreen(
                     warningMessage = stringResource(id = R.string.onboarding_step4_textfield_warning),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .paddingForScreenPercentage(horizontalPercentage = 0.192f, verticalPercentage = 0.086f),
+                        .paddingForScreenPercentage(horizontalPercentage = 0.192f, topPercentage = 0.086f),
                 )
             }
 
             Row(
                 modifier = Modifier
                     .wrapContentWidth()
-                    .paddingForScreenPercentage(verticalPercentage = 0.017f)
+                    .paddingForScreenPercentage(bottomPercentage = 0.017f)
                     .align(Alignment.CenterHorizontally)
                     .pointerInteropFilter { event ->
                         when (event.action) {
