@@ -41,6 +41,7 @@ fun OrbitPickerItem(
     infiniteScroll: Boolean = true,
     textStyle: TextStyle,
     itemSpacing: Dp,
+    onValueChange: (String) -> Unit,
 ) {
     val visibleItemsMiddle = visibleItemsCount / 2
     val listScrollCount = if (infiniteScroll) Int.MAX_VALUE else items.size + visibleItemsMiddle * 2
@@ -72,6 +73,7 @@ fun OrbitPickerItem(
                 if (centerIndex != null) {
                     val adjustedIndex = centerIndex % items.size
                     state.selectedItem = items[adjustedIndex]
+                    onValueChange(state.selectedItem)
                 }
             }
     }
@@ -157,6 +159,7 @@ fun OrbitPickerPreview() {
             visibleItemsCount = 5,
             textStyle = TextStyle.Default,
             itemSpacing = 8.dp,
+            onValueChange = {},
         )
     }
 }
