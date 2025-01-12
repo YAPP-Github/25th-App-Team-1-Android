@@ -2,12 +2,6 @@ package com.kms.onboarding.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.kms.onboarding.BirthdayScreen
-import com.kms.onboarding.OnboardingAlarmTimeSelectionScreen
-import com.kms.onboarding.OnboardingContract
-import com.kms.onboarding.OnboardingExplainScreen
-import com.kms.onboarding.OnboardingNameScreen
-import com.kms.onboarding.OnboardingTimeOfBirthScreen
 import com.kms.onboarding.OnboardingAlarmTimeSelectionScreen
 import com.kms.onboarding.OnboardingBirthdayScreen
 import com.kms.onboarding.OnboardingContract
