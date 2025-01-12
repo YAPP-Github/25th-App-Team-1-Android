@@ -29,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -46,6 +45,7 @@ fun OrbitTextField(
     hint: String,
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
+    warningMessage: String,
     onFocusChanged: (Boolean) -> Unit = {},
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -83,7 +83,7 @@ fun OrbitTextField(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 if (showWarning) {
-                    WarningMessage()
+                    WarningMessage(warningMessage)
                 }
             }
         }
@@ -91,7 +91,7 @@ fun OrbitTextField(
 }
 
 @Composable
-private fun WarningMessage() {
+private fun WarningMessage(message: String) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,7 +99,7 @@ private fun WarningMessage() {
         contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = "입력한 숫자를 확인해 주세요",
+            text = message,
             color = OrbitTheme.colors.alert,
             style = OrbitTheme.typography.label1SemiBold,
         )
@@ -121,17 +121,17 @@ private fun TextFieldContainer(
     Box(
         modifier = Modifier
             .border(
-                width = 3.dp,
+                width = 1.dp,
                 color = when {
                     isFocused && showWarning -> OrbitTheme.colors.alert
                     isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
                     showWarning -> OrbitTheme.colors.alert
-                    else -> Color.Transparent
+                    else -> OrbitTheme.colors.gray_500
                 },
-                shape = RoundedCornerShape(10.dp),
+                shape = RoundedCornerShape(16.dp),
             )
-            .background(OrbitTheme.colors.gray_800, shape = RoundedCornerShape(10.dp))
-            .height(52.dp)
+            .background(OrbitTheme.colors.gray_800, shape = RoundedCornerShape(16.dp))
+            .height(54.dp)
             .fillMaxWidth()
             .focusRequester(focusRequester)
             .clickable(
@@ -197,10 +197,11 @@ private fun TextFieldContainer(
 fun OrbitTextFieldPreview() {
     OrbitTheme {
         OrbitTextField(
-            text = "123",
+            text = "",
             onTextChange = {},
-            showWarning = true,
+            showWarning = false,
             hint = "이름을 입력해주세요",
+            warningMessage = "이름을 입력해주세요",
             modifier = Modifier
                 .fillMaxWidth(),
         )

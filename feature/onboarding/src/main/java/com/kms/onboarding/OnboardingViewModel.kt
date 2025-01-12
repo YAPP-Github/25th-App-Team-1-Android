@@ -1,9 +1,12 @@
 package com.kms.onboarding
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import com.kms.onboarding.navigation.OnboardingDestination
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -60,7 +63,10 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun resetFields() {
-        updateState { copy(textFieldValue = "", showWarning = false, isButtonEnabled = false) }
+        viewModelScope.launch {
+            delay(150)
+            updateState { copy(textFieldValue = "", showWarning = false, isButtonEnabled = false) }
+        }
     }
 
     private fun handleSubmission(stepData: Map<String, String>) {
