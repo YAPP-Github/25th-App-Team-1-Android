@@ -21,13 +21,25 @@ fun Modifier.widthForScreenPercentage(percentage: Float): Modifier {
 }
 
 @Composable
-fun Modifier.paddingForScreenPercentage(horizontalPercentage: Float = 0f, verticalPercentage: Float = 0f): Modifier {
+fun Modifier.paddingForScreenPercentage(
+    horizontalPercentage: Float = 0f,
+    verticalPercentage: Float = 0f,
+    topPercentage: Float = 0f,
+    bottomPercentage: Float = 0f,
+): Modifier {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val screenHeight = configuration.screenHeightDp.dp
 
     val horizontalPadding = screenWidth * horizontalPercentage
     val verticalPadding = screenHeight * verticalPercentage
+    val topPadding = screenHeight * topPercentage + verticalPadding
+    val bottomPadding = screenHeight * bottomPercentage + verticalPadding
 
-    return this.padding(horizontal = horizontalPadding, vertical = verticalPadding)
+    return this.padding(
+        start = horizontalPadding,
+        top = topPadding,
+        end = horizontalPadding,
+        bottom = bottomPadding,
+    )
 }
