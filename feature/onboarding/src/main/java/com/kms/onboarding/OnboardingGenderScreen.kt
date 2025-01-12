@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,13 +29,12 @@ fun OnboardingGenderScreen(
     totalSteps: Int,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
+    onGenderSelect: (String) -> Unit,
 ) {
-    var selectedGender by remember { mutableStateOf<String?>(null) }
-
     OnboardingScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
-        isButtonEnabled = selectedGender != null,
+        isButtonEnabled = state.selectedGender != null,
         onNextClick = {},
         onBackClick = onBackClick,
     ) {
@@ -62,14 +59,14 @@ fun OnboardingGenderScreen(
             ) {
                 OnboardingGenderToggle(
                     label = "남성",
-                    isSelected = selectedGender == "남성",
-                    onToggle = { selectedGender = "남성" },
+                    isSelected = state.selectedGender == "남성",
+                    onToggle = { onGenderSelect("남성") },
                 )
                 Spacer(modifier = Modifier.widthForScreenPercentage(0.04f))
                 OnboardingGenderToggle(
                     label = "여성",
-                    isSelected = selectedGender == "여성",
-                    onToggle = { selectedGender = "여성" },
+                    isSelected = state.selectedGender == "여성",
+                    onToggle = { onGenderSelect("여성") },
                 )
             }
         }
@@ -87,5 +84,6 @@ fun OnboardingGenderScreenPreview() {
         totalSteps = 0,
         onNextClick = {},
         onBackClick = {},
+        onGenderSelect = {},
     )
 }

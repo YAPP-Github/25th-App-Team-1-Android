@@ -9,6 +9,7 @@ sealed class OnboardingContract {
         val textFieldValue: String = "",
         val showWarning: Boolean = false,
         val isButtonEnabled: Boolean = false,
+        val selectedGender: String? = null,
     ) : UiState
 
     sealed class Action {
@@ -17,6 +18,7 @@ sealed class OnboardingContract {
         data class UpdateField(val value: String, val fieldType: FieldType) : Action()
         data object Reset : Action()
         data class Submit(val stepData: Map<String, String>) : Action()
+        data class UpdateGender(val gender: String) : Action()
     }
 
     enum class FieldType(val validationRegex: Regex) {

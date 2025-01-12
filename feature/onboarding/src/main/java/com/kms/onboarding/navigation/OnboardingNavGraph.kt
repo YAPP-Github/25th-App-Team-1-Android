@@ -98,6 +98,9 @@ fun NavGraphBuilder.onboardingNavGraph(
             onBackClick = {
                 eventDispatcher(OnboardingContract.Action.PreviousStep)
             },
+            onGenderSelect = { gender ->
+                eventDispatcher(OnboardingContract.Action.UpdateGender(gender))
+            },
         )
     }
 }
