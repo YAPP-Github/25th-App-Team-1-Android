@@ -1,5 +1,6 @@
 package com.kms.onboarding
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -179,7 +180,9 @@ fun AlarmTimeSelectionScreen(
             )
             OrbitPicker(
                 modifier = Modifier.padding(top = 90.dp),
-            )
+            ) { amPm, hour, minute ->
+                Log.d("AlarmAddEditScreen", "amPm: $amPm, hour: $hour, minute: $minute")
+            }
         }
     }
 }
