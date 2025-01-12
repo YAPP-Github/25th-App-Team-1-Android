@@ -24,6 +24,7 @@ class OnboardingViewModel @Inject constructor(
             is OnboardingContract.Action.UpdateField -> updateField(action.value, action.fieldType)
             is OnboardingContract.Action.Reset -> resetFields()
             is OnboardingContract.Action.Submit -> handleSubmission(action.stepData)
+            is OnboardingContract.Action.UpdateGender -> updateGender(action.gender)
         }
     }
 
@@ -67,6 +68,10 @@ class OnboardingViewModel @Inject constructor(
             delay(150)
             updateState { copy(textFieldValue = "", showWarning = false, isButtonEnabled = false) }
         }
+    }
+
+    private fun updateGender(gender: String) {
+        updateState { copy(selectedGender = gender, isButtonEnabled = true) }
     }
 
     private fun handleSubmission(stepData: Map<String, String>) {

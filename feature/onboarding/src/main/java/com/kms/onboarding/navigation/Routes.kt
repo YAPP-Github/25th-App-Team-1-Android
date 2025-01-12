@@ -6,4 +6,5 @@ object Routes {
     const val BIRTHDAY = "onboarding_birthday"
     const val TIME_OF_BIRTH = "onboarding_time_of_birth"
     const val NAME = "onboarding_name"
+    const val GENDER = "onboarding_gender"
 }
