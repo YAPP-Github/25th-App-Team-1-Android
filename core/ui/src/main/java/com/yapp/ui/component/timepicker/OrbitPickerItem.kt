@@ -72,8 +72,11 @@ fun OrbitPickerItem(
             .collect { centerIndex ->
                 if (centerIndex != null) {
                     val adjustedIndex = centerIndex % items.size
-                    state.selectedItem = items[adjustedIndex]
-                    onValueChange(state.selectedItem)
+                    val newValue = items[adjustedIndex]
+                    if (newValue != state.selectedItem) {
+                        state.selectedItem = newValue
+                        onValueChange(newValue)
+                    }
                 }
             }
     }

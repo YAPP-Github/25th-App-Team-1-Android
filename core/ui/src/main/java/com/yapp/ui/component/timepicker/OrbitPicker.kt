@@ -50,7 +50,6 @@ fun OrbitPicker(
             val minutePickerState = rememberPickerState()
 
             Box(modifier = Modifier.fillMaxWidth()) {
-                // 배경 박스
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
