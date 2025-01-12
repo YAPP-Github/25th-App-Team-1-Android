@@ -42,7 +42,7 @@ fun BirthdayScreen(
                 textAlign = TextAlign.Center,
             )
             OrbitYearMonthPicker(
-                modifier = Modifier.padding(top = 60.dp)
+                modifier = Modifier.padding(top = 60.dp),
             ) { lunar, year, month, day ->
                 Log.d("BirthdayScreen", "lunar: $lunar, year: $year, month: $month, day: $day")
             }

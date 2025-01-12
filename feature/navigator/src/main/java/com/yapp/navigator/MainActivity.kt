@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             OrbitTheme {
                 MainScreen()
-                //OnboardingRoute(onFinishOnboarding = {})
+                // OnboardingRoute(onFinishOnboarding = {})
             }
         }
     }

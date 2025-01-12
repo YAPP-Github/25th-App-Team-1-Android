@@ -29,14 +29,14 @@ fun AlarmAddEditRoute() {
 fun AlarmAddEditScreen() {
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AlarmAddEditTopBar(
             title = "1일 12시간 후에 울려요",
-            onBack = { }
+            onBack = { },
         )
         OrbitPicker(
-            modifier = Modifier.padding(top = 40.dp)
+            modifier = Modifier.padding(top = 40.dp),
         ) { amPm, hour, minute ->
             Log.d("AlarmAddEditScreen", "amPm: $amPm, hour: $hour, minute: $minute")
         }
@@ -46,7 +46,7 @@ fun AlarmAddEditScreen() {
 @Composable
 private fun AlarmAddEditTopBar(
     title: String,
-    onBack: () -> Unit
+    onBack: () -> Unit,
 ) {
     Box(
         modifier = Modifier

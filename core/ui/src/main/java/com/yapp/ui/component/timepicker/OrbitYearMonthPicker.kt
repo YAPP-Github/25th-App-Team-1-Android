@@ -29,7 +29,7 @@ import java.util.Locale
 fun OrbitYearMonthPicker(
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 12.dp,
-    onValueChange: (String, Int, Int, Int) -> Unit
+    onValueChange: (String, Int, Int, Int) -> Unit,
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
 
@@ -83,7 +83,7 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.2f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
-                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) }
+                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) },
                     )
                     OrbitPickerItem(
                         state = yearPickerState,
@@ -95,7 +95,7 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.25f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = true,
-                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) }
+                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) },
                     )
                     OrbitPickerItem(
                         state = monthPickerState,
@@ -106,7 +106,7 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = true,
-                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) }
+                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) },
                     )
                     OrbitPickerItem(
                         state = dayPickerState,
@@ -117,7 +117,7 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = true,
-                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) }
+                        onValueChange = { onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange) },
                     )
                 }
             }
@@ -130,7 +130,7 @@ private fun onPickerValueChange(
     yearPickerState: PickerState,
     monthPickerState: PickerState,
     dayPickerState: PickerState,
-    onValueChange: (String, Int, Int, Int) -> Unit
+    onValueChange: (String, Int, Int, Int) -> Unit,
 ) {
     val lunar = lunarPickerState.selectedItem
     val year = yearPickerState.selectedItem.toIntOrNull() ?: 1900

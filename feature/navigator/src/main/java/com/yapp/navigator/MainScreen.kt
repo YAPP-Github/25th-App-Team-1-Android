@@ -28,7 +28,7 @@ internal fun MainScreen(
                 onClickItem = navigator::navigate,
             )
         },
-        containerColor = OrbitTheme.colors.gray_900
+        containerColor = OrbitTheme.colors.gray_900,
     ) { innerPadding ->
         NavHost(
             navController = navigator.navController,
