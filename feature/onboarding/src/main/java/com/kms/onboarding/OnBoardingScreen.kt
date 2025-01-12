@@ -1,13 +1,15 @@
 package com.kms.onboarding
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -66,31 +68,31 @@ fun OnboardingScreen(
     showTopAppBar: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    Scaffold(
-        topBar = {
-            if (showTopAppBar) {
-                OnBoardingTopAppBar(
-                    currentStep = currentStep,
-                    totalSteps = totalSteps,
-                    onBackClick = onBackClick,
-                )
-            }
-        },
-        bottomBar = {
-            OnboardingBottomBar(
-                isButtonEnabled = isButtonEnabled,
-                onNextClick = onNextClick,
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(OrbitTheme.colors.gray_900)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+            .imePadding(),
+    ) {
+        if (showTopAppBar) {
+            OnBoardingTopAppBar(
+                currentStep = currentStep,
+                totalSteps = totalSteps,
+                onBackClick = onBackClick,
             )
-        },
-        containerColor = OrbitTheme.colors.gray_900,
-    ) { innerPadding ->
+        }
+
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentAlignment = Alignment.TopCenter,
+            modifier = Modifier.weight(1f),
         ) {
             content()
         }
+
+        OnboardingBottomBar(
+            isButtonEnabled = isButtonEnabled,
+            onNextClick = onNextClick,
+        )
     }
 }
