@@ -5,6 +5,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
+import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.home.homeNavGraph
 import com.yapp.mypage.mypageNavGraph
 import com.yapp.navigator.navigation.MainNavTab
@@ -27,6 +28,7 @@ internal fun MainScreen(
                 onClickItem = navigator::navigate,
             )
         },
+        containerColor = OrbitTheme.colors.gray_900
     ) { innerPadding ->
         NavHost(
             navController = navigator.navController,
