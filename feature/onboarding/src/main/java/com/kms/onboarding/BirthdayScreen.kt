@@ -1,5 +1,6 @@
 package com.kms.onboarding
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,8 +42,10 @@ fun BirthdayScreen(
                 textAlign = TextAlign.Center,
             )
             OrbitYearMonthPicker(
-                modifier = Modifier.padding(top = 60.dp),
-            )
+                modifier = Modifier.padding(top = 60.dp)
+            ) { lunar, year, month, day ->
+                Log.d("BirthdayScreen", "lunar: $lunar, year: $year, month: $month, day: $day")
+            }
         }
     }
 }

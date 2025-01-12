@@ -1,5 +1,6 @@
 package com.kms.onboarding
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,7 +44,9 @@ fun OnboardingBirthdayScreen(
             )
             OrbitYearMonthPicker(
                 modifier = Modifier.padding(top = 60.dp),
-            )
+            ) { lunar, year, month, day ->
+                Log.d("BirthdayScreen", "lunar: $lunar, year: $year, month: $month, day: $day")
+            }
         }
     }
 }
