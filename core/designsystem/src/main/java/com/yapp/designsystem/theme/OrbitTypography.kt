@@ -154,6 +154,13 @@ data class OrbitTypography(
         lineHeight = 18.sp,
         letterSpacing = (-0.13).sp,
     ),
+    val label2Regular: TextStyle = TextStyle(
+        fontFamily = Pretendard,
+        fontWeight = FontWeight.Normal,
+        fontSize = 13.sp,
+        lineHeight = 18.sp,
+        letterSpacing = (-0.13).sp,
+    ),
     val caption1Regular: TextStyle = TextStyle(
         fontFamily = Pretendard,
         fontWeight = FontWeight.Normal,
