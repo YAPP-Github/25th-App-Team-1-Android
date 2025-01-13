@@ -11,8 +11,11 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,14 +37,14 @@ import kotlin.math.abs
 fun OrbitPickerItem(
     modifier: Modifier = Modifier,
     items: List<String>,
-    state: PickerState = rememberPickerState(),
+    selectedItem: String,
+    onSelectedItemChange: (String) -> Unit,
     startIndex: Int = 0,
     visibleItemsCount: Int,
     textModifier: Modifier = Modifier,
     infiniteScroll: Boolean = true,
     textStyle: TextStyle,
     itemSpacing: Dp,
-    onValueChange: (String) -> Unit,
 ) {
     val visibleItemsMiddle = visibleItemsCount / 2
     val listScrollCount = if (infiniteScroll) Int.MAX_VALUE else items.size + visibleItemsMiddle * 2
@@ -73,9 +76,8 @@ fun OrbitPickerItem(
                 if (centerIndex != null) {
                     val adjustedIndex = centerIndex % items.size
                     val newValue = items[adjustedIndex]
-                    if (newValue != state.selectedItem) {
-                        state.selectedItem = newValue
-                        onValueChange(newValue)
+                    if (newValue != selectedItem) {
+                        onSelectedItemChange(newValue)
                     }
                 }
             }
@@ -105,7 +107,7 @@ fun OrbitPickerItem(
                 val maxDistance = totalItemHeight.toPx() * visibleItemsMiddle
                 val alpha = ((maxDistance - distanceFromCenter) / maxDistance).coerceIn(0.2f, 1f)
                 val scaleY = 1f - (0.4f * (distanceFromCenter / maxDistance)).coerceIn(0f, 0.4f)
-                val isSelected = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle) == state.selectedItem
+                val isSelected = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle) == selectedItem
 
                 Text(
                     text = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle),
@@ -156,13 +158,15 @@ private fun getItemForIndex(index: Int, items: List<String>, infiniteScroll: Boo
 @Preview
 fun OrbitPickerPreview() {
     OrbitTheme {
+        var selectedItem by remember { mutableStateOf("0") }
+
         OrbitPickerItem(
             items = (0..100).map { it.toString() },
-            state = rememberPickerState(),
+            selectedItem = selectedItem,
+            onSelectedItemChange = { selectedItem = it },
             visibleItemsCount = 5,
             textStyle = TextStyle.Default,
             itemSpacing = 8.dp,
-            onValueChange = {},
         )
     }
 }
