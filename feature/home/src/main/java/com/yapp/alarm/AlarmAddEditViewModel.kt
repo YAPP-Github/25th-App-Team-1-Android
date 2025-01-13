@@ -5,18 +5,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
-class AlarmAddEditViewModel @Inject constructor(
-
-) : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
-    initialState = AlarmAddEditContract.State(),
+class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
+    initialState = AlarmAddEditContract.State()
 ) {
     fun processAction(action: AlarmAddEditContract.Action) {
         when (action) {
             is AlarmAddEditContract.Action.UpdateAlarmTime -> updateAlarmTime(action.amPm, action.hour, action.minute)
-            is AlarmAddEditContract.Action.UpdateWeekdaysChecked -> updateWeekdaysChecked(action.isChecked)
-            is AlarmAddEditContract.Action.UpdateWeekendsChecked -> updateWeekendsChecked(action.isChecked)
-            is AlarmAddEditContract.Action.UpdateSelectedDays -> updateSelectedDays(action.selectedDays)
-            is AlarmAddEditContract.Action.UpdateDisableHolidayChecked -> updateDisableHolidayChecked(action.isChecked)
+            is AlarmAddEditContract.Action.ToggleWeekdaysChecked -> toggleWeekdaysChecked()
+            is AlarmAddEditContract.Action.ToggleWeekendsChecked -> toggleWeekendsChecked()
+            is AlarmAddEditContract.Action.ToggleDaySelection -> toggleDaySelection(action.day)
+            is AlarmAddEditContract.Action.ToggleDisableHolidayChecked -> toggleDisableHolidayChecked()
         }
     }
 
@@ -30,19 +28,58 @@ class AlarmAddEditViewModel @Inject constructor(
         }
     }
 
-    private fun updateWeekdaysChecked(isChecked: Boolean) {
-        updateState { copy(isWeekdaysChecked = isChecked) }
+    private fun toggleWeekdaysChecked() {
+        val weekdays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI)
+        val isChecked = !currentState.isWeekdaysChecked
+        val updatedDays = if (isChecked) {
+            currentState.selectedDays + weekdays
+        } else {
+            currentState.selectedDays - weekdays
+        }
+        updateState {
+            copy(
+                isWeekdaysChecked = isChecked,
+                selectedDays = updatedDays
+            )
+        }
     }
 
-    private fun updateWeekendsChecked(isChecked: Boolean) {
-        updateState { copy(isWeekendsChecked = isChecked) }
+    private fun toggleWeekendsChecked() {
+        val weekends = setOf(AlarmDay.SAT, AlarmDay.SUN)
+        val isChecked = !currentState.isWeekendsChecked
+        val updatedDays = if (isChecked) {
+            currentState.selectedDays + weekends
+        } else {
+            currentState.selectedDays - weekends
+        }
+        updateState {
+            copy(
+                isWeekendsChecked = isChecked,
+                selectedDays = updatedDays
+            )
+        }
     }
 
-    private fun updateSelectedDays(selectedDays: List<String>) {
-        updateState { copy(selectedDays = selectedDays) }
+    private fun toggleDaySelection(day: AlarmDay) {
+        val updatedDays = currentState.selectedDays.toMutableSet().apply {
+            if (contains(day)) remove(day) else add(day)
+        }
+        val weekdays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI)
+        val weekends = setOf(AlarmDay.SAT, AlarmDay.SUN)
+        updateState {
+            copy(
+                selectedDays = updatedDays,
+                isWeekdaysChecked = updatedDays.containsAll(weekdays),
+                isWeekendsChecked = updatedDays.containsAll(weekends)
+            )
+        }
     }
 
-    private fun updateDisableHolidayChecked(isChecked: Boolean) {
-        updateState { copy(isDisableHolidayChecked = isChecked) }
+    private fun toggleDisableHolidayChecked() {
+        updateState {
+            copy(
+                isDisableHolidayChecked = !currentState.isDisableHolidayChecked
+            )
+        }
     }
 }

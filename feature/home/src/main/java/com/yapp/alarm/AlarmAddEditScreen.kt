@@ -18,9 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -91,7 +88,9 @@ fun AlarmAddEditScreen(
             }
         }
         AlarmAddEditSettingsSection(
-            modifier = Modifier.padding(horizontal = 20.dp)
+            modifier = Modifier.padding(horizontal = 20.dp),
+            uiState = uiState,
+            processAction = processAction
         )
         Spacer(modifier = Modifier.height(24.dp))
         OrbitButton(
@@ -141,11 +140,10 @@ private fun AlarmAddEditTopBar(
 
 @Composable
 private fun AlarmAddEditSettingsSection(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    uiState: AlarmAddEditContract.State,
+    processAction: (AlarmAddEditContract.Action) -> Unit
 ) {
-    var isWeekdaysPressed by remember { mutableStateOf(false) }
-    var isWeekendsPressed by remember { mutableStateOf(false) }
-
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -155,33 +153,26 @@ private fun AlarmAddEditSettingsSection(
             )
     ) {
         AlarmAddEditSelectDaysSection(
-            isWeekdaysPressed = isWeekdaysPressed,
-            isWeekendsPressed = isWeekendsPressed,
-            onWeekdaysClick = { isWeekdaysPressed = !isWeekdaysPressed },
-            onWeekendsClick = { isWeekendsPressed = !isWeekendsPressed },
+            uiState = uiState,
+            processAction = processAction
         )
     }
 }
 
 @Composable
 private fun AlarmAddEditSelectDaysSection(
-    isWeekdaysPressed: Boolean,
-    isWeekendsPressed: Boolean,
-    onWeekdaysClick: () -> Unit,
-    onWeekendsClick: () -> Unit,
+    uiState: AlarmAddEditContract.State,
+    processAction: (AlarmAddEditContract.Action) -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(
-            horizontal = 20.dp,
-            vertical = 16.dp
-        )
+        modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                stringResource(id = R.string.alarm_add_edit_repeat),
+                text = stringResource(id = R.string.alarm_add_edit_repeat),
                 style = OrbitTheme.typography.body1SemiBold,
                 color = OrbitTheme.colors.white
             )
@@ -190,39 +181,40 @@ private fun AlarmAddEditSelectDaysSection(
 
             AlarmCheckItem(
                 label = stringResource(id = R.string.alarm_add_edit_weekdays),
-                isPressed = isWeekdaysPressed,
-                onClick = onWeekdaysClick
+                isPressed = uiState.isWeekdaysChecked,
+                onClick = {
+                    processAction(AlarmAddEditContract.Action.ToggleWeekdaysChecked)
+                }
             )
             Spacer(modifier = Modifier.width(2.dp))
             AlarmCheckItem(
                 label = stringResource(id = R.string.alarm_add_edit_weekends),
-                isPressed = isWeekendsPressed,
-                onClick = onWeekendsClick
+                isPressed = uiState.isWeekendsChecked,
+                onClick = {
+                    processAction(AlarmAddEditContract.Action.ToggleWeekendsChecked)
+                }
             )
         }
+
         Spacer(modifier = Modifier.height(12.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            val weeks = listOf(
-                stringResource(id = R.string.alarm_add_edit_sunday),
-                stringResource(id = R.string.alarm_add_edit_monday),
-                stringResource(id = R.string.alarm_add_edit_tuesday),
-                stringResource(id = R.string.alarm_add_edit_wednesday),
-                stringResource(id = R.string.alarm_add_edit_thursday),
-                stringResource(id = R.string.alarm_add_edit_friday),
-                stringResource(id = R.string.alarm_add_edit_saturday),
-            )
-            weeks.forEachIndexed { index, week ->
+            uiState.days.forEach { day ->
                 AlarmDayButton(
-                    label = week,
-                    isPressed = false,
-                    onClick = { }
+                    label = stringResource(id = day.label),
+                    isPressed = uiState.selectedDays.contains(day),
+                    onClick = {
+                        processAction(AlarmAddEditContract.Action.ToggleDaySelection(day))
+                    }
                 )
             }
         }
+
         Spacer(modifier = Modifier.height(18.dp))
+
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
@@ -234,7 +226,7 @@ private fun AlarmAddEditSelectDaysSection(
                 modifier = Modifier.padding(end = 4.dp)
             )
             Text(
-                stringResource(id = R.string.alarm_add_edit_disable_holiday),
+                text = stringResource(id = R.string.alarm_add_edit_disable_holiday),
                 style = OrbitTheme.typography.label1Medium,
                 color = OrbitTheme.colors.gray_400
             )
@@ -242,8 +234,10 @@ private fun AlarmAddEditSelectDaysSection(
             Spacer(modifier = Modifier.weight(1f))
 
             OrbitSwitch(
-                isSelected = false,
-                onClick = { }
+                isSelected = uiState.isDisableHolidayChecked,
+                onClick = {
+                    processAction(AlarmAddEditContract.Action.ToggleDisableHolidayChecked)
+                }
             )
         }
     }
@@ -252,7 +246,10 @@ private fun AlarmAddEditSelectDaysSection(
 @Preview
 @Composable
 fun AlarmAddEditSettingsSectionPreview() {
-    AlarmAddEditSettingsSection()
+    AlarmAddEditSettingsSection(
+        uiState = AlarmAddEditContract.State(),
+        processAction = { }
+    )
 }
 
 @Preview
