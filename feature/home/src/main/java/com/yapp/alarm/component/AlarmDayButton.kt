@@ -24,7 +24,7 @@ import com.yapp.ui.extensions.customClickable
 internal fun AlarmDayButton(
     label: String,
     isPressed: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val containerColor = if (isPressed) {
         OrbitTheme.colors.main.copy(alpha = 0.1f)
@@ -49,24 +49,24 @@ internal fun AlarmDayButton(
             .size(36.dp)
             .background(
                 color = containerColor,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
             )
             .border(
                 width = 1.dp,
                 color = borderColor,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
             )
             .clip(RoundedCornerShape(8.dp))
             .customClickable(
                 rippleEnabled = false,
-                onClick = onClick
+                onClick = onClick,
             ),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Text(
             text = label,
             style = OrbitTheme.typography.body1Medium,
-            color = contentColor
+            color = contentColor,
         )
     }
 }
@@ -79,6 +79,6 @@ fun AlarmDayButtonPreview() {
     AlarmDayButton(
         label = "월",
         isPressed = isPressed,
-        onClick = { isPressed = !isPressed }
+        onClick = { isPressed = !isPressed },
     )
 }

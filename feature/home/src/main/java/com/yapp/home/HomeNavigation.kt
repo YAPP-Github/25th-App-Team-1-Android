@@ -10,7 +10,6 @@ fun NavGraphBuilder.homeNavGraph() {
     }
 
     composable(route = HomeRoute.ALARM_ADD_EDIT) {
-
         AlarmAddEditRoute()
     }
 }

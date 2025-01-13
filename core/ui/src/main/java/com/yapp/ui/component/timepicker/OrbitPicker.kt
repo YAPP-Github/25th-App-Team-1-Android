@@ -112,7 +112,7 @@ fun OrbitPicker(
                                 val nextIndex = (currentIndex + 1) % amPmItems.size
                                 amPmListState.animateScrollToItem(nextIndex)
                             }
-                        }
+                        },
                     )
 
                     OrbitPickerItem(

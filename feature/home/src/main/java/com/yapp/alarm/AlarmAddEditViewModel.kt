@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
-    initialState = AlarmAddEditContract.State()
+    initialState = AlarmAddEditContract.State(),
 ) {
     fun processAction(action: AlarmAddEditContract.Action) {
         when (action) {
@@ -23,7 +23,7 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
             copy(
                 currentAmPm = amPm,
                 currentHour = hour,
-                currentMinute = minute
+                currentMinute = minute,
             )
         }
     }
@@ -39,7 +39,7 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
         updateState {
             copy(
                 isWeekdaysChecked = isChecked,
-                selectedDays = updatedDays
+                selectedDays = updatedDays,
             )
         }
     }
@@ -55,7 +55,7 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
         updateState {
             copy(
                 isWeekendsChecked = isChecked,
-                selectedDays = updatedDays
+                selectedDays = updatedDays,
             )
         }
     }
@@ -70,7 +70,7 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
             copy(
                 selectedDays = updatedDays,
                 isWeekdaysChecked = updatedDays.containsAll(weekdays),
-                isWeekendsChecked = updatedDays.containsAll(weekends)
+                isWeekendsChecked = updatedDays.containsAll(weekends),
             )
         }
     }
@@ -78,7 +78,7 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
     private fun toggleDisableHolidayChecked() {
         updateState {
             copy(
-                isDisableHolidayChecked = !currentState.isDisableHolidayChecked
+                isDisableHolidayChecked = !currentState.isDisableHolidayChecked,
             )
         }
     }

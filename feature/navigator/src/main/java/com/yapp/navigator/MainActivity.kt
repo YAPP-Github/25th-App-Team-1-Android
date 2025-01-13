@@ -16,7 +16,7 @@ class MainActivity : ComponentActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
             OrbitTheme {
-                //OnboardingRoute(onFinishOnboarding = {})
+                // OnboardingRoute(onFinishOnboarding = {})
                 MainScreen()
             }
         }

@@ -26,7 +26,7 @@ internal fun AlarmCheckItem(
             onClick = onClick,
         ).padding(2.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             painter = painterResource(id = core.designsystem.R.drawable.ic_check),

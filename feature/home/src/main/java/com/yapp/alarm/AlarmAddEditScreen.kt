@@ -37,7 +37,7 @@ import feature.home.R
 
 @Composable
 fun AlarmAddEditRoute(
-    viewModel: AlarmAddEditViewModel = hiltViewModel()
+    viewModel: AlarmAddEditViewModel = hiltViewModel(),
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
@@ -46,11 +46,9 @@ fun AlarmAddEditRoute(
         sideEffect.collect { effect ->
             when (effect) {
                 is AlarmAddEditContract.SideEffect.NavigateBack -> {
-
                 }
 
                 is AlarmAddEditContract.SideEffect.Navigate -> {
-
                 }
             }
         }
@@ -65,7 +63,7 @@ fun AlarmAddEditRoute(
 @Composable
 fun AlarmAddEditScreen(
     state: AlarmAddEditContract.State,
-    processAction: (AlarmAddEditContract.Action) -> Unit
+    processAction: (AlarmAddEditContract.Action) -> Unit,
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -77,7 +75,7 @@ fun AlarmAddEditScreen(
         )
         Box(
             modifier = Modifier.weight(1f),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             OrbitPicker(
                 selectedAmPm = state.currentAmPm,
@@ -90,7 +88,7 @@ fun AlarmAddEditScreen(
         AlarmAddEditSettingsSection(
             modifier = Modifier.padding(horizontal = 20.dp),
             state = state,
-            processAction = processAction
+            processAction = processAction,
         )
         Spacer(modifier = Modifier.height(24.dp))
         OrbitButton(
@@ -100,7 +98,7 @@ fun AlarmAddEditScreen(
             modifier = Modifier
                 .padding(
                     horizontal = 20.dp,
-                    vertical = 12.dp
+                    vertical = 12.dp,
                 )
                 .height(56.dp)
                 .fillMaxWidth(),
@@ -142,19 +140,19 @@ private fun AlarmAddEditTopBar(
 private fun AlarmAddEditSettingsSection(
     modifier: Modifier = Modifier,
     state: AlarmAddEditContract.State,
-    processAction: (AlarmAddEditContract.Action) -> Unit
+    processAction: (AlarmAddEditContract.Action) -> Unit,
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .background(
                 color = OrbitTheme.colors.gray_800,
-                shape = RoundedCornerShape(12.dp)
-            )
+                shape = RoundedCornerShape(12.dp),
+            ),
     ) {
         AlarmAddEditSelectDaysSection(
             state = state,
-            processAction = processAction
+            processAction = processAction,
         )
     }
 }
@@ -162,10 +160,10 @@ private fun AlarmAddEditSettingsSection(
 @Composable
 private fun AlarmAddEditSelectDaysSection(
     state: AlarmAddEditContract.State,
-    processAction: (AlarmAddEditContract.Action) -> Unit
+    processAction: (AlarmAddEditContract.Action) -> Unit,
 ) {
     Column(
-        modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)
+        modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -174,7 +172,7 @@ private fun AlarmAddEditSelectDaysSection(
             Text(
                 text = stringResource(id = R.string.alarm_add_edit_repeat),
                 style = OrbitTheme.typography.body1SemiBold,
-                color = OrbitTheme.colors.white
+                color = OrbitTheme.colors.white,
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -184,7 +182,7 @@ private fun AlarmAddEditSelectDaysSection(
                 isPressed = state.isWeekdaysChecked,
                 onClick = {
                     processAction(AlarmAddEditContract.Action.ToggleWeekdaysChecked)
-                }
+                },
             )
             Spacer(modifier = Modifier.width(2.dp))
             AlarmCheckItem(
@@ -192,7 +190,7 @@ private fun AlarmAddEditSelectDaysSection(
                 isPressed = state.isWeekendsChecked,
                 onClick = {
                     processAction(AlarmAddEditContract.Action.ToggleWeekendsChecked)
-                }
+                },
             )
         }
 
@@ -200,7 +198,7 @@ private fun AlarmAddEditSelectDaysSection(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             state.days.forEach { day ->
                 AlarmDayButton(
@@ -208,7 +206,7 @@ private fun AlarmAddEditSelectDaysSection(
                     isPressed = state.selectedDays.contains(day),
                     onClick = {
                         processAction(AlarmAddEditContract.Action.ToggleDaySelection(day))
-                    }
+                    },
                 )
             }
         }
@@ -223,12 +221,12 @@ private fun AlarmAddEditSelectDaysSection(
                 painter = painterResource(id = core.designsystem.R.drawable.ic_holiday),
                 contentDescription = "Holiday",
                 tint = OrbitTheme.colors.gray_400,
-                modifier = Modifier.padding(end = 4.dp)
+                modifier = Modifier.padding(end = 4.dp),
             )
             Text(
                 text = stringResource(id = R.string.alarm_add_edit_disable_holiday),
                 style = OrbitTheme.typography.label1Medium,
-                color = OrbitTheme.colors.gray_400
+                color = OrbitTheme.colors.gray_400,
             )
 
             Spacer(modifier = Modifier.weight(1f))
@@ -237,7 +235,7 @@ private fun AlarmAddEditSelectDaysSection(
                 isSelected = state.isDisableHolidayChecked,
                 onClick = {
                     processAction(AlarmAddEditContract.Action.ToggleDisableHolidayChecked)
-                }
+                },
             )
         }
     }
@@ -248,7 +246,7 @@ private fun AlarmAddEditSelectDaysSection(
 fun AlarmAddEditSettingsSectionPreview() {
     AlarmAddEditSettingsSection(
         state = AlarmAddEditContract.State(),
-        processAction = { }
+        processAction = { },
     )
 }
 
@@ -257,6 +255,6 @@ fun AlarmAddEditSettingsSectionPreview() {
 fun AlarmAddEditScreenPreview() {
     AlarmAddEditScreen(
         state = AlarmAddEditContract.State(),
-        processAction = { }
+        processAction = { },
     )
 }
