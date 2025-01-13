@@ -2,6 +2,7 @@ package com.yapp.alarm.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
-import com.yapp.ui.extensions.customClickable
 
 @Composable
 internal fun AlarmDayButton(
@@ -57,10 +57,7 @@ internal fun AlarmDayButton(
                 shape = RoundedCornerShape(8.dp),
             )
             .clip(RoundedCornerShape(8.dp))
-            .customClickable(
-                rippleEnabled = false,
-                onClick = onClick,
-            ),
+            .clickable { onClick() },
         contentAlignment = Alignment.Center,
     ) {
         Text(

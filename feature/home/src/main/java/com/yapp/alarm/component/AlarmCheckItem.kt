@@ -1,5 +1,6 @@
 package com.yapp.alarm.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -12,7 +13,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
-import com.yapp.ui.extensions.customClickable
 
 @Composable
 internal fun AlarmCheckItem(
@@ -21,10 +21,11 @@ internal fun AlarmCheckItem(
     onClick: () -> Unit,
 ) {
     Row(
-        modifier = Modifier.customClickable(
-            rippleEnabled = false,
-            onClick = onClick,
-        ).padding(2.dp),
+        modifier = Modifier
+            .padding(2.dp)
+            .clickable {
+                onClick()
+            },
         horizontalArrangement = Arrangement.spacedBy(2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
