@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.utils.toPx
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlin.math.abs
 
 @Composable
@@ -39,6 +39,8 @@ fun OrbitPickerItem(
     items: List<String>,
     selectedItem: String,
     onSelectedItemChange: (String) -> Unit,
+    onScrollCompleted: (() -> Unit)? = null,
+    listState: LazyListState = rememberLazyListState(),
     startIndex: Int = 0,
     visibleItemsCount: Int,
     textModifier: Modifier = Modifier,
@@ -56,30 +58,36 @@ fun OrbitPickerItem(
         visibleItemsMiddle,
         startIndex,
     )
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = listStartIndex)
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
     val itemHeightPixels = remember { mutableIntStateOf(0) }
     val itemHeightDp = with(LocalDensity.current) { itemHeightPixels.intValue.toDp() }
 
     LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo }
-            .map { layoutInfo ->
-                val centerOffset = layoutInfo.viewportStartOffset + (layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset) / 2
+        if (listState.firstVisibleItemIndex != listStartIndex) {
+            listState.scrollToItem(listStartIndex) // 초기 스크롤 위치 설정
+        }
+    }
 
-                layoutInfo.visibleItemsInfo.minByOrNull { item ->
-                    val itemCenter = item.offset + (item.size / 2)
-                    abs(itemCenter - centerOffset)
-                }?.index
-            }
+    LaunchedEffect(listState) {
+        var previousAdjustedIndex = calculateCenterIndex(listState) // 초기값 설정
+
+        snapshotFlow { calculateCenterIndex(listState) }
             .distinctUntilChanged()
             .collect { centerIndex ->
-                if (centerIndex != null) {
-                    val adjustedIndex = centerIndex % items.size
-                    val newValue = items[adjustedIndex]
-                    if (newValue != selectedItem) {
-                        onSelectedItemChange(newValue)
-                    }
+                val adjustedIndex = centerIndex % items.size
+
+                // 끝에서 끝으로 이동 감지
+                if (previousAdjustedIndex == items.size - 1 && adjustedIndex == 0) {
+                    onScrollCompleted?.invoke()
+                } else if (previousAdjustedIndex == 0 && adjustedIndex == items.size - 1) {
+                    onScrollCompleted?.invoke()
                 }
+
+                if (adjustedIndex != previousAdjustedIndex) {
+                    onSelectedItemChange(items[adjustedIndex])
+                }
+
+                previousAdjustedIndex = adjustedIndex
             }
     }
 
@@ -140,6 +148,19 @@ private fun calculateStartIndex(
     } else {
         startIndex
     }
+}
+
+/**
+ * 중심 인덱스를 계산합니다.
+ */
+private fun calculateCenterIndex(listState: LazyListState): Int {
+    val layoutInfo = listState.layoutInfo
+    val centerOffset = layoutInfo.viewportStartOffset + (layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset) / 2
+
+    return layoutInfo.visibleItemsInfo.minByOrNull { item ->
+        val itemCenter = item.offset + (item.size / 2)
+        abs(itemCenter - centerOffset)
+    }?.index ?: 0
 }
 
 /**

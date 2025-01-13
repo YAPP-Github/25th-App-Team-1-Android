@@ -11,16 +11,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
@@ -30,6 +33,9 @@ fun OrbitPicker(
     selectedAmPm: String = "오후",
     selectedHour: Int = 0,
     selectedMinute: Int = 0,
+    amPmStartIndex: Int = 0,
+    hourStartIndex: Int = 5,
+    minuteStartIndex: Int = 0,
     onValueChange: (String, Int, Int) -> Unit,
 ) {
     Surface(
@@ -47,6 +53,12 @@ fun OrbitPicker(
             val amPmItems = remember { listOf("오후", "오전") }
             val hourItems = remember { (1..12).map { it.toString() } }
             val minuteItems = remember { (0..59).map { String.format(Locale.ROOT, "%02d", it) } }
+
+            val amPmListState = rememberLazyListState()
+            val hourListState = rememberLazyListState()
+            val minuteListState = rememberLazyListState()
+
+            val scope = rememberCoroutineScope()
 
             Box(modifier = Modifier.fillMaxWidth()) {
                 Box(
@@ -66,11 +78,13 @@ fun OrbitPicker(
                 ) {
                     OrbitPickerItem(
                         items = amPmItems,
+                        listState = amPmListState,
                         visibleItemsCount = 3,
                         itemSpacing = itemSpacing,
                         textStyle = OrbitTheme.typography.title2Medium,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
+                        startIndex = amPmStartIndex,
                         infiniteScroll = false,
                         selectedItem = selectedAmPm,
                         onSelectedItemChange = { amPm ->
@@ -80,25 +94,36 @@ fun OrbitPicker(
 
                     OrbitPickerItem(
                         items = hourItems,
+                        listState = hourListState,
                         visibleItemsCount = 5,
                         itemSpacing = itemSpacing,
                         textStyle = OrbitTheme.typography.title2Medium,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
+                        startIndex = hourStartIndex,
                         infiniteScroll = true,
                         selectedItem = selectedHour.toString(),
                         onSelectedItemChange = { hour ->
                             onValueChange(selectedAmPm, hour.toInt(), selectedMinute)
                         },
+                        onScrollCompleted = {
+                            scope.launch {
+                                val currentIndex = amPmListState.firstVisibleItemIndex % amPmItems.size
+                                val nextIndex = (currentIndex + 1) % amPmItems.size
+                                amPmListState.animateScrollToItem(nextIndex)
+                            }
+                        }
                     )
 
                     OrbitPickerItem(
                         items = minuteItems,
+                        listState = minuteListState,
                         visibleItemsCount = 5,
                         itemSpacing = itemSpacing,
                         textStyle = OrbitTheme.typography.title2Medium,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
+                        startIndex = minuteStartIndex,
                         infiniteScroll = true,
                         selectedItem = selectedMinute.toString(),
                         onSelectedItemChange = { minute ->
