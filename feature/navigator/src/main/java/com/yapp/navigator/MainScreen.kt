@@ -22,7 +22,7 @@ internal fun MainScreen(
         modifier = modifier,
         bottomBar = {
             MainBottomNavigationBar(
-                visible = navigator.shouldShowBottomBar(),
+                visible = false,
                 currentTab = navigator.currentTab,
                 entries = MainNavTab.entries.toImmutableList(),
                 onClickItem = navigator::navigate,
@@ -35,8 +35,8 @@ internal fun MainScreen(
             startDestination = navigator.startDestination,
             modifier = Modifier.padding(innerPadding),
         ) {
-            homeNavGraph(padding = innerPadding)
-            mypageNavGraph(padding = innerPadding)
+            homeNavGraph()
+            mypageNavGraph()
         }
     }
 }

@@ -13,7 +13,7 @@ import com.yapp.mypage.MypageRoute
 internal class MainNavigator(
     val navController: NavHostController,
 ) {
-    val startDestination = HomeRoute.HOME
+    val startDestination = HomeRoute.ALARM_ADD_EDIT
     private val currentDestination: NavDestination?
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
