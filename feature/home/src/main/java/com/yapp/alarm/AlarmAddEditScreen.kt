@@ -39,7 +39,7 @@ import feature.home.R
 fun AlarmAddEditRoute(
     viewModel: AlarmAddEditViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
 
     LaunchedEffectWithLifecycle(sideEffect) {
@@ -57,14 +57,14 @@ fun AlarmAddEditRoute(
     }
 
     AlarmAddEditScreen(
-        uiState = uiState,
-        processAction = viewModel::processAction
+        state = state,
+        processAction = viewModel::processAction,
     )
 }
 
 @Composable
 fun AlarmAddEditScreen(
-    uiState: AlarmAddEditContract.State,
+    state: AlarmAddEditContract.State,
     processAction: (AlarmAddEditContract.Action) -> Unit
 ) {
     Column(
@@ -80,16 +80,16 @@ fun AlarmAddEditScreen(
             contentAlignment = Alignment.Center
         ) {
             OrbitPicker(
-                selectedAmPm = uiState.currentAmPm,
-                selectedHour = uiState.currentHour,
-                selectedMinute = uiState.currentMinute,
+                selectedAmPm = state.currentAmPm,
+                selectedHour = state.currentHour,
+                selectedMinute = state.currentMinute,
             ) { amPm, hour, minute ->
                 processAction(AlarmAddEditContract.Action.UpdateAlarmTime(amPm, hour, minute))
             }
         }
         AlarmAddEditSettingsSection(
             modifier = Modifier.padding(horizontal = 20.dp),
-            uiState = uiState,
+            state = state,
             processAction = processAction
         )
         Spacer(modifier = Modifier.height(24.dp))
@@ -141,7 +141,7 @@ private fun AlarmAddEditTopBar(
 @Composable
 private fun AlarmAddEditSettingsSection(
     modifier: Modifier = Modifier,
-    uiState: AlarmAddEditContract.State,
+    state: AlarmAddEditContract.State,
     processAction: (AlarmAddEditContract.Action) -> Unit
 ) {
     Column(
@@ -153,7 +153,7 @@ private fun AlarmAddEditSettingsSection(
             )
     ) {
         AlarmAddEditSelectDaysSection(
-            uiState = uiState,
+            uiState = state,
             processAction = processAction
         )
     }
@@ -247,7 +247,7 @@ private fun AlarmAddEditSelectDaysSection(
 @Composable
 fun AlarmAddEditSettingsSectionPreview() {
     AlarmAddEditSettingsSection(
-        uiState = AlarmAddEditContract.State(),
+        state = AlarmAddEditContract.State(),
         processAction = { }
     )
 }
@@ -256,7 +256,7 @@ fun AlarmAddEditSettingsSectionPreview() {
 @Composable
 fun AlarmAddEditScreenPreview() {
     AlarmAddEditScreen(
-        uiState = AlarmAddEditContract.State(),
+        state = AlarmAddEditContract.State(),
         processAction = { }
     )
 }

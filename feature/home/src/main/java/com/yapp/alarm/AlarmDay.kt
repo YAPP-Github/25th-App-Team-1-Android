@@ -5,6 +5,9 @@ import feature.home.R
 enum class AlarmDay(
     val label: Int
 ) {
+    SUN(
+        R.string.alarm_add_edit_sunday
+    ),
     MON(
         R.string.alarm_add_edit_monday
     ),
@@ -23,7 +26,4 @@ enum class AlarmDay(
     SAT(
         R.string.alarm_add_edit_saturday
     ),
-    SUN(
-        R.string.alarm_add_edit_sunday
-    )
 }
