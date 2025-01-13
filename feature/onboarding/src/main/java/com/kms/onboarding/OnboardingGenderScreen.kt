@@ -6,22 +6,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.kms.onboarding.component.OnboardingGenderToggle
+import com.kms.onboarding.component.UserInfoBottomSheet
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.paddingForScreenPercentage
 import com.yapp.ui.utils.widthForScreenPercentage
 import feature.onboarding.R
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingGenderScreen(
     state: OnboardingContract.State,
@@ -30,12 +31,15 @@ fun OnboardingGenderScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
     onGenderSelect: (String) -> Unit,
+    toggleBottomSheet: () -> Unit,
 ) {
     OnboardingScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
         isButtonEnabled = state.selectedGender != null,
-        onNextClick = {},
+        onNextClick = {
+            toggleBottomSheet()
+        },
         onBackClick = onBackClick,
     ) {
         Column(
@@ -71,6 +75,15 @@ fun OnboardingGenderScreen(
             }
         }
     }
+    // TODO: 추후 실제 유저 정보로
+    UserInfoBottomSheet(
+        isSheetOpen = state.isBottomSheetOpen,
+        onDismissRequest = { toggleBottomSheet() },
+        name = "오르비",
+        gender = "남성",
+        birthDate = "1999년 7월 8일",
+        birthTime = "12:00",
+    )
 }
 
 @Composable
@@ -85,5 +98,6 @@ fun OnboardingGenderScreenPreview() {
         onNextClick = {},
         onBackClick = {},
         onGenderSelect = {},
+        toggleBottomSheet = {},
     )
 }

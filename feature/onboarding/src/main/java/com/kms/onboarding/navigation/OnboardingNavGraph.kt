@@ -101,6 +101,9 @@ fun NavGraphBuilder.onboardingNavGraph(
             onGenderSelect = { gender ->
                 eventDispatcher(OnboardingContract.Action.UpdateGender(gender))
             },
+            toggleBottomSheet = {
+                eventDispatcher(OnboardingContract.Action.ToggleBottomSheet)
+            },
         )
     }
 }

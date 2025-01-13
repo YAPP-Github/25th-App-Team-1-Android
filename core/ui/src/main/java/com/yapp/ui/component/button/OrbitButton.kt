@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -34,6 +35,7 @@ fun OrbitButton(
     pressedContentColor: Color = OrbitTheme.colors.gray_600,
     disabledContainerColor: Color = OrbitTheme.colors.gray_700,
     disabledContentColor: Color = OrbitTheme.colors.gray_600,
+    shape: Shape = RoundedCornerShape(16.dp),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState().value
@@ -47,7 +49,7 @@ fun OrbitButton(
     Button(
         onClick = onClick,
         enabled = enabled,
-        shape = RoundedCornerShape(16.dp),
+        shape = shape,
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isPressed) pressedContainerColor else containerColor,
             contentColor = if (isPressed) pressedContentColor else contentColor,

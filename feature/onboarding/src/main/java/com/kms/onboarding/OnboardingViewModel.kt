@@ -25,6 +25,7 @@ class OnboardingViewModel @Inject constructor(
             is OnboardingContract.Action.Reset -> resetFields()
             is OnboardingContract.Action.Submit -> handleSubmission(action.stepData)
             is OnboardingContract.Action.UpdateGender -> updateGender(action.gender)
+            is OnboardingContract.Action.ToggleBottomSheet -> toggleBottomSheet()
         }
     }
 
@@ -72,6 +73,11 @@ class OnboardingViewModel @Inject constructor(
 
     private fun updateGender(gender: String) {
         updateState { copy(selectedGender = gender, isButtonEnabled = true) }
+    }
+
+    private fun toggleBottomSheet() {
+        val isCurrentlyOpen = container.stateFlow.value.isBottomSheetOpen
+        updateState { copy(isBottomSheetOpen = !isCurrentlyOpen) }
     }
 
     private fun handleSubmission(stepData: Map<String, String>) {
