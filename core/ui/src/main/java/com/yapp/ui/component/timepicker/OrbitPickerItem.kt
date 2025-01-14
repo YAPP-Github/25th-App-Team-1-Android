@@ -130,13 +130,12 @@ fun OrbitPickerItem(
                 }
 
                 val scaleY = 1f - (0.4f * (distanceFromCenter / maxDistance)).coerceIn(0f, 0.4f)
-                val isSelected = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle) == state.selectedItem
 
                 Text(
                     text = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle),
                     maxLines = 1,
                     style = textStyle,
-                    color = if (isSelected) OrbitTheme.colors.white else OrbitTheme.colors.white.copy(alpha = alpha),
+                    color = OrbitTheme.colors.white.copy(alpha = alpha),
                     modifier = Modifier
                         .padding(vertical = itemSpacing / 2)
                         .graphicsLayer(scaleY = scaleY)
