@@ -26,22 +26,18 @@ internal fun AlarmDayButton(
     isPressed: Boolean,
     onClick: () -> Unit,
 ) {
-    val containerColor = if (isPressed) {
-        OrbitTheme.colors.main.copy(alpha = 0.1f)
+    val (containerColor, contentColor, borderColor) = if (isPressed) {
+        Triple(
+            OrbitTheme.colors.main.copy(alpha = 0.1f),
+            OrbitTheme.colors.main,
+            Color.Transparent,
+        )
     } else {
-        OrbitTheme.colors.gray_700
-    }
-
-    val contentColor = if (isPressed) {
-        OrbitTheme.colors.main
-    } else {
-        OrbitTheme.colors.gray_300
-    }
-
-    val borderColor = if (isPressed) {
-        OrbitTheme.colors.main
-    } else {
-        Color.Transparent
+        Triple(
+            OrbitTheme.colors.gray_700,
+            OrbitTheme.colors.gray_300,
+            Color.Transparent,
+        )
     }
 
     Box(
