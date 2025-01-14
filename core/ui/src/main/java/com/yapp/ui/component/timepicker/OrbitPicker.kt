@@ -11,22 +11,31 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
 fun OrbitPicker(
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 2.dp,
+    selectedAmPm: String = "오후",
+    selectedHour: Int = 0,
+    selectedMinute: Int = 0,
+    amPmStartIndex: Int = 0,
+    hourStartIndex: Int = 5,
+    minuteStartIndex: Int = 0,
     onValueChange: (String, Int, Int) -> Unit,
 ) {
     Surface(
@@ -45,9 +54,11 @@ fun OrbitPicker(
             val hourItems = remember { (1..12).map { it.toString() } }
             val minuteItems = remember { (0..59).map { String.format(Locale.ROOT, "%02d", it) } }
 
-            val amPmPickerState = rememberPickerState()
-            val hourPickerState = rememberPickerState()
-            val minutePickerState = rememberPickerState()
+            val amPmListState = rememberLazyListState()
+            val hourListState = rememberLazyListState()
+            val minuteListState = rememberLazyListState()
+
+            val scope = rememberCoroutineScope()
 
             Box(modifier = Modifier.fillMaxWidth()) {
                 Box(
@@ -66,77 +77,63 @@ fun OrbitPicker(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     OrbitPickerItem(
-                        state = amPmPickerState,
                         items = amPmItems,
+                        listState = amPmListState,
                         visibleItemsCount = 3,
                         itemSpacing = itemSpacing,
                         textStyle = OrbitTheme.typography.title2Medium,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
+                        startIndex = amPmStartIndex,
                         infiniteScroll = false,
-                        onValueChange = {
-                            onPickerValueChange(
-                                amPmPickerState,
-                                hourPickerState,
-                                minutePickerState,
-                                onValueChange,
-                            )
+                        selectedItem = selectedAmPm,
+                        onSelectedItemChange = { amPm ->
+                            onValueChange(amPm, selectedHour, selectedMinute)
                         },
                     )
 
                     OrbitPickerItem(
-                        state = hourPickerState,
                         items = hourItems,
+                        listState = hourListState,
                         visibleItemsCount = 5,
                         itemSpacing = itemSpacing,
                         textStyle = OrbitTheme.typography.title2Medium,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
+                        startIndex = hourStartIndex,
                         infiniteScroll = true,
-                        onValueChange = {
-                            onPickerValueChange(
-                                amPmPickerState,
-                                hourPickerState,
-                                minutePickerState,
-                                onValueChange,
-                            )
+                        selectedItem = selectedHour.toString(),
+                        onSelectedItemChange = { hour ->
+                            onValueChange(selectedAmPm, hour.toInt(), selectedMinute)
+                        },
+                        onScrollCompleted = {
+                            scope.launch {
+                                val currentIndex = amPmListState.firstVisibleItemIndex % amPmItems.size
+                                val nextIndex = (currentIndex + 1) % amPmItems.size
+                                amPmListState.animateScrollToItem(nextIndex)
+                            }
                         },
                     )
 
                     OrbitPickerItem(
-                        state = minutePickerState,
                         items = minuteItems,
+                        listState = minuteListState,
                         visibleItemsCount = 5,
                         itemSpacing = itemSpacing,
                         textStyle = OrbitTheme.typography.title2Medium,
                         modifier = Modifier.weight(1f),
                         textModifier = Modifier.padding(8.dp),
+                        startIndex = minuteStartIndex,
                         infiniteScroll = true,
-                        onValueChange = {
-                            onPickerValueChange(
-                                amPmPickerState,
-                                hourPickerState,
-                                minutePickerState,
-                                onValueChange,
-                            )
+                        selectedItem = selectedMinute.toString(),
+                        onSelectedItemChange = { minute ->
+                            onValueChange(selectedAmPm, selectedHour, minute.toInt())
                         },
                     )
                 }
             }
         }
     }
-}
-
-private fun onPickerValueChange(
-    amPmState: PickerState,
-    hourState: PickerState,
-    minuteState: PickerState,
-    onValueChange: (String, Int, Int) -> Unit,
-) {
-    val amPm = amPmState.selectedItem
-    val hour = hourState.selectedItem.toIntOrNull() ?: 0
-    val minute = minuteState.selectedItem.toIntOrNull() ?: 0
-    onValueChange(amPm, hour, minute)
 }
 
 @Preview(showBackground = true)

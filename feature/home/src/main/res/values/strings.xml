@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="alarm_add_edit_repeat">요일 반복</string>
+    <string name="alarm_add_edit_weekdays">평일</string>
+    <string name="alarm_add_edit_weekends">주말</string>
+
+    <string name="alarm_add_edit_sunday">일</string>
+    <string name="alarm_add_edit_monday">월</string>
+    <string name="alarm_add_edit_tuesday">화</string>
+    <string name="alarm_add_edit_wednesday">수</string>
+    <string name="alarm_add_edit_thursday">목</string>
+    <string name="alarm_add_edit_friday">금</string>
+    <string name="alarm_add_edit_saturday">토</string>
+    <string name="alarm_add_edit_disable_holiday">공휴일 알람 끄기</string>
+
+    <string name="alarm_add_edit_alarm_snooze">알람 미루기</string>
+    <string name="alarm_add_edit_interval">간격</string>
+    <string name="alarm_add_edit_interval_minute">%d분</string>
+
+    <string name="alarm_add_edit_repeat_count">횟수</string>
+    <string name="alarm_add_edit_repeat_count_times">%d회</string>
+    <string name="alarm_add_edit_repeat_count_infinite">무한</string>
+    <string name="alarm_add_edit_repeat_infinite_description">%d분 간격으로 무한히 울립니다.</string>
+
+    <string name="alarm_add_edit_none">안 함</string>
+    <string name="alarm_add_edit_sound">소리</string>
+    <string name="alarm_add_edit_vibration">진동</string>
+    <string name="alarm_add_edit_ringtone">알람음</string>
+
+    <string name="alarm_add_edit_complete">완료</string>
+    <string name="alarm_add_edit_save">저장하기</string>
+    <string name="alarm_add_edit_delete">삭제</string>
+</resources>

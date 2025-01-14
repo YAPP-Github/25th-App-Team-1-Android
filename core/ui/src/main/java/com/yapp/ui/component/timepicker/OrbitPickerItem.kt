@@ -7,12 +7,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,21 +31,22 @@ import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.utils.toPx
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import kotlin.math.abs
 
 @Composable
 fun OrbitPickerItem(
     modifier: Modifier = Modifier,
     items: List<String>,
-    state: PickerState = rememberPickerState(),
+    selectedItem: String,
+    onSelectedItemChange: (String) -> Unit,
+    onScrollCompleted: (() -> Unit)? = null,
+    listState: LazyListState = rememberLazyListState(),
     startIndex: Int = 0,
     visibleItemsCount: Int,
     textModifier: Modifier = Modifier,
     infiniteScroll: Boolean = true,
     textStyle: TextStyle,
     itemSpacing: Dp,
-    onValueChange: (String) -> Unit,
 ) {
     val visibleItemsMiddle = visibleItemsCount / 2
     val listScrollCount = if (infiniteScroll) Int.MAX_VALUE else items.size + visibleItemsMiddle * 2
@@ -53,31 +58,36 @@ fun OrbitPickerItem(
         visibleItemsMiddle,
         startIndex,
     )
-    val listState = rememberLazyListState(initialFirstVisibleItemIndex = listStartIndex)
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
     val itemHeightPixels = remember { mutableIntStateOf(0) }
     val itemHeightDp = with(LocalDensity.current) { itemHeightPixels.intValue.toDp() }
 
     LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo }
-            .map { layoutInfo ->
-                val centerOffset = layoutInfo.viewportStartOffset + (layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset) / 2
+        if (listState.firstVisibleItemIndex != listStartIndex) {
+            listState.scrollToItem(listStartIndex) // 초기 스크롤 위치 설정
+        }
+    }
 
-                layoutInfo.visibleItemsInfo.minByOrNull { item ->
-                    val itemCenter = item.offset + (item.size / 2)
-                    abs(itemCenter - centerOffset)
-                }?.index
-            }
+    LaunchedEffect(listState) {
+        var previousAdjustedIndex = calculateCenterIndex(listState) // 초기값 설정
+
+        snapshotFlow { calculateCenterIndex(listState) }
             .distinctUntilChanged()
             .collect { centerIndex ->
-                if (centerIndex != null) {
-                    val adjustedIndex = centerIndex % items.size
-                    val newValue = items[adjustedIndex]
-                    if (newValue != state.selectedItem) {
-                        state.selectedItem = newValue
-                        onValueChange(newValue)
-                    }
+                val adjustedIndex = centerIndex % items.size
+
+                // 끝에서 끝으로 이동 감지
+                if (previousAdjustedIndex == items.size - 1 && adjustedIndex == 0) {
+                    onScrollCompleted?.invoke()
+                } else if (previousAdjustedIndex == 0 && adjustedIndex == items.size - 1) {
+                    onScrollCompleted?.invoke()
                 }
+
+                if (adjustedIndex != previousAdjustedIndex) {
+                    onSelectedItemChange(items[adjustedIndex])
+                }
+
+                previousAdjustedIndex = adjustedIndex
             }
     }
 
@@ -105,7 +115,7 @@ fun OrbitPickerItem(
                 val maxDistance = totalItemHeight.toPx() * visibleItemsMiddle
                 val alpha = ((maxDistance - distanceFromCenter) / maxDistance).coerceIn(0.2f, 1f)
                 val scaleY = 1f - (0.4f * (distanceFromCenter / maxDistance)).coerceIn(0f, 0.4f)
-                val isSelected = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle) == state.selectedItem
+                val isSelected = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle) == selectedItem
 
                 Text(
                     text = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle),
@@ -141,6 +151,19 @@ private fun calculateStartIndex(
 }
 
 /**
+ * 중심 인덱스를 계산합니다.
+ */
+private fun calculateCenterIndex(listState: LazyListState): Int {
+    val layoutInfo = listState.layoutInfo
+    val centerOffset = layoutInfo.viewportStartOffset + (layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset) / 2
+
+    return layoutInfo.visibleItemsInfo.minByOrNull { item ->
+        val itemCenter = item.offset + (item.size / 2)
+        abs(itemCenter - centerOffset)
+    }?.index ?: 0
+}
+
+/**
  * 주어진 인덱스에 해당하는 항목을 반환합니다.
  * 무한 스크롤과 보이는 항목의 개수를 고려합니다.
  */
@@ -156,13 +179,15 @@ private fun getItemForIndex(index: Int, items: List<String>, infiniteScroll: Boo
 @Preview
 fun OrbitPickerPreview() {
     OrbitTheme {
+        var selectedItem by remember { mutableStateOf("0") }
+
         OrbitPickerItem(
             items = (0..100).map { it.toString() },
-            state = rememberPickerState(),
+            selectedItem = selectedItem,
+            onSelectedItemChange = { selectedItem = it },
             visibleItemsCount = 5,
             textStyle = TextStyle.Default,
             itemSpacing = 8.dp,
-            onValueChange = {},
         )
     }
 }

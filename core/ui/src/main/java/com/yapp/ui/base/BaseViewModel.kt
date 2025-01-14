@@ -14,6 +14,8 @@ abstract class BaseViewModel<UI_STATE : UiState, SIDE_EFFECT : SideEffect>(
 ) : ViewModel(), ContainerHost<UI_STATE, SIDE_EFFECT> {
 
     override val container = container<UI_STATE, SIDE_EFFECT>(initialState)
+    val currentState: UI_STATE
+        get() = container.stateFlow.value
 
     /**
      * UI 상태 업데이트

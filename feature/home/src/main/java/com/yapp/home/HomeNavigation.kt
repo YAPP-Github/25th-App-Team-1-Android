@@ -1,26 +1,21 @@
 package com.yapp.home
 
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavOptions
 import androidx.navigation.compose.composable
 import com.yapp.alarm.AlarmAddEditRoute
 
-fun NavController.navigateHome(navOptions: NavOptions) {
-    navigate(HomeRoute.HOME, navOptions)
-}
-
-fun NavGraphBuilder.homeNavGraph(
-    padding: PaddingValues,
-    modifier: Modifier = Modifier,
-) {
+fun NavGraphBuilder.homeNavGraph() {
     composable(route = HomeRoute.HOME) {
+        HomeRoute()
+    }
+
+    composable(route = HomeRoute.ALARM_ADD_EDIT) {
         AlarmAddEditRoute()
     }
 }
 
 object HomeRoute {
     const val HOME = "home"
+
+    const val ALARM_ADD_EDIT = "alarm_add_edit"
 }

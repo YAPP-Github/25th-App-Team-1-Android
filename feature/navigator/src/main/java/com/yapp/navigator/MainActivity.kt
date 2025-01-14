@@ -5,7 +5,6 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.kms.onboarding.OnboardingRoute
 import com.yapp.designsystem.theme.OrbitTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -17,7 +16,8 @@ class MainActivity : ComponentActivity() {
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         setContent {
             OrbitTheme {
-                OnboardingRoute(onFinishOnboarding = {})
+                // OnboardingRoute(onFinishOnboarding = {})
+                MainScreen()
             }
         }
     }
