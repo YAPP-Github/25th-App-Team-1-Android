@@ -30,6 +30,11 @@ fun OnboardingBirthdayScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
 ) {
+    var selectedLunar by remember { mutableStateOf("음력") }
+    var selectedYear by remember { mutableIntStateOf(1900) }
+    var selectedMonth by remember { mutableIntStateOf(1) }
+    var selectedDay by remember { mutableIntStateOf(1) }
+
     OnboardingScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
@@ -54,6 +59,10 @@ fun OnboardingBirthdayScreen(
 
             OrbitYearMonthPicker(
                 modifier = Modifier.padding(top = 60.dp),
+                selectedLunar = selectedLunar,
+                selectedYear = selectedYear,
+                selectedMonth = selectedMonth,
+                selectedDay = selectedDay,
             ) { lunar, year, month, day ->
                 selectedLunar = lunar
                 selectedYear = year

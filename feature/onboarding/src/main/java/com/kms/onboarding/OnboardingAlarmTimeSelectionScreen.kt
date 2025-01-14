@@ -29,6 +29,10 @@ fun OnboardingAlarmTimeSelectionScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
 ) {
+    var selectedAmPm by remember { mutableStateOf("오전") }
+    var selectedHour by remember { mutableIntStateOf(1) }
+    var selectedMinute by remember { mutableIntStateOf(0) }
+
     OnboardingScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
