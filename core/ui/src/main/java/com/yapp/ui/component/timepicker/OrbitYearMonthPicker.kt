@@ -1,5 +1,6 @@
 package com.yapp.ui.component.timepicker
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,11 +15,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -36,10 +33,6 @@ fun OrbitYearMonthPicker(
     initialYear: String = "1900",
     initialMonth: String = "1",
     initialDay: String = "01",
-    selectedLunar: String,
-    selectedYear: Int,
-    selectedMonth: Int,
-    selectedDay: Int,
     onValueChange: (String, Int, Int, Int) -> Unit,
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -62,19 +55,19 @@ fun OrbitYearMonthPicker(
             val dayItems = remember { (1..31).map { String.format(Locale.ROOT, "%02d", it) } }
 
             val lunarPickerState = rememberPickerState(
-                selectedItem = selectedLunar,
+                selectedItem = lunarItems.indexOf(initialLunar).toString(),
                 startIndex = lunarItems.indexOf(initialLunar),
             )
             val yearPickerState = rememberPickerState(
-                selectedItem = selectedYear.toString(),
+                selectedItem = yearItems.indexOf(initialYear).toString(),
                 startIndex = yearItems.indexOf(initialYear),
             )
             val monthPickerState = rememberPickerState(
-                selectedItem = selectedMonth.toString(),
+                selectedItem = monthItems.indexOf(initialMonth).toString(),
                 startIndex = monthItems.indexOf(initialMonth),
             )
             val dayPickerState = rememberPickerState(
-                selectedItem = selectedDay.toString(),
+                selectedItem = dayItems.indexOf(initialDay).toString(),
                 startIndex = dayItems.indexOf(initialDay),
             )
 
@@ -165,20 +158,7 @@ private fun onPickerValueChange(
 @Preview(showBackground = true)
 @Composable
 fun OrbitYearMonthPickerPreview() {
-    var selectedLunar by remember { mutableStateOf("음력") }
-    var selectedYear by remember { mutableIntStateOf(1900) }
-    var selectedMonth by remember { mutableIntStateOf(1) }
-    var selectedDay by remember { mutableIntStateOf(1) }
-
-    OrbitYearMonthPicker(
-        selectedLunar = selectedLunar,
-        selectedYear = selectedYear,
-        selectedMonth = selectedMonth,
-        selectedDay = selectedDay,
-    ) { lunar, year, month, day ->
-        selectedLunar = lunar
-        selectedYear = year
-        selectedMonth = month
-        selectedDay = day
+    OrbitYearMonthPicker { lunar, year, month, day ->
+        Log.d("OrbitYearMonthPickerPreview", "lunar: $lunar, year: $year, month: $month, day: $day")
     }
 }

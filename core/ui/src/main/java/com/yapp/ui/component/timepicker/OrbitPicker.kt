@@ -1,5 +1,6 @@
 package com.yapp.ui.component.timepicker
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,12 +14,8 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,9 +32,6 @@ fun OrbitPicker(
     initialAmPm: String = "오전",
     initialHour: String = "1",
     initialMinute: String = "00",
-    selectedAmPm: String,
-    selectedHour: Int,
-    selectedMinute: Int,
     onValueChange: (String, Int, Int) -> Unit,
 ) {
     Surface(
@@ -57,15 +51,15 @@ fun OrbitPicker(
             val minuteItems = remember { (0..59).map { String.format(Locale.ROOT, "%02d", it) } }
 
             val amPmPickerState = rememberPickerState(
-                selectedItem = selectedAmPm,
+                selectedItem = amPmItems.indexOf(initialAmPm).toString(),
                 startIndex = amPmItems.indexOf(initialAmPm),
             )
             val hourPickerState = rememberPickerState(
-                selectedItem = selectedHour.toString(),
+                selectedItem = hourItems.indexOf(initialHour).toString(),
                 startIndex = hourItems.indexOf(initialHour),
             )
             val minutePickerState = rememberPickerState(
-                selectedItem = selectedMinute.toString(),
+                selectedItem = minuteItems.indexOf(initialMinute).toString(),
                 startIndex = minuteItems.indexOf(initialMinute),
             )
 
@@ -170,18 +164,8 @@ private fun onPickerValueChange(
 
 @Preview(showBackground = true)
 @Composable
-fun BottomSheetPickerPreview() {
-    var selectedAmPm by remember { mutableStateOf("오전") }
-    var selectedHour by remember { mutableIntStateOf(6) }
-    var selectedMinute by remember { mutableIntStateOf(0) }
-
-    OrbitPicker(
-        selectedAmPm = selectedAmPm,
-        selectedHour = selectedHour,
-        selectedMinute = selectedMinute,
-    ) { amPm, hour, minute ->
-        selectedAmPm = amPm
-        selectedHour = hour
-        selectedMinute = minute
+fun OrbitPickerPreview() {
+    OrbitPicker { amPm, hour, minute ->
+        Log.d("OrbitPicker", "selectedAmPm: $amPm, selectedHour: $hour, selectedMinute: $minute")
     }
 }

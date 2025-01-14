@@ -178,7 +178,7 @@ private fun getItemForIndex(index: Int, items: List<String>, infiniteScroll: Boo
 
 @Composable
 @Preview
-fun OrbitPickerPreview() {
+fun OrbitPickerItemPreview() {
     OrbitTheme {
         OrbitPickerItem(
             items = (0..100).map { it.toString() },

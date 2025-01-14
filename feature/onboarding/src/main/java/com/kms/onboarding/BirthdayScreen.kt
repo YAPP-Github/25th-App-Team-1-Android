@@ -1,5 +1,6 @@
 package com.kms.onboarding
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,11 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -29,11 +25,6 @@ fun BirthdayScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
 ) {
-    var selectedLunar by remember { mutableStateOf("음력") }
-    var selectedYear by remember { mutableIntStateOf(1900) }
-    var selectedMonth by remember { mutableIntStateOf(1) }
-    var selectedDay by remember { mutableIntStateOf(1) }
-
     OnboardingScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
@@ -52,15 +43,8 @@ fun BirthdayScreen(
             )
             OrbitYearMonthPicker(
                 modifier = Modifier.padding(top = 60.dp),
-                selectedLunar = selectedLunar,
-                selectedYear = selectedYear,
-                selectedMonth = selectedMonth,
-                selectedDay = selectedDay,
             ) { lunar, year, month, day ->
-                selectedLunar = lunar
-                selectedYear = year
-                selectedMonth = month
-                selectedDay = day
+                Log.d("BirthdayScreen", "lunar: $lunar, year: $year, month: $month, day: $day")
             }
         }
     }

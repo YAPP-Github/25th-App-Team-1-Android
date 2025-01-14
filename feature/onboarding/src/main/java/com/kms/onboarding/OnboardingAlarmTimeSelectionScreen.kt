@@ -65,9 +65,6 @@ fun OnboardingAlarmTimeSelectionScreen(
 
             OrbitPicker(
                 modifier = Modifier.padding(top = 90.dp),
-                selectedAmPm = selectedAmPm,
-                selectedHour = selectedHour,
-                selectedMinute = selectedMinute,
             ) { amPm, hour, minute ->
                 selectedAmPm = amPm
                 selectedHour = hour
