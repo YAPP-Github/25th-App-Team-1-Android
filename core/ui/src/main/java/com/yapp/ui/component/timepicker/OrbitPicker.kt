@@ -17,6 +17,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
@@ -66,6 +68,8 @@ fun OrbitPicker(
                 selectedItem = selectedMinute.toString(),
                 startIndex = minuteItems.indexOf(initialMinute),
             )
+
+            val scope = rememberCoroutineScope()
 
             Box(modifier = Modifier.fillMaxWidth()) {
                 Box(
@@ -118,6 +122,13 @@ fun OrbitPicker(
                                 minutePickerState,
                                 onValueChange,
                             )
+                        },
+                        onScrollCompleted = {
+                            scope.launch {
+                                val currentIndex = amPmPickerState.lazyListState.firstVisibleItemIndex % amPmItems.size
+                                val nextIndex = (currentIndex + 1) % amPmItems.size
+                                amPmPickerState.lazyListState.animateScrollToItem(nextIndex)
+                            }
                         },
                     )
 

@@ -40,6 +40,7 @@ fun OrbitPickerItem(
     textStyle: TextStyle,
     itemSpacing: Dp,
     onValueChange: (String) -> Unit,
+    onScrollCompleted: () -> Unit = {},
 ) {
     val visibleItemsMiddle = visibleItemsCount / 2
     val listScrollCount = if (infiniteScroll) Int.MAX_VALUE else items.size + visibleItemsMiddle * 2
@@ -65,6 +66,8 @@ fun OrbitPickerItem(
     }
 
     LaunchedEffect(listState) {
+        var previousAdjustedIndex = -1
+
         snapshotFlow { listState.layoutInfo }
             .map { layoutInfo ->
                 val centerOffset = layoutInfo.viewportStartOffset + (layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset) / 2
@@ -78,10 +81,21 @@ fun OrbitPickerItem(
                 if (centerIndex != null) {
                     val adjustedIndex = centerIndex % items.size
                     val newValue = items[adjustedIndex]
+
+                    if (infiniteScroll) {
+                        val lastIndex = items.size - 1
+                        if ((previousAdjustedIndex == 0 && adjustedIndex == lastIndex) ||
+                            (previousAdjustedIndex == lastIndex && adjustedIndex == 0)
+                        ) {
+                            onScrollCompleted()
+                        }
+                    }
+
                     if (newValue != state.selectedItem) {
                         state.selectedItem = newValue
                         onValueChange(newValue)
                     }
+                    previousAdjustedIndex = adjustedIndex
                 }
             }
     }
