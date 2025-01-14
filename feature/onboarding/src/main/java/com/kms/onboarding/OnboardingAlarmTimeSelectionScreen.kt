@@ -29,6 +29,10 @@ fun OnboardingAlarmTimeSelectionScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
 ) {
+    var selectedAmPm by remember { mutableStateOf("오전") }
+    var selectedHour by remember { mutableIntStateOf(1) }
+    var selectedMinute by remember { mutableIntStateOf(0) }
+
     OnboardingScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
@@ -61,9 +65,6 @@ fun OnboardingAlarmTimeSelectionScreen(
 
             OrbitPicker(
                 modifier = Modifier.padding(top = 90.dp),
-                selectedAmPm = selectedAmPm,
-                selectedHour = selectedHour,
-                selectedMinute = selectedMinute,
             ) { amPm, hour, minute ->
                 selectedAmPm = amPm
                 selectedHour = hour

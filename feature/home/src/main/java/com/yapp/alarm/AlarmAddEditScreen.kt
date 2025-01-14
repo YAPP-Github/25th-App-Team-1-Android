@@ -79,11 +79,7 @@ fun AlarmAddEditScreen(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.Center,
         ) {
-            OrbitPicker(
-                selectedAmPm = state.currentAmPm,
-                selectedHour = state.currentHour,
-                selectedMinute = state.currentMinute,
-            ) { amPm, hour, minute ->
+            OrbitPicker { amPm, hour, minute ->
                 eventDispatcher(AlarmAddEditContract.Action.UpdateAlarmTime(amPm, hour, minute))
             }
         }
