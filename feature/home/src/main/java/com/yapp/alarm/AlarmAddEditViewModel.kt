@@ -61,8 +61,10 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
     }
 
     private fun toggleDaySelection(day: AlarmDay) {
-        val updatedDays = currentState.selectedDays.toMutableSet().apply {
-            if (contains(day)) remove(day) else add(day)
+        val updatedDays = if (day in currentState.selectedDays) {
+            currentState.selectedDays - day
+        } else {
+            currentState.selectedDays + day
         }
         val weekdays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI)
         val weekends = setOf(AlarmDay.SAT, AlarmDay.SUN)
