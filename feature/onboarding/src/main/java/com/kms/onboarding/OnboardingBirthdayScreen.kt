@@ -43,11 +43,6 @@ fun OnboardingBirthdayScreen(
                 textAlign = TextAlign.Center,
             )
 
-            var selectedLunar by remember { mutableStateOf("음력") }
-            var selectedYear by remember { mutableIntStateOf(1900) }
-            var selectedMonth by remember { mutableIntStateOf(1) }
-            var selectedDay by remember { mutableIntStateOf(1) }
-
             OrbitYearMonthPicker(
                 modifier = Modifier.padding(top = 60.dp),
             ) { lunar, year, month, day ->
