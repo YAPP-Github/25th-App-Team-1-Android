@@ -26,13 +26,6 @@
     <string name="onboarding_step6_bs_btn_confirm">맞아요</string>
     <string name="onboarding_step6_bs_btn_dismiss">아니에요</string>
 
-    <string name="onboarding_step7_text_title">알람을 받으려면 꼭 필요해요\n다음 화면에서 ‘허용’을 눌러주세요</string>
-    <string name="onboarding_step7_alert_title">‘오르비’에서 알림을 보내고자 합니다</string>
-    <string name="onboarding_step7_alert_message">알림 기능이 꺼져있으면\n알람이 울릴 때 확인에 어려움이 있어요</string>
-    <string name="onboarding_step7_alert_btn_confirm">허용</string>
-    <string name="onboarding_step7_alert_btn_dismiss">허용안함</string>
-
-
-    <!--<string name="onboarding_text_bottom_subtitle">서비스 시작 시 이용약관 및 개인정보처리방침에 동의하게 됩니다.</string>-->
-
+    <string name="onboarding_step7_text_default_title">알람을 받으려면 꼭 필요해요\n다음 화면에서 ‘허용’을 눌러주세요</string>
+    <string name="onboarding_step7_text_refuse_title">알람을 허용하지 않으면\n알림이 울리지 못해요</string>
 </resources>
