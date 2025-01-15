@@ -7,9 +7,10 @@ sealed class OnboardingDestination(val route: String) {
     data object TimeOfBirth : OnboardingDestination(Routes.TIME_OF_BIRTH)
     data object Name : OnboardingDestination(Routes.NAME)
     data object Gender : OnboardingDestination(Routes.GENDER)
+    data object Access : OnboardingDestination(Routes.ACCESS)
 
     companion object {
-        private val routes = listOf(Explain, AlarmTimeSelection, Birthday, TimeOfBirth, Name, Gender)
+        private val routes = listOf(Explain, AlarmTimeSelection, Birthday, TimeOfBirth, Name, Gender, Access)
 
         fun nextRoute(currentStep: Int): String? {
             return routes.getOrNull(currentStep)?.route

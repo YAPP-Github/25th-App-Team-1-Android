@@ -79,6 +79,7 @@ fun OnboardingGenderScreen(
     UserInfoBottomSheet(
         isSheetOpen = state.isBottomSheetOpen,
         onDismissRequest = { toggleBottomSheet() },
+        onNextClick = onNextClick,
         name = "오르비",
         gender = "남성",
         birthDate = "1999년 7월 8일",

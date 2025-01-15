@@ -29,6 +29,7 @@ fun UserInfoBottomSheet(
     sheetState: SheetState = rememberModalBottomSheetState(),
     isSheetOpen: Boolean,
     onDismissRequest: () -> Unit,
+    onNextClick: () -> Unit,
     name: String,
     gender: String,
     birthDate: String,
@@ -90,7 +91,7 @@ fun UserInfoBottomSheet(
                     OrbitButton(
                         label = stringResource(R.string.onboarding_step6_bs_btn_confirm),
                         modifier = Modifier.weight(1f),
-                        onClick = onDismissRequest,
+                        onClick = onNextClick,
                         enabled = true,
                         pressedContainerColor = OrbitTheme.colors.main.copy(alpha = 0.8f),
                         pressedContentColor = OrbitTheme.colors.gray_600,
@@ -135,6 +136,7 @@ fun UserInfoBottomSheetPreview() {
     UserInfoBottomSheet(
         isSheetOpen = true,
         onDismissRequest = { },
+        onNextClick = { },
         name = "홍길동",
         gender = "남성",
         birthDate = "1990년 1월 1일",
