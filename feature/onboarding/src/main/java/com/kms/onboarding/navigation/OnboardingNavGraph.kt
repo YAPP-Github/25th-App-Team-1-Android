@@ -3,6 +3,7 @@ package com.kms.onboarding.navigation
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.kms.onboarding.OnboardingAccessScreen
 import com.kms.onboarding.OnboardingAlarmTimeSelectionScreen
 import com.kms.onboarding.OnboardingBirthdayScreen
 import com.kms.onboarding.OnboardingContract
@@ -29,7 +30,7 @@ fun NavGraphBuilder.onboardingNavGraph(
         OnboardingAlarmTimeSelectionScreen(
             state = stateProvider(),
             currentStep = 1,
-            totalSteps = 5,
+            totalSteps = 6,
             onNextClick = {
                 eventDispatcher(OnboardingContract.Action.NextStep)
             },
@@ -43,7 +44,7 @@ fun NavGraphBuilder.onboardingNavGraph(
         OnboardingBirthdayScreen(
             state = stateProvider(),
             currentStep = 2,
-            totalSteps = 5,
+            totalSteps = 6,
             onNextClick = {
                 eventDispatcher(OnboardingContract.Action.NextStep)
             },
@@ -58,7 +59,7 @@ fun NavGraphBuilder.onboardingNavGraph(
         OnboardingTimeOfBirthScreen(
             state = stateProvider(),
             currentStep = 3,
-            totalSteps = 5,
+            totalSteps = 6,
             onNextClick = {
                 eventDispatcher(OnboardingContract.Action.NextStep)
                 eventDispatcher(OnboardingContract.Action.Reset)
@@ -76,7 +77,7 @@ fun NavGraphBuilder.onboardingNavGraph(
         OnboardingNameScreen(
             state = stateProvider(),
             currentStep = 4,
-            totalSteps = 5,
+            totalSteps = 6,
             onNextClick = {
                 eventDispatcher(OnboardingContract.Action.NextStep)
             },
@@ -92,8 +93,9 @@ fun NavGraphBuilder.onboardingNavGraph(
         OnboardingGenderScreen(
             state = stateProvider(),
             currentStep = 5,
-            totalSteps = 5,
+            totalSteps = 6,
             onNextClick = {
+                eventDispatcher(OnboardingContract.Action.NextStep)
             },
             onBackClick = {
                 eventDispatcher(OnboardingContract.Action.PreviousStep)
@@ -103,6 +105,17 @@ fun NavGraphBuilder.onboardingNavGraph(
             },
             toggleBottomSheet = {
                 eventDispatcher(OnboardingContract.Action.ToggleBottomSheet)
+            },
+        )
+    }
+    composable(OnboardingDestination.Access.route) {
+        OnboardingAccessScreen(
+            state = stateProvider(),
+            currentStep = 6,
+            totalSteps = 6,
+            onNextClick = {},
+            onBackClick = {
+                eventDispatcher(OnboardingContract.Action.PreviousStep)
             },
         )
     }
