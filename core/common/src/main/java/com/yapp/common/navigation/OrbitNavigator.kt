@@ -1,4 +1,4 @@
-package com.yapp.navigator.navigation
+package com.yapp.common.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -7,25 +7,24 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.yapp.home.HomeRoute
-import com.yapp.mypage.MypageRoute
 
-internal class MainNavigator(
-    val navController: NavHostController,
+class OrbitNavigator(
+    private val navController: NavHostController,
 ) {
-    val startDestination = HomeRoute.ALARM_ADD_EDIT
+    val startDestination = Routes.Onboarding.ROUTE
+
     private val currentDestination: NavDestination?
         @Composable get() = navController
             .currentBackStackEntryAsState().value?.destination
 
-    val currentTab: MainNavTab?
+    val currentTab: TopLevelDestination?
         @Composable get() = currentDestination
             ?.route
-            ?.let(MainNavTab.Companion::find)
+            ?.let(TopLevelDestination.Companion::find)
 
-    fun navigate(tab: MainNavTab) {
+    fun navigateToTopLevelDestination(tab: TopLevelDestination) {
         val navOptions = navOptions {
-            popUpTo(HomeRoute.HOME) {
+            popUpTo(Routes.Home.ROUTE) {
                 saveState = true
             }
             launchSingleTop = true
@@ -33,21 +32,21 @@ internal class MainNavigator(
         }
 
         when (tab) {
-            MainNavTab.HOME -> navController.navigate(HomeRoute.HOME, navOptions)
-            MainNavTab.MYPAGE -> navController.navigate(MypageRoute.MYPAGE, navOptions)
+            TopLevelDestination.HOME -> navController.navigate(Routes.Home.ROUTE, navOptions)
+            TopLevelDestination.MYPAGE -> navController.navigate(Routes.MyPage.ROUTE, navOptions)
         }
     }
 
     @Composable
     fun shouldShowBottomBar(): Boolean {
         val currentRoute = currentDestination?.route ?: return false
-        return currentRoute in MainNavTab.entries.map { it.route }
+        return currentRoute in TopLevelDestination.entries.map { it.route }
     }
 }
 
 @Composable
-internal fun rememberMainNavigator(
+fun rememberOrbitNavigator(
     navController: NavHostController = rememberNavController(),
-): MainNavigator = remember(navController) {
-    MainNavigator(navController)
+): OrbitNavigator = remember(navController) {
+    OrbitNavigator(navController)
 }
