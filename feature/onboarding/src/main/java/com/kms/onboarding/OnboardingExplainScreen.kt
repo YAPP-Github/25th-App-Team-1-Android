@@ -10,9 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.kms.onboarding.component.GifImage
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.utils.heightForScreenPercentage
+import com.yapp.ui.utils.paddingForScreenPercentage
 import feature.onboarding.R
 
 @Composable
@@ -45,10 +48,25 @@ fun OnboardingExplainScreen(
                 color = OrbitTheme.colors.white,
                 modifier = Modifier
                     .padding(horizontal = 20.dp)
-                    .padding(top = 12.dp)
+                    .paddingForScreenPercentage(topPercentage = 0.014f, bottomPercentage = 0.037f)
                     .fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )
+            GifImage(
+                modifier = Modifier.fillMaxSize(),
+                gifResId = core.designsystem.R.raw.step1,
+            )
         }
+    }
+}
+
+@Composable
+@Preview
+fun OnboardingExplainScreenPreview() {
+    OrbitTheme {
+        OnboardingExplainScreen(
+            state = OnboardingContract.State(),
+            onNextClick = {},
+        )
     }
 }
