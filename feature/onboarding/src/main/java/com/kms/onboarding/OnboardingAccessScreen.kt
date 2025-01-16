@@ -34,9 +34,7 @@ fun OnboardingAccessScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
         isButtonEnabled = true,
-        onNextClick = {
-            isToggled.value = !isToggled.value
-        },
+        onNextClick = onNextClick,
         onBackClick = onBackClick,
     ) {
         val (text, imageRes) = when (isToggled.value) {

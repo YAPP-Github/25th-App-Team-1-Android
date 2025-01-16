@@ -66,6 +66,7 @@ fun OnboardingScreen(
     onNextClick: () -> Unit,
     onBackClick: (() -> Unit)?,
     showTopAppBar: Boolean = true,
+    showTopAppBarActions: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     Column(
@@ -81,6 +82,7 @@ fun OnboardingScreen(
                 currentStep = currentStep,
                 totalSteps = totalSteps,
                 onBackClick = onBackClick,
+                showTopAppBarActions = showTopAppBarActions,
             )
         }
 
@@ -91,6 +93,7 @@ fun OnboardingScreen(
         }
 
         OnboardingBottomBar(
+            currentStep = currentStep,
             isButtonEnabled = isButtonEnabled,
             onNextClick = onNextClick,
         )

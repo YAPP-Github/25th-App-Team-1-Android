@@ -4,57 +4,57 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import com.kms.onboarding.component.GifImage
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.paddingForScreenPercentage
 import feature.onboarding.R
 
 @Composable
-fun OnboardingExplainScreen(
+fun OnboardingCompleteScreen1(
     state: OnboardingContract.State,
     onNextClick: () -> Unit,
+    onBackClick: () -> Unit,
 ) {
     OnboardingScreen(
         currentStep = 0,
         totalSteps = 0,
         isButtonEnabled = true,
         onNextClick = onNextClick,
-        onBackClick = null,
-        showTopAppBar = false,
+        onBackClick = onBackClick,
+        showTopAppBar = true,
+        showTopAppBarActions = false,
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            Spacer(modifier = Modifier.heightForScreenPercentage(0.105f))
+            Spacer(modifier = Modifier.heightForScreenPercentage(0.05f))
             Text(
-                text = stringResource(id = R.string.onboarding_step1_text_title),
-                style = OrbitTheme.typography.body1Regular,
-                color = OrbitTheme.colors.gray_100,
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .fillMaxWidth(),
+                text = stringResource(id = R.string.onboarding_completed_step1_subtitle),
+                style = OrbitTheme.typography.body2Regular,
+                color = OrbitTheme.colors.main,
+                modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )
             Text(
-                text = stringResource(id = R.string.onboarding_step1_text_subtitle),
+                text = stringResource(id = R.string.onboarding_completed_step1_title),
                 style = OrbitTheme.typography.heading1SemiBold,
                 color = OrbitTheme.colors.white,
                 modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .paddingForScreenPercentage(topPercentage = 0.014f, bottomPercentage = 0.037f)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .paddingForScreenPercentage(topPercentage = 0.0147f, bottomPercentage = 0.1f),
                 textAlign = TextAlign.Center,
             )
-            GifImage(
-                modifier = Modifier.fillMaxSize(),
-                gifResId = core.designsystem.R.raw.step1,
+            LottieAnimation(
+                modifier = Modifier.wrapContentSize(),
+                resId = core.designsystem.R.raw.step2,
+                contentScale = ContentScale.FillWidth,
             )
         }
     }
@@ -62,11 +62,12 @@ fun OnboardingExplainScreen(
 
 @Composable
 @Preview
-fun OnboardingExplainScreenPreview() {
+fun OnboardingCompleteScreen1Preview() {
     OrbitTheme {
-        OnboardingExplainScreen(
+        OnboardingCompleteScreen1(
             state = OnboardingContract.State(),
             onNextClick = {},
+            onBackClick = {},
         )
     }
 }

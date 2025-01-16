@@ -6,6 +6,8 @@ import androidx.navigation.compose.composable
 import com.kms.onboarding.OnboardingAccessScreen
 import com.kms.onboarding.OnboardingAlarmTimeSelectionScreen
 import com.kms.onboarding.OnboardingBirthdayScreen
+import com.kms.onboarding.OnboardingCompleteScreen1
+import com.kms.onboarding.OnboardingCompleteScreen2
 import com.kms.onboarding.OnboardingContract
 import com.kms.onboarding.OnboardingExplainScreen
 import com.kms.onboarding.OnboardingGenderScreen
@@ -113,7 +115,31 @@ fun NavGraphBuilder.onboardingNavGraph(
             state = stateProvider(),
             currentStep = 6,
             totalSteps = 6,
-            onNextClick = {},
+            onNextClick = {
+                eventDispatcher(OnboardingContract.Action.NextStep)
+            },
+            onBackClick = {
+                eventDispatcher(OnboardingContract.Action.PreviousStep)
+            },
+        )
+    }
+    composable(OnboardingDestination.Complete1.route) {
+        OnboardingCompleteScreen1(
+            state = stateProvider(),
+            onNextClick = {
+                eventDispatcher(OnboardingContract.Action.NextStep)
+            },
+            onBackClick = {
+                eventDispatcher(OnboardingContract.Action.PreviousStep)
+            },
+        )
+    }
+    composable(OnboardingDestination.Complete2.route) {
+        OnboardingCompleteScreen2(
+            state = stateProvider(),
+            onNextClick = {
+                onFinishOnboarding()
+            },
             onBackClick = {
                 eventDispatcher(OnboardingContract.Action.PreviousStep)
             },
