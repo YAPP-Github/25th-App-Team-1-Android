@@ -5,12 +5,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
+import com.kms.onboarding.onboardingNavGraph
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.TopLevelDestination
 import com.yapp.common.navigation.rememberOrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.home.homeNavGraph
-import com.yapp.mypage.mypageNavGraph
+import com.yapp.mypage.myPageNavGraph
 import kotlinx.collections.immutable.toImmutableList
 
 @Composable
@@ -35,8 +36,16 @@ internal fun OrbitNavHost(
             startDestination = navigator.startDestination,
             modifier = Modifier.padding(innerPadding),
         ) {
-            homeNavGraph()
-            mypageNavGraph()
+            onboardingNavGraph(
+                navigator = navigator,
+                onFinishOnboarding = { navigator.navigateToTopLevelDestination(TopLevelDestination.HOME) },
+            )
+            homeNavGraph(
+                navigator = navigator,
+            )
+            myPageNavGraph(
+                navigator = navigator,
+            )
         }
     }
 }
