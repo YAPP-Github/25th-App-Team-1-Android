@@ -4,18 +4,18 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.yapp.alarm.AlarmAddEditRoute
-import com.yapp.common.navigation.Routes
+import com.yapp.common.navigation.destination.HomeDestination
 
 fun NavGraphBuilder.homeNavGraph() {
     navigation(
-        route = Routes.Home.ROUTE,
-        startDestination = Routes.Home.HOME,
+        route = HomeDestination.Route.route,
+        startDestination = HomeDestination.Home.route,
     ) {
-        composable(route = Routes.Home.HOME) {
+        composable(route = HomeDestination.Home.route) {
             HomeRoute()
         }
 
-        composable(route = Routes.Home.ALARM_ADD_EDIT) {
+        composable(route = HomeDestination.AlarmAddEdit.route) {
             AlarmAddEditRoute()
         }
     }
