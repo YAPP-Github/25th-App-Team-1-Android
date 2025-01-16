@@ -20,6 +20,7 @@ import com.yapp.ui.component.button.OrbitButton
 
 @Composable
 fun OnboardingBottomBar(
+    currentStep: Int,
     isButtonEnabled: Boolean,
     onNextClick: () -> Unit,
 ) {
@@ -35,10 +36,12 @@ fun OnboardingBottomBar(
             onClick = onNextClick,
             enabled = isButtonEnabled,
         )
-        AnnotatedTermsText(
-            onTermsClick = { /* Navigate to Terms */ },
-            onPrivacyPolicyClick = { /* Navigate to Privacy Policy */ },
-        )
+        if (currentStep in 3..5) {
+            AnnotatedTermsText(
+                onTermsClick = { /* Handle terms click */ },
+                onPrivacyPolicyClick = { /* Handle privacy policy click */ },
+            )
+        }
     }
 }
 
