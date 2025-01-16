@@ -28,4 +28,9 @@
 
     <string name="onboarding_step7_text_default_title">알람을 받으려면 꼭 필요해요\n다음 화면에서 ‘허용’을 눌러주세요</string>
     <string name="onboarding_step7_text_refuse_title">알람을 허용하지 않으면\n알림이 울리지 못해요</string>
+
+    <string name="onboarding_completed_step1_subtitle">환영해요!</string>
+    <string name="onboarding_completed_step1_title">기상 미션을 수행하면\n운세를 확인 할 수 있어요</string>
+    <string name="onboarding_completed_step2_title">오르비의 하루 운세로\n아침을 즐겁게 시작해 보세요!</string>
+
 </resources>
