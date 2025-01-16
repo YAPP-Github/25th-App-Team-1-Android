@@ -3,6 +3,7 @@ import com.yapp.convention.setNamespace
 plugins {
     id("orbit.android.library")
     id("orbit.android.hilt")
+    id("orbit.android.compose")
 }
 
 android {

@@ -16,10 +16,26 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.timepicker.OrbitPicker
 import com.yapp.ui.utils.heightForScreenPercentage
 import feature.onboarding.R
+
+@Composable
+fun OnboardingAlarmTimeSelectionRoute(
+    viewModel: OnboardingViewModel,
+) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    OnboardingAlarmTimeSelectionScreen(
+        state = state,
+        currentStep = 1,
+        totalSteps = 6,
+        onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
+        onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
+    )
+}
 
 @Composable
 fun OnboardingAlarmTimeSelectionScreen(

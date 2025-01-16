@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -16,9 +17,27 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.utils.heightForScreenPercentage
 import feature.onboarding.R
+
+@Composable
+fun OnboardingAccessRoute(
+    navigator: OrbitNavigator,
+    viewModel: OnboardingViewModel,
+) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    OnboardingAccessScreen(
+        state = state,
+        currentStep = 6,
+        totalSteps = 6,
+        onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
+        onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
+    )
+}
 
 @Composable
 fun OnboardingAccessScreen(
