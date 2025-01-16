@@ -2,20 +2,21 @@ package com.yapp.home
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import com.yapp.alarm.AlarmAddEditRoute
+import com.yapp.common.navigation.Routes
 
 fun NavGraphBuilder.homeNavGraph() {
-    composable(route = HomeRoute.HOME) {
-        HomeRoute()
+    navigation(
+        route = Routes.Home.ROUTE,
+        startDestination = Routes.Home.HOME,
+    ) {
+        composable(route = Routes.Home.HOME) {
+            HomeRoute()
+        }
+
+        composable(route = Routes.Home.ALARM_ADD_EDIT) {
+            AlarmAddEditRoute()
+        }
     }
-
-    composable(route = HomeRoute.ALARM_ADD_EDIT) {
-        AlarmAddEditRoute()
-    }
-}
-
-object HomeRoute {
-    const val HOME = "home"
-
-    const val ALARM_ADD_EDIT = "alarm_add_edit"
 }

@@ -1,7 +1,8 @@
-package com.yapp.common.navigation
+package com.yapp.common.navigation.destination
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import com.yapp.common.navigation.Routes
 
 enum class TopLevelDestination(
     @DrawableRes val iconId: Int,

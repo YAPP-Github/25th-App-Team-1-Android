@@ -8,3 +8,8 @@ plugins {
 android {
     setNamespace("core.common")
 }
+
+dependencies {
+    implementation(projects.core.designsystem)
+    implementation(libs.compose.navigation)
+}

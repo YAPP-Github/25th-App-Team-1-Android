@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import com.yapp.common.navigation.OrbitNavigator
+import com.yapp.common.navigation.destination.TopLevelDestination
 import com.yapp.common.navigation.rememberOrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.home.homeNavGraph
@@ -22,9 +23,9 @@ internal fun OrbitNavHost(
         bottomBar = {
             OrbitBottomNavigationBar(
                 visible = false,
-                currentTab = navigator.c,
-                entries = MainNavTab.entries.toImmutableList(),
-                onClickItem = navigator::navigate,
+                currentTab = navigator.currentTab,
+                entries = TopLevelDestination.entries.toImmutableList(),
+                onClickItem = navigator::navigateToTopLevelDestination,
             )
         },
         containerColor = OrbitTheme.colors.gray_900,

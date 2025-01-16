@@ -7,9 +7,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import com.yapp.common.navigation.destination.TopLevelDestination
 
 class OrbitNavigator(
-    private val navController: NavHostController,
+    val navController: NavHostController,
 ) {
     val startDestination = Routes.Onboarding.ROUTE
 
