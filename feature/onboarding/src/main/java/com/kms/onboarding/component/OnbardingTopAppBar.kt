@@ -26,6 +26,7 @@ fun OnBoardingTopAppBar(
     currentStep: Int,
     totalSteps: Int,
     onBackClick: (() -> Unit)? = null,
+    showTopAppBarActions: Boolean = true,
 ) {
     TopAppBar(
         title = { },
@@ -42,19 +43,21 @@ fun OnBoardingTopAppBar(
             }
         },
         actions = {
-            Box(
-                modifier = Modifier
-                    .padding(end = 20.dp)
-                    .width(54.dp)
-                    .height(30.dp)
-                    .background(OrbitTheme.colors.gray_700, RoundedCornerShape(10.dp)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "$currentStep/$totalSteps",
-                    style = OrbitTheme.typography.body1Medium,
-                    color = OrbitTheme.colors.gray_200,
-                )
+            if (showTopAppBarActions) {
+                Box(
+                    modifier = Modifier
+                        .padding(end = 20.dp)
+                        .width(54.dp)
+                        .height(30.dp)
+                        .background(OrbitTheme.colors.gray_700, RoundedCornerShape(10.dp)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = "$currentStep/$totalSteps",
+                        style = OrbitTheme.typography.body1Medium,
+                        color = OrbitTheme.colors.gray_200,
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = OrbitTheme.colors.gray_900),
