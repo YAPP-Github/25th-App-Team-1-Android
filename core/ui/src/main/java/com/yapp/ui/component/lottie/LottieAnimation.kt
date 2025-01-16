@@ -1,4 +1,4 @@
-package com.kms.onboarding.component
+package com.yapp.ui.component.lottie
 
 import androidx.annotation.RawRes
 import androidx.compose.animation.core.Animatable
@@ -47,18 +47,8 @@ fun LottieAnimation(
         modifier = modifier
             .fillMaxWidth()
             .graphicsLayer(
-                scaleX = when (contentScale) {
-                    ContentScale.Fit -> scaleXAdjustment
-                    ContentScale.FillWidth -> 1.2f * scaleXAdjustment
-                    ContentScale.FillHeight -> 1.5f * scaleXAdjustment
-                    else -> scaleXAdjustment
-                },
-                scaleY = when (contentScale) {
-                    ContentScale.Fit -> scaleYAdjustment
-                    ContentScale.FillWidth -> 1.2f * scaleYAdjustment
-                    ContentScale.FillHeight -> 1.5f * scaleYAdjustment
-                    else -> scaleYAdjustment
-                },
+                scaleX = getScaleFromContentScale(contentScale) * scaleXAdjustment,
+                scaleY = getScaleFromContentScale(contentScale) * scaleYAdjustment,
                 alpha = alpha.value,
             ),
     ) {
@@ -69,5 +59,14 @@ fun LottieAnimation(
                 modifier = Modifier.fillMaxSize(),
             )
         }
+    }
+}
+
+private fun getScaleFromContentScale(contentScale: ContentScale): Float {
+    return when (contentScale) {
+        ContentScale.Fit -> 1f
+        ContentScale.FillWidth -> 1.2f
+        ContentScale.FillHeight -> 1.5f
+        else -> 1f
     }
 }
