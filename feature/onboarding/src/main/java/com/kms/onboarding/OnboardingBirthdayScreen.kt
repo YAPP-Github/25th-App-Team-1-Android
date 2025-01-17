@@ -8,15 +8,32 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.timepicker.OrbitYearMonthPicker
 import com.yapp.ui.utils.heightForScreenPercentage
 import feature.onboarding.R
+
+@Composable
+fun OnboardingBirthdayRoute(
+    viewModel: OnboardingViewModel,
+) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    OnboardingBirthdayScreen(
+        state = state,
+        currentStep = 2,
+        totalSteps = 6,
+        onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
+        onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
+    )
+}
 
 @Composable
 fun OnboardingBirthdayScreen(

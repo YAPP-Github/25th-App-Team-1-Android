@@ -7,3 +7,7 @@ plugins {
 android {
     setNamespace("feature.myapge")
 }
+
+dependencies {
+    implementation(projects.core.common)
+}

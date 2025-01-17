@@ -7,16 +7,31 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.paddingForScreenPercentage
 import feature.onboarding.R
+
+@Composable
+fun OnboardingCompleteRoute(
+    viewModel: OnboardingViewModel,
+) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    OnboardingCompleteScreen1(
+        state = state,
+        onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
+        onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
+    )
+}
 
 @Composable
 fun OnboardingCompleteScreen1(

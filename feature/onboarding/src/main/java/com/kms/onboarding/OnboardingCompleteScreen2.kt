@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -20,6 +21,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kms.onboarding.component.OnBoardingTopAppBar
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
@@ -27,6 +29,20 @@ import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.paddingForScreenPercentage
 import feature.onboarding.R
+
+@Composable
+fun OnboardingCompleteRoute2(
+    viewModel: OnboardingViewModel,
+    onFinishOnboarding: () -> Unit,
+) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    OnboardingCompleteScreen2(
+        state = state,
+        onNextClick = { onFinishOnboarding() },
+        onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
+    )
+}
 
 @Composable
 fun OnboardingCompleteScreen2(

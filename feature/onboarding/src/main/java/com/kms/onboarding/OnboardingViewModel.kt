@@ -2,7 +2,7 @@ package com.kms.onboarding
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.kms.onboarding.navigation.OnboardingDestination
+import com.yapp.common.navigation.destination.OnboardingDestination
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay

@@ -20,17 +20,46 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.textfield.OrbitTextField
 import com.yapp.ui.extensions.customClickable
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.paddingForScreenPercentage
 import feature.onboarding.R
+
+@Composable
+fun OnboardingTimeOfBirthRoute(
+    viewModel: OnboardingViewModel,
+) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
+
+    OnboardingTimeOfBirthScreen(
+        state = state,
+        currentStep = 3,
+        totalSteps = 6,
+        onNextClick = {
+            viewModel.processAction(OnboardingContract.Action.NextStep)
+            viewModel.processAction(OnboardingContract.Action.Reset)
+            keyboardController?.hide()
+        },
+        onBackClick = {
+            viewModel.processAction(OnboardingContract.Action.PreviousStep)
+        },
+        onTextChange = { value ->
+            viewModel.processAction(OnboardingContract.Action.UpdateField(value, OnboardingContract.FieldType.TIME))
+        },
+    )
+}
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
