@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -72,7 +73,7 @@ fun AlarmAddEditScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AlarmAddEditTopBar(
-            title = "1일 12시간 후에 울려요",
+            title = state.alarmMessage,
             onBack = { },
         )
         Box(
@@ -154,6 +155,9 @@ private fun AlarmAddEditSettingsSection(
             .background(
                 color = OrbitTheme.colors.gray_800,
                 shape = RoundedCornerShape(12.dp),
+            )
+            .clip(
+                shape = RoundedCornerShape(12.dp),
             ),
     ) {
         AlarmAddEditSelectDaysSection(
@@ -166,6 +170,65 @@ private fun AlarmAddEditSettingsSection(
         AlarmAddEditDisableHolidaySwitch(
             isDisableHolidayChecked = isDisableHolidayChecked,
             processAction = processAction,
+        )
+        Spacer(
+            modifier = Modifier.fillMaxWidth()
+                .height(1.dp)
+                .padding(horizontal = 20.dp)
+                .background(OrbitTheme.colors.gray_700),
+        )
+        AlarmAddEditSettingItem(
+            label = "알람 미루기",
+            description = "5분, 무한",
+            onClick = { },
+        )
+        Spacer(
+            modifier = Modifier.fillMaxWidth()
+                .height(1.dp)
+                .padding(horizontal = 20.dp)
+                .background(OrbitTheme.colors.gray_700),
+        )
+        AlarmAddEditSettingItem(
+            label = "사운드",
+            description = "진동, 알림음1",
+            onClick = { },
+        )
+    }
+}
+
+@Composable
+private fun AlarmAddEditSettingItem(
+    label: String,
+    description: String,
+    onClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick()
+            }
+            .padding(
+                horizontal = 20.dp,
+                vertical = 14.dp,
+            ),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            label,
+            style = OrbitTheme.typography.body1SemiBold,
+            color = OrbitTheme.colors.white,
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        Text(
+            description,
+            style = OrbitTheme.typography.body2Regular,
+            color = OrbitTheme.colors.gray_50,
+        )
+        Icon(
+            painter = painterResource(id = core.designsystem.R.drawable.ic_arrow_right),
+            contentDescription = "Arrow",
+            tint = OrbitTheme.colors.gray_300,
         )
     }
 }
@@ -273,6 +336,16 @@ fun AlarmAddEditSettingsSectionPreview() {
         isDisableHolidayChecked = false,
         days = AlarmDay.entries.toSet(),
         processAction = { },
+    )
+}
+
+@Preview
+@Composable
+fun AlarmAddEditSettingItemPreview() {
+    AlarmAddEditSettingItem(
+        label = "알람 미루기",
+        description = "5분, 무한",
+        onClick = { },
     )
 }
 
