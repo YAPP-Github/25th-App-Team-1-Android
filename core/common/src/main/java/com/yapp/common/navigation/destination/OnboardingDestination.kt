@@ -15,7 +15,7 @@ sealed class OnboardingDestination(val route: String) {
     data object Complete2 : OnboardingDestination(Routes.Onboarding.COMPLETE_SECOND)
 
     companion object {
-        private val routes = listOf(Explain, AlarmTimeSelection, Birthday, TimeOfBirth, Name, Gender, Access, Complete1, Complete2)
+        val routes = listOf(Explain, AlarmTimeSelection, Birthday, TimeOfBirth, Name, Gender, Access, Complete1, Complete2)
 
         fun nextRoute(currentStep: Int): String? {
             return routes.getOrNull(currentStep)?.route

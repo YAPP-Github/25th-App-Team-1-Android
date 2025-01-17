@@ -16,177 +16,46 @@ fun NavGraphBuilder.onboardingNavGraph(
         route = OnboardingDestination.Route.route,
         startDestination = OnboardingDestination.Explain.route,
     ) {
-        composable(OnboardingDestination.Explain.route) {
-            val viewModel = it.sharedViewModel<OnboardingViewModel>(navigator.navController)
+        OnboardingDestination.routes.forEach { destination ->
+            composable(destination.route) { backStackEntry ->
+                val viewModel = backStackEntry.sharedViewModel<OnboardingViewModel>(navigator.navController)
 
-            LaunchedEffect(viewModel) {
-                viewModel.container.sideEffectFlow.collect { sideEffect ->
-                    handleSideEffect(
-                        sideEffect = sideEffect,
-                        navigator = navigator,
-                        viewModel = viewModel,
-                        onFinishOnboarding = onFinishOnboarding,
-                    )
+                LaunchedEffect(viewModel) {
+                    viewModel.container.sideEffectFlow.collect { sideEffect ->
+                        handleSideEffect(sideEffect, navigator, viewModel, onFinishOnboarding)
+                    }
+                }
+
+                when (destination) {
+                    OnboardingDestination.Route, OnboardingDestination.Explain -> {
+                        OnboardingExplainRoute(viewModel)
+                    }
+                    OnboardingDestination.AlarmTimeSelection -> {
+                        OnboardingAlarmTimeSelectionRoute(viewModel)
+                    }
+                    OnboardingDestination.Birthday -> {
+                        OnboardingBirthdayRoute(viewModel)
+                    }
+                    OnboardingDestination.TimeOfBirth -> {
+                        OnboardingTimeOfBirthRoute(viewModel)
+                    }
+                    OnboardingDestination.Name -> {
+                        OnboardingNameRoute(viewModel)
+                    }
+                    OnboardingDestination.Gender -> {
+                        OnboardingGenderRoute(viewModel)
+                    }
+                    OnboardingDestination.Access -> {
+                        OnboardingAccessRoute(navigator, viewModel)
+                    }
+                    OnboardingDestination.Complete1 -> {
+                        OnboardingCompleteRoute(viewModel)
+                    }
+                    OnboardingDestination.Complete2 -> {
+                        OnboardingCompleteRoute2(viewModel, onFinishOnboarding)
+                    }
                 }
             }
-
-            OnboardingExplainRoute(
-                viewModel = viewModel,
-            )
-        }
-
-        composable(OnboardingDestination.AlarmTimeSelection.route) {
-            val viewModel = it.sharedViewModel<OnboardingViewModel>(navigator.navController)
-
-            LaunchedEffect(viewModel) {
-                viewModel.container.sideEffectFlow.collect { sideEffect ->
-                    handleSideEffect(
-                        sideEffect = sideEffect,
-                        navigator = navigator,
-                        viewModel = viewModel,
-                        onFinishOnboarding = onFinishOnboarding,
-                    )
-                }
-            }
-
-            OnboardingAlarmTimeSelectionRoute(
-                viewModel = viewModel,
-            )
-        }
-
-        composable(OnboardingDestination.Birthday.route) {
-            val viewModel = it.sharedViewModel<OnboardingViewModel>(navigator.navController)
-
-            LaunchedEffect(viewModel) {
-                viewModel.container.sideEffectFlow.collect { sideEffect ->
-                    handleSideEffect(
-                        sideEffect = sideEffect,
-                        navigator = navigator,
-                        viewModel = viewModel,
-                        onFinishOnboarding = onFinishOnboarding,
-                    )
-                }
-            }
-
-            OnboardingBirthdayRoute(
-                viewModel = viewModel,
-            )
-        }
-
-        composable(OnboardingDestination.TimeOfBirth.route) {
-            val viewModel = it.sharedViewModel<OnboardingViewModel>(navigator.navController)
-
-            LaunchedEffect(viewModel) {
-                viewModel.container.sideEffectFlow.collect { sideEffect ->
-                    handleSideEffect(
-                        sideEffect = sideEffect,
-                        navigator = navigator,
-                        viewModel = viewModel,
-                        onFinishOnboarding = onFinishOnboarding,
-                    )
-                }
-            }
-
-            OnboardingTimeOfBirthRoute(
-                viewModel = viewModel,
-            )
-        }
-
-        composable(OnboardingDestination.Name.route) {
-            val viewModel = it.sharedViewModel<OnboardingViewModel>(navigator.navController)
-
-            LaunchedEffect(viewModel) {
-                viewModel.container.sideEffectFlow.collect { sideEffect ->
-                    handleSideEffect(
-                        sideEffect = sideEffect,
-                        navigator = navigator,
-                        viewModel = viewModel,
-                        onFinishOnboarding = onFinishOnboarding,
-                    )
-                }
-            }
-
-            OnboardingNameRoute(
-                viewModel = viewModel,
-            )
-        }
-
-        composable(OnboardingDestination.Gender.route) {
-            val viewModel = it.sharedViewModel<OnboardingViewModel>(navigator.navController)
-
-            LaunchedEffect(viewModel) {
-                viewModel.container.sideEffectFlow.collect { sideEffect ->
-                    handleSideEffect(
-                        sideEffect = sideEffect,
-                        navigator = navigator,
-                        viewModel = viewModel,
-                        onFinishOnboarding = onFinishOnboarding,
-                    )
-                }
-            }
-
-            OnboardingGenderRoute(
-                viewModel = viewModel,
-            )
-        }
-
-        composable(OnboardingDestination.Access.route) {
-            val viewModel = it.sharedViewModel<OnboardingViewModel>(navigator.navController)
-
-            LaunchedEffect(viewModel) {
-                viewModel.container.sideEffectFlow.collect { sideEffect ->
-                    handleSideEffect(
-                        sideEffect = sideEffect,
-                        navigator = navigator,
-                        viewModel = viewModel,
-                        onFinishOnboarding = onFinishOnboarding,
-                    )
-                }
-            }
-
-            OnboardingAccessRoute(
-                navigator = navigator,
-                viewModel = viewModel,
-            )
-        }
-
-        composable(OnboardingDestination.Complete1.route) {
-            val viewModel = it.sharedViewModel<OnboardingViewModel>(navigator.navController)
-
-            LaunchedEffect(viewModel) {
-                viewModel.container.sideEffectFlow.collect { sideEffect ->
-                    handleSideEffect(
-                        sideEffect = sideEffect,
-                        navigator = navigator,
-                        viewModel = viewModel,
-                        onFinishOnboarding = onFinishOnboarding,
-                    )
-                }
-            }
-
-            OnboardingCompleteRoute(
-                viewModel = viewModel,
-            )
-        }
-
-        composable(OnboardingDestination.Complete2.route) {
-            val viewModel = it.sharedViewModel<OnboardingViewModel>(navigator.navController)
-
-            LaunchedEffect(viewModel) {
-                viewModel.container.sideEffectFlow.collect { sideEffect ->
-                    handleSideEffect(
-                        sideEffect = sideEffect,
-                        navigator = navigator,
-                        viewModel = viewModel,
-                        onFinishOnboarding = onFinishOnboarding,
-                    )
-                }
-            }
-
-            OnboardingCompleteRoute2(
-                viewModel = viewModel,
-                onFinishOnboarding = onFinishOnboarding,
-            )
         }
     }
 }
