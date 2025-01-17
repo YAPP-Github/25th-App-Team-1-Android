@@ -8,6 +8,7 @@ sealed class AlarmAddEditContract {
         val currentAmPm: String = "오전",
         val currentHour: Int = 6,
         val currentMinute: Int = 0,
+        val alarmMessage: String = "",
         val days: Set<AlarmDay> = enumValues<AlarmDay>().toSet(),
         val isWeekdaysChecked: Boolean = false,
         val isWeekendsChecked: Boolean = false,
