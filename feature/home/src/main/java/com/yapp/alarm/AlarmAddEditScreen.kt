@@ -100,8 +100,9 @@ fun AlarmAddEditScreen(
             enabled = true,
             modifier = Modifier
                 .padding(
-                    horizontal = 20.dp,
-                    vertical = 12.dp,
+                    start = 20.dp,
+                    end = 20.dp,
+                    bottom = 12.dp,
                 )
                 .height(56.dp)
                 .fillMaxWidth(),

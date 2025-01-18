@@ -32,12 +32,12 @@ internal fun AlarmCheckItem(
         Icon(
             painter = painterResource(id = core.designsystem.R.drawable.ic_check),
             contentDescription = "Check",
-            tint = if (isPressed) OrbitTheme.colors.main else OrbitTheme.colors.white,
+            tint = if (isPressed) OrbitTheme.colors.main else OrbitTheme.colors.gray_400,
         )
         Text(
             text = label,
-            style = OrbitTheme.typography.body1Medium,
-            color = if (isPressed) OrbitTheme.colors.main else OrbitTheme.colors.white,
+            style = OrbitTheme.typography.label1Medium,
+            color = if (isPressed) OrbitTheme.colors.main else OrbitTheme.colors.gray_400,
             modifier = Modifier.padding(start = 4.dp),
             textAlign = TextAlign.Center,
         )
