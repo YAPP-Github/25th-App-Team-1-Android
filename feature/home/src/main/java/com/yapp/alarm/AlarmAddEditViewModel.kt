@@ -3,8 +3,6 @@ package com.yapp.alarm
 import androidx.lifecycle.viewModelScope
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -12,8 +10,6 @@ import javax.inject.Inject
 class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
     initialState = AlarmAddEditContract.State(),
 ) {
-    private var debounceJob: Job? = null // 디바운싱을 위한 Job
-
     fun processAction(action: AlarmAddEditContract.Action) {
         viewModelScope.launch {
             when (action) {
@@ -26,27 +22,18 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
         }
     }
 
-    private suspend fun updateAlarmTime(amPm: String, hour: Int, minute: Int) {
+    private fun updateAlarmTime(amPm: String, hour: Int, minute: Int) {
         updateState {
             copy(
                 currentAmPm = amPm,
                 currentHour = hour,
                 currentMinute = minute,
+                alarmMessage = getAlarmMessage(),
             )
         }
-        debounceUpdateAlarmMessage()
     }
 
-    private fun debounceUpdateAlarmMessage() {
-        // 이전 Job 취소
-        debounceJob?.cancel()
-        debounceJob = viewModelScope.launch {
-            delay(200) // 200ms 대기
-            updateAlarmMessage() // 알람 메시지 업데이트
-        }
-    }
-
-    private fun updateAlarmMessage() {
+    private fun getAlarmMessage(): String {
         val now = java.time.LocalDateTime.now()
 
         // 설정된 알람 시간 계산
@@ -64,13 +51,11 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
         val minutes = totalMinutes % 60
 
         // 출력 문구 생성
-        val newMessage = when {
+        return when {
             days > 0 -> "${days}일 ${hours}시간 후에 울려요"
             hours > 0 -> "${hours}시간 ${minutes}분 후에 울려요"
             else -> "${minutes}분 후에 울려요"
         }
-
-        updateState { copy(alarmMessage = newMessage) }
     }
 
     private fun toggleWeekdaysChecked() {
@@ -86,9 +71,10 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
             copy(
                 isWeekdaysChecked = isChecked,
                 selectedDays = updatedDays,
+                alarmMessage = getAlarmMessage(),
+                isDisableHolidayEnabled = updatedDays.isNotEmpty(),
             )
         }
-        debounceUpdateAlarmMessage() // 디바운싱된 메시지 업데이트
     }
 
     private fun toggleWeekendsChecked() {
@@ -104,9 +90,10 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
             copy(
                 isWeekendsChecked = isChecked,
                 selectedDays = updatedDays,
+                alarmMessage = getAlarmMessage(),
+                isDisableHolidayEnabled = updatedDays.isNotEmpty(),
             )
         }
-        debounceUpdateAlarmMessage() // 디바운싱된 메시지 업데이트
     }
 
     private fun toggleDaySelection(day: AlarmDay) {
@@ -123,9 +110,10 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
                 selectedDays = updatedDays,
                 isWeekdaysChecked = updatedDays.containsAll(weekdays),
                 isWeekendsChecked = updatedDays.containsAll(weekends),
+                alarmMessage = getAlarmMessage(),
+                isDisableHolidayEnabled = updatedDays.isNotEmpty(),
             )
         }
-        debounceUpdateAlarmMessage() // 디바운싱된 메시지 업데이트
     }
 
     private fun toggleDisableHolidayChecked() {
@@ -134,7 +122,6 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
                 isDisableHolidayChecked = !currentState.isDisableHolidayChecked,
             )
         }
-        debounceUpdateAlarmMessage() // 디바운싱된 메시지 업데이트
     }
 
     private fun convertTo24HourFormat(amPm: String, hour: Int): Int {

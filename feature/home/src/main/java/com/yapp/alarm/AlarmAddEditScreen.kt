@@ -90,6 +90,7 @@ fun AlarmAddEditScreen(
             isWeekendsChecked = state.isWeekendsChecked,
             selectedDays = state.selectedDays,
             isDisableHolidayChecked = state.isDisableHolidayChecked,
+            isDisableHolidayEnabled = state.isDisableHolidayEnabled,
             days = state.days,
             processAction = eventDispatcher,
         )
@@ -147,6 +148,7 @@ private fun AlarmAddEditSettingsSection(
     isWeekendsChecked: Boolean,
     selectedDays: Set<AlarmDay>,
     isDisableHolidayChecked: Boolean,
+    isDisableHolidayEnabled: Boolean,
     days: Set<AlarmDay>,
     processAction: (AlarmAddEditContract.Action) -> Unit,
 ) {
@@ -170,6 +172,7 @@ private fun AlarmAddEditSettingsSection(
         )
         AlarmAddEditDisableHolidaySwitch(
             isDisableHolidayChecked = isDisableHolidayChecked,
+            isDisableHolidayEnabled = isDisableHolidayEnabled,
             processAction = processAction,
         )
         Spacer(
@@ -296,12 +299,17 @@ private fun AlarmAddEditSelectDaysSection(
 @Composable
 private fun AlarmAddEditDisableHolidaySwitch(
     isDisableHolidayChecked: Boolean,
+    isDisableHolidayEnabled: Boolean,
     processAction: (AlarmAddEditContract.Action) -> Unit,
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 20.dp),
+            .padding(
+                start = 20.dp,
+                end = 20.dp,
+                bottom = 16.dp,
+            ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
@@ -319,7 +327,8 @@ private fun AlarmAddEditDisableHolidaySwitch(
         Spacer(modifier = Modifier.weight(1f))
 
         OrbitSwitch(
-            isSelected = isDisableHolidayChecked,
+            isChecked = isDisableHolidayChecked,
+            isEnabled = isDisableHolidayEnabled,
             onClick = {
                 processAction(AlarmAddEditContract.Action.ToggleDisableHolidayChecked)
             },
@@ -335,6 +344,7 @@ fun AlarmAddEditSettingsSectionPreview() {
         isWeekendsChecked = false,
         selectedDays = setOf(AlarmDay.MON, AlarmDay.TUE),
         isDisableHolidayChecked = false,
+        isDisableHolidayEnabled = true,
         days = AlarmDay.entries.toSet(),
         processAction = { },
     )

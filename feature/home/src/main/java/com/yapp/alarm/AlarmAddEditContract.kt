@@ -13,6 +13,7 @@ sealed class AlarmAddEditContract {
         val isWeekdaysChecked: Boolean = false,
         val isWeekendsChecked: Boolean = false,
         val selectedDays: Set<AlarmDay> = setOf(),
+        val isDisableHolidayEnabled: Boolean = false,
         val isDisableHolidayChecked: Boolean = false,
     ) : UiState
 
