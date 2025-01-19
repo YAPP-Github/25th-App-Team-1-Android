@@ -185,14 +185,10 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
         }
     }
 
-    private fun convertTo24HourFormat(amPm: String, hour: Int): Int {
-        return if (amPm == "오후" && hour != 12) {
-            hour + 12
-        } else if (amPm == "오전" && hour == 12) {
-            0
-        } else {
-            hour
-        }
+    private fun convertTo24HourFormat(amPm: String, hour: Int): Int = when {
+        amPm == "오후" && hour != 12 -> hour + 12
+        amPm == "오전" && hour == 12 -> 0
+        else -> hour
     }
 
     private fun calculateNextAlarmDateTime(
