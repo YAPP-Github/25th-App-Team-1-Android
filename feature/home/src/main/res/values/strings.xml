@@ -13,14 +13,18 @@
     <string name="alarm_add_edit_saturday">토</string>
     <string name="alarm_add_edit_disable_holiday">공휴일 알람 끄기</string>
 
+    <string name="alarm_add_edit_alarm_selected_option">%s, %s</string>
+    <string name="alarm_add_edit_alarm_selected_option_none">안 함</string>
+
     <string name="alarm_add_edit_alarm_snooze">알람 미루기</string>
+    <string name="alarm_add_edit_alarm_snooze_description">%s 간격으로 %s 울립니다.</string>
+
     <string name="alarm_add_edit_interval">간격</string>
     <string name="alarm_add_edit_interval_minute">%d분</string>
 
     <string name="alarm_add_edit_repeat_count">횟수</string>
     <string name="alarm_add_edit_repeat_count_times">%d회</string>
     <string name="alarm_add_edit_repeat_count_infinite">무한</string>
-    <string name="alarm_add_edit_repeat_infinite_description">%d분 간격으로 무한히 울립니다.</string>
 
     <string name="alarm_add_edit_none">안 함</string>
     <string name="alarm_add_edit_sound">소리</string>

@@ -1,7 +1,9 @@
 package com.yapp.alarm
 
+import androidx.lifecycle.viewModelScope
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -9,79 +11,209 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
     initialState = AlarmAddEditContract.State(),
 ) {
     fun processAction(action: AlarmAddEditContract.Action) {
-        when (action) {
-            is AlarmAddEditContract.Action.UpdateAlarmTime -> updateAlarmTime(action.amPm, action.hour, action.minute)
-            is AlarmAddEditContract.Action.ToggleWeekdaysChecked -> toggleWeekdaysChecked()
-            is AlarmAddEditContract.Action.ToggleWeekendsChecked -> toggleWeekendsChecked()
-            is AlarmAddEditContract.Action.ToggleDaySelection -> toggleDaySelection(action.day)
-            is AlarmAddEditContract.Action.ToggleDisableHolidayChecked -> toggleDisableHolidayChecked()
+        viewModelScope.launch {
+            when (action) {
+                is AlarmAddEditContract.Action.ClickBack -> navigateBack()
+                is AlarmAddEditContract.Action.ClickSave -> saveAlarm()
+                is AlarmAddEditContract.Action.UpdateAlarmTime -> updateAlarmTime(action.amPm, action.hour, action.minute)
+                is AlarmAddEditContract.Action.ToggleWeekdaysChecked -> toggleWeekdaysChecked()
+                is AlarmAddEditContract.Action.ToggleWeekendsChecked -> toggleWeekendsChecked()
+                is AlarmAddEditContract.Action.ToggleDaySelection -> toggleDaySelection(action.day)
+                is AlarmAddEditContract.Action.ToggleDisableHolidayChecked -> toggleDisableHolidayChecked()
+                is AlarmAddEditContract.Action.ToggleSnoozeEnabled -> toggleSnoozeEnabled()
+                is AlarmAddEditContract.Action.UpdateSnoozeInterval -> updateSnoozeInterval(action.index)
+                is AlarmAddEditContract.Action.UpdateSnoozeCount -> updateSnoozeCount(action.index)
+                is AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen -> toggleSnoozeSettingBottomSheet()
+            }
         }
     }
 
+    private fun navigateBack() {
+        emitSideEffect(AlarmAddEditContract.SideEffect.NavigateBack)
+    }
+
+    private fun saveAlarm() {
+        emitSideEffect(AlarmAddEditContract.SideEffect.NavigateBack)
+    }
+
     private fun updateAlarmTime(amPm: String, hour: Int, minute: Int) {
+        val newTimeState = currentState.timeState.copy(
+            currentAmPm = amPm,
+            currentHour = hour,
+            currentMinute = minute,
+            alarmMessage = getAlarmMessage(amPm, hour, minute, currentState.daySelectionState.selectedDays),
+        )
         updateState {
-            copy(
-                currentAmPm = amPm,
-                currentHour = hour,
-                currentMinute = minute,
-            )
+            copy(timeState = newTimeState)
         }
     }
 
     private fun toggleWeekdaysChecked() {
         val weekdays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI)
-        val isChecked = !currentState.isWeekdaysChecked
+        val isChecked = !currentState.daySelectionState.isWeekdaysChecked
         val updatedDays = if (isChecked) {
-            currentState.selectedDays + weekdays
+            currentState.daySelectionState.selectedDays + weekdays
         } else {
-            currentState.selectedDays - weekdays
+            currentState.daySelectionState.selectedDays - weekdays
         }
+        val newDayState = currentState.daySelectionState.copy(
+            isWeekdaysChecked = isChecked,
+            selectedDays = updatedDays,
+        )
         updateState {
             copy(
-                isWeekdaysChecked = isChecked,
-                selectedDays = updatedDays,
+                timeState = timeState.copy(
+                    alarmMessage = getAlarmMessage(timeState.currentAmPm, timeState.currentHour, timeState.currentMinute, newDayState.selectedDays),
+                ),
+                daySelectionState = newDayState,
+                holidayState = holidayState.copy(
+                    isDisableHolidayEnabled = newDayState.selectedDays.isNotEmpty(),
+                    isDisableHolidayChecked = if (newDayState.selectedDays.isEmpty()) false else holidayState.isDisableHolidayChecked,
+                ),
             )
         }
     }
 
     private fun toggleWeekendsChecked() {
         val weekends = setOf(AlarmDay.SAT, AlarmDay.SUN)
-        val isChecked = !currentState.isWeekendsChecked
+        val isChecked = !currentState.daySelectionState.isWeekendsChecked
         val updatedDays = if (isChecked) {
-            currentState.selectedDays + weekends
+            currentState.daySelectionState.selectedDays + weekends
         } else {
-            currentState.selectedDays - weekends
+            currentState.daySelectionState.selectedDays - weekends
         }
+        val newDayState = currentState.daySelectionState.copy(
+            isWeekendsChecked = isChecked,
+            selectedDays = updatedDays,
+        )
         updateState {
             copy(
-                isWeekendsChecked = isChecked,
-                selectedDays = updatedDays,
+                timeState = timeState.copy(
+                    alarmMessage = getAlarmMessage(timeState.currentAmPm, timeState.currentHour, timeState.currentMinute, newDayState.selectedDays),
+                ),
+                daySelectionState = newDayState,
+                holidayState = holidayState.copy(
+                    isDisableHolidayEnabled = newDayState.selectedDays.isNotEmpty(),
+                    isDisableHolidayChecked = if (newDayState.selectedDays.isEmpty()) false else holidayState.isDisableHolidayChecked,
+                ),
             )
         }
     }
 
     private fun toggleDaySelection(day: AlarmDay) {
-        val updatedDays = if (day in currentState.selectedDays) {
-            currentState.selectedDays - day
+        val updatedDays = if (day in currentState.daySelectionState.selectedDays) {
+            currentState.daySelectionState.selectedDays - day
         } else {
-            currentState.selectedDays + day
+            currentState.daySelectionState.selectedDays + day
         }
         val weekdays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI)
         val weekends = setOf(AlarmDay.SAT, AlarmDay.SUN)
+
+        val newDayState = currentState.daySelectionState.copy(
+            selectedDays = updatedDays,
+            isWeekdaysChecked = updatedDays.containsAll(weekdays),
+            isWeekendsChecked = updatedDays.containsAll(weekends),
+        )
         updateState {
             copy(
-                selectedDays = updatedDays,
-                isWeekdaysChecked = updatedDays.containsAll(weekdays),
-                isWeekendsChecked = updatedDays.containsAll(weekends),
+                timeState = timeState.copy(
+                    alarmMessage = getAlarmMessage(timeState.currentAmPm, timeState.currentHour, timeState.currentMinute, newDayState.selectedDays),
+                ),
+                daySelectionState = newDayState,
+                holidayState = holidayState.copy(
+                    isDisableHolidayEnabled = newDayState.selectedDays.isNotEmpty(),
+                    isDisableHolidayChecked = if (newDayState.selectedDays.isEmpty()) false else holidayState.isDisableHolidayChecked,
+                ),
             )
         }
     }
 
     private fun toggleDisableHolidayChecked() {
+        val newHolidayState = currentState.holidayState.copy(
+            isDisableHolidayChecked = !currentState.holidayState.isDisableHolidayChecked,
+        )
         updateState {
-            copy(
-                isDisableHolidayChecked = !currentState.isDisableHolidayChecked,
-            )
+            copy(holidayState = newHolidayState)
         }
+    }
+
+    private fun toggleSnoozeEnabled() {
+        val newSnoozeState = currentState.snoozeState.copy(
+            isSnoozeEnabled = !currentState.snoozeState.isSnoozeEnabled,
+        )
+        updateState {
+            copy(snoozeState = newSnoozeState)
+        }
+    }
+
+    private fun toggleSnoozeSettingBottomSheet() {
+        val newSnoozeState = currentState.snoozeState.copy(isBottomSheetOpen = !currentState.snoozeState.isBottomSheetOpen)
+        updateState {
+            copy(snoozeState = newSnoozeState)
+        }
+    }
+
+    private fun updateSnoozeInterval(index: Int) {
+        val newSnoozeState = currentState.snoozeState.copy(snoozeIntervalIndex = index)
+        updateState {
+            copy(snoozeState = newSnoozeState)
+        }
+    }
+
+    private fun updateSnoozeCount(index: Int) {
+        val newSnoozeState = currentState.snoozeState.copy(snoozeCountIndex = index)
+        updateState {
+            copy(snoozeState = newSnoozeState)
+        }
+    }
+
+    private fun getAlarmMessage(amPm: String, hour: Int, minute: Int, selectedDays: Set<AlarmDay>): String {
+        val now = java.time.LocalDateTime.now()
+        val alarmHour = convertTo24HourFormat(amPm, hour)
+        val alarmTimeToday = now.toLocalDate().atTime(alarmHour, minute)
+        val nextAlarmDateTime = calculateNextAlarmDateTime(now, alarmTimeToday, selectedDays)
+        val duration = java.time.Duration.between(now, nextAlarmDateTime)
+        val totalMinutes = duration.toMinutes()
+        val days = totalMinutes / (24 * 60)
+        val hours = (totalMinutes % (24 * 60)) / 60
+        val minutes = totalMinutes % 60
+
+        return when {
+            days > 0 -> "${days}일 ${hours}시간 후에 울려요"
+            hours > 0 -> "${hours}시간 ${minutes}분 후에 울려요"
+            else -> "${minutes}분 후에 울려요"
+        }
+    }
+
+    private fun convertTo24HourFormat(amPm: String, hour: Int): Int = when {
+        amPm == "오후" && hour != 12 -> hour + 12
+        amPm == "오전" && hour == 12 -> 0
+        else -> hour
+    }
+
+    private fun calculateNextAlarmDateTime(
+        now: java.time.LocalDateTime,
+        alarmTimeToday: java.time.LocalDateTime,
+        selectedDays: Set<AlarmDay>,
+    ): java.time.LocalDateTime {
+        if (selectedDays.isEmpty()) {
+            return if (alarmTimeToday.isBefore(now)) {
+                alarmTimeToday.plusDays(1)
+            } else {
+                alarmTimeToday
+            }
+        }
+
+        val currentDayOfWeek = now.dayOfWeek.value
+        val selectedDaysOfWeek = selectedDays.map { it.toDayOfWeek().value }.sorted()
+        val nextDay = selectedDaysOfWeek.firstOrNull { it > currentDayOfWeek }
+            ?: selectedDaysOfWeek.first()
+        val daysToAdd = if (nextDay > currentDayOfWeek) {
+            nextDay - currentDayOfWeek
+        } else {
+            7 - (currentDayOfWeek - nextDay)
+        }
+        val nextAlarmDate = now.toLocalDate().plusDays(daysToAdd.toLong())
+        return nextAlarmDate.atTime(alarmTimeToday.toLocalTime())
     }
 }
