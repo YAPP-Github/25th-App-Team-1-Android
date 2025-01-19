@@ -62,6 +62,7 @@ fun OnboardingGenderScreen(
             toggleBottomSheet()
         },
         onBackClick = onBackClick,
+        buttonLabel = "다음",
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),

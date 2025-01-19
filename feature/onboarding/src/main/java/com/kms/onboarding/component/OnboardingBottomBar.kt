@@ -2,7 +2,9 @@ package com.kms.onboarding.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -14,6 +16,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
@@ -23,24 +26,29 @@ fun OnboardingBottomBar(
     currentStep: Int,
     isButtonEnabled: Boolean,
     onNextClick: () -> Unit,
+    buttonLabel: String,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.imePadding(),
-    ) {
-        OrbitButton(
-            modifier = Modifier
-                .padding(horizontal = 20.dp, vertical = 12.dp)
-                .fillMaxWidth(),
-            label = "다음",
-            onClick = onNextClick,
-            enabled = isButtonEnabled,
-        )
-        if (currentStep in 3..5) {
-            AnnotatedTermsText(
-                onTermsClick = { /* Handle terms click */ },
-                onPrivacyPolicyClick = { /* Handle privacy policy click */ },
+    DebounceManager { manager ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.imePadding(),
+        ) {
+            OrbitButton(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 12.dp)
+                    .fillMaxWidth(),
+                label = buttonLabel,
+                onClick = { manager.debounceClick { onNextClick() } },
+                enabled = isButtonEnabled,
             )
+            if (currentStep in 3..5) {
+                AnnotatedTermsText(
+                    onTermsClick = { /* Handle terms click */ },
+                    onPrivacyPolicyClick = { /* Handle privacy policy click */ },
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
         }
     }
 }
@@ -89,4 +97,17 @@ fun AnnotatedTermsText(
                 ?.let { onPrivacyPolicyClick() }
         },
     )
+}
+
+@Composable
+@Preview
+fun OnboardingBottomBarPreview() {
+    OrbitTheme {
+        OnboardingBottomBar(
+            currentStep = 3,
+            isButtonEnabled = true,
+            onNextClick = {},
+            buttonLabel = "다음",
+        )
+    }
 }

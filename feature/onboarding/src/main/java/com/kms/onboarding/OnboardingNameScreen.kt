@@ -7,9 +7,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,6 +60,7 @@ fun OnboardingNameScreen(
         isButtonEnabled = state.isButtonEnabled,
         onNextClick = onNextClick,
         onBackClick = onBackClick,
+        buttonLabel = "다음",
     ) {
         Column(
             modifier = Modifier
@@ -72,10 +78,21 @@ fun OnboardingNameScreen(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )
+            var textFieldValue by remember {
+                mutableStateOf(
+                    TextFieldValue(
+                        text = state.textFieldValue,
+                        selection = TextRange(state.textFieldValue.length),
+                    ),
+                )
+            }
             OrbitTextField(
-                text = state.textFieldValue,
-                onTextChange = { value ->
-                    onTextChange(value)
+                text = textFieldValue,
+                onTextChange = { newValue ->
+                    textFieldValue = newValue.copy(
+                        selection = TextRange(newValue.text.length),
+                    )
+                    onTextChange(newValue.text)
                 },
                 hint = "이름 입력",
                 showWarning = state.showWarning,

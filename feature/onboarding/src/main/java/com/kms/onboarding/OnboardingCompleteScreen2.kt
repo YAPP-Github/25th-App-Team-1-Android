@@ -99,7 +99,7 @@ fun OnboardingCompleteScreen2(
                     resId = core.designsystem.R.raw.step3,
                     contentScale = ContentScale.FillWidth,
                     scaleXAdjustment = 0.85f,
-                    scaleYAdjustment = 0.95f,
+                    scaleYAdjustment = 0.90f,
                 )
                 OrbitButton(
                     label = "시작하기",

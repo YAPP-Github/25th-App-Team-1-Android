@@ -20,6 +20,7 @@ fun OnboardingScreen(
     isButtonEnabled: Boolean,
     onNextClick: () -> Unit,
     onBackClick: (() -> Unit)?,
+    buttonLabel: String,
     showTopAppBar: Boolean = true,
     showTopAppBarActions: Boolean = true,
     content: @Composable () -> Unit,
@@ -51,6 +52,7 @@ fun OnboardingScreen(
             currentStep = currentStep,
             isButtonEnabled = isButtonEnabled,
             onNextClick = onNextClick,
+            buttonLabel = buttonLabel,
         )
     }
 }

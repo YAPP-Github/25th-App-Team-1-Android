@@ -4,12 +4,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +45,7 @@ fun OnboardingCompleteScreen1(
         onBackClick = onBackClick,
         showTopAppBar = true,
         showTopAppBarActions = false,
+        buttonLabel = "다음",
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.heightForScreenPercentage(0.05f))
@@ -67,9 +66,8 @@ fun OnboardingCompleteScreen1(
                 textAlign = TextAlign.Center,
             )
             LottieAnimation(
-                modifier = Modifier.wrapContentSize(),
+                modifier = Modifier.fillMaxSize(),
                 resId = core.designsystem.R.raw.step2,
-                contentScale = ContentScale.FillWidth,
             )
         }
     }

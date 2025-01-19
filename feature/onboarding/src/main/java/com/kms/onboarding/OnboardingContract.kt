@@ -24,7 +24,7 @@ sealed class OnboardingContract {
     }
 
     enum class FieldType(val validationRegex: Regex) {
-        TIME(Regex("^\\d{2}:\\d{2}\$")),
+        TIME(Regex("^(24:00|([0-1]\\d|2[0-3]):[0-5]\\d)\$")),
         NAME(Regex("^(?=.{1,13}\$)(?=.{1,6}(?:[가-힣]|[a-zA-Z]{2})\$)[가-힣a-zA-Z]*\$")),
     }
 

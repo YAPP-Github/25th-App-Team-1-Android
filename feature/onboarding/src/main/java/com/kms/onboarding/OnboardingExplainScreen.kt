@@ -44,6 +44,7 @@ fun OnboardingExplainScreen(
         onNextClick = onNextClick,
         onBackClick = null,
         showTopAppBar = false,
+        buttonLabel = "다음",
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.heightForScreenPercentage(0.105f))
@@ -51,9 +52,7 @@ fun OnboardingExplainScreen(
                 text = stringResource(id = R.string.onboarding_step1_text_title),
                 style = OrbitTheme.typography.body1Regular,
                 color = OrbitTheme.colors.gray_100,
-                modifier = Modifier
-                    .padding(horizontal = 20.dp)
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )
             Text(
@@ -61,9 +60,9 @@ fun OnboardingExplainScreen(
                 style = OrbitTheme.typography.heading1SemiBold,
                 color = OrbitTheme.colors.white,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(horizontal = 20.dp)
-                    .paddingForScreenPercentage(topPercentage = 0.014f, bottomPercentage = 0.037f)
-                    .fillMaxWidth(),
+                    .paddingForScreenPercentage(topPercentage = 0.014f, bottomPercentage = 0.037f),
                 textAlign = TextAlign.Center,
             )
             GifImage(
