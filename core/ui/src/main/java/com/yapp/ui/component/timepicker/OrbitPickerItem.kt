@@ -62,6 +62,12 @@ fun OrbitPickerItem(
             )
             listState.scrollToItem(listStartIndex)
             state.initialized = true
+
+            if (!infiniteScroll) {
+                val selectedIndex = listStartIndex - visibleItemsMiddle
+                val selectedItem = items.getOrNull(selectedIndex.coerceIn(0, items.size - 1)) ?: ""
+                onValueChange(selectedItem)
+            }
         }
     }
 
@@ -70,7 +76,8 @@ fun OrbitPickerItem(
 
         snapshotFlow { listState.layoutInfo }
             .map { layoutInfo ->
-                val centerOffset = layoutInfo.viewportStartOffset + (layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset) / 2
+                val centerOffset = layoutInfo.viewportStartOffset +
+                    (layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset) / 2
                 layoutInfo.visibleItemsInfo.minByOrNull { item ->
                     val itemCenter = item.offset + (item.size / 2)
                     abs(itemCenter - centerOffset)
@@ -79,7 +86,12 @@ fun OrbitPickerItem(
             .distinctUntilChanged()
             .collect { centerIndex ->
                 if (centerIndex != null) {
-                    val adjustedIndex = centerIndex % items.size
+                    val adjustedIndex = if (infiniteScroll) {
+                        centerIndex % items.size
+                    } else {
+                        centerIndex - visibleItemsMiddle
+                    }.coerceIn(0, items.size - 1)
+
                     val newValue = items[adjustedIndex]
 
                     if (infiniteScroll) {
@@ -90,7 +102,6 @@ fun OrbitPickerItem(
                             onScrollCompleted()
                         }
                     }
-
                     if (newValue != state.selectedItem) {
                         state.selectedItem = newValue
                         onValueChange(newValue)
@@ -160,7 +171,7 @@ private fun calculateStartIndex(
     return if (infiniteScroll) {
         listScrollMiddle - listScrollMiddle % itemSize - visibleItemsMiddle + startIndex
     } else {
-        startIndex
+        startIndex + visibleItemsMiddle
     }
 }
 
@@ -168,9 +179,14 @@ private fun calculateStartIndex(
  * 주어진 인덱스에 해당하는 항목을 반환합니다.
  * 무한 스크롤과 보이는 항목의 개수를 고려합니다.
  */
-private fun getItemForIndex(index: Int, items: List<String>, infiniteScroll: Boolean, visibleItemsMiddle: Int): String {
-    return if (!infiniteScroll && (index < visibleItemsMiddle || index >= items.size + visibleItemsMiddle)) {
-        ""
+private fun getItemForIndex(
+    index: Int,
+    items: List<String>,
+    infiniteScroll: Boolean,
+    visibleItemsMiddle: Int,
+): String {
+    return if (!infiniteScroll) {
+        items.getOrNull(index - visibleItemsMiddle) ?: ""
     } else {
         items.getOrNull(index % items.size) ?: ""
     }
