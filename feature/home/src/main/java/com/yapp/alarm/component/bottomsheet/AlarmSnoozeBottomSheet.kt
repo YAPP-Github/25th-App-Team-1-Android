@@ -10,12 +10,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,13 +26,60 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.ui.component.OrbitBottomSheet
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.radiobutton.OrbitRadioButton
 import com.yapp.ui.component.switch.OrbitSwitch
 import feature.home.R
+import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AlarmSnoozeBottomSheet(
+    isSnoozeEnabled: Boolean,
+    snoozeIntervalIndex: Int,
+    snoozeIntervals: List<String>,
+    onIntervalSelected: (Int) -> Unit,
+    snoozeCountIndex: Int,
+    snoozeCounts: List<String>,
+    onSnoozeToggle: () -> Unit,
+    onCountSelected: (Int) -> Unit,
+    onComplete: () -> Unit,
+    isSheetOpen: Boolean,
+    onDismiss: () -> Unit,
+) {
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    OrbitBottomSheet(
+        isSheetOpen = isSheetOpen,
+        sheetState = sheetState,
+        onDismissRequest = {
+            scope.launch {
+                sheetState.hide()
+            }.invokeOnCompletion { onDismiss() }
+        },
+    ) {
+        BottomSheetContent(
+            isSnoozeEnabled = isSnoozeEnabled,
+            snoozeIntervalIndex = snoozeIntervalIndex,
+            snoozeIntervals = snoozeIntervals,
+            onIntervalSelected = onIntervalSelected,
+            snoozeCountIndex = snoozeCountIndex,
+            snoozeCounts = snoozeCounts,
+            onSnoozeToggle = onSnoozeToggle,
+            onCountSelected = onCountSelected,
+            onComplete = {
+                scope.launch {
+                    sheetState.hide()
+                }.invokeOnCompletion { onComplete() }
+            },
+        )
+    }
+}
+
+@Composable
+private fun BottomSheetContent(
     isSnoozeEnabled: Boolean,
     snoozeIntervalIndex: Int,
     snoozeIntervals: List<String>,
@@ -72,10 +122,12 @@ internal fun AlarmSnoozeBottomSheet(
         }
         Spacer(modifier = Modifier.height(32.dp))
         OrbitButton(
-            label = stringResource(id = R.string.alarm_add_edit_alarm_snooze),
-            enabled = isSnoozeEnabled,
+            label = stringResource(id = R.string.alarm_add_edit_complete),
+            enabled = true,
             containerColor = OrbitTheme.colors.gray_600,
             contentColor = OrbitTheme.colors.white,
+            pressedContainerColor = OrbitTheme.colors.gray_500,
+            pressedContentColor = OrbitTheme.colors.white.copy(alpha = 0.7f),
             onClick = onComplete,
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -200,6 +252,7 @@ private fun AlarmSnoozeBottomSheetPreview() {
     var isSnoozeEnabled by remember { mutableStateOf(true) }
     var snoozeIntervalIndex by remember { mutableIntStateOf(2) }
     var snoozeCountIndex by remember { mutableIntStateOf(1) }
+    var isSheetOpen by remember { mutableStateOf(true) }
 
     OrbitTheme {
         AlarmSnoozeBottomSheet(
@@ -219,7 +272,9 @@ private fun AlarmSnoozeBottomSheetPreview() {
             onSnoozeToggle = { isSnoozeEnabled = !isSnoozeEnabled },
             onIntervalSelected = { index -> snoozeIntervalIndex = index },
             onCountSelected = { index -> snoozeCountIndex = index },
-            onComplete = { /* 완료 버튼 클릭 처리 */ },
+            onComplete = { isSheetOpen = false },
+            isSheetOpen = isSheetOpen,
+            onDismiss = { isSheetOpen = false },
         )
     }
 }

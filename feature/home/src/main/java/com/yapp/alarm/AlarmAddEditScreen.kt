@@ -14,10 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.alarm.component.AlarmCheckItem
 import com.yapp.alarm.component.AlarmDayButton
+import com.yapp.alarm.component.bottomsheet.AlarmSnoozeBottomSheet
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
@@ -36,6 +40,7 @@ import com.yapp.ui.component.switch.OrbitSwitch
 import com.yapp.ui.component.timepicker.OrbitPicker
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import feature.home.R
+import kotlinx.coroutines.launch
 
 @Composable
 fun AlarmAddEditRoute(
@@ -68,12 +73,16 @@ fun AlarmAddEditRoute(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlarmAddEditScreen(
     stateProvider: () -> AlarmAddEditContract.State,
     eventDispatcher: (AlarmAddEditContract.Action) -> Unit,
 ) {
     val state = stateProvider()
+    val snoozeState = state.snoozeState
+    val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val scope = rememberCoroutineScope()
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -111,6 +120,32 @@ fun AlarmAddEditScreen(
                 .fillMaxWidth(),
         )
     }
+
+    AlarmSnoozeBottomSheet(
+        isSnoozeEnabled = snoozeState.isSnoozeEnabled,
+        snoozeIntervalIndex = snoozeState.snoozeIntervalIndex,
+        snoozeCountIndex = snoozeState.snoozeCountIndex,
+        snoozeIntervals = snoozeState.snoozeIntervals,
+        snoozeCounts = snoozeState.snoozeCounts,
+        onSnoozeToggle = { eventDispatcher(AlarmAddEditContract.Action.ToggleSnoozeEnabled) },
+        onIntervalSelected = { index -> eventDispatcher(AlarmAddEditContract.Action.UpdateSnoozeInterval(index)) },
+        onCountSelected = { index -> eventDispatcher(AlarmAddEditContract.Action.UpdateSnoozeCount(index)) },
+        onComplete = {
+            scope.launch {
+                bottomSheetState.hide()
+            }.invokeOnCompletion {
+                eventDispatcher(AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen)
+            }
+        },
+        isSheetOpen = snoozeState.isBottomSheetOpen,
+        onDismiss = {
+            scope.launch {
+                bottomSheetState.hide()
+            }.invokeOnCompletion {
+                eventDispatcher(AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen)
+            }
+        },
+    )
 }
 
 @Composable
@@ -174,10 +209,19 @@ private fun AlarmAddEditSettingsSection(
                 .padding(horizontal = 20.dp)
                 .background(OrbitTheme.colors.gray_700),
         )
+
         AlarmAddEditSettingItem(
-            label = "알람 미루기",
-            description = "5분, 무한",
-            onClick = { processAction(AlarmAddEditContract.Action.OpenSnoozeSettingBottomSheet) },
+            label = stringResource(id = R.string.alarm_add_edit_alarm_snooze),
+            description = if (state.snoozeState.isSnoozeEnabled) {
+                stringResource(
+                    id = R.string.alarm_add_edit_alarm_selected_option,
+                    state.snoozeState.snoozeIntervals[state.snoozeState.snoozeIntervalIndex],
+                    state.snoozeState.snoozeCounts[state.snoozeState.snoozeCountIndex],
+                )
+            } else {
+                stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
+            },
+            onClick = { processAction(AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen) },
         )
         Spacer(
             modifier = Modifier.fillMaxWidth()

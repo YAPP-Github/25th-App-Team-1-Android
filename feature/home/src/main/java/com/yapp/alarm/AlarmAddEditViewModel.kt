@@ -23,7 +23,7 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
                 is AlarmAddEditContract.Action.ToggleSnoozeEnabled -> toggleSnoozeEnabled()
                 is AlarmAddEditContract.Action.UpdateSnoozeInterval -> updateSnoozeInterval(action.index)
                 is AlarmAddEditContract.Action.UpdateSnoozeCount -> updateSnoozeCount(action.index)
-                is AlarmAddEditContract.Action.OpenSnoozeSettingBottomSheet -> openSnoozeSettingBottomSheet()
+                is AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen -> toggleSnoozeSettingBottomSheet()
             }
         }
     }
@@ -146,6 +146,13 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
         }
     }
 
+    private fun toggleSnoozeSettingBottomSheet() {
+        val newSnoozeState = currentState.snoozeState.copy(isBottomSheetOpen = !currentState.snoozeState.isBottomSheetOpen)
+        updateState {
+            copy(snoozeState = newSnoozeState)
+        }
+    }
+
     private fun updateSnoozeInterval(index: Int) {
         val newSnoozeState = currentState.snoozeState.copy(snoozeIntervalIndex = index)
         updateState {
@@ -158,10 +165,6 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
         updateState {
             copy(snoozeState = newSnoozeState)
         }
-    }
-
-    private fun openSnoozeSettingBottomSheet() {
-        // TODO: open snooze setting bottom sheet
     }
 
     private fun getAlarmMessage(amPm: String, hour: Int, minute: Int, selectedDays: Set<AlarmDay>): String {
