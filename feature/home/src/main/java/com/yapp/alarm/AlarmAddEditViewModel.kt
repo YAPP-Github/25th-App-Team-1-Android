@@ -1,9 +1,7 @@
 package com.yapp.alarm
 
-import androidx.lifecycle.viewModelScope
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -11,20 +9,23 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
     initialState = AlarmAddEditContract.State(),
 ) {
     fun processAction(action: AlarmAddEditContract.Action) {
-        viewModelScope.launch {
-            when (action) {
-                is AlarmAddEditContract.Action.ClickBack -> navigateBack()
-                is AlarmAddEditContract.Action.ClickSave -> saveAlarm()
-                is AlarmAddEditContract.Action.UpdateAlarmTime -> updateAlarmTime(action.amPm, action.hour, action.minute)
-                is AlarmAddEditContract.Action.ToggleWeekdaysChecked -> toggleWeekdaysChecked()
-                is AlarmAddEditContract.Action.ToggleWeekendsChecked -> toggleWeekendsChecked()
-                is AlarmAddEditContract.Action.ToggleDaySelection -> toggleDaySelection(action.day)
-                is AlarmAddEditContract.Action.ToggleDisableHolidayChecked -> toggleDisableHolidayChecked()
-                is AlarmAddEditContract.Action.ToggleSnoozeEnabled -> toggleSnoozeEnabled()
-                is AlarmAddEditContract.Action.UpdateSnoozeInterval -> updateSnoozeInterval(action.index)
-                is AlarmAddEditContract.Action.UpdateSnoozeCount -> updateSnoozeCount(action.index)
-                is AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen -> toggleSnoozeSettingBottomSheet()
-            }
+        when (action) {
+            is AlarmAddEditContract.Action.ClickBack -> navigateBack()
+            is AlarmAddEditContract.Action.ClickSave -> saveAlarm()
+            is AlarmAddEditContract.Action.UpdateAlarmTime -> updateAlarmTime(action.amPm, action.hour, action.minute)
+            is AlarmAddEditContract.Action.ToggleWeekdaysChecked -> toggleWeekdaysChecked()
+            is AlarmAddEditContract.Action.ToggleWeekendsChecked -> toggleWeekendsChecked()
+            is AlarmAddEditContract.Action.ToggleDaySelection -> toggleDaySelection(action.day)
+            is AlarmAddEditContract.Action.ToggleDisableHolidayChecked -> toggleDisableHolidayChecked()
+            is AlarmAddEditContract.Action.ToggleSnoozeEnabled -> toggleSnoozeEnabled()
+            is AlarmAddEditContract.Action.UpdateSnoozeInterval -> updateSnoozeInterval(action.index)
+            is AlarmAddEditContract.Action.UpdateSnoozeCount -> updateSnoozeCount(action.index)
+            is AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen -> toggleSnoozeSettingBottomSheet()
+            is AlarmAddEditContract.Action.ToggleVibrationEnabled -> toggleVibrationEnabled()
+            is AlarmAddEditContract.Action.ToggleSoundEnabled -> toggleSoundEnabled()
+            is AlarmAddEditContract.Action.UpdateSoundVolume -> updateSoundVolume(action.volume)
+            is AlarmAddEditContract.Action.UpdateSoundIndex -> updateSoundIndex(action.index)
+            is AlarmAddEditContract.Action.ToggleSoundSettingBottomSheetOpen -> toggleSoundSettingBottomSheet()
         }
     }
 
@@ -164,6 +165,41 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
         val newSnoozeState = currentState.snoozeState.copy(snoozeCountIndex = index)
         updateState {
             copy(snoozeState = newSnoozeState)
+        }
+    }
+
+    private fun toggleVibrationEnabled() {
+        val newSoundState = currentState.soundState.copy(isVibrationEnabled = !currentState.soundState.isVibrationEnabled)
+        updateState {
+            copy(soundState = newSoundState)
+        }
+    }
+
+    private fun toggleSoundEnabled() {
+        val newSoundState = currentState.soundState.copy(isSoundEnabled = !currentState.soundState.isSoundEnabled)
+        updateState {
+            copy(soundState = newSoundState)
+        }
+    }
+
+    private fun updateSoundVolume(volume: Int) {
+        val newSoundState = currentState.soundState.copy(soundVolume = volume)
+        updateState {
+            copy(soundState = newSoundState)
+        }
+    }
+
+    private fun updateSoundIndex(index: Int) {
+        val newSoundState = currentState.soundState.copy(soundIndex = index)
+        updateState {
+            copy(soundState = newSoundState)
+        }
+    }
+
+    private fun toggleSoundSettingBottomSheet() {
+        val newSoundState = currentState.soundState.copy(isBottomSheetOpen = !currentState.soundState.isBottomSheetOpen)
+        updateState {
+            copy(soundState = newSoundState)
         }
     }
 

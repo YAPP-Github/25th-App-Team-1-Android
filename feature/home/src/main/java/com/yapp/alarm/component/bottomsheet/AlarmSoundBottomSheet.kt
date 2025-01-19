@@ -86,7 +86,6 @@ internal fun AlarmSoundBottomSheet(
 
 @Composable
 private fun BottomSheetContent(
-    modifier: Modifier = Modifier,
     isVibrationEnabled: Boolean,
     isSoundEnabled: Boolean,
     soundVolume: Int,
@@ -226,6 +225,8 @@ private fun SoundSection(
                 sounds = sounds,
                 onSoundSelected = { onSoundSelected(it) },
             )
+        } else {
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
