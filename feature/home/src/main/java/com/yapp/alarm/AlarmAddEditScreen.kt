@@ -29,6 +29,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.alarm.component.AlarmCheckItem
 import com.yapp.alarm.component.AlarmDayButton
+import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.switch.OrbitSwitch
@@ -39,6 +40,7 @@ import feature.home.R
 @Composable
 fun AlarmAddEditRoute(
     viewModel: AlarmAddEditViewModel = hiltViewModel(),
+    navigator: OrbitNavigator,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
@@ -47,9 +49,14 @@ fun AlarmAddEditRoute(
         sideEffect.collect { effect ->
             when (effect) {
                 is AlarmAddEditContract.SideEffect.NavigateBack -> {
+                    navigator.navigateBack()
                 }
-
                 is AlarmAddEditContract.SideEffect.Navigate -> {
+                    navigator.navigateTo(
+                        route = effect.route,
+                        popUpTo = effect.popUpTo,
+                        inclusive = effect.inclusive,
+                    )
                 }
             }
         }
@@ -73,8 +80,8 @@ fun AlarmAddEditScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AlarmAddEditTopBar(
-            title = state.alarmMessage,
-            onBack = { },
+            title = state.timeState.alarmMessage,
+            onBack = { eventDispatcher(AlarmAddEditContract.Action.ClickBack) },
         )
         Box(
             modifier = Modifier.weight(1f),
@@ -86,18 +93,13 @@ fun AlarmAddEditScreen(
         }
         AlarmAddEditSettingsSection(
             modifier = Modifier.padding(horizontal = 20.dp),
-            isWeekdaysChecked = state.isWeekdaysChecked,
-            isWeekendsChecked = state.isWeekendsChecked,
-            selectedDays = state.selectedDays,
-            isDisableHolidayChecked = state.isDisableHolidayChecked,
-            isDisableHolidayEnabled = state.isDisableHolidayEnabled,
-            days = state.days,
+            state = state,
             processAction = eventDispatcher,
         )
         Spacer(modifier = Modifier.height(24.dp))
         OrbitButton(
             label = stringResource(R.string.alarm_add_edit_save),
-            onClick = { },
+            onClick = { eventDispatcher(AlarmAddEditContract.Action.ClickSave) },
             enabled = true,
             modifier = Modifier
                 .padding(
@@ -144,12 +146,7 @@ private fun AlarmAddEditTopBar(
 @Composable
 private fun AlarmAddEditSettingsSection(
     modifier: Modifier = Modifier,
-    isWeekdaysChecked: Boolean,
-    isWeekendsChecked: Boolean,
-    selectedDays: Set<AlarmDay>,
-    isDisableHolidayChecked: Boolean,
-    isDisableHolidayEnabled: Boolean,
-    days: Set<AlarmDay>,
+    state: AlarmAddEditContract.State,
     processAction: (AlarmAddEditContract.Action) -> Unit,
 ) {
     Column(
@@ -164,15 +161,11 @@ private fun AlarmAddEditSettingsSection(
             ),
     ) {
         AlarmAddEditSelectDaysSection(
-            isWeekdaysChecked = isWeekdaysChecked,
-            isWeekendsChecked = isWeekendsChecked,
-            selectedDays = selectedDays,
-            days = days,
+            state = state.daySelectionState,
             processAction = processAction,
         )
         AlarmAddEditDisableHolidaySwitch(
-            isDisableHolidayChecked = isDisableHolidayChecked,
-            isDisableHolidayEnabled = isDisableHolidayEnabled,
+            state = state.holidayState,
             processAction = processAction,
         )
         Spacer(
@@ -184,7 +177,7 @@ private fun AlarmAddEditSettingsSection(
         AlarmAddEditSettingItem(
             label = "알람 미루기",
             description = "5분, 무한",
-            onClick = { },
+            onClick = { processAction(AlarmAddEditContract.Action.OpenSnoozeSettingBottomSheet) },
         )
         Spacer(
             modifier = Modifier.fillMaxWidth()
@@ -239,10 +232,7 @@ private fun AlarmAddEditSettingItem(
 
 @Composable
 private fun AlarmAddEditSelectDaysSection(
-    isWeekdaysChecked: Boolean,
-    isWeekendsChecked: Boolean,
-    selectedDays: Set<AlarmDay>,
-    days: Set<AlarmDay>,
+    state: AlarmAddEditContract.AlarmDaySelectionState,
     processAction: (AlarmAddEditContract.Action) -> Unit,
 ) {
     Column(
@@ -262,7 +252,7 @@ private fun AlarmAddEditSelectDaysSection(
 
             AlarmCheckItem(
                 label = stringResource(id = R.string.alarm_add_edit_weekdays),
-                isPressed = isWeekdaysChecked,
+                isPressed = state.isWeekdaysChecked,
                 onClick = {
                     processAction(AlarmAddEditContract.Action.ToggleWeekdaysChecked)
                 },
@@ -270,7 +260,7 @@ private fun AlarmAddEditSelectDaysSection(
             Spacer(modifier = Modifier.width(2.dp))
             AlarmCheckItem(
                 label = stringResource(id = R.string.alarm_add_edit_weekends),
-                isPressed = isWeekendsChecked,
+                isPressed = state.isWeekendsChecked,
                 onClick = {
                     processAction(AlarmAddEditContract.Action.ToggleWeekendsChecked)
                 },
@@ -283,10 +273,10 @@ private fun AlarmAddEditSelectDaysSection(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            days.forEach { day ->
+            state.days.forEach { day ->
                 AlarmDayButton(
                     label = stringResource(id = day.label),
-                    isPressed = selectedDays.contains(day),
+                    isPressed = state.selectedDays.contains(day),
                     onClick = {
                         processAction(AlarmAddEditContract.Action.ToggleDaySelection(day))
                     },
@@ -298,8 +288,7 @@ private fun AlarmAddEditSelectDaysSection(
 
 @Composable
 private fun AlarmAddEditDisableHolidaySwitch(
-    isDisableHolidayChecked: Boolean,
-    isDisableHolidayEnabled: Boolean,
+    state: AlarmAddEditContract.AlarmHolidayState,
     processAction: (AlarmAddEditContract.Action) -> Unit,
 ) {
     Row(
@@ -327,8 +316,8 @@ private fun AlarmAddEditDisableHolidaySwitch(
         Spacer(modifier = Modifier.weight(1f))
 
         OrbitSwitch(
-            isChecked = isDisableHolidayChecked,
-            isEnabled = isDisableHolidayEnabled,
+            isChecked = state.isDisableHolidayChecked,
+            isEnabled = state.isDisableHolidayEnabled,
             onClick = {
                 processAction(AlarmAddEditContract.Action.ToggleDisableHolidayChecked)
             },
@@ -340,12 +329,22 @@ private fun AlarmAddEditDisableHolidaySwitch(
 @Composable
 fun AlarmAddEditSettingsSectionPreview() {
     AlarmAddEditSettingsSection(
-        isWeekdaysChecked = true,
-        isWeekendsChecked = false,
-        selectedDays = setOf(AlarmDay.MON, AlarmDay.TUE),
-        isDisableHolidayChecked = false,
-        isDisableHolidayEnabled = true,
-        days = AlarmDay.entries.toSet(),
+        state = AlarmAddEditContract.State(
+            timeState = AlarmAddEditContract.AlarmTimeState(
+                currentAmPm = "AM",
+                currentHour = 9,
+                currentMinute = 30,
+            ),
+            daySelectionState = AlarmAddEditContract.AlarmDaySelectionState(
+                isWeekdaysChecked = true,
+                isWeekendsChecked = false,
+                selectedDays = setOf(AlarmDay.MON, AlarmDay.TUE),
+                days = AlarmDay.entries.toSet(),
+            ),
+            holidayState = AlarmAddEditContract.AlarmHolidayState(
+                isDisableHolidayChecked = false,
+            ),
+        ),
         processAction = { },
     )
 }
@@ -366,14 +365,20 @@ fun AlarmAddEditScreenPreview() {
     AlarmAddEditScreen(
         stateProvider = {
             AlarmAddEditContract.State(
-                currentAmPm = "AM",
-                currentHour = 9,
-                currentMinute = 30,
-                isWeekdaysChecked = true,
-                isWeekendsChecked = false,
-                selectedDays = setOf(AlarmDay.MON, AlarmDay.TUE),
-                isDisableHolidayChecked = false,
-                days = AlarmDay.entries.toSet(),
+                timeState = AlarmAddEditContract.AlarmTimeState(
+                    currentAmPm = "AM",
+                    currentHour = 9,
+                    currentMinute = 30,
+                ),
+                daySelectionState = AlarmAddEditContract.AlarmDaySelectionState(
+                    isWeekdaysChecked = true,
+                    isWeekendsChecked = false,
+                    selectedDays = setOf(AlarmDay.MON, AlarmDay.TUE),
+                    days = AlarmDay.entries.toSet(),
+                ),
+                holidayState = AlarmAddEditContract.AlarmHolidayState(
+                    isDisableHolidayChecked = false,
+                ),
             )
         },
         eventDispatcher = { },
