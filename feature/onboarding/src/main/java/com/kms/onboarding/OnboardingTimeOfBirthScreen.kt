@@ -52,8 +52,8 @@ fun OnboardingTimeOfBirthRoute(
         currentStep = 3,
         totalSteps = 6,
         onNextClick = {
-            viewModel.processAction(OnboardingContract.Action.NextStep)
             viewModel.processAction(OnboardingContract.Action.Reset)
+            viewModel.processAction(OnboardingContract.Action.NextStep)
             keyboardController?.hide()
         },
         onBackClick = {
@@ -85,11 +85,12 @@ fun OnboardingTimeOfBirthScreen(
             ),
         )
     }
+    val isButtonEnabled = isChecked || state.isButtonEnabled
 
     OnboardingScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
-        isButtonEnabled = isChecked,
+        isButtonEnabled = isButtonEnabled,
         onNextClick = onNextClick,
         onBackClick = onBackClick,
         buttonLabel = "다음",
