@@ -55,6 +55,7 @@ fun OnboardingAccessScreen(
         isButtonEnabled = true,
         onNextClick = onNextClick,
         onBackClick = onBackClick,
+        buttonLabel = "네, 알겠어요",
     ) {
         val (text, imageRes) = when (isToggled.value) {
             true -> Pair(

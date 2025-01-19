@@ -31,6 +31,7 @@ fun BirthdayScreen(
         isButtonEnabled = true,
         onNextClick = onNextClick,
         onBackClick = onBackClick,
+        buttonLabel = "만들기",
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.heightForScreenPercentage(0.05f))

@@ -15,6 +15,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
@@ -45,7 +46,7 @@ fun OnboardingAlarmTimeSelectionScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
 ) {
-    var selectedAmPm by remember { mutableStateOf("오전") }
+    var selectedAmPm by remember { mutableStateOf("오후") }
     var selectedHour by remember { mutableIntStateOf(1) }
     var selectedMinute by remember { mutableIntStateOf(0) }
 
@@ -55,6 +56,7 @@ fun OnboardingAlarmTimeSelectionScreen(
         isButtonEnabled = true,
         onNextClick = onNextClick,
         onBackClick = onBackClick,
+        buttonLabel = "만들기",
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.heightForScreenPercentage(0.05f))
@@ -70,14 +72,10 @@ fun OnboardingAlarmTimeSelectionScreen(
                 style = OrbitTheme.typography.body1Regular,
                 color = OrbitTheme.colors.gray_100,
                 modifier = Modifier
-                    .padding(top = 4.dp)
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
                 textAlign = TextAlign.Center,
             )
-
-            var selectedAmPm by remember { mutableStateOf("오후") }
-            var selectedHour by remember { mutableIntStateOf(1) }
-            var selectedMinute by remember { mutableIntStateOf(0) }
 
             OrbitPicker(
                 modifier = Modifier.padding(top = 90.dp),
@@ -87,5 +85,19 @@ fun OnboardingAlarmTimeSelectionScreen(
                 selectedMinute = minute
             }
         }
+    }
+}
+
+@Composable
+@Preview
+fun OnboardingAlarmTimeSelectionScreenPreview() {
+    OrbitTheme {
+        OnboardingAlarmTimeSelectionScreen(
+            state = OnboardingContract.State(),
+            currentStep = 0,
+            totalSteps = 0,
+            onNextClick = {},
+            onBackClick = {},
+        )
     }
 }
