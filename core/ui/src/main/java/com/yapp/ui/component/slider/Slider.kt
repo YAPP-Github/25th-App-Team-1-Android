@@ -65,7 +65,6 @@ fun OrbitSlider(
                 .height(trackHeight)
                 .align(Alignment.Center),
         ) {
-            val totalWidth = sliderSize.width - startOffset * 2
             val normalizedThumbX = thumbX.coerceIn(startOffset, sliderSize.width - startOffset)
             val activeWidth = (normalizedThumbX - startOffset).coerceAtLeast(startOffset)
 
@@ -86,7 +85,7 @@ fun OrbitSlider(
 
             drawRoundRect(
                 color = inactiveBarColor,
-                size = size.copy(width = totalWidth - activeWidth),
+                size = size.copy(width = sliderSize.width.toFloat() - activeWidth),
                 cornerRadius = CornerRadius(100.dp.toPx()),
                 topLeft = Offset(activeWidth + 2.dp.toPx(), 0f),
             )
