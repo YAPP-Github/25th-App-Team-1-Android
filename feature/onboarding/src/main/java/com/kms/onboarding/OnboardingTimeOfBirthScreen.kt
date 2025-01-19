@@ -89,7 +89,7 @@ fun OnboardingTimeOfBirthScreen(
     OnboardingScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
-        isButtonEnabled = state.isButtonEnabled,
+        isButtonEnabled = isChecked,
         onNextClick = onNextClick,
         onBackClick = onBackClick,
         buttonLabel = "다음",

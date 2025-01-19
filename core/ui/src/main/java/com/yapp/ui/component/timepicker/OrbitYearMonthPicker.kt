@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -104,7 +105,14 @@ fun OrbitYearMonthPicker(
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
                         onValueChange = {
-                            onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange)
+                            onPickerValueChange(
+                                lunarPickerState,
+                                yearPickerState,
+                                monthPickerState,
+                                dayPickerState,
+                                dayItems,
+                                onValueChange,
+                            )
                         },
                     )
                     OrbitPickerItem(
@@ -115,9 +123,16 @@ fun OrbitYearMonthPicker(
                         textStyle = OrbitTheme.typography.title2SemiBold,
                         modifier = Modifier.width(screenWidth * 0.28f),
                         textModifier = Modifier.padding(8.dp),
-                        infiniteScroll = true,
+                        infiniteScroll = false,
                         onValueChange = {
-                            onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange)
+                            onPickerValueChange(
+                                lunarPickerState,
+                                yearPickerState,
+                                monthPickerState,
+                                dayPickerState,
+                                dayItems,
+                                onValueChange,
+                            )
                         },
                     )
                     OrbitPickerItem(
@@ -131,33 +146,17 @@ fun OrbitYearMonthPicker(
                         infiniteScroll = false,
                         onValueChange = {
                             scope.launch {
-                                val month = monthPickerState.selectedItem.toIntOrNull() ?: 1
-                                val year = yearPickerState.selectedItem.toIntOrNull() ?: 1900
-                                val maxDay = when (month) {
-                                    1, 3, 5, 7, 8, 10, 12 -> 31
-                                    4, 6, 9, 11 -> 30
-                                    2 -> if (isLeapYear(year)) 29 else 28
-                                    else -> 31
-                                }
-
-                                dayItems.clear()
-                                dayItems.addAll((1..maxDay).map { it.toString().padStart(2, '0') })
-
-                                val currentDay = dayPickerState.selectedItem.toIntOrNull() ?: 1
-                                if (currentDay > maxDay) {
-                                    dayPickerState.lazyListState.animateScrollToItem(maxDay - 1)
-                                }
-
-                                onValueChange(
-                                    lunarPickerState.selectedItem,
-                                    year,
-                                    month,
-                                    currentDay.coerceAtMost(maxDay),
+                                onPickerValueChange(
+                                    lunarPickerState,
+                                    yearPickerState,
+                                    monthPickerState,
+                                    dayPickerState,
+                                    dayItems,
+                                    onValueChange,
                                 )
                             }
                         },
                     )
-
                     OrbitPickerItem(
                         state = dayPickerState,
                         items = dayItems,
@@ -166,9 +165,16 @@ fun OrbitYearMonthPicker(
                         textStyle = OrbitTheme.typography.title2SemiBold,
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
-                        infiniteScroll = false, // **여기서 무한 스크롤 비활성화**
+                        infiniteScroll = false,
                         onValueChange = {
-                            onPickerValueChange(lunarPickerState, yearPickerState, monthPickerState, dayPickerState, onValueChange)
+                            onPickerValueChange(
+                                lunarPickerState,
+                                yearPickerState,
+                                monthPickerState,
+                                dayPickerState,
+                                dayItems,
+                                onValueChange,
+                            )
                         },
                     )
                 }
@@ -182,6 +188,7 @@ private fun onPickerValueChange(
     yearPickerState: PickerState,
     monthPickerState: PickerState,
     dayPickerState: PickerState,
+    dayItems: SnapshotStateList<String>,
     onValueChange: (String, Int, Int, Int) -> Unit,
 ) {
     val lunar = lunarPickerState.selectedItem
@@ -194,6 +201,11 @@ private fun onPickerValueChange(
         4, 6, 9, 11 -> 30
         2 -> if (isLeapYear(year)) 29 else 28
         else -> 31
+    }
+
+    if (dayItems.size != maxDay) {
+        dayItems.clear()
+        dayItems.addAll((1..maxDay).map { it.toString().padStart(2, '0') })
     }
 
     val adjustedDay = day.coerceAtMost(maxDay)
