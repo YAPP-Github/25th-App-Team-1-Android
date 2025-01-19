@@ -1,5 +1,6 @@
 package com.kms.onboarding
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,12 +20,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,7 +76,15 @@ fun OnboardingTimeOfBirthScreen(
     onTextChange: (String) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
-    var isTextPressed by remember { mutableStateOf(false) }
+    var isChecked by remember { mutableStateOf(false) }
+    var textFieldValue by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = state.textFieldValue,
+                selection = TextRange(state.textFieldValue.length),
+            ),
+        )
+    }
 
     OnboardingScreen(
         currentStep = currentStep,
@@ -80,6 +92,7 @@ fun OnboardingTimeOfBirthScreen(
         isButtonEnabled = state.isButtonEnabled,
         onNextClick = onNextClick,
         onBackClick = onBackClick,
+        buttonLabel = "다음",
     ) {
         Column(
             modifier = Modifier
@@ -102,11 +115,19 @@ fun OnboardingTimeOfBirthScreen(
                     textAlign = TextAlign.Center,
                 )
                 OrbitTextField(
-                    text = state.textFieldValue,
+                    text = textFieldValue,
                     onTextChange = { value ->
-                        onTextChange(value)
+                        val formattedValue = formatTimeInput(value.text, textFieldValue.text)
+                        textFieldValue = TextFieldValue(
+                            text = formattedValue,
+                            selection = TextRange(formattedValue.length),
+                        )
+                        onTextChange(formattedValue)
                     },
                     hint = "23:59",
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number,
+                    ),
                     showWarning = state.showWarning,
                     warningMessage = stringResource(id = R.string.onboarding_step4_textfield_warning),
                     modifier = Modifier
@@ -120,40 +141,38 @@ fun OnboardingTimeOfBirthScreen(
                     .wrapContentWidth()
                     .paddingForScreenPercentage(bottomPercentage = 0.017f)
                     .align(Alignment.CenterHorizontally)
-                    .pointerInteropFilter { event ->
-                        when (event.action) {
-                            android.view.MotionEvent.ACTION_DOWN -> {
-                                isTextPressed = true
-                                true
-                            }
-
-                            android.view.MotionEvent.ACTION_UP,
-                            android.view.MotionEvent.ACTION_CANCEL,
-                            -> {
-                                isTextPressed = false
-                                true
-                            }
-
-                            else -> false
-                        }
-                    },
+                    .clickable { isChecked = !isChecked },
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
                     painter = painterResource(id = core.designsystem.R.drawable.ic_check),
                     contentDescription = "Check",
-                    tint = if (isTextPressed) OrbitTheme.colors.main else OrbitTheme.colors.white,
+                    tint = if (isChecked) OrbitTheme.colors.main else OrbitTheme.colors.white,
                 )
                 Text(
                     text = stringResource(id = R.string.onboarding_step4_text_check),
                     style = OrbitTheme.typography.body1Medium,
-                    color = if (isTextPressed) OrbitTheme.colors.main else OrbitTheme.colors.white,
+                    color = if (isChecked) OrbitTheme.colors.main else OrbitTheme.colors.white,
                     modifier = Modifier.padding(start = 4.dp),
                     textAlign = TextAlign.Center,
                 )
             }
         }
+    }
+}
+
+fun formatTimeInput(input: String, previousText: String): String {
+    val sanitizedValue = input.filter { it.isDigit() }
+    return when {
+        sanitizedValue.length < previousText.filter { it.isDigit() }.length -> sanitizedValue
+        sanitizedValue.length > 2 -> {
+            val hours = sanitizedValue.take(2)
+            val minutes = sanitizedValue.drop(2).take(2)
+            "$hours:$minutes"
+        }
+        sanitizedValue.length == 2 -> "$sanitizedValue:"
+        else -> sanitizedValue
     }
 }
 

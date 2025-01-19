@@ -10,6 +10,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -55,6 +57,7 @@ fun OnboardingNameScreen(
         isButtonEnabled = state.isButtonEnabled,
         onNextClick = onNextClick,
         onBackClick = onBackClick,
+        buttonLabel = "다음",
     ) {
         Column(
             modifier = Modifier
@@ -73,9 +76,12 @@ fun OnboardingNameScreen(
                 textAlign = TextAlign.Center,
             )
             OrbitTextField(
-                text = state.textFieldValue,
+                text = TextFieldValue(
+                    text = state.textFieldValue,
+                    selection = TextRange(state.textFieldValue.length),
+                ),
                 onTextChange = { value ->
-                    onTextChange(value)
+                    onTextChange(value.text)
                 },
                 hint = "이름 입력",
                 showWarning = state.showWarning,
