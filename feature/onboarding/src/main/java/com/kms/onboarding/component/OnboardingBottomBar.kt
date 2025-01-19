@@ -23,24 +23,28 @@ fun OnboardingBottomBar(
     currentStep: Int,
     isButtonEnabled: Boolean,
     onNextClick: () -> Unit,
+    buttonLabel: String,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.imePadding(),
-    ) {
-        OrbitButton(
-            modifier = Modifier
-                .padding(horizontal = 20.dp, vertical = 12.dp)
-                .fillMaxWidth(),
-            label = "다음",
-            onClick = onNextClick,
-            enabled = isButtonEnabled,
-        )
-        if (currentStep in 3..5) {
-            AnnotatedTermsText(
-                onTermsClick = { /* Handle terms click */ },
-                onPrivacyPolicyClick = { /* Handle privacy policy click */ },
+    DebounceManager { manager ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.imePadding(),
+        ) {
+            OrbitButton(
+                modifier = Modifier
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 12.dp)
+                    .fillMaxWidth(),
+                label = buttonLabel,
+                onClick = { manager.debounceClick { onNextClick() } },
+                enabled = isButtonEnabled,
             )
+            if (currentStep in 3..5) {
+                AnnotatedTermsText(
+                    onTermsClick = { /* Handle terms click */ },
+                    onPrivacyPolicyClick = { /* Handle privacy policy click */ },
+                )
+            }
         }
     }
 }
