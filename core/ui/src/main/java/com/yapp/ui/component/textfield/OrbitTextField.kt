@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +34,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,13 +42,14 @@ import com.yapp.designsystem.theme.OrbitTheme
 
 @Composable
 fun OrbitTextField(
-    text: String,
-    onTextChange: (String) -> Unit,
+    text: TextFieldValue,
+    onTextChange: (TextFieldValue) -> Unit,
     hint: String,
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
     warningMessage: String,
     onFocusChanged: (Boolean) -> Unit = {},
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
 ) {
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
@@ -78,6 +81,7 @@ fun OrbitTextField(
                     onTextChange = onTextChange,
                     onFocusChanged = onFocusChanged,
                     focusRequester = focusRequester,
+                    keyboardOptions = keyboardOptions,
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -101,7 +105,7 @@ private fun WarningMessage(message: String) {
         Text(
             text = message,
             color = OrbitTheme.colors.alert,
-            style = OrbitTheme.typography.label1SemiBold,
+            style = OrbitTheme.typography.label2Regular,
         )
     }
 }
@@ -109,12 +113,13 @@ private fun WarningMessage(message: String) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TextFieldContainer(
-    text: String,
+    text: TextFieldValue,
     hint: String,
     showWarning: Boolean,
-    onTextChange: (String) -> Unit,
+    onTextChange: (TextFieldValue) -> Unit,
     onFocusChanged: (Boolean) -> Unit,
     focusRequester: FocusRequester,
+    keyboardOptions: KeyboardOptions,
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
@@ -147,16 +152,17 @@ private fun TextFieldContainer(
             value = text,
             onValueChange = onTextChange,
             textStyle = TextStyle(
-                color = if (text.isEmpty()) OrbitTheme.colors.gray_500 else OrbitTheme.colors.white,
+                color = if (text.text.isEmpty()) OrbitTheme.colors.gray_500 else OrbitTheme.colors.white,
                 textAlign = TextAlign.Center,
             ),
+            keyboardOptions = keyboardOptions,
             cursorBrush = SolidColor(OrbitTheme.colors.white),
             decorationBox = { innerTextField ->
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (text.isEmpty()) {
+                    if (text.text.isEmpty()) {
                         Text(
                             text = hint,
                             style = OrbitTheme.typography.body1Regular.copy(textAlign = TextAlign.Center),
@@ -174,7 +180,7 @@ private fun TextFieldContainer(
                 },
         )
 
-        if (text.isNotEmpty()) {
+        if (text.text.isNotEmpty()) {
             Icon(
                 painter = painterResource(id = core.designsystem.R.drawable.ic_circle_delete),
                 contentDescription = "delete",
@@ -185,7 +191,7 @@ private fun TextFieldContainer(
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
-                        onClick = { onTextChange("") },
+                        onClick = { onTextChange(TextFieldValue("")) },
                     ),
             )
         }
@@ -197,7 +203,7 @@ private fun TextFieldContainer(
 fun OrbitTextFieldPreview() {
     OrbitTheme {
         OrbitTextField(
-            text = "",
+            text = TextFieldValue(""),
             onTextChange = {},
             showWarning = false,
             hint = "이름을 입력해주세요",
