@@ -30,7 +30,7 @@ internal fun AlarmDayButton(
         Triple(
             OrbitTheme.colors.main.copy(alpha = 0.1f),
             OrbitTheme.colors.main,
-            Color.Transparent,
+            OrbitTheme.colors.main.copy(alpha = 0.2f),
         )
     } else {
         Triple(

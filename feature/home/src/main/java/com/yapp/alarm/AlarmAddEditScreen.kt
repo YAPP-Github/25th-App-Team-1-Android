@@ -33,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.alarm.component.AlarmCheckItem
 import com.yapp.alarm.component.AlarmDayButton
 import com.yapp.alarm.component.bottomsheet.AlarmSnoozeBottomSheet
+import com.yapp.alarm.component.bottomsheet.AlarmSoundBottomSheet
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
@@ -81,7 +82,8 @@ fun AlarmAddEditScreen(
 ) {
     val state = stateProvider()
     val snoozeState = state.snoozeState
-    val bottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val snoozeBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val soundBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
 
     Column(
@@ -132,17 +134,44 @@ fun AlarmAddEditScreen(
         onCountSelected = { index -> eventDispatcher(AlarmAddEditContract.Action.UpdateSnoozeCount(index)) },
         onComplete = {
             scope.launch {
-                bottomSheetState.hide()
+                snoozeBottomSheetState.hide()
             }.invokeOnCompletion {
-                eventDispatcher(AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen)
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SnoozeSetting))
             }
         },
-        isSheetOpen = snoozeState.isBottomSheetOpen,
+        isSheetOpen = state.bottomSheetState == AlarmAddEditContract.BottomSheetType.SnoozeSetting,
         onDismiss = {
             scope.launch {
-                bottomSheetState.hide()
+                snoozeBottomSheetState.hide()
             }.invokeOnCompletion {
-                eventDispatcher(AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen)
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SnoozeSetting))
+            }
+        },
+    )
+
+    AlarmSoundBottomSheet(
+        isVibrationEnabled = state.soundState.isVibrationEnabled,
+        isSoundEnabled = state.soundState.isSoundEnabled,
+        soundVolume = state.soundState.soundVolume,
+        soundIndex = state.soundState.soundIndex,
+        sounds = state.soundState.sounds,
+        onVibrationToggle = { eventDispatcher(AlarmAddEditContract.Action.ToggleVibrationEnabled) },
+        onSoundToggle = { eventDispatcher(AlarmAddEditContract.Action.ToggleSoundEnabled) },
+        onVolumeChanged = { eventDispatcher(AlarmAddEditContract.Action.UpdateSoundVolume(it)) },
+        onSoundSelected = { eventDispatcher(AlarmAddEditContract.Action.UpdateSoundIndex(it)) },
+        onComplete = {
+            scope.launch {
+                soundBottomSheetState.hide()
+            }.invokeOnCompletion {
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SoundSetting))
+            }
+        },
+        isSheetOpen = state.bottomSheetState == AlarmAddEditContract.BottomSheetType.SoundSetting,
+        onDismiss = {
+            scope.launch {
+                soundBottomSheetState.hide()
+            }.invokeOnCompletion {
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SoundSetting))
             }
         },
     )
@@ -221,7 +250,7 @@ private fun AlarmAddEditSettingsSection(
             } else {
                 stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
             },
-            onClick = { processAction(AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen) },
+            onClick = { processAction(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SnoozeSetting)) },
         )
         Spacer(
             modifier = Modifier.fillMaxWidth()
@@ -230,9 +259,16 @@ private fun AlarmAddEditSettingsSection(
                 .background(OrbitTheme.colors.gray_700),
         )
         AlarmAddEditSettingItem(
-            label = "사운드",
-            description = "진동, 알림음1",
-            onClick = { },
+            label = stringResource(id = R.string.alarm_add_edit_sound),
+            description = when {
+                state.soundState.isSoundEnabled && state.soundState.isVibrationEnabled -> {
+                    "${state.soundState.sounds[state.soundState.soundIndex]}, ${stringResource(id = R.string.alarm_add_edit_vibration)}"
+                }
+                state.soundState.isSoundEnabled -> state.soundState.sounds[state.soundState.soundIndex]
+                state.soundState.isVibrationEnabled -> stringResource(id = R.string.alarm_add_edit_vibration)
+                else -> stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
+            },
+            onClick = { processAction(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SoundSetting)) },
         )
     }
 }

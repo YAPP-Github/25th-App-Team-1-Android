@@ -93,10 +93,14 @@ private fun BottomSheetContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(24.dp),
+            .padding(
+                horizontal = 24.dp,
+                vertical = 12.dp,
+            ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        HeaderSection(isSnoozeEnabled, onSnoozeToggle)
+        Spacer(modifier = Modifier.height(6.dp))
+        VibrationSection(isSnoozeEnabled, onSnoozeToggle)
         Spacer(modifier = Modifier.height(20.dp))
         SelectorSection(
             title = stringResource(id = R.string.alarm_add_edit_interval),
@@ -130,12 +134,11 @@ private fun BottomSheetContent(
             pressedContentColor = OrbitTheme.colors.white.copy(alpha = 0.7f),
             onClick = onComplete,
         )
-        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 
 @Composable
-private fun HeaderSection(isSnoozeEnabled: Boolean, onSnoozeToggle: () -> Unit) {
+private fun VibrationSection(isSnoozeEnabled: Boolean, onSnoozeToggle: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
