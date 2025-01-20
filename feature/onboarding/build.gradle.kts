@@ -16,4 +16,5 @@ dependencies {
     implementation(libs.orbit.viewmodel)
     implementation(libs.coil.compose)
     implementation(libs.coil.gif)
+    implementation(libs.accompanist.permission)
 }

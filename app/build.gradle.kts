@@ -7,9 +7,9 @@ android {
     namespace = "com.yapp.orbit"
 
     defaultConfig {
-        applicationId = "com.yapp.orbit"
         versionCode = 1
         versionName = "1.0"
+        targetSdk = 34
     }
 
     buildTypes {
