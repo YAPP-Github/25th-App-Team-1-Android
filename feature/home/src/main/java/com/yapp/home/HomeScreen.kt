@@ -8,7 +8,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -64,12 +63,12 @@ fun HomeScreen() {
 
     DisposableEffect(Unit) {
         systemUiController.setStatusBarColor(
-            color = Color.Transparent
+            color = Color.Transparent,
         )
         Log.d("HomeScreen", "statusBarColor: Transparent")
         onDispose {
             systemUiController.setStatusBarColor(
-                color = statusBarColor
+                color = statusBarColor,
             )
         }
     }
@@ -94,17 +93,20 @@ fun HomeScreen() {
             id = 4,
             hour = 10,
             minute = 30,
-        )
+        ),
     )
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(OrbitTheme.colors.gray_900)
+            .background(OrbitTheme.colors.gray_900),
     ) {
-        HomeTopBar {
-
-        }
+        HomeTopBar(
+            onSettingClick = {
+            },
+            onMailClick = {
+            },
+        )
 
         Spacer(modifier = Modifier.heightForScreenPercentage(0.13f))
 
@@ -115,6 +117,7 @@ fun HomeScreen() {
 @Composable
 private fun HomeTopBar(
     onSettingClick: () -> Unit,
+    onMailClick: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -123,7 +126,6 @@ private fun HomeTopBar(
                 horizontal = 20.dp,
                 vertical = 12.dp,
             ),
-        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
             text = stringResource(id = R.string.home_top_bar_title),
@@ -133,6 +135,26 @@ private fun HomeTopBar(
             color = OrbitTheme.colors.main,
         )
 
+        Spacer(modifier = Modifier.weight(1f))
+
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .clickable {
+                    onMailClick()
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                painter = painterResource(id = core.designsystem.R.drawable.ic_mail),
+                contentDescription = "Mail",
+                tint = OrbitTheme.colors.white,
+            )
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
         Box(
             modifier = Modifier
                 .size(32.dp)
@@ -140,12 +162,12 @@ private fun HomeTopBar(
                 .clickable {
                     onSettingClick()
                 },
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
         ) {
             Icon(
                 painter = painterResource(id = core.designsystem.R.drawable.ic_setting),
-                contentDescription = "setting",
-                tint = Color.Unspecified,
+                contentDescription = "Setting",
+                tint = OrbitTheme.colors.white,
             )
         }
     }
@@ -158,14 +180,14 @@ private fun HomeEmpty() {
     }
 
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
             painter = painterResource(
-                id = core.designsystem.R.mipmap.img_main_star
+                id = core.designsystem.R.mipmap.img_main_star,
             ),
             contentDescription = "IMG_MAIN_STAR_GRAY",
-            colorFilter = ColorFilter.colorMatrix(colorMatrix)
+            colorFilter = ColorFilter.colorMatrix(colorMatrix),
         )
 
         Spacer(modifier = Modifier.height(35.dp))
@@ -173,7 +195,7 @@ private fun HomeEmpty() {
         Text(
             text = stringResource(id = R.string.home_empty_title),
             style = OrbitTheme.typography.heading1SemiBold,
-            color = OrbitTheme.colors.white
+            color = OrbitTheme.colors.white,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -182,7 +204,7 @@ private fun HomeEmpty() {
             text = stringResource(id = R.string.home_empty_description),
             style = OrbitTheme.typography.body1Regular,
             color = OrbitTheme.colors.gray_300,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -190,8 +212,7 @@ private fun HomeEmpty() {
         AddAlarmButton(
             modifier = Modifier.padding(horizontal = 86.dp),
             onClick = {
-
-            }
+            },
         )
     }
 }
@@ -248,9 +269,7 @@ private fun AddAlarmButton(
 
         Text(
             text = "새 알람 추가하기",
-            style = OrbitTheme.typography.heading1Medium.copy(
-                fontWeight = FontWeight.SemiBold
-            ),
+            style = OrbitTheme.typography.heading1SemiBold,
         )
     }
 }

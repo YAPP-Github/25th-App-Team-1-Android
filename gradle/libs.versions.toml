@@ -65,9 +65,9 @@ espressoCore = "3.6.1"
 material = "1.12.0"
 process-pheonix = "3.0.0"
 lottie = "6.1.0"
-accompanist = "0.37.0"
+accompanist-permissions = "0.37.0"
 
-accompanist = "0.28.0"
+accompanist-systemcontroller = "0.28.0"
 
 [libraries]
 
@@ -111,7 +111,6 @@ compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-mani
 compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 compose-ui-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 compose-compiler-extension = { module = "org.jetbrains.kotlin:compose-compiler-gradle-plugin", version.ref = "kotlin" }
-accompanist-systemui = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist" }
 
 # Hilt
 hilt-core = { group = "com.google.dagger", name = "hilt-core", version.ref = "hilt" }
@@ -151,8 +150,8 @@ material = { group = "com.google.android.material", name = "material", version.r
 
 process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "process-pheonix" }
 lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref= "lottie" }
-accompanist-permission = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
-
+accompanist-permission = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist-permissions" }
+accompanist-systemui = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist-systemcontroller" }
 
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
