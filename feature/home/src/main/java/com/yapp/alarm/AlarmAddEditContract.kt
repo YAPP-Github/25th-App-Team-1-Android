@@ -10,6 +10,7 @@ sealed class AlarmAddEditContract {
         val holidayState: AlarmHolidayState = AlarmHolidayState(),
         val snoozeState: AlarmSnoozeState = AlarmSnoozeState(),
         val soundState: AlarmSoundState = AlarmSoundState(),
+        val bottomSheetState: BottomSheetType? = null,
     ) : UiState
 
     data class AlarmTimeState(
@@ -35,7 +36,6 @@ sealed class AlarmAddEditContract {
         val isSnoozeEnabled: Boolean = true,
         val snoozeIntervalIndex: Int = 2,
         val snoozeCountIndex: Int = 1,
-        val isBottomSheetOpen: Boolean = false,
         val snoozeIntervals: List<String> = listOf("1분", "3분", "5분", "10분", "15분"),
         val snoozeCounts: List<String> = listOf("1회", "3회", "5회", "10회", "무한"),
     )
@@ -46,7 +46,6 @@ sealed class AlarmAddEditContract {
         val soundVolume: Int = 70,
         val soundIndex: Int = 0,
         val sounds: List<String> = (1..7).map { "기본 알람음 $it" },
-        val isBottomSheetOpen: Boolean = false,
     )
 
     sealed class Action {
@@ -57,7 +56,6 @@ sealed class AlarmAddEditContract {
         data object ToggleWeekendsChecked : Action()
         data class ToggleDaySelection(val day: AlarmDay) : Action()
         data object ToggleDisableHolidayChecked : Action()
-        data object ToggleSnoozeSettingBottomSheetOpen : Action()
         data object ToggleSnoozeEnabled : Action()
         data class UpdateSnoozeInterval(val index: Int) : Action()
         data class UpdateSnoozeCount(val index: Int) : Action()
@@ -65,7 +63,12 @@ sealed class AlarmAddEditContract {
         data object ToggleSoundEnabled : Action()
         data class UpdateSoundVolume(val volume: Int) : Action()
         data class UpdateSoundIndex(val index: Int) : Action()
-        data object ToggleSoundSettingBottomSheetOpen : Action()
+        data class ToggleBottomSheetOpen(val sheetType: BottomSheetType) : Action()
+    }
+
+    sealed class BottomSheetType {
+        data object SnoozeSetting : BottomSheetType()
+        data object SoundSetting : BottomSheetType()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {

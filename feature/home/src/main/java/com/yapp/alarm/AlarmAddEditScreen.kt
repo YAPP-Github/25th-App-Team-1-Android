@@ -136,15 +136,15 @@ fun AlarmAddEditScreen(
             scope.launch {
                 snoozeBottomSheetState.hide()
             }.invokeOnCompletion {
-                eventDispatcher(AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen)
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SnoozeSetting))
             }
         },
-        isSheetOpen = snoozeState.isBottomSheetOpen,
+        isSheetOpen = state.bottomSheetState == AlarmAddEditContract.BottomSheetType.SnoozeSetting,
         onDismiss = {
             scope.launch {
                 snoozeBottomSheetState.hide()
             }.invokeOnCompletion {
-                eventDispatcher(AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen)
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SnoozeSetting))
             }
         },
     )
@@ -163,15 +163,15 @@ fun AlarmAddEditScreen(
             scope.launch {
                 soundBottomSheetState.hide()
             }.invokeOnCompletion {
-                eventDispatcher(AlarmAddEditContract.Action.ToggleSoundSettingBottomSheetOpen)
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SoundSetting))
             }
         },
-        isSheetOpen = state.soundState.isBottomSheetOpen,
+        isSheetOpen = state.bottomSheetState == AlarmAddEditContract.BottomSheetType.SoundSetting,
         onDismiss = {
             scope.launch {
                 soundBottomSheetState.hide()
             }.invokeOnCompletion {
-                eventDispatcher(AlarmAddEditContract.Action.ToggleSoundSettingBottomSheetOpen)
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SoundSetting))
             }
         },
     )
@@ -250,7 +250,7 @@ private fun AlarmAddEditSettingsSection(
             } else {
                 stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
             },
-            onClick = { processAction(AlarmAddEditContract.Action.ToggleSnoozeSettingBottomSheetOpen) },
+            onClick = { processAction(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SnoozeSetting)) },
         )
         Spacer(
             modifier = Modifier.fillMaxWidth()
@@ -268,7 +268,7 @@ private fun AlarmAddEditSettingsSection(
                 state.soundState.isVibrationEnabled -> stringResource(id = R.string.alarm_add_edit_vibration)
                 else -> stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
             },
-            onClick = { processAction(AlarmAddEditContract.Action.ToggleSoundSettingBottomSheetOpen) },
+            onClick = { processAction(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SoundSetting)) },
         )
     }
 }
