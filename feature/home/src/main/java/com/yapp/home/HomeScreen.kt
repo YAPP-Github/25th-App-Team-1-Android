@@ -33,8 +33,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -175,19 +173,22 @@ private fun HomeTopBar(
 
 @Composable
 private fun HomeEmpty() {
-    val colorMatrix = ColorMatrix().apply {
-        setToSaturation(0f)
-    }
-
     Column(
+        modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
             painter = painterResource(
-                id = core.designsystem.R.mipmap.img_main_star,
+                id = core.designsystem.R.drawable.ic_no_alarm_speech_bubble,
+            ),
+            contentDescription = "IMG_MAIN_SPEECH_BUBBLE",
+        )
+
+        Image(
+            painter = painterResource(
+                id = core.designsystem.R.drawable.ic_main_no_alarm_star,
             ),
             contentDescription = "IMG_MAIN_STAR_GRAY",
-            colorFilter = ColorFilter.colorMatrix(colorMatrix),
         )
 
         Spacer(modifier = Modifier.height(35.dp))
@@ -210,7 +211,6 @@ private fun HomeEmpty() {
         Spacer(modifier = Modifier.height(32.dp))
 
         AddAlarmButton(
-            modifier = Modifier.padding(horizontal = 86.dp),
             onClick = {
             },
         )
@@ -245,7 +245,6 @@ private fun AddAlarmButton(
     Button(
         onClick = onClick,
         modifier = modifier
-            .fillMaxWidth()
             .padding(all = padding)
             .height(height),
         enabled = enabled,
@@ -256,7 +255,9 @@ private fun AddAlarmButton(
             disabledContainerColor = disabledContainerColor,
             disabledContentColor = disabledContentColor,
         ),
-        contentPadding = PaddingValues(0.dp),
+        contentPadding = PaddingValues(
+            horizontal = 32.dp,
+        ),
         interactionSource = interactionSource,
     ) {
         Icon(
@@ -268,7 +269,7 @@ private fun AddAlarmButton(
         Spacer(modifier = Modifier.width(4.dp))
 
         Text(
-            text = "새 알람 추가하기",
+            text = stringResource(id = R.string.home_btn_add_alarm),
             style = OrbitTheme.typography.heading1SemiBold,
         )
     }
