@@ -13,4 +13,5 @@ dependencies {
     implementation(projects.feature.home)
     implementation(projects.feature.mypage)
     implementation(projects.feature.onboarding)
+    implementation(projects.feature.mission)
 }
