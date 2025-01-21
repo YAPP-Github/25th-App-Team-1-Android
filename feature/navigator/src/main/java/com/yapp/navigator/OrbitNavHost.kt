@@ -2,15 +2,16 @@ package com.yapp.navigator
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.compose.NavHost
 import com.kms.onboarding.onboardingNavGraph
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.TopLevelDestination
 import com.yapp.common.navigation.rememberOrbitNavigator
+import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.home.homeNavGraph
 import com.yapp.mission.missionNavGraph
 import com.yapp.mypage.myPageNavGraph
@@ -32,12 +33,14 @@ internal fun OrbitNavHost(
                 onClickItem = navigator::navigateToTopLevelDestination,
             )
         },
-        containerColor = Color.Transparent,
+        containerColor = OrbitTheme.colors.gray_900,
     ) {
         NavHost(
             navController = navigator.navController,
             startDestination = navigator.startDestination,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .navigationBarsPadding(),
         ) {
             onboardingNavGraph(
                 navigator = navigator,
