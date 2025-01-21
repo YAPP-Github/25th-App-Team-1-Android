@@ -7,7 +7,7 @@ sealed class HomeContract {
 
     data class State(
         val alarms: List<Alarm> = listOf(Alarm()),
-        val lastFortuneScore: Int = 0,
+        val lastFortuneScore: Int = -1,
     ) : UiState
 
     sealed class Action

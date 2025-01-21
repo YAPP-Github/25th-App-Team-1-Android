@@ -288,8 +288,9 @@ private fun HomeCharacterAnimation(
             contentDescription = "IMG_MAIN_SPEECH_BUBBLE",
             tint = Color.Unspecified,
         )
+        Spacer(modifier = Modifier.height(16.dp))
         LottieAnimation(
-            modifier = Modifier.size(140.dp),
+            modifier = Modifier.size(110.dp),
             resId = starRes,
         )
     }
