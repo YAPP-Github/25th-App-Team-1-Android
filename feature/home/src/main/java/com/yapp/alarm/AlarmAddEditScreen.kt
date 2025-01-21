@@ -185,8 +185,8 @@ private fun AlarmAddEditTopBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .statusBarsPadding(),
+            .statusBarsPadding()
+            .height(56.dp),
         contentAlignment = Alignment.Center,
     ) {
         Icon(

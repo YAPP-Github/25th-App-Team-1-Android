@@ -1,7 +1,6 @@
 package com.yapp.navigator
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -24,7 +23,7 @@ internal fun OrbitNavHost(
     navigator: OrbitNavigator = rememberOrbitNavigator(),
 ) {
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier,
         bottomBar = {
             OrbitBottomNavigationBar(
                 visible = false,
@@ -38,9 +37,7 @@ internal fun OrbitNavHost(
         NavHost(
             navController = navigator.navController,
             startDestination = navigator.startDestination,
-            modifier = Modifier
-                .fillMaxSize()
-                .navigationBarsPadding(),
+            modifier = Modifier.navigationBarsPadding(),
         ) {
             onboardingNavGraph(
                 navigator = navigator,
