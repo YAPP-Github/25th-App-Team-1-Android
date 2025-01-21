@@ -251,16 +251,16 @@ private fun HomeCharacterAnimation(
     modifier: Modifier = Modifier,
     fortuneScore: Int,
 ) {
-    val (balloonRes, starRes) = when (fortuneScore) {
+    val (bubbleRes, starRes) = when (fortuneScore) {
         in 0..49 -> {
             Pair(
-                core.designsystem.R.drawable.ic_fortune_0_to_49_speech_ballon,
+                core.designsystem.R.drawable.ic_fortune_0_to_49_speech_bubble,
                 core.designsystem.R.raw.fortune_0_to_49,
             )
         }
         in 50..79 -> {
             Pair(
-                core.designsystem.R.drawable.ic_fortune_50_to_79_speech_ballon,
+                core.designsystem.R.drawable.ic_fortune_50_to_79_speech_bubble,
                 core.designsystem.R.raw.fortune_50_to_79,
             )
         }
@@ -273,7 +273,7 @@ private fun HomeCharacterAnimation(
 
         else -> {
             Pair(
-                core.designsystem.R.drawable.ic_fortune_preload_speech_ballon,
+                core.designsystem.R.drawable.ic_fortune_preload_speech_bubble,
                 core.designsystem.R.raw.fortune_preload,
             )
         }
@@ -283,10 +283,9 @@ private fun HomeCharacterAnimation(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(
-            painter = painterResource(id = balloonRes),
+        Image(
+            painter = painterResource(id = bubbleRes),
             contentDescription = "IMG_MAIN_SPEECH_BUBBLE",
-            tint = Color.Unspecified,
         )
         Spacer(modifier = Modifier.height(16.dp))
         LottieAnimation(
@@ -315,12 +314,11 @@ private fun HomeAlarmEmptyScreen(
 
         Spacer(modifier = Modifier.heightForScreenPercentage(0.13f))
 
-        Icon(
+        Image(
             painter = painterResource(
                 id = core.designsystem.R.drawable.ic_no_alarm_speech_bubble,
             ),
             contentDescription = "IMG_MAIN_SPEECH_BUBBLE",
-            tint = Color.Unspecified,
         )
         Image(
             painter = painterResource(
