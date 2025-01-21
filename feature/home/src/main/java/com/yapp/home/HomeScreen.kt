@@ -319,6 +319,7 @@ private fun HomeAlarmEmptyScreen(
                 id = core.designsystem.R.drawable.ic_no_alarm_speech_bubble,
             ),
             contentDescription = "IMG_MAIN_SPEECH_BUBBLE",
+            tint = Color.Unspecified,
         )
         Image(
             painter = painterResource(
@@ -327,7 +328,7 @@ private fun HomeAlarmEmptyScreen(
             contentDescription = "IMG_MAIN_STAR_GRAY",
         )
 
-        Spacer(modifier = Modifier.height(35.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Text(
             text = stringResource(id = R.string.home_empty_title),
@@ -335,7 +336,7 @@ private fun HomeAlarmEmptyScreen(
             color = OrbitTheme.colors.white,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(
             text = stringResource(id = R.string.home_empty_description),
