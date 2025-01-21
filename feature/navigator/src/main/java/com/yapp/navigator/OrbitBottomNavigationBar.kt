@@ -25,6 +25,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 internal fun OrbitBottomNavigationBar(
+    modifier: Modifier = Modifier,
     visible: Boolean,
     currentTab: TopLevelDestination?,
     entries: ImmutableList<TopLevelDestination>,

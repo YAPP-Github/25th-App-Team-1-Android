@@ -1,16 +1,10 @@
 package com.yapp.designsystem.theme
 
-import android.app.Activity
-import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowCompat
 
 fun orbitColors() = OrbitColors()
 fun orbitFonts() = OrbitTypography()
@@ -30,16 +24,5 @@ fun OrbitTheme(
         LocalTypography provides typography,
     ) {
         ProvideTextStyle(typography.body2Medium, content = content)
-    }
-
-    val view = LocalView.current
-
-    if (!view.isInEditMode) {
-        SideEffect {
-            val window = (view.context as Activity).window
-            window.statusBarColor = colors.gray_900.toArgb()
-            window.setBackgroundDrawable(ColorDrawable(colors.gray_900.toArgb()))
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
-        }
     }
 }

@@ -24,4 +24,9 @@ object Routes {
         const val ROUTE = "mypage_route"
         const val MYPAGE = "mypage"
     }
+
+    object Mission {
+        const val ROUTE = "mission_route"
+        const val MISSION = "mission"
+    }
 }

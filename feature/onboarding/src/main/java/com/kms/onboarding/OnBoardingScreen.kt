@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.kms.onboarding.component.OnBoardingTopAppBar
@@ -29,8 +27,6 @@ fun OnboardingScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(OrbitTheme.colors.gray_900)
-            .statusBarsPadding()
-            .navigationBarsPadding()
             .imePadding(),
     ) {
         if (showTopAppBar) {
