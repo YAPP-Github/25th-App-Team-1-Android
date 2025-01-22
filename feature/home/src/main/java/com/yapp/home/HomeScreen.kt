@@ -40,6 +40,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,6 +55,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
+import com.yapp.ui.utils.toPx
 import feature.home.R
 
 @Composable
@@ -116,9 +118,11 @@ private fun HomeContent(state: HomeContract.State) {
 
         SkyImage()
 
+        val characterY = (LocalConfiguration.current.screenHeightDp.dp * 0.28f) - 130.dp
+
         HomeCharacterAnimation(
             modifier = Modifier
-                .offset(y = 80.dp)
+                .offset(y = characterY)
                 .align(Alignment.TopCenter),
             fortuneScore = state.lastFortuneScore,
         )
@@ -198,14 +202,15 @@ private fun HomeTopBar(
 
 @Composable
 fun HillWithGradient() {
+    val hillTopY = (LocalConfiguration.current.screenHeightDp.dp * 0.28f).toPx()
+
     Canvas(
         modifier = Modifier.fillMaxSize(),
     ) {
         val canvasWidth = size.width
         val canvasHeight = size.height
-        val hillTopY = 210.dp.toPx()
 
-        val circleRadius = canvasWidth / 1f
+        val circleRadius = canvasWidth / 0.8f
 
         val gradientBrush = Brush.verticalGradient(
             colors = listOf(
