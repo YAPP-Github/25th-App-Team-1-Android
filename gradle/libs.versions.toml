@@ -65,9 +65,7 @@ espressoCore = "3.6.1"
 material = "1.12.0"
 process-pheonix = "3.0.0"
 lottie = "6.1.0"
-accompanist-permissions = "0.37.0"
-
-accompanist-systemcontroller = "0.28.0"
+accompanist = "0.37.0"
 
 [libraries]
 
@@ -150,8 +148,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 
 process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "process-pheonix" }
 lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref= "lottie" }
-accompanist-permission = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist-permissions" }
-accompanist-systemui = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version.ref = "accompanist-systemcontroller" }
+accompanist-permission = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
