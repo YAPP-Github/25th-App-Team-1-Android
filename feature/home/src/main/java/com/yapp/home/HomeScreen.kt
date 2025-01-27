@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -57,6 +56,9 @@ import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
 import feature.home.R
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 
 @Composable
 fun HomeRoute(
@@ -120,12 +122,22 @@ private fun HomeContent(state: HomeContract.State) {
 
         val characterY = (LocalConfiguration.current.screenHeightDp.dp * 0.28f) - 130.dp
 
-        HomeCharacterAnimation(
-            modifier = Modifier
-                .offset(y = characterY)
-                .align(Alignment.TopCenter),
-            fortuneScore = state.lastFortuneScore,
-        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Spacer(modifier = Modifier.height(characterY))
+
+            HomeCharacterAnimation(
+                fortuneScore = state.lastFortuneScore,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            HomeFortuneDescription(
+                fortuneScore = state.lastFortuneScore,
+                name = state.name,
+                deliveryTime = state.deliveryTime,
+            )
+        }
 
         HomeTopBar(
             isTitleVisible = false,
@@ -301,6 +313,43 @@ private fun HomeCharacterAnimation(
 }
 
 @Composable
+private fun HomeFortuneDescription(
+    modifier: Modifier = Modifier,
+    fortuneScore: Int,
+    name: String,
+    deliveryTime: String,
+) {
+    val descriptionRes = when (fortuneScore) {
+        in 0..49 -> R.string.home_fortune_0_to_49_description
+        in 50..79 -> R.string.home_fortune_50_to_79_description
+        in 80..100 -> R.string.home_fortune_80_to_100_description
+        else -> R.string.home_fortune_preload_description
+    }
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = formatFortuneDeliveryTime(deliveryTime),
+            style = OrbitTheme.typography.label1Medium,
+            color = OrbitTheme.colors.white.copy(
+                alpha = 0.7f,
+            ),
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = stringResource(id = descriptionRes, name),
+            style = OrbitTheme.typography.heading2SemiBold,
+            color = OrbitTheme.colors.white,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
 private fun HomeAlarmEmptyScreen(
     onSettingClick: () -> Unit,
     onMailClick: () -> Unit,
@@ -412,6 +461,44 @@ private fun AddAlarmButton(
             text = stringResource(id = R.string.home_btn_add_alarm),
             style = OrbitTheme.typography.heading1SemiBold,
         )
+    }
+}
+
+private fun formatFortuneDeliveryTime(formattedTime: String): String {
+    return try {
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault())
+        val inputDate = inputFormat.parse(formattedTime) ?: return ""
+
+        val now = Calendar.getInstance()
+        val inputCalendar = Calendar.getInstance().apply { time = inputDate }
+
+        val startOfTomorrow = Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, 1)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val endOfTomorrow = Calendar.getInstance().apply {
+            add(Calendar.DAY_OF_YEAR, 2)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+
+        val timeFormat = SimpleDateFormat("a h:mm", Locale.getDefault()) // 오전/오후 hh:mm
+        val monthDayFormat = SimpleDateFormat("M월 d일 a h:mm", Locale.getDefault()) // M월 d일 오전/오후 hh:mm
+        val yearMonthDayFormat = SimpleDateFormat("yy년 M월 d일 a h:mm", Locale.getDefault()) // yy년 M월 d일 오전/오후 hh:mm
+
+        when {
+            inputCalendar.timeInMillis >= startOfTomorrow.timeInMillis &&
+                inputCalendar.timeInMillis < endOfTomorrow.timeInMillis -> "내일 ${timeFormat.format(inputCalendar.time)}"
+            inputCalendar.get(Calendar.YEAR) == now.get(Calendar.YEAR) -> monthDayFormat.format(inputCalendar.time)
+            else -> yearMonthDayFormat.format(inputCalendar.time)
+        }
+    } catch (e: Exception) {
+        ""
     }
 }
 

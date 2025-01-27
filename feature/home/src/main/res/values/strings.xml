@@ -3,6 +3,12 @@
     <string name="home_top_bar_title">Orbit</string>
     <string name="home_empty_title">기상 알림이 없어요</string>
     <string name="home_empty_description">알림을 추가하고\n운세 편지를 받아보세요</string>
+
+    <string name="home_fortune_preload_description">미래에서 온 운세 편지를 작성 중이야</string>
+    <string name="home_fortune_0_to_49_description">오늘 %s의 하루는 주의가 필요해</string>
+    <string name="home_fortune_50_to_79_description">오늘 %s의 하루는 최고야</string>
+    <string name="home_fortune_80_to_100_description">오늘 %s의 하루는 누구보다 빛나!</string>
+
     <string name="home_btn_add_alarm">새 알람 추가하기</string>
     <string name="alarm_add_edit_repeat">요일 반복</string>
     <string name="alarm_add_edit_weekdays">평일</string>
