@@ -46,7 +46,11 @@ jobs:
       - name: Decode google-services.json
         env:
           FIREBASE_SECRET: ${{ secrets.FIREBASE_SECRET }}
-        run: echo $FIREBASE_SECRET > app/google-services.json
+        run: echo $FIREBASE_SECRET | base64 --decode > app/google-services.json
+
+      # Debug google-services.json
+      - name: Debug google-services.json
+        run: cat app/google-services.json
 
       # Add Local Properties
       - name: Add Local Properties

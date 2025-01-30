@@ -49,6 +49,14 @@ okhttp = "4.12.0"
 retrofit = "2.11.0"
 retrofit-kotlinx-serialization-json = "1.0.0"
 coil = "2.4.0"
+sentry = "5.0.0"
+sentry-android = "8.0.0"
+sentry-compose = "8.0.0"
+
+# Google Libraries Versions
+google-service = "4.4.2"
+firebase-bom = "33.1.1"
+firebase-app-distribution = "5.1.0"
 
 ## Test
 junit = "4.13.2"
@@ -129,6 +137,12 @@ retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.r
 retrofit-kotlin-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
 okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version.ref = "okhttp" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+#sentry-android = { group = "io.sentry", name = "sentry-android", version.ref = "sentry-android" }
+#sentry-compose = { group = "io.sentry", name = "sentry-compose", version.ref = "sentry-compose" }
+
+# Google Libraries
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
 
 ## Logging
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
@@ -161,3 +175,6 @@ android-library = { id = "com.android.library", version.ref = "android-gradle-pl
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+google-service = { id = "com.google.gms.google-services", version.ref = "google-service" }
+firebase-app-distribution = { id = "com.google.firebase.appdistribution", version.ref = "firebase-app-distribution" }
+#sentry = { id = "io.sentry.android.gradle", version.ref = "sentry" }
