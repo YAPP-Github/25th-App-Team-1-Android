@@ -96,14 +96,18 @@ jobs:
                   echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" | base64 --decode > $HOME/firebase-credentials.json
                   echo "🔥 Firebase Credentials JSON 생성 완료!"
                   ls -l $HOME/firebase-credentials.json
-                  cat $HOME/firebase-credentials.json
                   export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-credentials.json
                   echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS"
 
-            # 15. Firebase CLI 인증 확인
+            # 15. Firebase 프로젝트 설정
+            - name: Set Firebase Project
+              run: |
+                  export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-credentials.json
+                  firebase use --add || (echo "❌ Firebase 프로젝트 설정 실패!"; exit 1)
+
+            # 16. Firebase CLI 인증 확인
             - name: Check Firebase CLI Authentication
               run: |
-                  echo "🔥 Firebase CLI 인증 디버깅 시작..."
                   export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-credentials.json
                   echo "📌 GOOGLE_APPLICATION_CREDENTIALS 설정 값:"
                   echo $GOOGLE_APPLICATION_CREDENTIALS
@@ -111,15 +115,14 @@ jobs:
                   cat $GOOGLE_APPLICATION_CREDENTIALS
 
                   echo "📌 현재 Firebase 프로젝트 목록 확인:"
-                  firebase projects:list
+                  firebase projects:list || (echo "❌ Firebase 인증 실패!"; exit 1)
 
-            # 16. Firebase App Distribution Upload
+            # 17. Firebase App Distribution Upload
             - name: Upload APK to Firebase App Distribution
               env:
                   GOOGLE_APPLICATION_CREDENTIALS: $HOME/firebase-credentials.json
                   FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
               run: |
-                  # FIREBASE_APP_ID 확인
                   echo "🔥 FIREBASE_APP_ID 확인: $FIREBASE_APP_ID"
 
                   # 만약 FIREBASE_APP_ID가 없으면 에러 출력 후 종료
@@ -128,13 +131,16 @@ jobs:
                     exit 1
                   fi
 
+                  # GOOGLE_APPLICATION_CREDENTIALS를 다시 설정
+                  export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-credentials.json
+                  echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS"
+
                   firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
                   --app "$FIREBASE_APP_ID" \
                   --release-notes "🚀 새로운 데모 버전이 배포되었습니다!" \
                   --groups "orbit_tester_group"
 
-
-            # 17. Notify Discord
+            # 18. Notify Discord
             - name: Notify Discord
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
