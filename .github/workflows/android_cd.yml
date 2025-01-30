@@ -92,20 +92,39 @@ jobs:
             - name: Set up Firebase Service Account Credentials
               env:
                   GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
-              run: echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > $HOME/firebase-credentials.json
+              run: |
+                  echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > $HOME/firebase-credentials.json
+                  echo "🔥 Firebase Credentials JSON 생성 완료!"
+                  ls -l $HOME/firebase-credentials.json
+                  cat $HOME/firebase-credentials.json
 
-            # 15. Firebase App Distribution Upload
+            # 15. Firebase CLI 인증 확인
+            - name: Check Firebase CLI Authentication
+              env:
+                  GOOGLE_APPLICATION_CREDENTIALS: $HOME/firebase-credentials.json
+              run: |
+                  echo "🔥 Firebase CLI 인증 디버깅 시작..."
+                  echo "📌 GOOGLE_APPLICATION_CREDENTIALS 설정 값:"
+                  echo $GOOGLE_APPLICATION_CREDENTIALS
+                  ls -l $GOOGLE_APPLICATION_CREDENTIALS
+                  cat $GOOGLE_APPLICATION_CREDENTIALS
+
+                  echo "📌 현재 Firebase 프로젝트 목록 확인:"
+                  firebase projects:list
+
+            # 16. Firebase App Distribution Upload
             - name: Upload APK to Firebase App Distribution
               env:
                   GOOGLE_APPLICATION_CREDENTIALS: $HOME/firebase-credentials.json
                   FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
               run: |
+                  echo "🔥 FIREBASE_APP_ID: $FIREBASE_APP_ID"
                   firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
                   --app "$FIREBASE_APP_ID" \
                   --release-notes "🚀 새로운 데모 버전이 배포되었습니다!" \
                   --groups "orbit_tester_group"
 
-            # 16. Notify Discord
+            # 17. Notify Discord
             - name: Notify Discord
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
