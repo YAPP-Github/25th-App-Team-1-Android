@@ -132,7 +132,7 @@ jobs:
                   firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
                   --app "$FIREBASE_APP_ID" \
                   --release-notes "🚀 새로운 데모 버전이 배포되었습니다!" \
-                  --groups "orbit_tester_group"
+                  --groups "orbit-tester-group"
 
             # 17. Notify Discord
             - name: Notify Discord
