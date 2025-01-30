@@ -97,13 +97,14 @@ jobs:
                   echo "🔥 Firebase Credentials JSON 생성 완료!"
                   ls -l $HOME/firebase-credentials.json
                   cat $HOME/firebase-credentials.json
+                  export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-credentials.json
+                  echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS"
 
             # 15. Firebase CLI 인증 확인
             - name: Check Firebase CLI Authentication
-              env:
-                  GOOGLE_APPLICATION_CREDENTIALS: $HOME/firebase-credentials.json
               run: |
                   echo "🔥 Firebase CLI 인증 디버깅 시작..."
+                  export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-credentials.json
                   echo "📌 GOOGLE_APPLICATION_CREDENTIALS 설정 값:"
                   echo $GOOGLE_APPLICATION_CREDENTIALS
                   ls -l $GOOGLE_APPLICATION_CREDENTIALS
@@ -118,9 +119,10 @@ jobs:
                   GOOGLE_APPLICATION_CREDENTIALS: $HOME/firebase-credentials.json
                   FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
               run: |
+                  # FIREBASE_APP_ID 확인
                   echo "🔥 FIREBASE_APP_ID 확인: $FIREBASE_APP_ID"
 
-                  # 만약 FIREBASE_APP_ID가 설정되지 않았으면 오류 출력 후 종료
+                  # 만약 FIREBASE_APP_ID가 없으면 에러 출력 후 종료
                   if [ -z "$FIREBASE_APP_ID" ]; then
                     echo "❌ ERROR: FIREBASE_APP_ID가 설정되지 않았습니다. GitHub Secrets에서 확인하세요."
                     exit 1
@@ -131,7 +133,8 @@ jobs:
                   --release-notes "🚀 새로운 데모 버전이 배포되었습니다!" \
                   --groups "orbit_tester_group"
 
-            # 17. Notify Discord
+
+                # 17. Notify Discord
             - name: Notify Discord
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
