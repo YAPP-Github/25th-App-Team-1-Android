@@ -1,5 +1,7 @@
 package com.yapp.alarm
 
+import com.yapp.domain.model.AlarmDay
+import com.yapp.domain.model.toDayOfWeek
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
