@@ -93,7 +93,7 @@ jobs:
               env:
                   GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
               run: |
-                  echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > $HOME/firebase-credentials.json
+                  echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" | base64 --decode > $HOME/firebase-credentials.json
                   echo "🔥 Firebase Credentials JSON 생성 완료!"
                   ls -l $HOME/firebase-credentials.json
                   cat $HOME/firebase-credentials.json
