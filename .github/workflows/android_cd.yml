@@ -88,18 +88,24 @@ jobs:
                   name: release-apk
                   path: app/build/outputs/apk/release/app-release.apk
 
-            # 14. Firebase App Distribution Upload
+            # 14. Set up Firebase Service Account Credentials
+            - name: Set up Firebase Service Account Credentials
+              env:
+                  GOOGLE_APPLICATION_CREDENTIALS_JSON: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS_JSON }}
+              run: echo "$GOOGLE_APPLICATION_CREDENTIALS_JSON" > $HOME/firebase-credentials.json
+
+            # 15. Firebase App Distribution Upload
             - name: Upload APK to Firebase App Distribution
               env:
-                  FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+                  GOOGLE_APPLICATION_CREDENTIALS: $HOME/firebase-credentials.json
                   FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
               run: |
                   firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
                   --app "$FIREBASE_APP_ID" \
-                  --release-notes "🚀 새로운 릴리즈 버전이 배포되었습니다!" \
-                  --groups "internal-testers"
+                  --release-notes "🚀 새로운 데모 버전이 배포되었습니다!" \
+                  --groups "orbit_tester_group"
 
-            # 15. Notify Discord
+            # 16. Notify Discord
             - name: Notify Discord
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
