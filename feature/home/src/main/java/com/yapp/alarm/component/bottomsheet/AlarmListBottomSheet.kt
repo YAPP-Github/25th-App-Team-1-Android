@@ -30,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -91,12 +92,16 @@ internal fun AlarmListBottomSheet(
                 alarms = alarms,
                 onClickAdd = onClickAdd,
                 onClickMore = onClickMore,
+                expandedType = expandedType,
             )
         },
         sheetShadowElevation = 0.dp,
         sheetDragHandle = {
-            CustomDragHandle()
+            if (expandedType == BottomSheetExpandState.HALF_EXPANDED) {
+                CustomDragHandle()
+            }
         },
+        sheetShape = RectangleShape,
         sheetPeekHeight = screenHeight / 2,
         sheetContainerColor = Color.Transparent,
     ) {
@@ -110,13 +115,16 @@ internal fun AlarmBottomSheetContent(
     alarms: List<Alarm>,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
+    expandedType: BottomSheetExpandState,
 ) {
+    val cornerRadius = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 30.dp else 0.dp
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .background(
-                color = OrbitTheme.colors.gray_800,
-                shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
+                color = OrbitTheme.colors.gray_900,
+                shape = RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius),
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -187,7 +195,11 @@ internal fun AlarmBottomSheetContent(
 private fun AlarmListBottomSheetPreview() {
     OrbitTheme {
         AlarmListBottomSheet(
-            alarms = emptyList(),
+            alarms = listOf(
+                Alarm(id = 1),
+                Alarm(id = 2),
+                Alarm(id = 3),
+            ),
             onClickAdd = { },
             onClickMore = { },
         ) {
