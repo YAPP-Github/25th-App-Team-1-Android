@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         versionCode = 1
-        versionName = "1.0"
+        versionName = "0.0.1"
         targetSdk = 34
     }
 
