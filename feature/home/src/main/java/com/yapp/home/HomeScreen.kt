@@ -140,7 +140,7 @@ private fun HomeContent(state: HomeContract.State) {
                     .fillMaxWidth()
                     .layout { measurable, constraints ->
                         val placeable = measurable.measure(constraints)
-                        sheetHalfExpandHeight = screenHeight - placeable.height.toDp() + 20.dp
+                        sheetHalfExpandHeight = screenHeight - placeable.height.toDp()
                         layout(placeable.width, placeable.height) {
                             placeable.placeRelative(0, 0)
                         }
