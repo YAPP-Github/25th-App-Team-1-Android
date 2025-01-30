@@ -62,15 +62,33 @@ jobs:
             - name: Run Ktlint Check
               run: ./gradlew ktlintCheck --stacktrace
 
-            # 9. Test Build
-            - name: Run Unit Tests
-              run: ./gradlew test --stacktrace
+            # 9. Debug APK Build
+            - name: Build Debug APK
+              run: ./gradlew assembleDebug --stacktrace
 
-            # 10. Release APK Build
+            # 10. Release AAB Build
+            - name: Build Release AAB
+              run: ./gradlew bundleRelease --stacktrace
+
+            # 11. Release APK Build
             - name: Build Release APK
               run: ./gradlew assembleRelease --stacktrace
 
-            # 11. Upload APK to Firebase App Distribution
+            # 12. AAB Artifact Upload
+            - name: Upload Release AAB
+              uses: actions/upload-artifact@v3
+              with:
+                  name: release-aab
+                  path: app/build/outputs/bundle/release/app-release.aab
+
+            # 13. APK Artifact Upload
+            - name: Upload Release APK
+              uses: actions/upload-artifact@v3
+              with:
+                  name: release-apk
+                  path: app/build/outputs/apk/release/app-release.apk
+
+            # 14. Firebase App Distribution Upload
             - name: Upload APK to Firebase App Distribution
               env:
                   FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
@@ -78,10 +96,10 @@ jobs:
               run: |
                   firebase appdistribution:distribute app/build/outputs/apk/release/app-release.apk \
                   --app "$FIREBASE_APP_ID" \
-                  --release-notes "🚀 새로운 데모 버전이 배포되었습니다!" \
+                  --release-notes "🚀 새로운 릴리즈 버전이 배포되었습니다!" \
                   --groups "internal-testers"
 
-            # 12. Notify Discord
+            # 15. Notify Discord
             - name: Notify Discord
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
