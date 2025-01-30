@@ -168,7 +168,8 @@ private fun AlarmListItemPreview() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(OrbitTheme.colors.gray_800),
+                    .background(OrbitTheme.colors.gray_800)
+                    .padding(horizontal = 24.dp),
             )
             AlarmListItem(
                 repeatDays = emptyList<AlarmDay>().toRepeatDays(),

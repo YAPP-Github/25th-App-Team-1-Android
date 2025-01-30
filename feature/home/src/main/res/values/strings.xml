@@ -43,4 +43,6 @@
     <string name="alarm_add_edit_complete">완료</string>
     <string name="alarm_add_edit_save">저장하기</string>
     <string name="alarm_add_edit_delete">삭제</string>
+
+    <string name="alarm_list_bottom_sheet_title">알람</string>
 </resources>
