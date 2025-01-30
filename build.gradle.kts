@@ -9,6 +9,9 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.google.service) apply false
+    alias(libs.plugins.firebase.app.distribution) apply false
+//    alias(libs.plugins.sentry) apply false
 }
 
 apply {

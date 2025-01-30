@@ -1,6 +1,8 @@
 plugins {
     id("orbit.android.application")
     id("orbit.android.compose")
+    alias(libs.plugins.google.service)
+    alias(libs.plugins.firebase.app.distribution)
 }
 
 android {
