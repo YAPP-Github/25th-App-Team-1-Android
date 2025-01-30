@@ -137,12 +137,7 @@ private fun getNextAlarmDateWithTime(isAm: Boolean, hour: Int, minute: Int): Str
         todayAlarm.plusDays(1).toLocalDate()
     }
 
-    // 포맷 설정 (년도가 바뀌면 YY년 MM월 DD일)
-    return if (now.year != nextAlarmDate.year) {
-        nextAlarmDate.format(DateTimeFormatter.ofPattern("yy년 MM월 dd일"))
-    } else {
-        nextAlarmDate.format(DateTimeFormatter.ofPattern("MM월 dd일"))
-    }
+    return nextAlarmDate.format(DateTimeFormatter.ofPattern("M월 d일"))
 }
 
 @Preview
