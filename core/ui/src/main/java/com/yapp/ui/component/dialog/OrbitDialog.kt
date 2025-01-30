@@ -66,11 +66,11 @@ fun OrbitDialog(
         ) {
             Text(
                 text = title,
-                style = OrbitTheme.typography.heading1SemiBold,
+                style = OrbitTheme.typography.headline1SemiBold,
                 color = OrbitTheme.colors.gray_50,
                 textAlign = TextAlign.Center,
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = message,
                 style = OrbitTheme.typography.body1Regular,
@@ -208,3 +208,98 @@ fun PreviewCustomDialogDoubleButton() {
         }
     }
 }
+// package com.yapp.ui.component.dialog
+//
+// import androidx.compose.foundation.background
+// import androidx.compose.foundation.layout.Column
+// import androidx.compose.foundation.layout.Row
+// import androidx.compose.foundation.layout.fillMaxWidth
+// import androidx.compose.foundation.layout.padding
+// import androidx.compose.foundation.shape.RoundedCornerShape
+// import androidx.compose.material3.Text
+// import androidx.compose.runtime.Composable
+// import androidx.compose.ui.Alignment
+// import androidx.compose.ui.Modifier
+// import androidx.compose.ui.graphics.Shape
+// import androidx.compose.ui.text.style.TextAlign
+// import androidx.compose.ui.tooling.preview.Preview
+// import androidx.compose.ui.unit.dp
+// import androidx.compose.ui.window.Dialog
+// import com.yapp.designsystem.theme.OrbitTheme
+// import com.yapp.ui.component.button.OrbitButton
+//
+// @Composable
+// fun OrbitDialog(
+//    shape: Shape = RoundedCornerShape(20.dp),
+//    title: String? = null,
+//    subTitle: String? = null,
+//    positiveButtonLabel: String = "",
+//    negativeButtonLabel: String = "",
+//    onPositiveButtonClick: () -> Unit = {},
+//    onDismissRequest: () -> Unit = {},
+// ) {
+//    Dialog(onDismissRequest = onDismissRequest) {
+//        Column(
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .background(color = OrbitTheme.colors.gray_700, shape = shape)
+//                .padding(horizontal = 20.dp, vertical = 20.dp),
+//            horizontalAlignment = Alignment.CenterHorizontally,
+//        ) {
+//            title?.let {
+//                Text(
+//                    text = title,
+//                    style = OrbitTheme.typography.headline1SemiBold,
+//                    color = OrbitTheme.colors.gray_50,
+//                    textAlign = TextAlign.Center,
+//                )
+//            }
+//            if (subTitle != null) {
+//                Text(
+//                    modifier = Modifier.padding(top = 8.dp, bottom = 20.dp),
+//                    text = subTitle,
+//                    style = OrbitTheme.typography.body1Regular,
+//                    color = OrbitTheme.colors.gray_300,
+//                    textAlign = TextAlign.Center,
+//                )
+//            }
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//            ) {
+//                OrbitButton(
+//                    label = negativeButtonLabel,
+//                    modifier = Modifier
+//                        .weight(1f)
+//                        .padding(end = 6.dp),
+//                    onClick = { onDismissRequest() },
+//                    enabled = true,
+//                    containerColor = OrbitTheme.colors.gray_600,
+//                    contentColor = OrbitTheme.colors.white,
+//                    pressedContainerColor = OrbitTheme.colors.gray_500,
+//                    pressedContentColor = OrbitTheme.colors.white.copy(alpha = 0.7f),
+//                )
+//                OrbitButton(
+//                    label = positiveButtonLabel,
+//                    modifier = Modifier
+//                        .weight(1f)
+//                        .padding(start = 6.dp),
+//                    onClick = { onPositiveButtonClick() },
+//                    enabled = true,
+//                )
+//            }
+//        }
+//    }
+// }
+//
+// @Preview(showBackground = true)
+// @Composable
+// fun OrbitDialogPreview() {
+//    OrbitTheme {
+//        OrbitDialog(
+//            title = "Title",
+//            subTitle = "SubTitle",
+//            positiveButtonLabel = "Positive",
+//            negativeButtonLabel = "Negative",
+//        )
+//    }
+// }
