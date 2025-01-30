@@ -99,25 +99,19 @@ jobs:
                   export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-credentials.json
                   echo "GOOGLE_APPLICATION_CREDENTIALS=$GOOGLE_APPLICATION_CREDENTIALS"
 
-            # 15. Firebase 프로젝트 설정
-            - name: Set Firebase Project
-              run: |
-                  export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-credentials.json
-                  firebase use --add || (echo "❌ Firebase 프로젝트 설정 실패!"; exit 1)
-
-            # 16. Firebase CLI 인증 확인
+            # 15. Firebase CLI 인증 확인
             - name: Check Firebase CLI Authentication
               run: |
                   export GOOGLE_APPLICATION_CREDENTIALS=$HOME/firebase-credentials.json
+
                   echo "📌 GOOGLE_APPLICATION_CREDENTIALS 설정 값:"
                   echo $GOOGLE_APPLICATION_CREDENTIALS
                   ls -l $GOOGLE_APPLICATION_CREDENTIALS
-                  cat $GOOGLE_APPLICATION_CREDENTIALS
 
                   echo "📌 현재 Firebase 프로젝트 목록 확인:"
                   firebase projects:list || (echo "❌ Firebase 인증 실패!"; exit 1)
 
-            # 17. Firebase App Distribution Upload
+            # 16. Firebase App Distribution Upload
             - name: Upload APK to Firebase App Distribution
               env:
                   GOOGLE_APPLICATION_CREDENTIALS: $HOME/firebase-credentials.json
@@ -140,7 +134,7 @@ jobs:
                   --release-notes "🚀 새로운 데모 버전이 배포되었습니다!" \
                   --groups "orbit_tester_group"
 
-            # 18. Notify Discord
+            # 17. Notify Discord
             - name: Notify Discord
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
