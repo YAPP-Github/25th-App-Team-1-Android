@@ -20,7 +20,7 @@ jobs:
 
             # 2. Gradle Cache
             - name: Cache Gradle dependencies
-              uses: actions/cache@v3
+              uses: actions/cache@v4
               with:
                   path: |
                       ~/.gradle/caches
@@ -76,14 +76,14 @@ jobs:
 
             # 12. AAB Artifact Upload
             - name: Upload Release AAB
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: release-aab
                   path: app/build/outputs/bundle/release/app-release.aab
 
             # 13. APK Artifact Upload
             - name: Upload Release APK
-              uses: actions/upload-artifact@v3
+              uses: actions/upload-artifact@v4
               with:
                   name: release-apk
                   path: app/build/outputs/apk/release/app-release.apk
@@ -134,7 +134,7 @@ jobs:
                   --groups "orbit_tester_group"
 
 
-                # 17. Notify Discord
+            # 17. Notify Discord
             - name: Notify Discord
               env:
                   DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
