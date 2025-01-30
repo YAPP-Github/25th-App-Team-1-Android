@@ -1,7 +1,5 @@
 package com.yapp.alarm.component.bottomsheet
 
-import android.util.Log
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +33,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.alarm.component.AlarmListItem
 import com.yapp.designsystem.theme.OrbitTheme
@@ -49,6 +48,7 @@ enum class BottomSheetExpandState {
 @Composable
 internal fun AlarmListBottomSheet(
     alarms: List<Alarm>,
+    halfExpandedHeight: Dp = 0.dp,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     content: @Composable () -> Unit,
@@ -56,17 +56,14 @@ internal fun AlarmListBottomSheet(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
 
     var expandedType by remember { mutableStateOf(BottomSheetExpandState.HALF_EXPANDED) }
-    val height by animateDpAsState(
-        targetValue = when (expandedType) {
-            BottomSheetExpandState.HALF_EXPANDED -> screenHeight / 2
-            BottomSheetExpandState.EXPANDED -> screenHeight
-        },
-        label = "BottomSheetHeight",
-    )
+
+    val height = when (expandedType) {
+        BottomSheetExpandState.HALF_EXPANDED -> halfExpandedHeight
+        BottomSheetExpandState.EXPANDED -> screenHeight
+    }
 
     val sheetState = rememberStandardBottomSheetState(
         confirmValueChange = {
-            Log.d("BottomSheet", "confirmValueChange: $it")
             expandedType = when (it) {
                 SheetValue.Expanded -> BottomSheetExpandState.EXPANDED
                 else -> BottomSheetExpandState.HALF_EXPANDED
@@ -102,7 +99,7 @@ internal fun AlarmListBottomSheet(
             }
         },
         sheetShape = RectangleShape,
-        sheetPeekHeight = screenHeight / 2,
+        sheetPeekHeight = halfExpandedHeight,
         sheetContainerColor = Color.Transparent,
     ) {
         content()
@@ -117,7 +114,7 @@ internal fun AlarmBottomSheetContent(
     onClickMore: () -> Unit,
     expandedType: BottomSheetExpandState,
 ) {
-    val cornerRadius = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 30.dp else 0.dp
+    val cornerRadius = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 16.dp else 0.dp
 
     Column(
         modifier = modifier

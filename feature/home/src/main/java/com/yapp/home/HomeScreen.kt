@@ -28,7 +28,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +41,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,6 +52,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.alarm.component.bottomsheet.AlarmListBottomSheet
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.lottie.LottieAnimation
@@ -111,39 +115,57 @@ fun HomeScreen(
 
 @Composable
 private fun HomeContent(state: HomeContract.State) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF1F3B64)),
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    var sheetHalfExpandHeight by remember { mutableStateOf(0.dp) }
+
+    AlarmListBottomSheet(
+        alarms = state.alarms,
+        halfExpandedHeight = sheetHalfExpandHeight,
+        onClickAdd = { },
+        onClickMore = { },
     ) {
-        HillWithGradient()
-
-        SkyImage()
-
-        val characterY = (LocalConfiguration.current.screenHeightDp.dp * 0.28f) - 130.dp
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xFF1F3B64)),
         ) {
-            Spacer(modifier = Modifier.height(characterY))
+            HillWithGradient()
 
-            HomeCharacterAnimation(
-                fortuneScore = state.lastFortuneScore,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            HomeFortuneDescription(
-                fortuneScore = state.lastFortuneScore,
-                name = state.name,
-                deliveryTime = state.deliveryTime,
+            SkyImage()
+
+            val characterY = (screenHeight * 0.28f) - 130.dp
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        sheetHalfExpandHeight = screenHeight - placeable.height.toDp() + 20.dp
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeRelative(0, 0)
+                        }
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(modifier = Modifier.height(characterY))
+
+                HomeCharacterAnimation(
+                    fortuneScore = state.lastFortuneScore,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                HomeFortuneDescription(
+                    fortuneScore = state.lastFortuneScore,
+                    name = state.name,
+                    deliveryTime = state.deliveryTime,
+                )
+            }
+
+            HomeTopBar(
+                isTitleVisible = false,
+                onSettingClick = { },
+                onMailClick = { },
             )
         }
-
-        HomeTopBar(
-            isTitleVisible = false,
-            onSettingClick = { },
-            onMailClick = { },
-        )
     }
 }
 
