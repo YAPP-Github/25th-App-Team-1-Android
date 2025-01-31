@@ -9,6 +9,8 @@ class AlarmUseCase @Inject constructor(
     private val alarmRepository: AlarmRepository,
 ) {
     suspend fun getAlarmSounds(): Result<List<AlarmSound>> = alarmRepository.getAlarmSounds()
+    fun playAlarmSound(alarmSound: AlarmSound) = alarmRepository.playAlarmSound(alarmSound)
+    fun stopAlarmSound() = alarmRepository.stopAlarmSound()
     suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = alarmRepository.getPagedAlarms(limit, offset)
     suspend fun getAlarmCount(): Result<Int> = alarmRepository.getAlarmCount()
     suspend fun insertAlarm(alarm: Alarm): Result<Alarm> = alarmRepository.insertAlarm(alarm)

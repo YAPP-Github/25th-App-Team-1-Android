@@ -5,6 +5,8 @@ import com.yapp.domain.model.AlarmSound
 
 interface AlarmRepository {
     suspend fun getAlarmSounds(): Result<List<AlarmSound>>
+    fun playAlarmSound(alarmSound: AlarmSound)
+    fun stopAlarmSound()
     suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>>
     suspend fun getAlarmCount(): Result<Int>
     suspend fun insertAlarm(alarm: Alarm): Result<Alarm>

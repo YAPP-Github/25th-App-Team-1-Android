@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AlarmAddEditViewModel @Inject constructor(
-    alarmUseCase: AlarmUseCase,
+    private val alarmUseCase: AlarmUseCase,
 ) : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
     initialState = AlarmAddEditContract.State(),
 ) {
@@ -191,6 +191,9 @@ class AlarmAddEditViewModel @Inject constructor(
 
     private fun toggleSoundEnabled() {
         val newSoundState = currentState.soundState.copy(isSoundEnabled = !currentState.soundState.isSoundEnabled)
+        if (!newSoundState.isSoundEnabled) {
+            alarmUseCase.stopAlarmSound()
+        }
         updateState {
             copy(soundState = newSoundState)
         }
@@ -208,10 +211,12 @@ class AlarmAddEditViewModel @Inject constructor(
         updateState {
             copy(soundState = newSoundState)
         }
+        alarmUseCase.playAlarmSound(currentState.soundState.sounds[index])
     }
 
     private fun toggleBottomSheet(sheetType: AlarmAddEditContract.BottomSheetType) {
         val newBottomSheetState = if (currentState.bottomSheetState == sheetType) {
+            alarmUseCase.stopAlarmSound()
             null
         } else {
             sheetType

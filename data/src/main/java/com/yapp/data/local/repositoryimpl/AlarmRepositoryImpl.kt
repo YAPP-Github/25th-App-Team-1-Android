@@ -2,6 +2,7 @@ package com.yapp.data.local.repositoryimpl
 
 import android.content.Context
 import com.yapp.data.local.datasource.AlarmLocalDataSource
+import com.yapp.data.local.datasource.SoundPlayer
 import com.yapp.data.local.toEntity
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmSound
@@ -13,6 +14,7 @@ import javax.inject.Inject
 
 class AlarmRepositoryImpl @Inject constructor(
     private val alarmLocalDataSource: AlarmLocalDataSource,
+    private val soundPlayer: SoundPlayer,
     @ApplicationContext private val context: Context,
 ) : AlarmRepository {
     override suspend fun getAlarmSounds(): Result<List<AlarmSound>> = withContext(Dispatchers.IO) {
@@ -35,6 +37,14 @@ class AlarmRepositoryImpl @Inject constructor(
             }
             sounds
         }
+    }
+
+    override fun playAlarmSound(alarmSound: AlarmSound) {
+        soundPlayer.playSound(alarmSound.uri)
+    }
+
+    override fun stopAlarmSound() {
+        soundPlayer.stopSound()
     }
 
     override suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = runCatching {
