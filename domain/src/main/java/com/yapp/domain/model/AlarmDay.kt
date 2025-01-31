@@ -12,15 +12,7 @@ enum class AlarmDay(val bitValue: Int) {
 }
 
 fun AlarmDay.toDayOfWeek(): java.time.DayOfWeek {
-    return when (this) {
-        AlarmDay.SUN -> java.time.DayOfWeek.SUNDAY
-        AlarmDay.MON -> java.time.DayOfWeek.MONDAY
-        AlarmDay.TUE -> java.time.DayOfWeek.TUESDAY
-        AlarmDay.WED -> java.time.DayOfWeek.WEDNESDAY
-        AlarmDay.THU -> java.time.DayOfWeek.THURSDAY
-        AlarmDay.FRI -> java.time.DayOfWeek.FRIDAY
-        AlarmDay.SAT -> java.time.DayOfWeek.SATURDAY
-    }
+    return java.time.DayOfWeek.of(this.ordinal + 1)
 }
 
 fun List<AlarmDay>.toRepeatDays(): Int {
