@@ -23,4 +23,8 @@ class SoundPlayer @Inject constructor(
         mediaPlayer?.release()
         mediaPlayer = null
     }
+
+    fun updateVolume(volume: Int) {
+        mediaPlayer?.setVolume(volume / 100f, volume / 100f)
+    }
 }

@@ -201,6 +201,7 @@ class AlarmAddEditViewModel @Inject constructor(
 
     private fun updateSoundVolume(volume: Int) {
         val newSoundState = currentState.soundState.copy(soundVolume = volume)
+        alarmUseCase.updateAlarmVolume(volume)
         updateState {
             copy(soundState = newSoundState)
         }

@@ -47,6 +47,10 @@ class AlarmRepositoryImpl @Inject constructor(
         soundPlayer.stopSound()
     }
 
+    override fun updateAlarmVolume(volume: Int) {
+        soundPlayer.updateVolume(volume)
+    }
+
     override suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = runCatching {
         alarmLocalDataSource.getPagedAlarms(limit, offset)
     }.onFailure {
