@@ -1,9 +1,9 @@
 package com.yapp.alarm
 
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toDayOfWeek
-import androidx.lifecycle.viewModelScope
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
