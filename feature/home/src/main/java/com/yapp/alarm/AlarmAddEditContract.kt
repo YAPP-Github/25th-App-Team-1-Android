@@ -1,5 +1,6 @@
 package com.yapp.alarm
 
+import com.yapp.domain.model.AlarmDay
 import com.yapp.ui.base.UiState
 
 sealed class AlarmAddEditContract {

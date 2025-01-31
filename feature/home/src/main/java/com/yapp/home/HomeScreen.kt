@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -29,7 +28,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +41,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -50,6 +52,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.alarm.component.bottomsheet.AlarmListBottomSheet
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.lottie.LottieAnimation
@@ -57,6 +60,9 @@ import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
 import feature.home.R
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 fun HomeRoute(
@@ -109,29 +115,57 @@ fun HomeScreen(
 
 @Composable
 private fun HomeContent(state: HomeContract.State) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color(0xFF1F3B64)),
+    val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+    var sheetHalfExpandHeight by remember { mutableStateOf(0.dp) }
+
+    AlarmListBottomSheet(
+        alarms = state.alarms,
+        halfExpandedHeight = sheetHalfExpandHeight,
+        onClickAdd = { },
+        onClickMore = { },
     ) {
-        HillWithGradient()
-
-        SkyImage()
-
-        val characterY = (LocalConfiguration.current.screenHeightDp.dp * 0.28f) - 130.dp
-
-        HomeCharacterAnimation(
+        Box(
             modifier = Modifier
-                .offset(y = characterY)
-                .align(Alignment.TopCenter),
-            fortuneScore = state.lastFortuneScore,
-        )
+                .fillMaxSize()
+                .background(Color(0xFF1F3B64)),
+        ) {
+            HillWithGradient()
 
-        HomeTopBar(
-            isTitleVisible = false,
-            onSettingClick = { },
-            onMailClick = { },
-        )
+            SkyImage()
+
+            val characterY = (screenHeight * 0.28f) - 130.dp
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        sheetHalfExpandHeight = screenHeight - placeable.height.toDp()
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeRelative(0, 0)
+                        }
+                    },
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(modifier = Modifier.height(characterY))
+
+                HomeCharacterAnimation(
+                    fortuneScore = state.lastFortuneScore,
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                HomeFortuneDescription(
+                    fortuneScore = state.lastFortuneScore,
+                    name = state.name,
+                    deliveryTime = state.deliveryTime,
+                )
+            }
+
+            HomeTopBar(
+                isTitleVisible = false,
+                onSettingClick = { },
+                onMailClick = { },
+            )
+        }
     }
 }
 
@@ -301,6 +335,43 @@ private fun HomeCharacterAnimation(
 }
 
 @Composable
+private fun HomeFortuneDescription(
+    modifier: Modifier = Modifier,
+    fortuneScore: Int,
+    name: String,
+    deliveryTime: String,
+) {
+    val descriptionRes = when (fortuneScore) {
+        in 0..49 -> R.string.home_fortune_0_to_49_description
+        in 50..79 -> R.string.home_fortune_50_to_79_description
+        in 80..100 -> R.string.home_fortune_80_to_100_description
+        else -> R.string.home_fortune_preload_description
+    }
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = formatFortuneDeliveryTime(deliveryTime),
+            style = OrbitTheme.typography.label1Medium,
+            color = OrbitTheme.colors.white.copy(
+                alpha = 0.7f,
+            ),
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = stringResource(id = descriptionRes, name),
+            style = OrbitTheme.typography.heading2SemiBold,
+            color = OrbitTheme.colors.white,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
+
+@Composable
 private fun HomeAlarmEmptyScreen(
     onSettingClick: () -> Unit,
     onMailClick: () -> Unit,
@@ -412,6 +483,35 @@ private fun AddAlarmButton(
             text = stringResource(id = R.string.home_btn_add_alarm),
             style = OrbitTheme.typography.heading1SemiBold,
         )
+    }
+}
+
+private fun formatFortuneDeliveryTime(formattedTime: String): String {
+    return try {
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm", Locale.getDefault())
+        val timeFormatter = DateTimeFormatter.ofPattern("a h:mm", Locale.getDefault()) // 오전/오후 hh:mm
+        val monthDayFormatter = DateTimeFormatter.ofPattern("M월 d일 a h:mm", Locale.getDefault()) // M월 d일 오전/오후 hh:mm
+        val yearMonthDayFormatter = DateTimeFormatter.ofPattern("yy년 M월 d일 a h:mm", Locale.getDefault()) // yy년 M월 d일 오전/오후 hh:mm
+
+        val inputDateTime = LocalDateTime.parse(formattedTime, inputFormatter)
+        val now = LocalDateTime.now()
+
+        val startOfTomorrow = now.toLocalDate().plusDays(1).atStartOfDay()
+        val endOfTomorrow = startOfTomorrow.plusDays(1)
+
+        when {
+            inputDateTime.isAfter(startOfTomorrow) && inputDateTime.isBefore(endOfTomorrow) -> {
+                "내일 ${inputDateTime.format(timeFormatter)}"
+            }
+            inputDateTime.year == now.year -> {
+                inputDateTime.format(monthDayFormatter)
+            }
+            else -> {
+                inputDateTime.format(yearMonthDayFormatter)
+            }
+        }
+    } catch (e: Exception) {
+        ""
     }
 }
 

@@ -36,6 +36,7 @@ import com.yapp.alarm.component.bottomsheet.AlarmSnoozeBottomSheet
 import com.yapp.alarm.component.bottomsheet.AlarmSoundBottomSheet
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.domain.model.AlarmDay
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.switch.OrbitSwitch
 import com.yapp.ui.component.timepicker.OrbitPicker
@@ -355,7 +356,7 @@ private fun AlarmAddEditSelectDaysSection(
         ) {
             state.days.forEach { day ->
                 AlarmDayButton(
-                    label = stringResource(id = day.label),
+                    label = stringResource(id = day.getLabelStringRes()),
                     isPressed = state.selectedDays.contains(day),
                     onClick = {
                         processAction(AlarmAddEditContract.Action.ToggleDaySelection(day))

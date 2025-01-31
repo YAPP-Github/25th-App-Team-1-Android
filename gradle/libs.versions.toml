@@ -74,6 +74,8 @@ material = "1.12.0"
 process-pheonix = "3.0.0"
 lottie = "6.1.0"
 accompanist = "0.37.0"
+materialAndroid = "1.7.5"
+flexible-bottomsheet = "0.1.5"
 
 [libraries]
 
@@ -137,6 +139,7 @@ retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.r
 retrofit-kotlin-serialization = { module = "com.squareup.retrofit2:converter-kotlinx-serialization", version.ref = "retrofit" }
 okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version.ref = "okhttp" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp" }
+flexible-bottomsheet = { group = "com.github.skydoves", name = "flexible-bottomsheet-material3", version.ref = "flexible-bottomsheet" }
 #sentry-android = { group = "io.sentry", name = "sentry-android", version.ref = "sentry-android" }
 #sentry-compose = { group = "io.sentry", name = "sentry-compose", version.ref = "sentry-compose" }
 
@@ -163,6 +166,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "process-pheonix" }
 lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref= "lottie" }
 accompanist-permission = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
+androidx-material-android = { group = "androidx.compose.material", name = "material-android", version.ref = "materialAndroid" }
 
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
