@@ -1,12 +1,14 @@
 package com.yapp.domain.usecase
 
 import com.yapp.domain.model.Alarm
+import com.yapp.domain.model.AlarmSound
 import com.yapp.domain.repository.AlarmRepository
 import javax.inject.Inject
 
 class AlarmUseCase @Inject constructor(
     private val alarmRepository: AlarmRepository,
 ) {
+    suspend fun getAlarmSounds(): Result<List<AlarmSound>> = alarmRepository.getAlarmSounds()
     suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = alarmRepository.getPagedAlarms(limit, offset)
     suspend fun getAlarmCount(): Result<Int> = alarmRepository.getAlarmCount()
     suspend fun insertAlarm(alarm: Alarm): Result<Alarm> = alarmRepository.insertAlarm(alarm)
