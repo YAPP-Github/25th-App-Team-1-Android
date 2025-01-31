@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -173,24 +175,26 @@ internal fun AlarmBottomSheetContent(
             }
         }
 
-        alarms.forEachIndexed { index, alarm ->
-            AlarmListItem(
-                repeatDays = alarm.repeatDays,
-                isHolidayAlarmOff = alarm.isHolidayAlarmOff,
-                isAm = alarm.isAm,
-                hour = alarm.hour,
-                minute = alarm.minute,
-                isActive = alarm.isAlarmActive,
-                onToggleActive = { },
-            )
-            if (index != alarms.size - 1) {
-                Spacer(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(OrbitTheme.colors.gray_800)
-                        .padding(horizontal = 24.dp),
+        LazyColumn {
+            itemsIndexed(alarms) { index, alarm ->
+                AlarmListItem(
+                    repeatDays = alarm.repeatDays,
+                    isHolidayAlarmOff = alarm.isHolidayAlarmOff,
+                    isAm = alarm.isAm,
+                    hour = alarm.hour,
+                    minute = alarm.minute,
+                    isActive = alarm.isAlarmActive,
+                    onToggleActive = { },
                 )
+                if (index != alarms.size - 1) {
+                    Spacer(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(OrbitTheme.colors.gray_800)
+                            .padding(horizontal = 24.dp),
+                    )
+                }
             }
         }
     }
