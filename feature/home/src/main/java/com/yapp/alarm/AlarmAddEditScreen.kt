@@ -125,7 +125,7 @@ fun AlarmAddEditScreen(
     }
 
     AlarmSnoozeBottomSheet(
-        isSnoozeEnabled = snoozeState.isSnoozeEnabled,
+        snoozeEnabled = snoozeState.isSnoozeEnabled,
         snoozeIntervalIndex = snoozeState.snoozeIntervalIndex,
         snoozeCountIndex = snoozeState.snoozeCountIndex,
         snoozeIntervals = snoozeState.snoozeIntervals,
@@ -151,8 +151,8 @@ fun AlarmAddEditScreen(
     )
 
     AlarmSoundBottomSheet(
-        isVibrationEnabled = state.soundState.isVibrationEnabled,
-        isSoundEnabled = state.soundState.isSoundEnabled,
+        vibrationEnabled = state.soundState.isVibrationEnabled,
+        soundEnabled = state.soundState.isSoundEnabled,
         soundVolume = state.soundState.soundVolume,
         soundIndex = state.soundState.soundIndex,
         sounds = state.soundState.sounds,
