@@ -1,5 +1,6 @@
 package com.yapp.alarm
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,6 +38,7 @@ import com.yapp.alarm.component.bottomsheet.AlarmSoundBottomSheet
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.AlarmDay
+import com.yapp.domain.model.AlarmSound
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.switch.OrbitSwitch
 import com.yapp.ui.component.timepicker.OrbitPicker
@@ -125,7 +127,7 @@ fun AlarmAddEditScreen(
     }
 
     AlarmSnoozeBottomSheet(
-        isSnoozeEnabled = snoozeState.isSnoozeEnabled,
+        snoozeEnabled = snoozeState.isSnoozeEnabled,
         snoozeIntervalIndex = snoozeState.snoozeIntervalIndex,
         snoozeCountIndex = snoozeState.snoozeCountIndex,
         snoozeIntervals = snoozeState.snoozeIntervals,
@@ -151,8 +153,8 @@ fun AlarmAddEditScreen(
     )
 
     AlarmSoundBottomSheet(
-        isVibrationEnabled = state.soundState.isVibrationEnabled,
-        isSoundEnabled = state.soundState.isSoundEnabled,
+        vibrationEnabled = state.soundState.isVibrationEnabled,
+        soundEnabled = state.soundState.isSoundEnabled,
         soundVolume = state.soundState.soundVolume,
         soundIndex = state.soundState.soundIndex,
         sounds = state.soundState.sounds,
@@ -263,9 +265,11 @@ private fun AlarmAddEditSettingsSection(
             label = stringResource(id = R.string.alarm_add_edit_sound),
             description = when {
                 state.soundState.isSoundEnabled && state.soundState.isVibrationEnabled -> {
-                    "${state.soundState.sounds[state.soundState.soundIndex]}, ${stringResource(id = R.string.alarm_add_edit_vibration)}"
+                    "${state.soundState.sounds.getOrElse(state.soundState.soundIndex) { AlarmSound("", Uri.EMPTY) }.title}, ${stringResource(
+                        id = R.string.alarm_add_edit_vibration,
+                    )}"
                 }
-                state.soundState.isSoundEnabled -> state.soundState.sounds[state.soundState.soundIndex]
+                state.soundState.isSoundEnabled -> state.soundState.sounds.getOrElse(state.soundState.soundIndex) { AlarmSound("", Uri.EMPTY) }.title
                 state.soundState.isVibrationEnabled -> stringResource(id = R.string.alarm_add_edit_vibration)
                 else -> stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
             },

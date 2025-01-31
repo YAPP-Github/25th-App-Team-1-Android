@@ -3,12 +3,35 @@ package com.yapp.data.local.repositoryimpl
 import com.yapp.data.local.datasource.AlarmLocalDataSource
 import com.yapp.data.local.toEntity
 import com.yapp.domain.model.Alarm
+import com.yapp.domain.model.AlarmSound
 import com.yapp.domain.repository.AlarmRepository
+import com.yapp.media.ringtone.RingtoneManagerHelper
+import com.yapp.media.sound.SoundPlayer
 import javax.inject.Inject
 
 class AlarmRepositoryImpl @Inject constructor(
     private val alarmLocalDataSource: AlarmLocalDataSource,
+    private val ringtoneManagerHelper: RingtoneManagerHelper,
+    private val soundPlayer: SoundPlayer,
 ) : AlarmRepository {
+    override suspend fun getAlarmSounds(): Result<List<AlarmSound>> = runCatching {
+        ringtoneManagerHelper.getAlarmSounds().map { (title, uri) ->
+            AlarmSound(title, uri)
+        }
+    }
+
+    override fun playAlarmSound(alarmSound: AlarmSound) {
+        soundPlayer.playSound(alarmSound.uri)
+    }
+
+    override fun stopAlarmSound() {
+        soundPlayer.stopSound()
+    }
+
+    override fun updateAlarmVolume(volume: Int) {
+        soundPlayer.updateVolume(volume)
+    }
+
     override suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = runCatching {
         alarmLocalDataSource.getPagedAlarms(limit, offset)
     }.onFailure {

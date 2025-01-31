@@ -1,5 +1,6 @@
 package com.yapp.alarm.component.bottomsheet
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.domain.model.AlarmSound
 import com.yapp.ui.component.OrbitBottomSheet
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.radiobutton.OrbitRadioButton
@@ -40,11 +42,11 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AlarmSoundBottomSheet(
-    isVibrationEnabled: Boolean,
-    isSoundEnabled: Boolean,
+    vibrationEnabled: Boolean,
+    soundEnabled: Boolean,
     soundVolume: Int,
     soundIndex: Int,
-    sounds: List<String>,
+    sounds: List<AlarmSound>,
     onVibrationToggle: () -> Unit,
     onSoundToggle: () -> Unit,
     onVolumeChanged: (Int) -> Unit,
@@ -66,8 +68,8 @@ internal fun AlarmSoundBottomSheet(
         },
     ) {
         BottomSheetContent(
-            isVibrationEnabled = isVibrationEnabled,
-            isSoundEnabled = isSoundEnabled,
+            vibrationEnabled = vibrationEnabled,
+            soundEnabled = soundEnabled,
             soundVolume = soundVolume,
             soundIndex = soundIndex,
             sounds = sounds,
@@ -86,11 +88,11 @@ internal fun AlarmSoundBottomSheet(
 
 @Composable
 private fun BottomSheetContent(
-    isVibrationEnabled: Boolean,
-    isSoundEnabled: Boolean,
+    vibrationEnabled: Boolean,
+    soundEnabled: Boolean,
     soundVolume: Int,
     soundIndex: Int,
-    sounds: List<String>,
+    sounds: List<AlarmSound>,
     onVibrationToggle: () -> Unit,
     onSoundToggle: () -> Unit,
     onVolumeChanged: (Int) -> Unit,
@@ -108,7 +110,7 @@ private fun BottomSheetContent(
     ) {
         Spacer(modifier = Modifier.height(6.dp))
         VibrationSection(
-            isVibrationEnabled = isVibrationEnabled,
+            isVibrationEnabled = vibrationEnabled,
             onVibrationToggle = onVibrationToggle,
         )
         Spacer(
@@ -118,7 +120,7 @@ private fun BottomSheetContent(
                 .background(color = OrbitTheme.colors.gray_700),
         )
         SoundSection(
-            isSoundEnabled = isSoundEnabled,
+            soundEnabled = soundEnabled,
             onSoundToggle = onSoundToggle,
             soundVolume = soundVolume,
             onVolumeChanged = onVolumeChanged,
@@ -175,11 +177,11 @@ private fun VibrationSection(
 
 @Composable
 private fun SoundSection(
-    isSoundEnabled: Boolean,
+    soundEnabled: Boolean,
     onSoundToggle: () -> Unit,
     soundVolume: Int,
     onVolumeChanged: (Int) -> Unit,
-    sounds: List<String>,
+    sounds: List<AlarmSound>,
     soundIndex: Int,
     onSoundSelected: (Int) -> Unit,
 ) {
@@ -197,44 +199,43 @@ private fun SoundSection(
             )
             Spacer(modifier = Modifier.weight(1f))
             OrbitSwitch(
-                isChecked = isSoundEnabled,
+                isChecked = soundEnabled,
                 isEnabled = true,
                 onClick = onSoundToggle,
             )
         }
 
-        if (isSoundEnabled) {
-            Spacer(modifier = Modifier.height(20.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    painter = painterResource(id = core.designsystem.R.drawable.ic_sound_volume),
-                    contentDescription = "Volume",
-                    tint = OrbitTheme.colors.gray_400,
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                OrbitSlider(
-                    value = soundVolume,
-                    onValueChange = onVolumeChanged,
-                )
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-            SoundSelectionSection(
-                soundIndex = soundIndex,
-                sounds = sounds,
-                onSoundSelected = { onSoundSelected(it) },
+        Spacer(modifier = Modifier.height(20.dp))
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                painter = painterResource(id = core.designsystem.R.drawable.ic_sound_volume),
+                contentDescription = "Volume",
+                tint = OrbitTheme.colors.gray_400,
             )
-        } else {
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.width(8.dp))
+            OrbitSlider(
+                enabled = soundEnabled,
+                value = soundVolume,
+                onValueChange = onVolumeChanged,
+            )
         }
+        Spacer(modifier = Modifier.height(20.dp))
+        SoundSelectionSection(
+            soundEnabled = soundEnabled,
+            soundIndex = soundIndex,
+            sounds = sounds,
+            onSoundSelected = { onSoundSelected(it) },
+        )
     }
 }
 
 @Composable
 private fun SoundSelectionSection(
+    soundEnabled: Boolean,
     soundIndex: Int,
-    sounds: List<String>,
+    sounds: List<AlarmSound>,
     onSoundSelected: (Int) -> Unit,
 ) {
     LazyColumn(
@@ -246,7 +247,8 @@ private fun SoundSelectionSection(
         items(sounds.size) { index ->
             SoundSelectionItem(
                 sound = sounds[index],
-                isSelected = index == soundIndex,
+                enabled = soundEnabled,
+                selected = index == soundIndex,
                 onClick = { onSoundSelected(index) },
             )
             if (index != sounds.size - 1) {
@@ -258,20 +260,22 @@ private fun SoundSelectionSection(
 
 @Composable
 private fun SoundSelectionItem(
-    sound: String,
-    isSelected: Boolean,
+    sound: AlarmSound,
+    enabled: Boolean,
+    selected: Boolean,
     onClick: () -> Unit,
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         OrbitRadioButton(
-            isSelected = isSelected,
+            enabled = enabled,
+            selected = selected,
             onClick = onClick,
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
-            text = sound,
+            text = sound.title,
             style = OrbitTheme.typography.body1Medium,
             color = OrbitTheme.colors.white,
         )
@@ -285,13 +289,13 @@ private fun AlarmSoundBottomSheetPreview() {
     var isSoundEnabled by remember { mutableStateOf(true) }
     var soundVolume by remember { mutableIntStateOf(0) }
     var soundIndex by remember { mutableIntStateOf(0) }
-    val sounds by remember { mutableStateOf((1..20).map { "sound $it" }) }
+    val sounds by remember { mutableStateOf((1..20).map { AlarmSound("sound $it", Uri.EMPTY) }) }
     var isSheetOpen by remember { mutableStateOf(true) }
 
     OrbitTheme {
         AlarmSoundBottomSheet(
-            isVibrationEnabled = isVibrationEnabled,
-            isSoundEnabled = isSoundEnabled,
+            vibrationEnabled = isVibrationEnabled,
+            soundEnabled = isSoundEnabled,
             soundVolume = soundVolume,
             soundIndex = soundIndex,
             sounds = sounds,
