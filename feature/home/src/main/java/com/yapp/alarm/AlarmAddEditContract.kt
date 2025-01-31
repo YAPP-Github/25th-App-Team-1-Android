@@ -36,7 +36,7 @@ sealed class AlarmAddEditContract {
     data class AlarmSnoozeState(
         val isSnoozeEnabled: Boolean = true,
         val snoozeIntervalIndex: Int = 2,
-        val snoozeCountIndex: Int = 1,
+        val snoozeCountIndex: Int = 2,
         val snoozeIntervals: List<String> = listOf("1분", "3분", "5분", "10분", "15분"),
         val snoozeCounts: List<String> = listOf("1회", "3회", "5회", "10회", "무한"),
     )

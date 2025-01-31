@@ -12,7 +12,7 @@ fun NavGraphBuilder.homeNavGraph(
 ) {
     navigation(
         route = HomeDestination.Route.route,
-        startDestination = HomeDestination.Home.route,
+        startDestination = HomeDestination.AlarmAddEdit.route,
     ) {
         composable(route = HomeDestination.Home.route) {
             HomeRoute(
