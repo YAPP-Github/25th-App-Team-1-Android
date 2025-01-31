@@ -1,5 +1,6 @@
 package com.yapp.designsystem.theme
 
+import Ownglyph
 import Pretendard
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
@@ -174,6 +175,48 @@ data class OrbitTypography(
         fontSize = 11.sp,
         lineHeight = 14.sp,
         letterSpacing = (-0.11).sp,
+    ),
+    val H0: TextStyle = TextStyle(
+        fontFamily = Ownglyph,
+        fontWeight = FontWeight.Normal,
+        fontSize = 36.sp,
+        lineHeight = 50.sp,
+        letterSpacing = (-0.36).sp,
+    ),
+    val H1: TextStyle = TextStyle(
+        fontFamily = Ownglyph,
+        fontWeight = FontWeight.Normal,
+        fontSize = 28.sp,
+        lineHeight = 39.sp,
+        letterSpacing = (-0.28).sp,
+    ),
+    val H2: TextStyle = TextStyle(
+        fontFamily = Ownglyph,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
+        lineHeight = 33.sp,
+        letterSpacing = (-0.22).sp,
+    ),
+    val H3: TextStyle = TextStyle(
+        fontFamily = Ownglyph,
+        fontWeight = FontWeight.Normal,
+        fontSize = 20.sp,
+        lineHeight = 30.sp,
+        letterSpacing = (-0.20).sp,
+    ),
+    val H4: TextStyle = TextStyle(
+        fontFamily = Ownglyph,
+        fontWeight = FontWeight.Normal,
+        fontSize = 18.sp,
+        lineHeight = 23.sp,
+        letterSpacing = (-0.18).sp,
+    ),
+    val H5: TextStyle = TextStyle(
+        fontFamily = Ownglyph,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 21.sp,
+        letterSpacing = (-0.16).sp,
     ),
 )
 
