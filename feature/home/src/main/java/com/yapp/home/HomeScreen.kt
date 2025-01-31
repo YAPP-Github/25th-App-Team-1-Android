@@ -60,8 +60,8 @@ import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
 import feature.home.R
-import java.text.SimpleDateFormat
-import java.util.Calendar
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 @Composable
@@ -488,36 +488,27 @@ private fun AddAlarmButton(
 
 private fun formatFortuneDeliveryTime(formattedTime: String): String {
     return try {
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault())
-        val inputDate = inputFormat.parse(formattedTime) ?: return ""
+        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm", Locale.getDefault())
+        val timeFormatter = DateTimeFormatter.ofPattern("a h:mm", Locale.getDefault()) // 오전/오후 hh:mm
+        val monthDayFormatter = DateTimeFormatter.ofPattern("M월 d일 a h:mm", Locale.getDefault()) // M월 d일 오전/오후 hh:mm
+        val yearMonthDayFormatter = DateTimeFormatter.ofPattern("yy년 M월 d일 a h:mm", Locale.getDefault()) // yy년 M월 d일 오전/오후 hh:mm
 
-        val now = Calendar.getInstance()
-        val inputCalendar = Calendar.getInstance().apply { time = inputDate }
+        val inputDateTime = LocalDateTime.parse(formattedTime, inputFormatter)
+        val now = LocalDateTime.now()
 
-        val startOfTomorrow = Calendar.getInstance().apply {
-            add(Calendar.DAY_OF_YEAR, 1)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-        val endOfTomorrow = Calendar.getInstance().apply {
-            add(Calendar.DAY_OF_YEAR, 2)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-
-        val timeFormat = SimpleDateFormat("a h:mm", Locale.getDefault()) // 오전/오후 hh:mm
-        val monthDayFormat = SimpleDateFormat("M월 d일 a h:mm", Locale.getDefault()) // M월 d일 오전/오후 hh:mm
-        val yearMonthDayFormat = SimpleDateFormat("yy년 M월 d일 a h:mm", Locale.getDefault()) // yy년 M월 d일 오전/오후 hh:mm
+        val startOfTomorrow = now.toLocalDate().plusDays(1).atStartOfDay()
+        val endOfTomorrow = startOfTomorrow.plusDays(1)
 
         when {
-            inputCalendar.timeInMillis >= startOfTomorrow.timeInMillis &&
-                inputCalendar.timeInMillis < endOfTomorrow.timeInMillis -> "내일 ${timeFormat.format(inputCalendar.time)}"
-            inputCalendar.get(Calendar.YEAR) == now.get(Calendar.YEAR) -> monthDayFormat.format(inputCalendar.time)
-            else -> yearMonthDayFormat.format(inputCalendar.time)
+            inputDateTime.isAfter(startOfTomorrow) && inputDateTime.isBefore(endOfTomorrow) -> {
+                "내일 ${inputDateTime.format(timeFormatter)}"
+            }
+            inputDateTime.year == now.year -> {
+                inputDateTime.format(monthDayFormatter)
+            }
+            else -> {
+                inputDateTime.format(yearMonthDayFormatter)
+            }
         }
     } catch (e: Exception) {
         ""
