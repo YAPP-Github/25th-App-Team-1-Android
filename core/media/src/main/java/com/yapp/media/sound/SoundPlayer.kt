@@ -1,4 +1,4 @@
-package com.yapp.data.local.datasource
+package com.yapp.media.sound
 
 import android.content.Context
 import android.media.MediaPlayer
@@ -6,7 +6,9 @@ import android.net.Uri
 import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class SoundPlayer @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
