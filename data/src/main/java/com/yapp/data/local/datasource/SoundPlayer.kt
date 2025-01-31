@@ -3,6 +3,7 @@ package com.yapp.data.local.datasource
 import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
+import android.util.Log
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -13,18 +14,36 @@ class SoundPlayer @Inject constructor(
 
     fun playSound(uri: Uri) {
         stopSound()
-        mediaPlayer = MediaPlayer.create(context, uri).apply {
-            start()
+
+        mediaPlayer = MediaPlayer().apply {
+            try {
+                setDataSource(context, uri)
+                prepareAsync()
+                setOnPreparedListener { start() }
+            } catch (e: Exception) {
+                Log.e("SoundPlayer", "Error playing sound", e)
+                stopSound()
+            }
         }
     }
 
     fun stopSound() {
-        mediaPlayer?.stop()
-        mediaPlayer?.release()
+        mediaPlayer?.let {
+            try {
+                if (it.isPlaying) {
+                    it.stop()
+                }
+                it.reset()
+                it.release()
+            } catch (e: Exception) {
+                Log.e("SoundPlayer", "Error stopping sound", e)
+            }
+        }
         mediaPlayer = null
     }
 
     fun updateVolume(volume: Int) {
-        mediaPlayer?.setVolume(volume / 100f, volume / 100f)
+        val normalizedVolume = (volume / 100f).coerceIn(0f, 1f)
+        mediaPlayer?.setVolume(normalizedVolume, normalizedVolume)
     }
 }
