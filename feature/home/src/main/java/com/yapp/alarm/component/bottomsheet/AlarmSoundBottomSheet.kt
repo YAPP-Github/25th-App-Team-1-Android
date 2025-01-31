@@ -1,5 +1,6 @@
 package com.yapp.alarm.component.bottomsheet
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.domain.model.AlarmSound
 import com.yapp.ui.component.OrbitBottomSheet
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.radiobutton.OrbitRadioButton
@@ -44,7 +46,7 @@ internal fun AlarmSoundBottomSheet(
     soundEnabled: Boolean,
     soundVolume: Int,
     soundIndex: Int,
-    sounds: List<String>,
+    sounds: List<AlarmSound>,
     onVibrationToggle: () -> Unit,
     onSoundToggle: () -> Unit,
     onVolumeChanged: (Int) -> Unit,
@@ -90,7 +92,7 @@ private fun BottomSheetContent(
     soundEnabled: Boolean,
     soundVolume: Int,
     soundIndex: Int,
-    sounds: List<String>,
+    sounds: List<AlarmSound>,
     onVibrationToggle: () -> Unit,
     onSoundToggle: () -> Unit,
     onVolumeChanged: (Int) -> Unit,
@@ -179,7 +181,7 @@ private fun SoundSection(
     onSoundToggle: () -> Unit,
     soundVolume: Int,
     onVolumeChanged: (Int) -> Unit,
-    sounds: List<String>,
+    sounds: List<AlarmSound>,
     soundIndex: Int,
     onSoundSelected: (Int) -> Unit,
 ) {
@@ -233,7 +235,7 @@ private fun SoundSection(
 private fun SoundSelectionSection(
     soundEnabled: Boolean,
     soundIndex: Int,
-    sounds: List<String>,
+    sounds: List<AlarmSound>,
     onSoundSelected: (Int) -> Unit,
 ) {
     LazyColumn(
@@ -258,7 +260,7 @@ private fun SoundSelectionSection(
 
 @Composable
 private fun SoundSelectionItem(
-    sound: String,
+    sound: AlarmSound,
     enabled: Boolean,
     selected: Boolean,
     onClick: () -> Unit,
@@ -273,7 +275,7 @@ private fun SoundSelectionItem(
         )
         Spacer(modifier = Modifier.width(12.dp))
         Text(
-            text = sound,
+            text = sound.title,
             style = OrbitTheme.typography.body1Medium,
             color = OrbitTheme.colors.white,
         )
@@ -287,7 +289,7 @@ private fun AlarmSoundBottomSheetPreview() {
     var isSoundEnabled by remember { mutableStateOf(true) }
     var soundVolume by remember { mutableIntStateOf(0) }
     var soundIndex by remember { mutableIntStateOf(0) }
-    val sounds by remember { mutableStateOf((1..20).map { "sound $it" }) }
+    val sounds by remember { mutableStateOf((1..20).map { AlarmSound("sound $it", Uri.EMPTY) }) }
     var isSheetOpen by remember { mutableStateOf(true) }
 
     OrbitTheme {

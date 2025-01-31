@@ -1,6 +1,7 @@
 package com.yapp.alarm
 
 import com.yapp.domain.model.AlarmDay
+import com.yapp.domain.model.AlarmSound
 import com.yapp.ui.base.UiState
 
 sealed class AlarmAddEditContract {
@@ -46,7 +47,7 @@ sealed class AlarmAddEditContract {
         val isSoundEnabled: Boolean = true,
         val soundVolume: Int = 70,
         val soundIndex: Int = 0,
-        val sounds: List<String> = (1..7).map { "기본 알람음 $it" },
+        val sounds: List<AlarmSound> = emptyList(),
     )
 
     sealed class Action {

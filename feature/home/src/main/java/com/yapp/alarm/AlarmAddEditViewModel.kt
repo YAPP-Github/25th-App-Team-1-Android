@@ -2,14 +2,48 @@ package com.yapp.alarm
 
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toDayOfWeek
+import android.content.Context
+import androidx.lifecycle.viewModelScope
+import com.yapp.domain.model.AlarmSound
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
+class AlarmAddEditViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+) : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
     initialState = AlarmAddEditContract.State(),
 ) {
+    init {
+        viewModelScope.launch {
+            val sounds = getAlarmSounds()
+            updateState {
+                copy(soundState = soundState.copy(sounds = sounds))
+            }
+        }
+    }
+
+    private suspend fun getAlarmSounds(): List<AlarmSound> = withContext(Dispatchers.IO) {
+        val ringtoneManager = android.media.RingtoneManager(context)
+        ringtoneManager.setType(android.media.RingtoneManager.TYPE_ALARM)
+
+        val cursor = ringtoneManager.cursor
+        val sounds = mutableListOf<AlarmSound>()
+
+        while (cursor.moveToNext()) {
+            val title = cursor.getString(android.media.RingtoneManager.TITLE_COLUMN_INDEX)
+            val uri = ringtoneManager.getRingtoneUri(cursor.position)
+            sounds.add(AlarmSound(title, uri))
+        }
+        cursor.close()
+        return@withContext sounds
+    }
+
     fun processAction(action: AlarmAddEditContract.Action) {
         when (action) {
             is AlarmAddEditContract.Action.ClickBack -> navigateBack()
