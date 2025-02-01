@@ -5,19 +5,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.Bubble
+import com.yapp.fortune.component.FortuneCharacter
+import com.yapp.fortune.component.HillWithGradient
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.paddingForScreenPercentage
 
@@ -33,16 +35,36 @@ fun FortunePage(page: Int) {
 
 @Composable
 fun FortuneFirstPage() {
-    val letterY = (LocalConfiguration.current.screenHeightDp.dp * 0.12f)
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
     ) {
         Image(
-            painter = painterResource(id = core.designsystem.R.drawable.ic_letter),
+            painter = painterResource(id = core.designsystem.R.drawable.ic_100_buble),
             contentDescription = null,
-            modifier = Modifier.offset(y = letterY),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .paddingForScreenPercentage(topPercentage = 0.03f),
         )
+        FortuneCharacter(
+            modifier = Modifier
+                .paddingForScreenPercentage(topPercentage = 0.092f)
+                .zIndex(1f)
+                .align(Alignment.TopCenter),
+            fortuneScore = 100,
+        )
+        HillWithGradient()
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .paddingForScreenPercentage(topPercentage = 0.34f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Image(
+                painter = painterResource(id = core.designsystem.R.drawable.ic_letter),
+                contentDescription = null,
+            )
+        }
     }
 }
 
@@ -56,7 +78,7 @@ fun FortuneSecondPage() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Bubble(
-                modifier = Modifier.paddingForScreenPercentage(topPercentage = 0.056f),
+                modifier = Modifier.paddingForScreenPercentage(topPercentage = 0.03f),
                 text = "오늘의 운세",
             )
             Text(
@@ -70,8 +92,8 @@ fun FortuneSecondPage() {
             Image(
                 painter = painterResource(id = core.designsystem.R.drawable.ic_letter_horoscope),
                 contentDescription = null,
-                modifier = Modifier.padding(top = 20.dp),
             )
+            Spacer(modifier = Modifier.padding(28.dp))
         }
     }
 }
@@ -95,5 +117,5 @@ fun DefaultFortunePage(page: Int) {
 @Composable
 @Preview()
 fun FortunePagePreview() {
-    FortunePage(1)
+    FortunePage(0)
 }

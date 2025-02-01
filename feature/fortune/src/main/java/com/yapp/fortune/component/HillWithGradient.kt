@@ -20,7 +20,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun HillWithGradient() {
     val density = LocalDensity.current
-    val hillTopY = with(density) { (LocalConfiguration.current.screenHeightDp.dp * 0.35f).toPx() }
+    val hillTopY = with(density) { (LocalConfiguration.current.screenHeightDp.dp * 0.22f).toPx() }
 
     Canvas(
         modifier = Modifier.fillMaxSize(),
