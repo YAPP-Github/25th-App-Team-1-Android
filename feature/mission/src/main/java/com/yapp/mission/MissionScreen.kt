@@ -10,28 +10,39 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.utils.heightForScreenPercentage
 
 @Composable
-fun MissionRoute() {
-    MissionScreen()
+fun MissionRoute(viewModel: MissionViewModel = hiltViewModel()) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    MissionScreen(
+        state = state,
+        onNext = { viewModel.onAction(MissionContract.Action.NextStep) },
+    )
 }
 
 @Composable
-fun MissionScreen() {
+fun MissionScreen(
+    state: MissionContract.State,
+    onNext: () -> Unit,
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -44,8 +55,7 @@ fun MissionScreen() {
 
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 20.dp),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -65,18 +75,22 @@ fun MissionScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 Image(
-                    painter = painterResource(id = core.designsystem.R.drawable.ic_mission_main),
+                    painter = painterResource(id = core.designsystem.R.drawable.img_mission_main),
                     contentDescription = "",
-                    modifier = Modifier.wrapContentSize(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .scale(1.1f),
                 )
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 OrbitButton(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp),
                     label = "미션 시작",
-                    onClick = {},
+                    onClick = onNext,
                     enabled = true,
                 )
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.027f))
@@ -126,5 +140,8 @@ fun MissionLabel(
 @Composable
 @Preview
 fun MissionRoutePreview() {
-    MissionScreen()
+    MissionScreen(
+        state = MissionContract.State(),
+        onNext = { },
+    )
 }

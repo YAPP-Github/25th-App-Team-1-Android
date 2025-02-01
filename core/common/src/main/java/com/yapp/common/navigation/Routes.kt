@@ -27,6 +27,7 @@ object Routes {
 
     object Mission {
         const val ROUTE = "mission_route"
-        const val MISSION = "mission"
+        const val MISSION = "mission_main"
+        const val PROGRESS = "mission_progress"
     }
 }
