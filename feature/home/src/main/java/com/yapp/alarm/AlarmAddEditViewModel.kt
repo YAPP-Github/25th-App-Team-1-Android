@@ -20,8 +20,14 @@ class AlarmAddEditViewModel @Inject constructor(
         viewModelScope.launch {
             alarmUseCase.getAlarmSounds()
                 .onSuccess { sounds ->
+                    val homecomingIndex = sounds.indexOfFirst { it.title == "Homecoming" }
                     updateState {
-                        copy(soundState = soundState.copy(sounds = sounds))
+                        copy(
+                            soundState = soundState.copy(
+                                sounds = sounds,
+                                soundIndex = if (homecomingIndex >= 0) homecomingIndex else 0,
+                            ),
+                        )
                     }
                 }
                 .onFailure {
