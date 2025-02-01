@@ -2,6 +2,7 @@ package com.yapp.alarm.component.bottomsheet
 
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -268,6 +269,9 @@ private fun SoundSelectionItem(
     onClick: () -> Unit,
 ) {
     Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(enabled) { onClick() },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         OrbitRadioButton(
