@@ -71,6 +71,13 @@ fun OrbitSlider(
                                         thumbRadius,
                                     )
                                 },
+                                onTap = { offset ->
+                                    thumbX = offset.x.coerceIn(startOffset, sliderWidth - startOffset)
+                                    val newValue = (((thumbX - startOffset) / (sliderWidth - 2 * startOffset)) * 100)
+                                        .toInt()
+                                        .coerceIn(0, 100)
+                                    onValueChange(newValue)
+                                },
                             )
                         }
                         .pointerInput(Unit) {
