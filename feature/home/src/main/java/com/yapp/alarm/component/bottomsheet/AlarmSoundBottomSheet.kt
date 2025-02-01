@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -243,9 +245,16 @@ private fun SoundSelectionSection(
     sounds: List<AlarmSound>,
     onSoundSelected: (Int) -> Unit,
 ) {
+    val scrollState = rememberLazyListState()
+
+    LaunchedEffect(Unit) {
+        scrollState.animateScrollToItem(soundIndex)
+    }
+
     LazyColumn(
         modifier = modifier.padding(vertical = 8.dp),
         contentPadding = PaddingValues(bottom = 20.dp),
+        state = scrollState,
     ) {
         items(sounds.size) { index ->
             SoundSelectionItem(
