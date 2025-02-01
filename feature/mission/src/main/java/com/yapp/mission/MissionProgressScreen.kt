@@ -122,7 +122,7 @@ fun MissionProgressScreen(
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.0246f))
                 MissionProgressBar(
                     currentProgress = state.clickCount,
-                    totalProgress = 5,
+                    totalProgress = 10,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(5.dp)

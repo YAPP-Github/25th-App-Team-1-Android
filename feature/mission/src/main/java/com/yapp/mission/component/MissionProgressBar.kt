@@ -25,7 +25,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MissionProgressBar(
     currentProgress: Int,
-    totalProgress: Int = 5,
+    totalProgress: Int,
     modifier: Modifier = Modifier
         .fillMaxWidth()
         .height(20.dp),
@@ -73,6 +73,9 @@ fun MissionProgressBar(
 @Preview
 fun MissionProgressBarPreview() {
     OrbitTheme {
-        MissionProgressBar(currentProgress = 2)
+        MissionProgressBar(
+            currentProgress = 3,
+            totalProgress = 5,
+        )
     }
 }

@@ -38,7 +38,7 @@ class MissionViewModel @Inject constructor() : BaseViewModel<MissionContract.Sta
         val currentCount = currentState.clickCount
         if (currentCount < 9) {
             updateState { copy(clickCount = currentCount + 1, isAnimating = true) }
-            kotlinx.coroutines.delay(800)
+            kotlinx.coroutines.delay(500)
             updateState { copy(isAnimating = false) }
         } else if (currentCount == 9 && !currentState.isFlipped) {
             updateState {
@@ -49,7 +49,7 @@ class MissionViewModel @Inject constructor() : BaseViewModel<MissionContract.Sta
                     isAnimating = true,
                 )
             }
-            kotlinx.coroutines.delay(800)
+            kotlinx.coroutines.delay(500)
             updateState { copy(isAnimating = false) }
         }
     }
@@ -60,27 +60,5 @@ class MissionViewModel @Inject constructor() : BaseViewModel<MissionContract.Sta
         updateState { copy(showOverlayText = true) }
         kotlinx.coroutines.delay(2000)
         updateState { copy(showOverlay = false, showOverlayText = false) }
-    }
-
-    private fun handleCardClick() = intent {
-        if (currentState.isAnimating) return@intent
-
-        val currentCount = currentState.clickCount
-        if (currentCount < 4) {
-            updateState { copy(clickCount = currentCount + 1, isAnimating = true) }
-            kotlinx.coroutines.delay(800)
-            updateState { copy(isAnimating = false) }
-        } else if (currentCount == 4 && !currentState.isFlipped) {
-            updateState {
-                copy(
-                    isMissionCompleted = true,
-                    clickCount = 5,
-                    isFlipped = true,
-                    isAnimating = true,
-                )
-            }
-            kotlinx.coroutines.delay(800)
-            updateState { copy(isAnimating = false) }
-        }
     }
 }
