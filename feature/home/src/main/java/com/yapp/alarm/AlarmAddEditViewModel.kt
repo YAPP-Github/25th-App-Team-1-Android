@@ -30,6 +30,11 @@ class AlarmAddEditViewModel @Inject constructor(
         }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        alarmUseCase.releaseSoundPlayer()
+    }
+
     fun processAction(action: AlarmAddEditContract.Action) {
         when (action) {
             is AlarmAddEditContract.Action.ClickBack -> navigateBack()
@@ -217,7 +222,9 @@ class AlarmAddEditViewModel @Inject constructor(
 
     private fun toggleBottomSheet(sheetType: AlarmAddEditContract.BottomSheetType) {
         val newBottomSheetState = if (currentState.bottomSheetState == sheetType) {
-            alarmUseCase.stopAlarmSound()
+            if (currentState.bottomSheetState == AlarmAddEditContract.BottomSheetType.SoundSetting) {
+                alarmUseCase.stopAlarmSound()
+            }
             null
         } else {
             sheetType

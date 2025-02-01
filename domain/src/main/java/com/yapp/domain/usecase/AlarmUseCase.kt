@@ -12,6 +12,7 @@ class AlarmUseCase @Inject constructor(
     fun playAlarmSound(alarmSound: AlarmSound) = alarmRepository.playAlarmSound(alarmSound)
     fun stopAlarmSound() = alarmRepository.stopAlarmSound()
     fun updateAlarmVolume(volume: Int) = alarmRepository.updateAlarmVolume(volume)
+    fun releaseSoundPlayer() = alarmRepository.releaseSoundPlayer()
     suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = alarmRepository.getPagedAlarms(limit, offset)
     suspend fun getAlarmCount(): Result<Int> = alarmRepository.getAlarmCount()
     suspend fun insertAlarm(alarm: Alarm): Result<Alarm> = alarmRepository.insertAlarm(alarm)
