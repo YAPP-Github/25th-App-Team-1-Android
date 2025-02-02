@@ -30,7 +30,9 @@ sealed class HomeContract {
         val name: String = "동현",
     ) : UiState
 
-    sealed class Action
+    sealed class Action {
+        data object NavigateToAlarmAdd : Action()
+    }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {
         data class Navigate(

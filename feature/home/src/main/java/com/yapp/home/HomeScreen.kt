@@ -109,19 +109,27 @@ fun HomeScreen(
             onAddClick = { },
         )
     } else {
-        HomeContent(state)
+        HomeContent(
+            state = state,
+            eventDispatcher = eventDispatcher,
+        )
     }
 }
 
 @Composable
-private fun HomeContent(state: HomeContract.State) {
+private fun HomeContent(
+    state: HomeContract.State,
+    eventDispatcher: (HomeContract.Action) -> Unit,
+) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     var sheetHalfExpandHeight by remember { mutableStateOf(0.dp) }
 
     AlarmListBottomSheet(
         alarms = state.alarms,
         halfExpandedHeight = sheetHalfExpandHeight,
-        onClickAdd = { },
+        onClickAdd = {
+            eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)
+        },
         onClickMore = { },
     ) {
         Box(
