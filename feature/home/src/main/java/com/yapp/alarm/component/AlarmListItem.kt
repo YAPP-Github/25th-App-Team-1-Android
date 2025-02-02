@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toRepeatDays
+import com.yapp.ui.component.checkbox.OrbitCheckBox
 import com.yapp.ui.component.switch.OrbitSwitch
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -34,6 +35,9 @@ import java.time.format.DateTimeFormatter
 internal fun AlarmListItem(
     repeatDays: Int,
     isHolidayAlarmOff: Boolean,
+    selectable: Boolean = false,
+    selected: Boolean = false,
+    onToggleSelect: () -> Unit = { },
     isAm: Boolean,
     hour: Int,
     minute: Int,
@@ -43,52 +47,67 @@ internal fun AlarmListItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(
-                horizontal = 22.dp,
-                vertical = 20.dp,
-            ),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .padding(horizontal = 24.dp, vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = repeatDays.toRepeatDaysString(
-                        isAm = isAm,
-                        hour = hour,
-                        minute = minute,
-                    ),
-                    style = OrbitTheme.typography.label1SemiBold,
-                    color = OrbitTheme.colors.gray_300,
-                )
-
-                if (isHolidayAlarmOff) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Icon(
-                        painter = painterResource(id = core.designsystem.R.drawable.ic_holiday),
-                        contentDescription = "Holiday Alarm Off",
-                        tint = OrbitTheme.colors.gray_200,
-                        modifier = Modifier.size(12.dp),
-                    )
-                }
-            }
-
-            Text(
-                text = "${if (isAm) "오전" else "오후"} $hour:${minute.toString().padStart(2, '0')}",
-                style = OrbitTheme.typography.title2Medium,
-                color = OrbitTheme.colors.white,
+        if (selectable) {
+            OrbitCheckBox(
+                checked = selected,
+                onCheckedChange = onToggleSelect,
             )
+            Spacer(modifier = Modifier.width(26.dp))
         }
 
-        OrbitSwitch(
-            isChecked = isActive,
-        ) {
-            onToggleActive()
+        AlarmListItemContent(
+            repeatDays = repeatDays,
+            isHolidayAlarmOff = isHolidayAlarmOff,
+            isAm = isAm,
+            hour = hour,
+            minute = minute,
+        )
+
+        if (!selectable) {
+            Spacer(modifier = Modifier.weight(1f))
+            OrbitSwitch(
+                isChecked = isActive,
+            ) {
+                onToggleActive()
+            }
         }
+    }
+}
+
+@Composable
+private fun AlarmListItemContent(
+    repeatDays: Int,
+    isHolidayAlarmOff: Boolean,
+    isAm: Boolean,
+    hour: Int,
+    minute: Int,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = repeatDays.toRepeatDaysString(isAm, hour, minute),
+                style = OrbitTheme.typography.label1SemiBold,
+                color = OrbitTheme.colors.gray_300,
+            )
+            if (isHolidayAlarmOff) {
+                Spacer(modifier = Modifier.width(4.dp))
+                Icon(
+                    painter = painterResource(id = core.designsystem.R.drawable.ic_holiday),
+                    contentDescription = "Holiday Alarm Off",
+                    tint = OrbitTheme.colors.gray_200,
+                    modifier = Modifier.size(12.dp),
+                )
+            }
+        }
+
+        Text(
+            text = formatAlarmTime(isAm, hour, minute),
+            style = OrbitTheme.typography.title2Medium,
+            color = OrbitTheme.colors.white,
+        )
     }
 }
 
@@ -116,6 +135,10 @@ private fun AlarmDay.toKoreanString(): String {
         AlarmDay.FRI -> "금"
         AlarmDay.SAT -> "토"
     }
+}
+
+private fun formatAlarmTime(isAm: Boolean, hour: Int, minute: Int): String {
+    return "${if (isAm) "오전" else "오후"} $hour:${minute.toString().padStart(2, '0')}"
 }
 
 private fun getNextAlarmDateWithTime(isAm: Boolean, hour: Int, minute: Int): String {
@@ -146,17 +169,23 @@ private fun AlarmListItemPreview() {
     OrbitTheme {
         val selectedDays = listOf(AlarmDay.MON, AlarmDay.WED, AlarmDay.FRI).toRepeatDays()
         var isActive by remember { mutableStateOf(true) }
+        var selected by remember { mutableStateOf(true) }
 
         Column {
             AlarmListItem(
                 repeatDays = selectedDays,
                 isHolidayAlarmOff = true,
+                selectable = true,
+                selected = selected,
                 isAm = true,
                 hour = 6,
                 minute = 0,
                 isActive = isActive,
                 onToggleActive = {
                     isActive = !isActive
+                },
+                onToggleSelect = {
+                    selected = !selected
                 },
             )
             Spacer(
@@ -169,6 +198,8 @@ private fun AlarmListItemPreview() {
             AlarmListItem(
                 repeatDays = emptyList<AlarmDay>().toRepeatDays(),
                 isHolidayAlarmOff = false,
+                selectable = false,
+                selected = false,
                 isAm = true,
                 hour = 6,
                 minute = 0,
@@ -176,6 +207,7 @@ private fun AlarmListItemPreview() {
                 onToggleActive = {
                     isActive = !isActive
                 },
+                onToggleSelect = { },
             )
         }
     }
