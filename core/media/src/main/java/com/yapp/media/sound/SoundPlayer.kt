@@ -12,7 +12,7 @@ import javax.inject.Singleton
 class SoundPlayer @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
-    private var mediaPlayer: MediaPlayer = MediaPlayer()
+    private val mediaPlayer: MediaPlayer = MediaPlayer()
 
     fun playSound(uri: Uri, volume: Float) {
         stopSound()
