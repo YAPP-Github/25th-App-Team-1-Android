@@ -30,6 +30,7 @@ class SoundPlayer @Inject constructor(
 
     fun stopSound() {
         try {
+            mediaPlayer.setOnPreparedListener(null)
             if (mediaPlayer.isPlaying) {
                 mediaPlayer.stop()
             }
