@@ -1,5 +1,6 @@
 package com.yapp.home.component.bottomsheet
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
@@ -44,6 +47,8 @@ import androidx.compose.ui.unit.dp
 import com.yapp.alarm.component.AlarmListItem
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.Alarm
+import com.yapp.home.component.AlarmListDropDownMenu
+import com.yapp.ui.component.checkbox.OrbitCheckBox
 import feature.home.R
 
 enum class BottomSheetExpandState {
@@ -128,52 +133,13 @@ internal fun AlarmBottomSheetContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(topPadding))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp, bottom = 8.dp, start = 20.dp, end = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(id = R.string.alarm_list_bottom_sheet_title),
-                style = OrbitTheme.typography.heading2SemiBold,
-                color = OrbitTheme.colors.white,
-            )
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clickable {
-                        onClickAdd()
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(id = core.designsystem.R.drawable.ic_plus),
-                    contentDescription = "Plus",
-                    tint = OrbitTheme.colors.white,
-                )
-            }
-            Spacer(modifier = Modifier.width(4.dp))
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clickable {
-                        onClickMore()
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    modifier = Modifier.size(24.dp),
-                    painter = painterResource(id = core.designsystem.R.drawable.ic_more),
-                    contentDescription = "More",
-                    tint = OrbitTheme.colors.white,
-                )
-            }
-        }
+        AlarmListTopBar(
+            menuExpanded = false,
+            onClickAdd = onClickAdd,
+            onClickMore = onClickMore,
+            onDismissRequest = { },
+            onClickEdit = { },
+        )
 
         LazyColumn {
             itemsIndexed(alarms) { index, alarm ->
@@ -200,27 +166,125 @@ internal fun AlarmBottomSheetContent(
     }
 }
 
-@Preview
 @Composable
-private fun AlarmListBottomSheetPreview() {
-    OrbitTheme {
-        AlarmListBottomSheet(
-            alarms = listOf(
-                Alarm(id = 1),
-                Alarm(id = 2),
-                Alarm(id = 3),
-            ),
-            onClickAdd = { },
-            onClickMore = { },
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(color = OrbitTheme.colors.gray_900),
-            ) {
-                Text("Content")
+private fun AlarmListTopBar(
+    modifier: Modifier = Modifier,
+    menuExpanded: Boolean,
+    onClickAdd: () -> Unit,
+    onClickMore: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onClickEdit: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp, bottom = 8.dp, start = 20.dp, end = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(id = R.string.alarm_list_bottom_sheet_title),
+            style = OrbitTheme.typography.heading2SemiBold,
+            color = OrbitTheme.colors.white,
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        CircleIconButton(
+            iconRes = core.designsystem.R.drawable.ic_plus,
+            contentDescription = "Plus",
+            onClick = onClickAdd,
+        )
+
+        Spacer(modifier = Modifier.width(4.dp))
+
+        Box {
+            CircleIconButton(
+                iconRes = core.designsystem.R.drawable.ic_more,
+                contentDescription = "More",
+                onClick = onClickMore,
+            )
+
+            if (menuExpanded) {
+                AlarmListDropDownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = onDismissRequest,
+                    onClickEdit = onClickEdit,
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun AlarmSelectionTopBar(
+    modifier: Modifier = Modifier,
+    checked: Boolean = false,
+    onClickCheckAll: () -> Unit,
+    onClickClose: () -> Unit,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp, bottom = 10.dp, start = 24.dp, end = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        OrbitCheckBox(
+            checked = checked,
+            onCheckedChange = { onClickCheckAll() },
+        )
+
+        Spacer(modifier = Modifier.width(22.dp))
+
+        Text(
+            text = stringResource(id = R.string.alarm_list_bottom_sheet_selection_title),
+            style = OrbitTheme.typography.heading2SemiBold,
+            color = OrbitTheme.colors.white,
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        CircleIconButton(
+            iconRes = core.designsystem.R.drawable.ic_close,
+            contentDescription = "Close",
+            onClick = onClickClose,
+        )
+
+        Spacer(modifier = Modifier.width(4.dp))
+    }
+}
+
+@Composable
+private fun CircleIconButton(
+    modifier: Modifier = Modifier,
+    @DrawableRes iconRes: Int,
+    contentDescription: String?,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = modifier
+            .size(32.dp)
+            .clip(CircleShape)
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            modifier = Modifier.size(24.dp),
+            painter = painterResource(id = iconRes),
+            contentDescription = contentDescription,
+            tint = OrbitTheme.colors.white,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun AlarmSelectionTopBarPreview() {
+    OrbitTheme {
+        AlarmSelectionTopBar(
+            checked = true,
+            onClickCheckAll = { },
+            onClickClose = { },
+        )
     }
 }
 

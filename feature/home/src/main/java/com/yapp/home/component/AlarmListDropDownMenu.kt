@@ -30,7 +30,7 @@ import com.yapp.ui.extensions.customClickable
 import feature.home.R
 
 @Composable
-private fun AlarmListDropDownMenu(
+internal fun AlarmListDropDownMenu(
     modifier: Modifier = Modifier,
     expanded: Boolean,
     onDismissRequest: () -> Unit,
