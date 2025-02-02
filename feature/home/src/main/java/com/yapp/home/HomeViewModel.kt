@@ -14,7 +14,45 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeContract.State, Ho
             HomeContract.Action.NavigateToAlarmAdd -> {
                 emitSideEffect(HomeContract.SideEffect.Navigate(HomeDestination.AlarmAddEdit.route))
             }
-            else -> { }
+            HomeContract.Action.ToggleSelectionMode -> {
+                updateState { copy(isSelectionMode = !currentState.isSelectionMode) }
+            }
+            HomeContract.Action.ToggleDropdownMenu -> {
+                updateState { copy(dropdownMenuExpanded = !currentState.dropdownMenuExpanded) }
+            }
+            is HomeContract.Action.ToggleAlarmSelection -> {
+                updateState {
+                    val updatedSelection = if (currentState.selectedAlarmIds.contains(action.alarmId)) {
+                        currentState.selectedAlarmIds - action.alarmId
+                    } else {
+                        currentState.selectedAlarmIds + action.alarmId
+                    }
+                    copy(selectedAlarmIds = updatedSelection)
+                }
+            }
+            HomeContract.Action.ToggleAllAlarmSelection -> {
+                updateState {
+                    val allIds = currentState.alarms.map { it.id }.toSet()
+                    val updatedSelection = if (currentState.selectedAlarmIds == allIds) {
+                        emptySet()
+                    } else {
+                        allIds
+                    }
+                    copy(selectedAlarmIds = updatedSelection)
+                }
+            }
+            is HomeContract.Action.ToggleAlarmActive -> {
+                updateState {
+                    val updatedAlarms = currentState.alarms.map { alarm ->
+                        if (alarm.id == action.alarmId) {
+                            alarm.copy(isAlarmActive = !alarm.isAlarmActive)
+                        } else {
+                            alarm
+                        }
+                    }
+                    copy(alarms = updatedAlarms)
+                }
+            }
         }
     }
 

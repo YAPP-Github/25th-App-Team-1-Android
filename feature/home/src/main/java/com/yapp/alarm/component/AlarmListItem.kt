@@ -33,16 +33,17 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun AlarmListItem(
+    id: Long,
     repeatDays: Int,
     isHolidayAlarmOff: Boolean,
     selectable: Boolean = false,
     selected: Boolean = false,
-    onToggleSelect: () -> Unit = { },
+    onToggleSelect: (Long) -> Unit = { },
     isAm: Boolean,
     hour: Int,
     minute: Int,
     isActive: Boolean,
-    onToggleActive: () -> Unit,
+    onToggleActive: (Long) -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -53,7 +54,9 @@ internal fun AlarmListItem(
         if (selectable) {
             OrbitCheckBox(
                 checked = selected,
-                onCheckedChange = onToggleSelect,
+                onCheckedChange = {
+                    onToggleSelect(id)
+                },
             )
             Spacer(modifier = Modifier.width(26.dp))
         }
@@ -71,7 +74,7 @@ internal fun AlarmListItem(
             OrbitSwitch(
                 isChecked = isActive,
             ) {
-                onToggleActive()
+                onToggleActive(id)
             }
         }
     }
@@ -173,6 +176,7 @@ private fun AlarmListItemPreview() {
 
         Column {
             AlarmListItem(
+                id = 0,
                 repeatDays = selectedDays,
                 isHolidayAlarmOff = true,
                 selectable = true,
@@ -196,6 +200,7 @@ private fun AlarmListItemPreview() {
                     .padding(horizontal = 24.dp),
             )
             AlarmListItem(
+                id = 0,
                 repeatDays = emptyList<AlarmDay>().toRepeatDays(),
                 isHolidayAlarmOff = false,
                 selectable = false,

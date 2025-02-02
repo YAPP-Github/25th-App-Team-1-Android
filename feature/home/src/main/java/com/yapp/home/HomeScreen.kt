@@ -126,11 +126,35 @@ private fun HomeContent(
 
     AlarmListBottomSheet(
         alarms = state.alarms,
+        menuExpanded = state.dropdownMenuExpanded,
+        isAllSelected = state.isAllSelected,
+        isSelectionMode = state.isSelectionMode,
+        selectedAlarmIds = state.selectedAlarmIds,
         halfExpandedHeight = sheetHalfExpandHeight,
         onClickAdd = {
             eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)
         },
-        onClickMore = { },
+        onClickMore = {
+            eventDispatcher(HomeContract.Action.ToggleDropdownMenu)
+        },
+        onClickCheckAll = {
+            eventDispatcher(HomeContract.Action.ToggleAllAlarmSelection)
+        },
+        onClickClose = {
+            eventDispatcher(HomeContract.Action.ToggleSelectionMode)
+        },
+        onClickEdit = {
+            eventDispatcher(HomeContract.Action.ToggleSelectionMode)
+        },
+        onDismissRequest = {
+            eventDispatcher(HomeContract.Action.ToggleDropdownMenu)
+        },
+        onToggleSelect = { alarmId ->
+            eventDispatcher(HomeContract.Action.ToggleAlarmSelection(alarmId))
+        },
+        onToggleActive = { alarmId ->
+            eventDispatcher(HomeContract.Action.ToggleAlarmActive(alarmId))
+        },
     ) {
         Box(
             modifier = Modifier

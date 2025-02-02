@@ -59,9 +59,19 @@ enum class BottomSheetExpandState {
 @Composable
 internal fun AlarmListBottomSheet(
     alarms: List<Alarm>,
+    menuExpanded: Boolean = false,
+    isAllSelected: Boolean,
+    isSelectionMode: Boolean,
+    selectedAlarmIds: Set<Long>,
     halfExpandedHeight: Dp = 0.dp,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
+    onClickCheckAll: () -> Unit,
+    onClickClose: () -> Unit,
+    onClickEdit: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onToggleSelect: (Long) -> Unit,
+    onToggleActive: (Long) -> Unit,
     content: @Composable () -> Unit,
 ) {
     var expandedType by remember { mutableStateOf(BottomSheetExpandState.HALF_EXPANDED) }
@@ -91,9 +101,19 @@ internal fun AlarmListBottomSheet(
             AlarmBottomSheetContent(
                 modifier = Modifier.fillMaxHeight(),
                 alarms = alarms,
+                menuExpanded = menuExpanded,
+                isSelectionMode = isSelectionMode,
+                isAllSelected = isAllSelected,
+                selectedAlarmIds = selectedAlarmIds,
                 onClickAdd = onClickAdd,
                 onClickMore = onClickMore,
+                onClickCheckAll = onClickCheckAll,
+                onClickClose = onClickClose,
+                onClickEdit = onClickEdit,
                 expandedType = expandedType,
+                onDismissRequest = onDismissRequest,
+                onToggleSelect = onToggleSelect,
+                onToggleActive = onToggleActive,
             )
         },
         sheetShadowElevation = 0.dp,
@@ -114,8 +134,18 @@ internal fun AlarmListBottomSheet(
 internal fun AlarmBottomSheetContent(
     modifier: Modifier = Modifier,
     alarms: List<Alarm>,
+    menuExpanded: Boolean,
+    isSelectionMode: Boolean,
+    isAllSelected: Boolean,
+    selectedAlarmIds: Set<Long>,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
+    onClickCheckAll: () -> Unit,
+    onClickClose: () -> Unit,
+    onClickEdit: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onToggleSelect: (Long) -> Unit,
+    onToggleActive: (Long) -> Unit,
     expandedType: BottomSheetExpandState,
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
@@ -133,24 +163,37 @@ internal fun AlarmBottomSheetContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Spacer(modifier = Modifier.height(topPadding))
-        AlarmListTopBar(
-            menuExpanded = false,
-            onClickAdd = onClickAdd,
-            onClickMore = onClickMore,
-            onDismissRequest = { },
-            onClickEdit = { },
-        )
+
+        if (isSelectionMode) {
+            AlarmSelectionTopBar(
+                checked = isAllSelected,
+                onClickCheckAll = onClickCheckAll,
+                onClickClose = onClickClose,
+            )
+        } else {
+            AlarmListTopBar(
+                menuExpanded = menuExpanded,
+                onClickAdd = onClickAdd,
+                onClickMore = onClickMore,
+                onDismissRequest = onDismissRequest,
+                onClickEdit = onClickEdit,
+            )
+        }
 
         LazyColumn {
             itemsIndexed(alarms) { index, alarm ->
                 AlarmListItem(
+                    id = alarm.id,
                     repeatDays = alarm.repeatDays,
                     isHolidayAlarmOff = alarm.isHolidayAlarmOff,
+                    selectable = isSelectionMode,
+                    selected = selectedAlarmIds.contains(alarm.id),
+                    onToggleSelect = onToggleSelect,
                     isAm = alarm.isAm,
                     hour = alarm.hour,
                     minute = alarm.minute,
                     isActive = alarm.isAlarmActive,
-                    onToggleActive = { },
+                    onToggleActive = onToggleActive,
                 )
                 if (index != alarms.size - 1) {
                     Spacer(
