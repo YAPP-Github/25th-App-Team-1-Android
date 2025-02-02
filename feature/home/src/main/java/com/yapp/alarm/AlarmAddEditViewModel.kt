@@ -20,14 +20,25 @@ class AlarmAddEditViewModel @Inject constructor(
         viewModelScope.launch {
             alarmUseCase.getAlarmSounds()
                 .onSuccess { sounds ->
+                    val homecomingIndex = sounds.indexOfFirst { it.title == "Homecoming" }
                     updateState {
-                        copy(soundState = soundState.copy(sounds = sounds))
+                        copy(
+                            soundState = soundState.copy(
+                                sounds = sounds,
+                                soundIndex = if (homecomingIndex >= 0) homecomingIndex else 0,
+                            ),
+                        )
                     }
                 }
                 .onFailure {
                     Log.e("AlarmAddEditViewModel", "Failed to get alarm sounds", it)
                 }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        alarmUseCase.releaseSoundPlayer()
     }
 
     fun processAction(action: AlarmAddEditContract.Action) {
@@ -191,7 +202,12 @@ class AlarmAddEditViewModel @Inject constructor(
 
     private fun toggleSoundEnabled() {
         val newSoundState = currentState.soundState.copy(isSoundEnabled = !currentState.soundState.isSoundEnabled)
-        if (!newSoundState.isSoundEnabled) {
+        if (newSoundState.isSoundEnabled) {
+            alarmUseCase.playAlarmSound(
+                alarmSound = currentState.soundState.sounds[currentState.soundState.soundIndex],
+                volume = currentState.soundState.soundVolume,
+            )
+        } else {
             alarmUseCase.stopAlarmSound()
         }
         updateState {
@@ -212,12 +228,17 @@ class AlarmAddEditViewModel @Inject constructor(
         updateState {
             copy(soundState = newSoundState)
         }
-        alarmUseCase.playAlarmSound(currentState.soundState.sounds[index])
+        alarmUseCase.playAlarmSound(
+            currentState.soundState.sounds[index],
+            currentState.soundState.soundVolume,
+        )
     }
 
     private fun toggleBottomSheet(sheetType: AlarmAddEditContract.BottomSheetType) {
         val newBottomSheetState = if (currentState.bottomSheetState == sheetType) {
-            alarmUseCase.stopAlarmSound()
+            if (currentState.bottomSheetState == AlarmAddEditContract.BottomSheetType.SoundSetting) {
+                alarmUseCase.stopAlarmSound()
+            }
             null
         } else {
             sheetType

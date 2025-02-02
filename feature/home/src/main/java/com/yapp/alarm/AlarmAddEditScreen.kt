@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -265,9 +267,11 @@ private fun AlarmAddEditSettingsSection(
             label = stringResource(id = R.string.alarm_add_edit_sound),
             description = when {
                 state.soundState.isSoundEnabled && state.soundState.isVibrationEnabled -> {
-                    "${state.soundState.sounds.getOrElse(state.soundState.soundIndex) { AlarmSound("", Uri.EMPTY) }.title}, ${stringResource(
-                        id = R.string.alarm_add_edit_vibration,
-                    )}"
+                    "${stringResource(id = R.string.alarm_add_edit_vibration)}, ${
+                    state.soundState.sounds.getOrElse(state.soundState.soundIndex) {
+                        AlarmSound("", Uri.EMPTY)
+                    }.title
+                    }"
                 }
                 state.soundState.isSoundEnabled -> state.soundState.sounds.getOrElse(state.soundState.soundIndex) { AlarmSound("", Uri.EMPTY) }.title
                 state.soundState.isVibrationEnabled -> stringResource(id = R.string.alarm_add_edit_vibration)
@@ -298,14 +302,18 @@ private fun AlarmAddEditSettingItem(
     ) {
         Text(
             label,
+            modifier = Modifier.width(80.dp),
             style = OrbitTheme.typography.body1SemiBold,
             color = OrbitTheme.colors.white,
         )
-        Spacer(modifier = Modifier.weight(1f))
         Text(
             description,
+            modifier = Modifier.weight(1f),
             style = OrbitTheme.typography.body2Regular,
             color = OrbitTheme.colors.gray_50,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.End,
         )
         Icon(
             painter = painterResource(id = core.designsystem.R.drawable.ic_arrow_right),

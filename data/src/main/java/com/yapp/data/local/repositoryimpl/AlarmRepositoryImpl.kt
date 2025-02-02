@@ -20,8 +20,8 @@ class AlarmRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun playAlarmSound(alarmSound: AlarmSound) {
-        soundPlayer.playSound(alarmSound.uri)
+    override fun playAlarmSound(alarmSound: AlarmSound, volume: Int) {
+        soundPlayer.playSound(alarmSound.uri, volume / 100f)
     }
 
     override fun stopAlarmSound() {
@@ -30,6 +30,10 @@ class AlarmRepositoryImpl @Inject constructor(
 
     override fun updateAlarmVolume(volume: Int) {
         soundPlayer.updateVolume(volume)
+    }
+
+    override fun releaseSoundPlayer() {
+        soundPlayer.release()
     }
 
     override suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = runCatching {
