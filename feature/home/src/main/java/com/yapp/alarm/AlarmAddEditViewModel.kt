@@ -203,7 +203,10 @@ class AlarmAddEditViewModel @Inject constructor(
     private fun toggleSoundEnabled() {
         val newSoundState = currentState.soundState.copy(isSoundEnabled = !currentState.soundState.isSoundEnabled)
         if (newSoundState.isSoundEnabled) {
-            alarmUseCase.playAlarmSound(currentState.soundState.sounds[currentState.soundState.soundIndex])
+            alarmUseCase.playAlarmSound(
+                alarmSound = currentState.soundState.sounds[currentState.soundState.soundIndex],
+                volume = currentState.soundState.soundVolume,
+            )
         } else {
             alarmUseCase.stopAlarmSound()
         }
@@ -225,7 +228,10 @@ class AlarmAddEditViewModel @Inject constructor(
         updateState {
             copy(soundState = newSoundState)
         }
-        alarmUseCase.playAlarmSound(currentState.soundState.sounds[index])
+        alarmUseCase.playAlarmSound(
+            currentState.soundState.sounds[index],
+            currentState.soundState.soundVolume,
+        )
     }
 
     private fun toggleBottomSheet(sheetType: AlarmAddEditContract.BottomSheetType) {

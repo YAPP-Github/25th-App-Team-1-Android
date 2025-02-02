@@ -20,8 +20,8 @@ class AlarmRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun playAlarmSound(alarmSound: AlarmSound) {
-        soundPlayer.playSound(alarmSound.uri)
+    override fun playAlarmSound(alarmSound: AlarmSound, volume: Int) {
+        soundPlayer.playSound(alarmSound.uri, volume / 100f)
     }
 
     override fun stopAlarmSound() {

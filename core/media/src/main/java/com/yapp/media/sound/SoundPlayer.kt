@@ -12,16 +12,16 @@ import javax.inject.Singleton
 class SoundPlayer @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
-    private val mediaPlayer: MediaPlayer = MediaPlayer()
+    private var mediaPlayer: MediaPlayer = MediaPlayer()
 
-    fun playSound(uri: Uri) {
+    fun playSound(uri: Uri, volume: Float) {
         stopSound()
 
         try {
-            mediaPlayer.reset()
             mediaPlayer.setDataSource(context, uri)
+            mediaPlayer.setOnPreparedListener { mediaPlayer.start() }
             mediaPlayer.prepareAsync()
-            mediaPlayer.setOnPreparedListener { it.start() }
+            mediaPlayer.setVolume(volume, volume)
         } catch (e: Exception) {
             Log.e("SoundPlayer", "Error playing sound", e)
             stopSound()
