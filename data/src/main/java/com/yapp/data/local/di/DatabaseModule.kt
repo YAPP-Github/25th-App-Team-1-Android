@@ -7,6 +7,7 @@ import com.yapp.data.local.AlarmDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -17,7 +18,7 @@ class DatabaseModule {
     @Provides
     @Singleton
     fun providesAlarmDatabase(
-        context: Context,
+        @ApplicationContext context: Context,
     ): AlarmDatabase {
         return Room.databaseBuilder(
             context.applicationContext,

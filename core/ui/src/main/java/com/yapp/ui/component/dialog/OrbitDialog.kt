@@ -66,11 +66,11 @@ fun OrbitDialog(
         ) {
             Text(
                 text = title,
-                style = OrbitTheme.typography.heading1SemiBold,
+                style = OrbitTheme.typography.headline1SemiBold,
                 color = OrbitTheme.colors.gray_50,
                 textAlign = TextAlign.Center,
             )
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = message,
                 style = OrbitTheme.typography.body1Regular,

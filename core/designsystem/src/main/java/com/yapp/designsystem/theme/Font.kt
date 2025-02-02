@@ -10,3 +10,7 @@ val Pretendard = FontFamily(
     Font(R.font.pretendard_medium, FontWeight.Medium, FontStyle.Normal),
     Font(R.font.pretendard_semi_bold, FontWeight.SemiBold, FontStyle.Normal),
 )
+
+val Ownglyph = FontFamily(
+    Font(R.font.ownglyph_pdf, FontWeight.Normal, FontStyle.Normal),
+)

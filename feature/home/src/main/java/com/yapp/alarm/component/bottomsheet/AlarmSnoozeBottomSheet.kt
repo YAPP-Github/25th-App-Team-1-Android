@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AlarmSnoozeBottomSheet(
-    isSnoozeEnabled: Boolean,
+    snoozeEnabled: Boolean,
     snoozeIntervalIndex: Int,
     snoozeIntervals: List<String>,
     onIntervalSelected: (Int) -> Unit,
@@ -61,7 +61,7 @@ internal fun AlarmSnoozeBottomSheet(
         },
     ) {
         BottomSheetContent(
-            isSnoozeEnabled = isSnoozeEnabled,
+            isSnoozeEnabled = snoozeEnabled,
             snoozeIntervalIndex = snoozeIntervalIndex,
             snoozeIntervals = snoozeIntervals,
             onIntervalSelected = onIntervalSelected,
@@ -104,17 +104,17 @@ private fun BottomSheetContent(
         Spacer(modifier = Modifier.height(20.dp))
         SelectorSection(
             title = stringResource(id = R.string.alarm_add_edit_interval),
-            selectedIndex = if (isSnoozeEnabled) snoozeIntervalIndex else -1,
+            selectedIndex = snoozeIntervalIndex,
             items = snoozeIntervals,
-            isEnabled = isSnoozeEnabled,
+            enabled = isSnoozeEnabled,
             onItemSelected = onIntervalSelected,
         )
         Spacer(modifier = Modifier.height(32.dp))
         SelectorSection(
             title = stringResource(id = R.string.alarm_add_edit_repeat_count),
-            selectedIndex = if (isSnoozeEnabled) snoozeCountIndex else -1,
+            selectedIndex = snoozeCountIndex,
             items = snoozeCounts,
-            isEnabled = isSnoozeEnabled,
+            enabled = isSnoozeEnabled,
             onItemSelected = onCountSelected,
         )
         Spacer(modifier = Modifier.height(20.dp))
@@ -138,7 +138,7 @@ private fun BottomSheetContent(
 }
 
 @Composable
-private fun VibrationSection(isSnoozeEnabled: Boolean, onSnoozeToggle: () -> Unit) {
+private fun VibrationSection(snoozeEnabled: Boolean, onSnoozeToggle: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -152,7 +152,7 @@ private fun VibrationSection(isSnoozeEnabled: Boolean, onSnoozeToggle: () -> Uni
         )
         Spacer(modifier = Modifier.weight(1f))
         OrbitSwitch(
-            isChecked = isSnoozeEnabled,
+            isChecked = snoozeEnabled,
             isEnabled = true,
             onClick = onSnoozeToggle,
         )
@@ -164,7 +164,7 @@ private fun SelectorSection(
     title: String,
     selectedIndex: Int,
     items: List<String>,
-    isEnabled: Boolean,
+    enabled: Boolean,
     onItemSelected: (Int) -> Unit,
 ) {
     Column {
@@ -174,7 +174,12 @@ private fun SelectorSection(
             color = OrbitTheme.colors.gray_50,
         )
         Spacer(modifier = Modifier.height(16.dp))
-        SelectorItems(items, selectedIndex, isEnabled, onItemSelected)
+        SelectorItems(
+            items = items,
+            selectedIndex = selectedIndex,
+            enabled = enabled,
+            onItemSelected = onItemSelected,
+        )
     }
 }
 
@@ -182,7 +187,7 @@ private fun SelectorSection(
 private fun SelectorItems(
     items: List<String>,
     selectedIndex: Int,
-    isEnabled: Boolean,
+    enabled: Boolean,
     onItemSelected: (Int) -> Unit,
 ) {
     Box {
@@ -193,7 +198,13 @@ private fun SelectorItems(
                     .fillMaxWidth()
                     .height(6.dp)
                     .padding(horizontal = 6.dp)
-                    .background(OrbitTheme.colors.gray_600),
+                    .background(
+                        if (enabled) {
+                            OrbitTheme.colors.gray_600
+                        } else {
+                            OrbitTheme.colors.gray_700
+                        },
+                    ),
             )
         }
         Row(
@@ -205,9 +216,9 @@ private fun SelectorItems(
             items.forEachIndexed { index, item ->
                 Column(horizontalAlignment = getAlignment(index, items.size)) {
                     OrbitRadioButton(
-                        isSelected = (index == selectedIndex && isEnabled),
-                        isEnabled = isEnabled,
-                        onClick = { if (isEnabled) onItemSelected(index) },
+                        selected = index == selectedIndex,
+                        enabled = enabled,
+                        onClick = { if (enabled) onItemSelected(index) },
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
@@ -259,7 +270,7 @@ private fun AlarmSnoozeBottomSheetPreview() {
 
     OrbitTheme {
         AlarmSnoozeBottomSheet(
-            isSnoozeEnabled = isSnoozeEnabled,
+            snoozeEnabled = isSnoozeEnabled,
             snoozeIntervalIndex = snoozeIntervalIndex,
             snoozeCountIndex = snoozeCountIndex,
             snoozeIntervals = listOf(1, 3, 5, 10, 15).map {

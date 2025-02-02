@@ -32,12 +32,14 @@ import com.yapp.ui.utils.toPx
 
 @Composable
 fun OrbitSlider(
+    enabled: Boolean,
     value: Int,
     onValueChange: (Int) -> Unit,
     modifier: Modifier = Modifier,
     trackHeight: Dp = 6.dp,
     thumbSize: Dp = 22.dp,
     thumbColor: Color = Color.White,
+    disabledColor: Color = OrbitTheme.colors.gray_500,
     inactiveBarColor: Color = OrbitTheme.colors.gray_600,
     activeBarColor: Color = OrbitTheme.colors.main,
 ) {
@@ -55,33 +57,47 @@ fun OrbitSlider(
         modifier = modifier
             .fillMaxWidth()
             .height(thumbSize)
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onPress = { offset ->
-                        isDragging = isInCircle(
-                            offset.x,
-                            offset.y,
-                            thumbX,
-                            thumbRadius,
-                            thumbRadius,
-                        )
-                    },
-                )
-            }
-            .pointerInput(Unit) {
-                detectHorizontalDragGestures(
-                    onDragEnd = { isDragging = false },
-                ) { _, dragAmount ->
-                    if (isDragging) {
-                        thumbX += dragAmount
-                        thumbX = thumbX.coerceIn(startOffset, sliderWidth - startOffset)
-                        val newValue = (((thumbX - startOffset) / (sliderWidth - 2 * startOffset)) * 100)
-                            .toInt()
-                            .coerceIn(0, 100)
-                        onValueChange(newValue)
-                    }
-                }
-            },
+            .then(
+                if (enabled) {
+                    Modifier
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = { offset ->
+                                    isDragging = isInCircle(
+                                        offset.x,
+                                        offset.y,
+                                        thumbX,
+                                        thumbRadius,
+                                        thumbRadius,
+                                    )
+                                },
+                                onTap = { offset ->
+                                    thumbX = offset.x.coerceIn(startOffset, sliderWidth - startOffset)
+                                    val newValue = (((thumbX - startOffset) / (sliderWidth - 2 * startOffset)) * 100)
+                                        .toInt()
+                                        .coerceIn(0, 100)
+                                    onValueChange(newValue)
+                                },
+                            )
+                        }
+                        .pointerInput(Unit) {
+                            detectHorizontalDragGestures(
+                                onDragEnd = { isDragging = false },
+                            ) { _, dragAmount ->
+                                if (isDragging) {
+                                    thumbX += dragAmount
+                                    thumbX = thumbX.coerceIn(startOffset, sliderWidth - startOffset)
+                                    val newValue = (((thumbX - startOffset) / (sliderWidth - 2 * startOffset)) * 100)
+                                        .toInt()
+                                        .coerceIn(0, 100)
+                                    onValueChange(newValue)
+                                }
+                            }
+                        }
+                } else {
+                    Modifier
+                },
+            ),
     ) {
         sliderWidth = size.width
 
@@ -91,7 +107,7 @@ fun OrbitSlider(
         val activeWidth = (normalizedThumbX - startOffset).coerceAtLeast(0f)
 
         drawRoundRect(
-            color = activeBarColor,
+            color = if (enabled) activeBarColor else disabledColor,
             size = Size(activeWidth + 3.dp.toPx(), trackHeight.toPx()),
             topLeft = Offset(0f, (size.height - trackHeight.toPx()) / 2),
             cornerRadius = CornerRadius(100.dp.toPx(), 100.dp.toPx()),
@@ -137,6 +153,7 @@ fun PreviewOrbitSlider() {
             Spacer(modifier = Modifier.height(20.dp))
 
             OrbitSlider(
+                enabled = false,
                 value = currentValue,
                 onValueChange = { currentValue = it },
                 trackHeight = 10.dp,

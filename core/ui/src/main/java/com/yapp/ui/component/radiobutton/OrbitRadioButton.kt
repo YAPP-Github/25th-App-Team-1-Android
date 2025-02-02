@@ -2,7 +2,9 @@ package com.yapp.ui.component.radiobutton
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -20,26 +22,26 @@ import com.yapp.designsystem.theme.OrbitTheme
 
 @Composable
 fun OrbitRadioButton(
-    isSelected: Boolean,
-    isEnabled: Boolean = true,
+    selected: Boolean,
+    enabled: Boolean = true,
     onClick: () -> Unit,
 ) {
-    val backgroundColor = if (isSelected) {
+    val backgroundColor = if (!enabled) {
+        OrbitTheme.colors.gray_700
+    } else if (selected) {
         OrbitTheme.colors.main.copy(alpha = 0.3f)
     } else {
         OrbitTheme.colors.gray_600
     }
 
-    val circleColor = if (isSelected) {
+    val circleColor = if (!enabled && selected) {
+        OrbitTheme.colors.gray_600
+    } else if (!enabled) {
+        OrbitTheme.colors.gray_700
+    } else if (selected) {
         OrbitTheme.colors.main
     } else {
         OrbitTheme.colors.gray_600
-    }
-
-    val circleSize = if (isSelected) {
-        12.dp
-    } else {
-        8.dp
     }
 
     Box(
@@ -50,21 +52,21 @@ fun OrbitRadioButton(
                 shape = CircleShape,
             )
             .clip(CircleShape)
-            .clickable {
-                if (isEnabled) {
-                    onClick()
-                }
+            .clickable(enabled) {
+                onClick()
             },
         contentAlignment = Alignment.Center,
     ) {
-        Spacer(
-            modifier = Modifier.size(circleSize)
-                .background(
-                    color = circleColor,
-                    shape = CircleShape,
-                )
-                .clip(CircleShape),
-        )
+        if (selected) {
+            Spacer(
+                modifier = Modifier.size(12.dp)
+                    .background(
+                        color = circleColor,
+                        shape = CircleShape,
+                    )
+                    .clip(CircleShape),
+            )
+        }
     }
 }
 
@@ -72,13 +74,36 @@ fun OrbitRadioButton(
 @Composable
 fun OrbitRadioButtonPreview() {
     OrbitTheme {
-        var isSelected by remember { mutableStateOf(false) }
+        var isSelected by remember { mutableStateOf(true) }
 
-        OrbitRadioButton(
-            isSelected = isSelected,
-            onClick = {
-                isSelected = !isSelected
-            },
-        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            OrbitRadioButton(
+                selected = isSelected,
+                enabled = true,
+                onClick = {
+                    isSelected = !isSelected
+                },
+            )
+
+            OrbitRadioButton(
+                selected = true,
+                enabled = true,
+                onClick = { },
+            )
+
+            OrbitRadioButton(
+                selected = false,
+                enabled = false,
+                onClick = { },
+            )
+
+            OrbitRadioButton(
+                selected = true,
+                enabled = false,
+                onClick = { },
+            )
+        }
     }
 }

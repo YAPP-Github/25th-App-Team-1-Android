@@ -29,6 +29,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OrbitBottomSheet(
+    modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(
         skipPartiallyExpanded = true,
     ),
@@ -41,6 +42,7 @@ fun OrbitBottomSheet(
     val scope = rememberCoroutineScope()
     if (isSheetOpen) {
         ModalBottomSheet(
+            modifier = modifier,
             sheetState = sheetState,
             shape = shape,
             onDismissRequest = {

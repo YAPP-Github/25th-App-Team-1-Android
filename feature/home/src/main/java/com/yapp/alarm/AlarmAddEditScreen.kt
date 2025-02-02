@@ -1,5 +1,6 @@
 package com.yapp.alarm
 
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -36,6 +39,8 @@ import com.yapp.alarm.component.bottomsheet.AlarmSnoozeBottomSheet
 import com.yapp.alarm.component.bottomsheet.AlarmSoundBottomSheet
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.domain.model.AlarmDay
+import com.yapp.domain.model.AlarmSound
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.switch.OrbitSwitch
 import com.yapp.ui.component.timepicker.OrbitPicker
@@ -124,7 +129,7 @@ fun AlarmAddEditScreen(
     }
 
     AlarmSnoozeBottomSheet(
-        isSnoozeEnabled = snoozeState.isSnoozeEnabled,
+        snoozeEnabled = snoozeState.isSnoozeEnabled,
         snoozeIntervalIndex = snoozeState.snoozeIntervalIndex,
         snoozeCountIndex = snoozeState.snoozeCountIndex,
         snoozeIntervals = snoozeState.snoozeIntervals,
@@ -150,8 +155,8 @@ fun AlarmAddEditScreen(
     )
 
     AlarmSoundBottomSheet(
-        isVibrationEnabled = state.soundState.isVibrationEnabled,
-        isSoundEnabled = state.soundState.isSoundEnabled,
+        vibrationEnabled = state.soundState.isVibrationEnabled,
+        soundEnabled = state.soundState.isSoundEnabled,
         soundVolume = state.soundState.soundVolume,
         soundIndex = state.soundState.soundIndex,
         sounds = state.soundState.sounds,
@@ -262,9 +267,13 @@ private fun AlarmAddEditSettingsSection(
             label = stringResource(id = R.string.alarm_add_edit_sound),
             description = when {
                 state.soundState.isSoundEnabled && state.soundState.isVibrationEnabled -> {
-                    "${state.soundState.sounds[state.soundState.soundIndex]}, ${stringResource(id = R.string.alarm_add_edit_vibration)}"
+                    "${stringResource(id = R.string.alarm_add_edit_vibration)}, ${
+                    state.soundState.sounds.getOrElse(state.soundState.soundIndex) {
+                        AlarmSound("", Uri.EMPTY)
+                    }.title
+                    }"
                 }
-                state.soundState.isSoundEnabled -> state.soundState.sounds[state.soundState.soundIndex]
+                state.soundState.isSoundEnabled -> state.soundState.sounds.getOrElse(state.soundState.soundIndex) { AlarmSound("", Uri.EMPTY) }.title
                 state.soundState.isVibrationEnabled -> stringResource(id = R.string.alarm_add_edit_vibration)
                 else -> stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
             },
@@ -293,14 +302,18 @@ private fun AlarmAddEditSettingItem(
     ) {
         Text(
             label,
+            modifier = Modifier.width(80.dp),
             style = OrbitTheme.typography.body1SemiBold,
             color = OrbitTheme.colors.white,
         )
-        Spacer(modifier = Modifier.weight(1f))
         Text(
             description,
+            modifier = Modifier.weight(1f),
             style = OrbitTheme.typography.body2Regular,
             color = OrbitTheme.colors.gray_50,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.End,
         )
         Icon(
             painter = painterResource(id = core.designsystem.R.drawable.ic_arrow_right),
@@ -355,7 +368,7 @@ private fun AlarmAddEditSelectDaysSection(
         ) {
             state.days.forEach { day ->
                 AlarmDayButton(
-                    label = stringResource(id = day.label),
+                    label = stringResource(id = day.getLabelStringRes()),
                     isPressed = state.selectedDays.contains(day),
                     onClick = {
                         processAction(AlarmAddEditContract.Action.ToggleDaySelection(day))

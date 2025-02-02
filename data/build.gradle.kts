@@ -13,6 +13,7 @@ dependencies {
     implementation(projects.domain)
     implementation(projects.core.network)
     implementation(projects.core.datastore)
+    implementation(projects.core.media)
 
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)

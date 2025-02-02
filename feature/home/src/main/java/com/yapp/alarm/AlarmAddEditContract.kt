@@ -1,5 +1,7 @@
 package com.yapp.alarm
 
+import com.yapp.domain.model.AlarmDay
+import com.yapp.domain.model.AlarmSound
 import com.yapp.ui.base.UiState
 
 sealed class AlarmAddEditContract {
@@ -35,7 +37,7 @@ sealed class AlarmAddEditContract {
     data class AlarmSnoozeState(
         val isSnoozeEnabled: Boolean = true,
         val snoozeIntervalIndex: Int = 2,
-        val snoozeCountIndex: Int = 1,
+        val snoozeCountIndex: Int = 2,
         val snoozeIntervals: List<String> = listOf("1분", "3분", "5분", "10분", "15분"),
         val snoozeCounts: List<String> = listOf("1회", "3회", "5회", "10회", "무한"),
     )
@@ -45,7 +47,7 @@ sealed class AlarmAddEditContract {
         val isSoundEnabled: Boolean = true,
         val soundVolume: Int = 70,
         val soundIndex: Int = 0,
-        val sounds: List<String> = (1..7).map { "기본 알람음 $it" },
+        val sounds: List<AlarmSound> = emptyList(),
     )
 
     sealed class Action {

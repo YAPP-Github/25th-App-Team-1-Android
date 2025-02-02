@@ -1,13 +1,46 @@
 package com.yapp.alarm
 
+import android.util.Log
+import androidx.lifecycle.viewModelScope
+import com.yapp.domain.model.AlarmDay
+import com.yapp.domain.model.toDayOfWeek
+import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
+class AlarmAddEditViewModel @Inject constructor(
+    private val alarmUseCase: AlarmUseCase,
+) : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
     initialState = AlarmAddEditContract.State(),
 ) {
+    init {
+        viewModelScope.launch {
+            alarmUseCase.getAlarmSounds()
+                .onSuccess { sounds ->
+                    val homecomingIndex = sounds.indexOfFirst { it.title == "Homecoming" }
+                    updateState {
+                        copy(
+                            soundState = soundState.copy(
+                                sounds = sounds,
+                                soundIndex = if (homecomingIndex >= 0) homecomingIndex else 0,
+                            ),
+                        )
+                    }
+                }
+                .onFailure {
+                    Log.e("AlarmAddEditViewModel", "Failed to get alarm sounds", it)
+                }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        alarmUseCase.releaseSoundPlayer()
+    }
+
     fun processAction(action: AlarmAddEditContract.Action) {
         when (action) {
             is AlarmAddEditContract.Action.ClickBack -> navigateBack()
@@ -169,6 +202,14 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
 
     private fun toggleSoundEnabled() {
         val newSoundState = currentState.soundState.copy(isSoundEnabled = !currentState.soundState.isSoundEnabled)
+        if (newSoundState.isSoundEnabled) {
+            alarmUseCase.playAlarmSound(
+                alarmSound = currentState.soundState.sounds[currentState.soundState.soundIndex],
+                volume = currentState.soundState.soundVolume,
+            )
+        } else {
+            alarmUseCase.stopAlarmSound()
+        }
         updateState {
             copy(soundState = newSoundState)
         }
@@ -176,6 +217,7 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
 
     private fun updateSoundVolume(volume: Int) {
         val newSoundState = currentState.soundState.copy(soundVolume = volume)
+        alarmUseCase.updateAlarmVolume(volume)
         updateState {
             copy(soundState = newSoundState)
         }
@@ -186,10 +228,17 @@ class AlarmAddEditViewModel @Inject constructor() : BaseViewModel<AlarmAddEditCo
         updateState {
             copy(soundState = newSoundState)
         }
+        alarmUseCase.playAlarmSound(
+            currentState.soundState.sounds[index],
+            currentState.soundState.soundVolume,
+        )
     }
 
     private fun toggleBottomSheet(sheetType: AlarmAddEditContract.BottomSheetType) {
         val newBottomSheetState = if (currentState.bottomSheetState == sheetType) {
+            if (currentState.bottomSheetState == AlarmAddEditContract.BottomSheetType.SoundSetting) {
+                alarmUseCase.stopAlarmSound()
+            }
             null
         } else {
             sheetType
