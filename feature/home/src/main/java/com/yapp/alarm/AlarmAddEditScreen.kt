@@ -122,9 +122,7 @@ fun AlarmAddEditScreen(
                     start = 20.dp,
                     end = 20.dp,
                     bottom = 12.dp,
-                )
-                .height(56.dp)
-                .fillMaxWidth(),
+                ),
         )
     }
 
