@@ -134,6 +134,8 @@ private fun HomeContent(
             isSelectionMode = state.isSelectionMode,
             selectedAlarmIds = state.selectedAlarmIds,
             halfExpandedHeight = sheetHalfExpandHeight,
+            isLoading = state.paginationState.isLoading,
+            hasMoreData = state.paginationState.hasMoreData,
             onClickAdd = {
                 eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)
             },
@@ -157,6 +159,9 @@ private fun HomeContent(
             },
             onToggleActive = { alarmId ->
                 eventDispatcher(HomeContract.Action.ToggleAlarmActive(alarmId))
+            },
+            onLoadMore = {
+                eventDispatcher(HomeContract.Action.LoadMoreAlarms)
             },
         ) {
             Box(

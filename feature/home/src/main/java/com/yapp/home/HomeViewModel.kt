@@ -1,14 +1,24 @@
 package com.yapp.home
 
+import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.HomeDestination
+import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : BaseViewModel<HomeContract.State, HomeContract.SideEffect>(
+class HomeViewModel @Inject constructor(
+    private val alarmUseCase: AlarmUseCase,
+) : BaseViewModel<HomeContract.State, HomeContract.SideEffect>(
     initialState = HomeContract.State(),
 ) {
+    init {
+        loadMoreAlarms()
+    }
+
     fun processAction(action: HomeContract.Action) {
         when (action) {
             HomeContract.Action.NavigateToAlarmAdd -> navigateToAlarmAdd()
@@ -20,6 +30,7 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeContract.State, Ho
             HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
             HomeContract.Action.ConfirmDelete -> confirmDelete()
+            HomeContract.Action.LoadMoreAlarms -> loadMoreAlarms()
         }
     }
 
@@ -88,6 +99,42 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeContract.State, Ho
                 isDeleteDialogVisible = false,
                 isSelectionMode = false,
             )
+        }
+    }
+
+    private fun loadMoreAlarms() {
+        val currentPage = currentState.paginationState.currentPage
+        if (currentState.paginationState.isLoading || !currentState.paginationState.hasMoreData) return
+
+        updateState {
+            copy(
+                paginationState = currentState.paginationState.copy(isLoading = true),
+            )
+        }
+
+        viewModelScope.launch {
+            alarmUseCase.getPagedAlarms(limit = 5, offset = currentPage * 5)
+                .onSuccess {
+                    Log.d("HomeViewModel", "Paged alarms: $it")
+                    updateState {
+                        copy(
+                            alarms = currentState.alarms + it,
+                            paginationState = currentState.paginationState.copy(
+                                currentPage = currentPage + 1,
+                                isLoading = false,
+                                hasMoreData = it.size == 5,
+                            ),
+                        )
+                    }
+                }
+                .onFailure {
+                    Log.e("HomeViewModel", "Failed to get paged alarms", it)
+                    updateState {
+                        copy(
+                            paginationState = currentState.paginationState.copy(isLoading = false),
+                        )
+                    }
+                }
         }
     }
 }

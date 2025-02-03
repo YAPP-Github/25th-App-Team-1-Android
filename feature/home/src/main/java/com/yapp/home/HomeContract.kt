@@ -1,35 +1,13 @@
 package com.yapp.home
 
 import com.yapp.domain.model.Alarm
-import com.yapp.domain.model.AlarmDay
-import com.yapp.domain.model.toRepeatDays
 import com.yapp.ui.base.UiState
 
 sealed class HomeContract {
 
     data class State(
-        val alarms: List<Alarm> = listOf(
-            Alarm(
-                id = 0,
-                repeatDays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.FRI).toRepeatDays(),
-            ),
-            Alarm(
-                id = 1,
-                repeatDays = setOf(AlarmDay.SUN, AlarmDay.SAT).toRepeatDays(),
-            ),
-            Alarm(
-                id = 2,
-                repeatDays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI).toRepeatDays(),
-            ),
-            Alarm(
-                id = 3,
-                repeatDays = setOf(AlarmDay.SUN, AlarmDay.SAT).toRepeatDays(),
-            ),
-            Alarm(
-                id = 4,
-                repeatDays = setOf(AlarmDay.WED, AlarmDay.THU).toRepeatDays(),
-            ),
-        ),
+        val alarms: List<Alarm> = emptyList(),
+        val paginationState: PaginationState = PaginationState(),
         val dropdownMenuExpanded: Boolean = false,
         val selectedAlarmIds: Set<Long> = emptySet(),
         val isSelectionMode: Boolean = false,
@@ -42,6 +20,12 @@ sealed class HomeContract {
             get() = alarms.isNotEmpty() && selectedAlarmIds.size == alarms.size
     }
 
+    data class PaginationState(
+        val currentPage: Int = 0,
+        val isLoading: Boolean = false,
+        val hasMoreData: Boolean = true,
+    )
+
     sealed class Action {
         data object NavigateToAlarmAdd : Action()
         data object ToggleSelectionMode : Action()
@@ -52,6 +36,7 @@ sealed class HomeContract {
         data object ShowDeleteDialog : Action()
         data object HideDeleteDialog : Action()
         data object ConfirmDelete : Action()
+        data object LoadMoreAlarms : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {

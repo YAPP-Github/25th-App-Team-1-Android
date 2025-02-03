@@ -1,5 +1,6 @@
 package com.yapp.home.component.bottomsheet
 
+import android.annotation.SuppressLint
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,10 +18,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetValue
@@ -30,6 +33,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,6 +68,8 @@ internal fun AlarmListBottomSheet(
     isSelectionMode: Boolean,
     selectedAlarmIds: Set<Long>,
     halfExpandedHeight: Dp = 0.dp,
+    isLoading: Boolean,
+    hasMoreData: Boolean,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     onClickCheckAll: () -> Unit,
@@ -72,6 +78,7 @@ internal fun AlarmListBottomSheet(
     onDismissRequest: () -> Unit,
     onToggleSelect: (Long) -> Unit,
     onToggleActive: (Long) -> Unit,
+    onLoadMore: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     var expandedType by remember { mutableStateOf(BottomSheetExpandState.HALF_EXPANDED) }
@@ -99,7 +106,7 @@ internal fun AlarmListBottomSheet(
         scaffoldState = scaffoldState,
         sheetContent = {
             AlarmBottomSheetContent(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier,
                 alarms = alarms,
                 menuExpanded = menuExpanded,
                 isSelectionMode = isSelectionMode,
@@ -114,6 +121,9 @@ internal fun AlarmListBottomSheet(
                 onDismissRequest = onDismissRequest,
                 onToggleSelect = onToggleSelect,
                 onToggleActive = onToggleActive,
+                isLoading = isLoading,
+                hasMoreData = hasMoreData,
+                onLoadMore = onLoadMore,
             )
         },
         sheetShadowElevation = 0.dp,
@@ -147,11 +157,20 @@ internal fun AlarmBottomSheetContent(
     onToggleSelect: (Long) -> Unit,
     onToggleActive: (Long) -> Unit,
     expandedType: BottomSheetExpandState,
+    isLoading: Boolean,
+    hasMoreData: Boolean,
+    onLoadMore: () -> Unit,
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
     val cornerRadius = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 16.dp else 0.dp
     val topPadding = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 14.dp else 14.dp + statusBarHeight
+
+    val listState = rememberLazyListState()
+
+    listState.onLoadMore {
+        onLoadMore()
+    }
 
     Column(
         modifier = modifier
@@ -180,7 +199,10 @@ internal fun AlarmBottomSheetContent(
             )
         }
 
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            state = listState,
+        ) {
             itemsIndexed(alarms) { index, alarm ->
                 AlarmListItem(
                     id = alarm.id,
@@ -203,6 +225,19 @@ internal fun AlarmBottomSheetContent(
                             .background(OrbitTheme.colors.gray_800)
                             .padding(horizontal = 24.dp),
                     )
+                }
+            }
+
+            if (isLoading) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }
@@ -348,5 +383,27 @@ private fun CustomDragHandle() {
                     shape = RoundedCornerShape(2.dp),
                 ),
         )
+    }
+}
+
+private fun LazyListState.reachedBottom(
+    limitCount: Int = 6,
+    triggerOnEnd: Boolean = false,
+): Boolean {
+    val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
+    return (triggerOnEnd && lastVisibleItem?.index == layoutInfo.totalItemsCount - 1) ||
+        lastVisibleItem?.index != 0 && lastVisibleItem?.index == layoutInfo.totalItemsCount - (limitCount + 1)
+}
+
+@SuppressLint("ComposableNaming")
+@Composable
+private fun LazyListState.onLoadMore(limitCount: Int = 6, loadOnBottom: Boolean = true, action: () -> Unit) {
+    val reached by remember {
+        derivedStateOf {
+            reachedBottom(limitCount = limitCount, triggerOnEnd = loadOnBottom)
+        }
+    }
+    LaunchedEffect(reached) {
+        if (reached) action()
     }
 }
