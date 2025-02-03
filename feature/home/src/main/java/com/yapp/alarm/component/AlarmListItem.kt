@@ -38,7 +38,7 @@ internal fun AlarmListItem(
     isHolidayAlarmOff: Boolean,
     selectable: Boolean = false,
     selected: Boolean = false,
-    onToggleSelect: (Long) -> Unit = { },
+    onToggleSelect: (Long) -> Unit,
     isAm: Boolean,
     hour: Int,
     minute: Int,
