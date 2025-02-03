@@ -506,39 +506,38 @@ private fun AddAlarmButton(
     disabledContentColor: Color = OrbitTheme.colors.gray_400,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed = interactionSource.collectIsPressedAsState().value
+    val isPressed by interactionSource.collectIsPressedAsState()
 
-    val currentContainerColor = if (isPressed) pressedContainerColor else containerColor
-    val currentContentColor = if (isPressed) pressedContentColor else contentColor
+    val (currentContainerColor, currentContentColor) = when {
+        !enabled -> disabledContainerColor to disabledContentColor
+        isPressed -> pressedContainerColor to pressedContentColor
+        else -> containerColor to contentColor
+    }
 
     val padding by animateDpAsState(
         targetValue = if (isPressed) 2.dp else 0.dp,
         animationSpec = tween(durationMillis = 100),
-        label = "",
+        label = "PaddingAnimation",
     )
 
     Button(
         onClick = onClick,
-        modifier = modifier
-            .padding(all = padding)
-            .height(height),
         enabled = enabled,
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = currentContainerColor,
             contentColor = currentContentColor,
-            disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor,
         ),
-        contentPadding = PaddingValues(
-            horizontal = 32.dp,
-        ),
+        contentPadding = PaddingValues(horizontal = 32.dp),
         interactionSource = interactionSource,
+        modifier = modifier
+            .then(if (padding > 0.dp) Modifier.padding(padding) else Modifier)
+            .height(height - padding * 2),
     ) {
         Icon(
             painter = painterResource(core.designsystem.R.drawable.ic_plus),
             tint = Color.Unspecified,
-            contentDescription = "IC_PLUS",
+            contentDescription = "Add Alarm",
         )
 
         Spacer(modifier = Modifier.width(4.dp))
