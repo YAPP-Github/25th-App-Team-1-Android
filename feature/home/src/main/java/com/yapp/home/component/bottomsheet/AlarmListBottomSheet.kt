@@ -1,6 +1,5 @@
 package com.yapp.home.component.bottomsheet
 
-import android.annotation.SuppressLint
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,7 +17,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
@@ -33,7 +31,6 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +50,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.Alarm
 import com.yapp.home.component.AlarmListDropDownMenu
 import com.yapp.ui.component.checkbox.OrbitCheckBox
+import com.yapp.ui.utils.onLoadMore
 import feature.home.R
 
 enum class BottomSheetExpandState {
@@ -200,7 +198,6 @@ internal fun AlarmBottomSheetContent(
         }
 
         LazyColumn(
-            modifier = Modifier.weight(1f),
             state = listState,
         ) {
             itemsIndexed(alarms) { index, alarm ->
@@ -383,27 +380,5 @@ private fun CustomDragHandle() {
                     shape = RoundedCornerShape(2.dp),
                 ),
         )
-    }
-}
-
-private fun LazyListState.reachedBottom(
-    limitCount: Int = 6,
-    triggerOnEnd: Boolean = false,
-): Boolean {
-    val lastVisibleItem = layoutInfo.visibleItemsInfo.lastOrNull()
-    return (triggerOnEnd && lastVisibleItem?.index == layoutInfo.totalItemsCount - 1) ||
-        lastVisibleItem?.index != 0 && lastVisibleItem?.index == layoutInfo.totalItemsCount - (limitCount + 1)
-}
-
-@SuppressLint("ComposableNaming")
-@Composable
-private fun LazyListState.onLoadMore(limitCount: Int = 6, loadOnBottom: Boolean = true, action: () -> Unit) {
-    val reached by remember {
-        derivedStateOf {
-            reachedBottom(limitCount = limitCount, triggerOnEnd = loadOnBottom)
-        }
-    }
-    LaunchedEffect(reached) {
-        if (reached) action()
     }
 }
