@@ -91,14 +91,29 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun confirmDelete() {
-        updateState {
-            val updatedAlarms = currentState.alarms.filterNot { it.id in currentState.selectedAlarmIds }
-            copy(
-                alarms = updatedAlarms,
-                selectedAlarmIds = emptySet(),
-                isDeleteDialogVisible = false,
-                isSelectionMode = false,
-            )
+        val selectedIds = currentState.selectedAlarmIds
+        if (selectedIds.isEmpty()) return
+
+        updateState { copy(paginationState = currentState.paginationState.copy(isLoading = true)) }
+
+        viewModelScope.launch {
+            selectedIds.forEach { alarmId ->
+                alarmUseCase.deleteAlarm(alarmId)
+                    .onSuccess {
+                        updateState {
+                            copy(
+                                alarms = currentState.alarms.filterNot { it.id in selectedIds },
+                                selectedAlarmIds = emptySet(),
+                                isDeleteDialogVisible = false,
+                                isSelectionMode = false,
+                                paginationState = currentState.paginationState.copy(isLoading = false),
+                            )
+                        }
+                    }
+                    .onFailure {
+                        Log.e("HomeViewModel", "Failed to delete alarm: $alarmId", it)
+                    }
+            }
         }
     }
 
