@@ -11,52 +11,60 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeContract.State, Ho
 ) {
     fun processAction(action: HomeContract.Action) {
         when (action) {
-            HomeContract.Action.NavigateToAlarmAdd -> {
-                emitSideEffect(HomeContract.SideEffect.Navigate(HomeDestination.AlarmAddEdit.route))
-            }
-            HomeContract.Action.ToggleSelectionMode -> {
-                updateState { copy(isSelectionMode = !currentState.isSelectionMode) }
-            }
-            HomeContract.Action.ToggleDropdownMenu -> {
-                updateState { copy(dropdownMenuExpanded = !currentState.dropdownMenuExpanded) }
-            }
-            is HomeContract.Action.ToggleAlarmSelection -> {
-                updateState {
-                    val updatedSelection = if (currentState.selectedAlarmIds.contains(action.alarmId)) {
-                        currentState.selectedAlarmIds - action.alarmId
-                    } else {
-                        currentState.selectedAlarmIds + action.alarmId
-                    }
-                    copy(selectedAlarmIds = updatedSelection)
-                }
-            }
-            HomeContract.Action.ToggleAllAlarmSelection -> {
-                updateState {
-                    val allIds = currentState.alarms.map { it.id }.toSet()
-                    val updatedSelection = if (currentState.selectedAlarmIds == allIds) {
-                        emptySet()
-                    } else {
-                        allIds
-                    }
-                    copy(selectedAlarmIds = updatedSelection)
-                }
-            }
-            is HomeContract.Action.ToggleAlarmActive -> {
-                updateState {
-                    val updatedAlarms = currentState.alarms.map { alarm ->
-                        if (alarm.id == action.alarmId) {
-                            alarm.copy(isAlarmActive = !alarm.isAlarmActive)
-                        } else {
-                            alarm
-                        }
-                    }
-                    copy(alarms = updatedAlarms)
-                }
-            }
+            HomeContract.Action.NavigateToAlarmAdd -> navigateToAlarmAdd()
+            HomeContract.Action.ToggleSelectionMode -> toggleSelectionMode()
+            HomeContract.Action.ToggleDropdownMenu -> toggleDropdownMenu()
+            is HomeContract.Action.ToggleAlarmSelection -> toggleAlarmSelection(action.alarmId)
+            HomeContract.Action.ToggleAllAlarmSelection -> toggleAllAlarmSelection()
+            is HomeContract.Action.ToggleAlarmActive -> toggleAlarmActive(action.alarmId)
         }
     }
 
-    private fun navigateBack() {
-        emitSideEffect(HomeContract.SideEffect.NavigateBack)
+    private fun navigateToAlarmAdd() {
+        emitSideEffect(HomeContract.SideEffect.Navigate(HomeDestination.AlarmAddEdit.route))
+    }
+
+    private fun toggleSelectionMode() {
+        updateState {
+            copy(
+                isSelectionMode = !currentState.isSelectionMode,
+                selectedAlarmIds = emptySet(),
+                dropdownMenuExpanded = false,
+            )
+        }
+    }
+
+    private fun toggleDropdownMenu() {
+        updateState { copy(dropdownMenuExpanded = !currentState.dropdownMenuExpanded) }
+    }
+
+    private fun toggleAlarmSelection(alarmId: Long) {
+        updateState {
+            val updatedSelection = currentState.selectedAlarmIds.toMutableSet().apply {
+                if (contains(alarmId)) remove(alarmId) else add(alarmId)
+            }
+            copy(selectedAlarmIds = updatedSelection)
+        }
+    }
+
+    private fun toggleAllAlarmSelection() {
+        updateState {
+            val allIds = currentState.alarms.map { it.id }.toSet()
+            val updatedSelection = if (currentState.selectedAlarmIds == allIds) emptySet() else allIds
+            copy(selectedAlarmIds = updatedSelection)
+        }
+    }
+
+    private fun toggleAlarmActive(alarmId: Long) {
+        updateState {
+            val updatedAlarms = currentState.alarms.map { alarm ->
+                if (alarm.id == alarmId) {
+                    alarm.copy(isAlarmActive = !alarm.isAlarmActive)
+                } else {
+                    alarm
+                }
+            }
+            copy(alarms = updatedAlarms)
+        }
     }
 }
