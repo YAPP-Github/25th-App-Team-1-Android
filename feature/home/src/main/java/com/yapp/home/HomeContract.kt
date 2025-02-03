@@ -33,6 +33,7 @@ sealed class HomeContract {
         val dropdownMenuExpanded: Boolean = false,
         val selectedAlarmIds: Set<Long> = emptySet(),
         val isSelectionMode: Boolean = false,
+        val isDeleteDialogVisible: Boolean = false,
         val lastFortuneScore: Int = 50,
         val deliveryTime: String = "2025-02-01T22:00",
         val name: String = "동현",
@@ -48,6 +49,9 @@ sealed class HomeContract {
         data class ToggleAlarmSelection(val alarmId: Long) : Action()
         data class ToggleAlarmActive(val alarmId: Long) : Action()
         data object ToggleAllAlarmSelection : Action()
+        data object ShowDeleteDialog : Action()
+        data object HideDeleteDialog : Action()
+        data object ConfirmDelete : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {

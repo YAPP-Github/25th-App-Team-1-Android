@@ -17,6 +17,9 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeContract.State, Ho
             is HomeContract.Action.ToggleAlarmSelection -> toggleAlarmSelection(action.alarmId)
             HomeContract.Action.ToggleAllAlarmSelection -> toggleAllAlarmSelection()
             is HomeContract.Action.ToggleAlarmActive -> toggleAlarmActive(action.alarmId)
+            HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
+            HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
+            HomeContract.Action.ConfirmDelete -> confirmDelete()
         }
     }
 
@@ -65,6 +68,26 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeContract.State, Ho
                 }
             }
             copy(alarms = updatedAlarms)
+        }
+    }
+
+    private fun showDeleteDialog() {
+        updateState { copy(isDeleteDialogVisible = true) }
+    }
+
+    private fun hideDeleteDialog() {
+        updateState { copy(isDeleteDialogVisible = false) }
+    }
+
+    private fun confirmDelete() {
+        updateState {
+            val updatedAlarms = currentState.alarms.filterNot { it.id in currentState.selectedAlarmIds }
+            copy(
+                alarms = updatedAlarms,
+                selectedAlarmIds = emptySet(),
+                isDeleteDialogVisible = false,
+                isSelectionMode = false,
+            )
         }
     }
 }

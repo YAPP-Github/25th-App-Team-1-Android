@@ -56,6 +56,7 @@ import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.home.component.bottomsheet.AlarmListBottomSheet
 import com.yapp.ui.component.button.OrbitButton
+import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
@@ -210,10 +211,25 @@ private fun HomeContent(
                     .padding(bottom = 26.dp),
                 selectedAlarmCount = state.selectedAlarmIds.size,
                 onClick = {
-                    eventDispatcher(HomeContract.Action.ToggleSelectionMode)
+                    eventDispatcher(HomeContract.Action.ShowDeleteDialog)
                 },
             )
         }
+    }
+
+    if (state.isDeleteDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.alarm_delete_dialog_title),
+            message = stringResource(id = R.string.alarm_delete_dialog_message),
+            confirmText = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
+            cancelText = stringResource(id = R.string.alarm_delete_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(HomeContract.Action.ConfirmDelete)
+            },
+            onCancel = {
+                eventDispatcher(HomeContract.Action.HideDeleteDialog)
+            },
+        )
     }
 }
 
