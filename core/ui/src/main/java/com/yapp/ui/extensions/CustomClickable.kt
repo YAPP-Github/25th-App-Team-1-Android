@@ -11,8 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
 fun Modifier.customClickable(
@@ -33,14 +31,10 @@ fun Modifier.customClickable(
         this.then(
             Modifier
                 .pointerInput(Unit) {
-                    coroutineScope {
-                        launch {
-                            detectTapGestures(
-                                onTap = { onClick?.invoke() },
-                                onLongPress = { onLongClick?.invoke() },
-                            )
-                        }
-                    }
+                    detectTapGestures(
+                        onTap = { onClick?.invoke() },
+                        onLongPress = { onLongClick?.invoke() },
+                    )
                 }
                 .indication(interactionSource, rippleIndication),
         )
