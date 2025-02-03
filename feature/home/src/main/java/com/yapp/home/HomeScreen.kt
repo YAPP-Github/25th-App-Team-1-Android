@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -55,7 +56,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.home.component.bottomsheet.AlarmListBottomSheet
-import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
@@ -206,7 +206,7 @@ private fun HomeContent(
         if (state.isSelectionMode && state.selectedAlarmIds.isNotEmpty()) {
             DeleteAlarmButton(
                 modifier = Modifier
-                    .width(130.dp)
+                    .widthIn(min = 130.dp)
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 26.dp),
                 selectedAlarmCount = state.selectedAlarmIds.size,
@@ -556,20 +556,41 @@ private fun DeleteAlarmButton(
     selectedAlarmCount: Int,
     onClick: () -> Unit,
 ) {
-    OrbitButton(
-        modifier = modifier,
-        label = stringResource(id = R.string.alarm_list_bottom_sheet_selection_btn_delete, selectedAlarmCount),
-        onClick = onClick,
-        enabled = selectedAlarmCount > 0,
-        height = 48.dp,
-        containerColor = OrbitTheme.colors.white,
-        contentColor = OrbitTheme.colors.gray_900,
-        pressedContainerColor = OrbitTheme.colors.white.copy(alpha = 0.8f),
-        pressedContentColor = OrbitTheme.colors.gray_600,
-        disabledContainerColor = OrbitTheme.colors.white,
-        disabledContentColor = OrbitTheme.colors.gray_800,
-        shape = CircleShape,
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val padding by animateDpAsState(
+        targetValue = if (isPressed) 2.dp else 0.dp,
+        animationSpec = tween(durationMillis = 100),
+        label = "PaddingAnimation",
     )
+
+    val (containerColor, contentColor) = if (isPressed) {
+        OrbitTheme.colors.white.copy(alpha = 0.8f) to OrbitTheme.colors.gray_600
+    } else {
+        OrbitTheme.colors.white to OrbitTheme.colors.gray_900
+    }
+
+    Button(
+        onClick = onClick,
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+        ),
+        contentPadding = PaddingValues(horizontal = 40.dp),
+        modifier = modifier
+            .then(if (padding > 0.dp) Modifier.padding(padding) else Modifier)
+            .height(54.dp - padding * 2),
+    ) {
+        Text(
+            text = stringResource(
+                id = R.string.alarm_list_bottom_sheet_selection_btn_delete,
+                selectedAlarmCount,
+            ),
+            style = OrbitTheme.typography.body1SemiBold,
+        )
+    }
 }
 
 private fun formatFortuneDeliveryTime(formattedTime: String): String {
