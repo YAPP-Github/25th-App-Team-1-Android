@@ -1,7 +1,9 @@
 package com.yapp.alarm
 
+import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
+import com.yapp.domain.model.toRepeatDays
 import com.yapp.ui.base.UiState
 
 sealed class AlarmAddEditContract {
@@ -82,4 +84,23 @@ sealed class AlarmAddEditContract {
 
         data object NavigateBack : SideEffect()
     }
+}
+
+internal fun AlarmAddEditContract.State.toAlarm(id: Long = 0): Alarm {
+    return Alarm(
+        id = id,
+        isAm = timeState.currentAmPm == "오전",
+        hour = timeState.currentHour,
+        minute = timeState.currentMinute,
+        repeatDays = daySelectionState.selectedDays.toRepeatDays(),
+        isHolidayAlarmOff = holidayState.isDisableHolidayChecked,
+        isSnoozeEnabled = snoozeState.isSnoozeEnabled,
+        snoozeInterval = snoozeState.snoozeIntervals.getOrNull(snoozeState.snoozeIntervalIndex)?.filter { it.isDigit() }?.toIntOrNull() ?: 5,
+        snoozeCount = snoozeState.snoozeCounts.getOrNull(snoozeState.snoozeCountIndex)?.filter { it.isDigit() }?.toIntOrNull() ?: 1,
+        isVibrationEnabled = soundState.isVibrationEnabled,
+        isSoundEnabled = soundState.isSoundEnabled,
+        soundUri = soundState.sounds.getOrNull(soundState.soundIndex)?.uri.toString(),
+        soundVolume = soundState.soundVolume,
+        isAlarmActive = true,
+    )
 }
