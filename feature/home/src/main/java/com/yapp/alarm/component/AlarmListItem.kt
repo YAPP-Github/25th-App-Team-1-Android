@@ -183,7 +183,7 @@ private fun getNextAlarmDateWithTime(isAm: Boolean, hour: Int, minute: Int): Str
 @Composable
 private fun AlarmListItemPreview() {
     OrbitTheme {
-        val selectedDays = listOf(AlarmDay.MON, AlarmDay.WED, AlarmDay.FRI).toRepeatDays()
+        val selectedDays = setOf(AlarmDay.MON, AlarmDay.WED, AlarmDay.FRI).toRepeatDays()
         var isActive by remember { mutableStateOf(true) }
         var selected by remember { mutableStateOf(true) }
 
@@ -214,7 +214,7 @@ private fun AlarmListItemPreview() {
             )
             AlarmListItem(
                 id = 0,
-                repeatDays = emptyList<AlarmDay>().toRepeatDays(),
+                repeatDays = emptySet<AlarmDay>().toRepeatDays(),
                 isHolidayAlarmOff = false,
                 selectable = false,
                 selected = false,

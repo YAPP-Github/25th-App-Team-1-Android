@@ -11,23 +11,23 @@ sealed class HomeContract {
         val alarms: List<Alarm> = listOf(
             Alarm(
                 id = 0,
-                repeatDays = listOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.FRI).toRepeatDays(),
+                repeatDays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.FRI).toRepeatDays(),
             ),
             Alarm(
                 id = 1,
-                repeatDays = listOf(AlarmDay.SUN, AlarmDay.SAT).toRepeatDays(),
+                repeatDays = setOf(AlarmDay.SUN, AlarmDay.SAT).toRepeatDays(),
             ),
             Alarm(
                 id = 2,
-                repeatDays = listOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI).toRepeatDays(),
+                repeatDays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI).toRepeatDays(),
             ),
             Alarm(
                 id = 3,
-                repeatDays = listOf(AlarmDay.SUN, AlarmDay.SAT).toRepeatDays(),
+                repeatDays = setOf(AlarmDay.SUN, AlarmDay.SAT).toRepeatDays(),
             ),
             Alarm(
                 id = 4,
-                repeatDays = listOf(AlarmDay.WED, AlarmDay.THU).toRepeatDays(),
+                repeatDays = setOf(AlarmDay.WED, AlarmDay.THU).toRepeatDays(),
             ),
         ),
         val dropdownMenuExpanded: Boolean = false,
