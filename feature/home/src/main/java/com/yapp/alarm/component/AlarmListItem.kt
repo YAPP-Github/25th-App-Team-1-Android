@@ -1,6 +1,9 @@
 package com.yapp.alarm.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -45,18 +48,28 @@ internal fun AlarmListItem(
     isActive: Boolean,
     onToggleActive: (Long) -> Unit,
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 20.dp),
+            .background(if (selectable && isPressed) OrbitTheme.colors.gray_800 else OrbitTheme.colors.gray_900)
+            .padding(horizontal = 24.dp, vertical = 20.dp)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+            ) {
+                if (selectable) {
+                    onToggleSelect(id)
+                }
+            },
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (selectable) {
             OrbitCheckBox(
                 checked = selected,
-                onCheckedChange = {
-                    onToggleSelect(id)
-                },
+                onCheckedChange = { onToggleSelect(id) },
             )
             Spacer(modifier = Modifier.width(26.dp))
         }
