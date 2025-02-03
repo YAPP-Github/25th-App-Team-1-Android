@@ -1,6 +1,5 @@
 package com.yapp.ui.utils
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,15 +16,20 @@ fun LazyListState.reachedBottom(
         lastVisibleItem?.index != 0 && lastVisibleItem?.index == layoutInfo.totalItemsCount - (limitCount + 1)
 }
 
-@SuppressLint("ComposableNaming")
 @Composable
-fun LazyListState.onLoadMore(limitCount: Int = 6, loadOnBottom: Boolean = true, action: () -> Unit) {
+fun LazyListState.OnLoadMore(
+    limitCount: Int = 6,
+    loadOnBottom: Boolean = true,
+    hasMoreData: Boolean,
+    isLoading: Boolean,
+    action: () -> Unit,
+) {
     val reached by remember {
         derivedStateOf {
             reachedBottom(limitCount = limitCount, triggerOnEnd = loadOnBottom)
         }
     }
-    LaunchedEffect(reached) {
-        if (reached) action()
+    LaunchedEffect(reached, hasMoreData, isLoading) {
+        if (reached && hasMoreData && !isLoading) action()
     }
 }

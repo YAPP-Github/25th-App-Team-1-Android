@@ -50,7 +50,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.Alarm
 import com.yapp.home.component.AlarmListDropDownMenu
 import com.yapp.ui.component.checkbox.OrbitCheckBox
-import com.yapp.ui.utils.onLoadMore
+import com.yapp.ui.utils.OnLoadMore
 import feature.home.R
 
 enum class BottomSheetExpandState {
@@ -166,7 +166,10 @@ internal fun AlarmBottomSheetContent(
 
     val listState = rememberLazyListState()
 
-    listState.onLoadMore {
+    listState.OnLoadMore(
+        hasMoreData = hasMoreData,
+        isLoading = isLoading,
+    ) {
         onLoadMore()
     }
 
