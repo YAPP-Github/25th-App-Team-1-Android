@@ -106,6 +106,9 @@ class HomeViewModel @Inject constructor(
         val currentPage = currentState.paginationState.currentPage
         if (currentState.paginationState.isLoading || !currentState.paginationState.hasMoreData) return
 
+        val pageSize = 10
+        val offset = currentPage * pageSize
+
         updateState {
             copy(
                 paginationState = currentState.paginationState.copy(isLoading = true),
@@ -113,16 +116,15 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            alarmUseCase.getPagedAlarms(limit = 5, offset = currentPage * 5)
+            alarmUseCase.getPagedAlarms(limit = pageSize, offset = offset)
                 .onSuccess {
-                    Log.d("HomeViewModel", "Paged alarms: $it")
                     updateState {
                         copy(
                             alarms = currentState.alarms + it,
                             paginationState = currentState.paginationState.copy(
                                 currentPage = currentPage + 1,
                                 isLoading = false,
-                                hasMoreData = it.size == 5,
+                                hasMoreData = it.size == pageSize,
                             ),
                         )
                     }
