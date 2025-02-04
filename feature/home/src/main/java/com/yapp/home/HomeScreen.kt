@@ -119,7 +119,9 @@ fun HomeScreen(
 ) {
     val state = stateProvider()
 
-    if (state.alarms.isEmpty()) {
+    if (state.initialLoading) {
+        HomeLoadingScreen()
+    } else if (state.alarms.isEmpty()) {
         HomeAlarmEmptyScreen(
             onSettingClick = { },
             onMailClick = { },
@@ -129,6 +131,34 @@ fun HomeScreen(
         HomeContent(
             state = state,
             eventDispatcher = eventDispatcher,
+        )
+    }
+}
+
+@Composable
+private fun HomeLoadingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF1F3B64)),
+    ) {
+        HillWithGradient()
+
+        SkyImage()
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    color = Color(0xFF17191F).copy(alpha = 0.8f),
+                ),
+        )
+
+        LottieAnimation(
+            modifier = Modifier
+                .size(70.dp)
+                .align(Alignment.Center),
+            resId = core.designsystem.R.raw.star_loading,
         )
     }
 }

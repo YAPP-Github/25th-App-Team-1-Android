@@ -7,6 +7,7 @@ import com.yapp.ui.base.UiState
 sealed class HomeContract {
 
     data class State(
+        val initialLoading: Boolean = true,
         val alarms: List<Alarm> = emptyList(),
         val paginationState: PaginationState = PaginationState(),
         val dropdownMenuExpanded: Boolean = false,

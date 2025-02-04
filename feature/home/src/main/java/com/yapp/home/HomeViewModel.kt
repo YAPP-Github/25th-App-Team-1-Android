@@ -167,6 +167,7 @@ class HomeViewModel @Inject constructor(
                                 isLoading = false,
                                 hasMoreData = it.size == pageSize,
                             ),
+                            initialLoading = false,
                         )
                     }
                 }
@@ -175,6 +176,7 @@ class HomeViewModel @Inject constructor(
                     updateState {
                         copy(
                             paginationState = currentState.paginationState.copy(isLoading = false),
+                            initialLoading = false,
                         )
                     }
                 }
