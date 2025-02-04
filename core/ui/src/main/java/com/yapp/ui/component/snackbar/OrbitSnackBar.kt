@@ -5,15 +5,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Snackbar
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -21,29 +23,27 @@ import com.yapp.designsystem.theme.OrbitTheme
 
 @Composable
 fun OrbitSnackBar(
+    modifier: Modifier = Modifier,
     label: String,
     message: String,
-    modifier: Modifier = Modifier,
     @DrawableRes iconRes: Int? = null,
+    shape: Shape = RoundedCornerShape(12.dp),
+    containerColor: Color = OrbitTheme.colors.gray_600,
     onAction: () -> Unit,
 ) {
-    Snackbar(
-        modifier = modifier.clip(RoundedCornerShape(12.dp)),
-        action = {
-            Text(
-                modifier = Modifier
-                    .clickable(
-                        onClick = onAction,
-                    )
-                    .padding(end = 4.dp),
-                color = OrbitTheme.colors.gray_50,
-                style = OrbitTheme.typography.label2Regular,
-                text = label,
-            )
-        },
-        containerColor = OrbitTheme.colors.gray_500,
+    Surface(
+        modifier = modifier,
+        shape = shape,
+        color = containerColor,
+        shadowElevation = 6.dp,
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.padding(
+                horizontal = 14.dp,
+                vertical = 12.dp,
+            ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             // 아이콘 표시
             iconRes?.let {
                 Box(
@@ -62,6 +62,18 @@ fun OrbitSnackBar(
                 color = OrbitTheme.colors.white,
                 style = OrbitTheme.typography.label1Medium,
                 text = message,
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            Text(
+                modifier = Modifier
+                    .clickable(
+                        onClick = onAction,
+                    ),
+                color = OrbitTheme.colors.gray_50,
+                style = OrbitTheme.typography.label2Regular,
+                text = label,
             )
         }
     }
