@@ -101,27 +101,46 @@ class HomeViewModel @Inject constructor(
         val selectedIds = currentState.selectedAlarmIds
         if (selectedIds.isEmpty()) return
 
-        updateState { copy(paginationState = currentState.paginationState.copy(isLoading = true)) }
+        // 삭제할 알람과 그들의 원래 인덱스 저장
+        val alarmsWithIndex = currentState.alarms.withIndex()
+            .filter { it.value.id in selectedIds }
+            .map { it.index to it.value }
 
-        viewModelScope.launch {
-            selectedIds.forEach { alarmId ->
-                alarmUseCase.deleteAlarm(alarmId)
-                    .onSuccess {
-                        updateState {
-                            copy(
-                                alarms = currentState.alarms.filterNot { it.id in selectedIds },
-                                selectedAlarmIds = emptySet(),
-                                isDeleteDialogVisible = false,
-                                isSelectionMode = false,
-                                paginationState = currentState.paginationState.copy(isLoading = false),
-                            )
+        // 삭제할 알람 리스트만 추출
+        val alarmsToDelete = alarmsWithIndex.map { it.second }
+
+        updateState {
+            copy(
+                alarms = currentState.alarms - alarmsToDelete.toSet(), // UI에서 바로 삭제
+                selectedAlarmIds = emptySet(),
+                isDeleteDialogVisible = false,
+                isSelectionMode = false,
+            )
+        }
+
+        emitSideEffect(
+            HomeContract.SideEffect.ShowSnackBar(
+                message = "삭제되었어요.",
+                label = "취소",
+                onDismiss = {
+                    viewModelScope.launch {
+                        alarmsToDelete.forEach { alarm ->
+                            alarmUseCase.deleteAlarm(alarm.id)
                         }
                     }
-                    .onFailure {
-                        Log.e("HomeViewModel", "Failed to delete alarm: $alarmId", it)
+                },
+                onAction = {
+                    updateState {
+                        // 기존 alarms 리스트에 원래 위치에 삽입
+                        val restoredAlarms = currentState.alarms.toMutableList()
+                        alarmsWithIndex.forEach { (index, alarm) ->
+                            restoredAlarms.add(index, alarm) // 원래 위치에 추가
+                        }
+                        copy(alarms = restoredAlarms)
                     }
-            }
-        }
+                },
+            ),
+        )
     }
 
     private fun loadMoreAlarms() {

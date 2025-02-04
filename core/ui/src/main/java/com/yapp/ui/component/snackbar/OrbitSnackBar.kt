@@ -1,19 +1,19 @@
 package com.yapp.ui.component.snackbar
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -24,58 +24,45 @@ fun OrbitSnackBar(
     label: String,
     message: String,
     modifier: Modifier = Modifier,
-    icon: @Composable (() -> Unit)? = null,
-    onDismiss: () -> Unit,
+    @DrawableRes iconRes: Int? = null,
+    onAction: () -> Unit,
 ) {
-    val snackBarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(Unit) {
-        snackBarHostState.showSnackbar(
-            message = message,
-            actionLabel = label,
-        )
-    }
-
-    SnackbarHost(
-        hostState = snackBarHostState,
-        modifier = modifier,
-    ) { data ->
-        Snackbar(
-            modifier = Modifier.padding(16.dp),
-            action = {
-                TextButton(
-                    onClick = {
-                        data.dismiss()
-                        onDismiss()
-                    },
+    Snackbar(
+        modifier = modifier.clip(RoundedCornerShape(12.dp)),
+        action = {
+            Text(
+                modifier = Modifier
+                    .clickable(
+                        onClick = onAction,
+                    )
+                    .padding(end = 4.dp),
+                color = OrbitTheme.colors.gray_50,
+                style = OrbitTheme.typography.label2Regular,
+                text = label,
+            )
+        },
+        containerColor = OrbitTheme.colors.gray_500,
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // 아이콘 표시
+            iconRes?.let {
+                Box(
+                    modifier = Modifier
+                        .padding(end = 8.dp), // 아이콘과 메시지 간 간격 추가
+                    contentAlignment = Alignment.Center,
                 ) {
-                    Text(
-                        color = OrbitTheme.colors.white,
-                        style = OrbitTheme.typography.body1SemiBold,
-                        text = label,
+                    Image(
+                        painter = painterResource(id = it),
+                        contentDescription = "Check Icon",
                     )
                 }
-            },
-            containerColor = OrbitTheme.colors.gray_500.copy(),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                // 아이콘 표시
-                icon?.let {
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 8.dp), // 아이콘과 메시지 간 간격 추가
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        it()
-                    }
-                }
-
-                Text(
-                    color = OrbitTheme.colors.white,
-                    style = OrbitTheme.typography.body1SemiBold,
-                    text = message,
-                )
             }
+
+            Text(
+                color = OrbitTheme.colors.white,
+                style = OrbitTheme.typography.label1Medium,
+                text = message,
+            )
         }
     }
 }
@@ -83,15 +70,23 @@ fun OrbitSnackBar(
 @Composable
 @Preview
 fun OrbitSnackBarPreview() {
-    OrbitSnackBar(
-        label = "label",
-        message = "Hello, World!",
-        icon = {
-            Image(
-                painter = painterResource(id = core.designsystem.R.drawable.ic_check_green),
-                contentDescription = "Check Icon",
+    OrbitTheme {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            OrbitSnackBar(
+                modifier = Modifier
+                    .padding(
+                        start = 20.dp,
+                        end = 20.dp,
+                        bottom = 12.dp,
+                    )
+                    .align(Alignment.BottomCenter),
+                label = "label",
+                message = "Hello, World!",
+                iconRes = core.designsystem.R.drawable.ic_check_green,
+                onAction = {},
             )
-        },
-        onDismiss = {},
-    )
+        }
+    }
 }

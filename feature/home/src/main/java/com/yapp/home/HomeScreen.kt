@@ -26,6 +26,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -70,6 +72,7 @@ import java.util.Locale
 fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
     navigator: OrbitNavigator,
+    snackBarHostState: SnackbarHostState,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
@@ -86,6 +89,18 @@ fun HomeRoute(
                         popUpTo = effect.popUpTo,
                         inclusive = effect.inclusive,
                     )
+                }
+                is HomeContract.SideEffect.ShowSnackBar -> {
+                    val result = snackBarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.label,
+                        duration = effect.duration,
+                    )
+
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> effect.onAction()
+                        SnackbarResult.Dismissed -> effect.onDismiss()
+                    }
                 }
             }
         }
