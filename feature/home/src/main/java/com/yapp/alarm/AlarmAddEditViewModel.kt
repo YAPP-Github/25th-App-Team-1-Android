@@ -70,13 +70,12 @@ class AlarmAddEditViewModel @Inject constructor(
         viewModelScope.launch {
             alarmUseCase.insertAlarm(alarm)
                 .onSuccess {
-                    emitSideEffect(AlarmAddEditContract.SideEffect.NavigateBack)
+                    emitSideEffect(AlarmAddEditContract.SideEffect.SaveAlarm(it))
                 }
                 .onFailure {
                     Log.e("AlarmAddEditViewModel", "Failed to insert alarm", it)
                 }
         }
-        emitSideEffect(AlarmAddEditContract.SideEffect.NavigateBack)
     }
 
     private fun updateAlarmTime(amPm: String, hour: Int, minute: Int) {

@@ -3,6 +3,7 @@ package com.yapp.home
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.HomeDestination
+import com.yapp.domain.model.toAlarm
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,6 +32,29 @@ class HomeViewModel @Inject constructor(
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
             HomeContract.Action.ConfirmDelete -> confirmDelete()
             HomeContract.Action.LoadMoreAlarms -> loadMoreAlarms()
+        }
+    }
+
+    fun addNewAlarm(alarmJson: String) {
+        val newAlarm = alarmJson.toAlarm()
+        if (newAlarm != null) {
+            updateState {
+                copy(
+                    alarms = (currentState.alarms + newAlarm)
+                        .sortedWith(compareBy({ !it.isAm }, { it.hour }, { it.minute })), // ✅ 시간 순 정렬
+                )
+            }
+
+            emitSideEffect(
+                HomeContract.SideEffect.ShowSnackBar(
+                    message = "기상알람이 추가되었어요.",
+                    label = "확인",
+                    onAction = { },
+                    onDismiss = { },
+                ),
+            )
+        } else {
+            Log.e("HomeViewModel", "Failed to parse new alarm from JSON")
         }
     }
 

@@ -1,5 +1,6 @@
 package com.yapp.home
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -30,6 +31,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -76,6 +78,16 @@ fun HomeRoute(
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
+
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<String>("alarmResult")) {
+        navigator.navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.get<String>("alarmResult")
+            ?.let { alarmJson ->
+                Log.d("HomeRoute", "New alarm JSON: $alarmJson")
+                viewModel.addNewAlarm(alarmJson)
+            }
+    }
 
     LaunchedEffectWithLifecycle(sideEffect) {
         sideEffect.collect { effect ->

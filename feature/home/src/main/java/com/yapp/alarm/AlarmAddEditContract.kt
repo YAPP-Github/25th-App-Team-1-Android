@@ -83,6 +83,8 @@ sealed class AlarmAddEditContract {
         ) : SideEffect()
 
         data object NavigateBack : SideEffect()
+
+        data class SaveAlarm(val alarm: Alarm) : SideEffect()
     }
 }
 
