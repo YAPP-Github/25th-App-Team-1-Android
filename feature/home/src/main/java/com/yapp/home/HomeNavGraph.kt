@@ -8,6 +8,8 @@ import com.yapp.alarm.AlarmAddEditRoute
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.HomeDestination
 
+const val ALARM_RESULT_KEY = "alarmResult"
+
 fun NavGraphBuilder.homeNavGraph(
     navigator: OrbitNavigator,
     snackBarHostState: SnackbarHostState,
