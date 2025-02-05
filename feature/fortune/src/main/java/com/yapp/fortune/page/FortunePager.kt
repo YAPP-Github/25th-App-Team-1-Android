@@ -1,4 +1,4 @@
-package com.yapp.fortune
+package com.yapp.fortune.page
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
