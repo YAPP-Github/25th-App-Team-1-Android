@@ -39,27 +39,27 @@ class AlarmRepositoryImpl @Inject constructor(
     override suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = runCatching {
         alarmLocalDataSource.getPagedAlarms(limit, offset)
     }.onFailure {
-        return Result.failure(Exception("Failed to get paged alarms"))
+        throw Exception("Failed to get paged alarms")
     }
 
     override suspend fun getAlarmsByTime(hour: Int, minute: Int): Result<List<Alarm>> = runCatching {
         alarmLocalDataSource.getAlarmsByTime(hour, minute)
     }.onFailure {
-        return Result.failure(Exception("Failed to get alarms by time"))
+        throw Exception("Failed to get alarms by time")
     }
 
     override suspend fun getAlarmCount(): Result<Int> = runCatching {
         alarmLocalDataSource.getAlarmCount()
     }.onFailure {
-        return Result.failure(Exception("Failed to get alarm count"))
+        throw Exception("Failed to get alarm count")
     }
 
     override suspend fun insertAlarm(alarm: Alarm): Result<Alarm> = runCatching {
         val alarmId = alarmLocalDataSource.insertAlarm(alarm.toEntity())
         alarmLocalDataSource.getAlarm(alarmId)
-            ?: return Result.failure(Exception("Failed to insert alarm"))
+            ?: throw Exception("Failed to insert alarm")
     }.onFailure {
-        return Result.failure(Exception("Failed to insert alarm"))
+        throw Exception("Failed to insert alarm")
     }
 
     override suspend fun updateAlarm(alarm: Alarm): Result<Alarm> = runCatching {
@@ -74,9 +74,9 @@ class AlarmRepositoryImpl @Inject constructor(
 
     override suspend fun getAlarm(id: Long): Result<Alarm> = runCatching {
         alarmLocalDataSource.getAlarm(id)
-            ?: return Result.failure(Exception("Failed to get alarm"))
+            ?: throw Exception("Failed to get alarm")
     }.onFailure {
-        return Result.failure(Exception("Failed to get alarm"))
+        throw Exception("Failed to get alarm")
     }
 
     override suspend fun deleteAlarm(id: Long): Result<Unit> = runCatching {
