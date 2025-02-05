@@ -46,6 +46,7 @@ import com.yapp.domain.model.AlarmSound
 import com.yapp.home.ADD_ALARM_RESULT_KEY
 import com.yapp.home.UPDATE_ALARM_RESULT_KEY
 import com.yapp.ui.component.button.OrbitButton
+import com.yapp.ui.component.snackbar.showCustomSnackBar
 import com.yapp.ui.component.switch.OrbitSwitch
 import com.yapp.ui.component.timepicker.OrbitPicker
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
@@ -87,10 +88,12 @@ fun AlarmAddEditRoute(
                     navigator.navigateBack()
                 }
                 is AlarmAddEditContract.SideEffect.ShowSnackBar -> {
-                    val result = snackBarHostState.showSnackbar(
+                    val result = showCustomSnackBar(
+                        snackBarHostState = snackBarHostState,
                         message = effect.message,
                         actionLabel = effect.label,
-                        duration = effect.duration,
+                        iconRes = effect.iconRes,
+                        bottomPadding = effect.bottomPadding,
                     )
 
                     when (result) {

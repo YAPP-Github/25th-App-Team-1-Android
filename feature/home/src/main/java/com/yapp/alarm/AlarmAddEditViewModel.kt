@@ -2,18 +2,22 @@ package com.yapp.alarm
 
 import android.util.Log
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewModelScope
+import com.yapp.common.util.ResourceProvider
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toDayOfWeek
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import feature.home.R
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class AlarmAddEditViewModel @Inject constructor(
     private val alarmUseCase: AlarmUseCase,
+    private val resourceProvider: ResourceProvider,
 ) : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
     initialState = AlarmAddEditContract.State(),
 ) {
@@ -76,8 +80,10 @@ class AlarmAddEditViewModel @Inject constructor(
                     if (exactMatch != null) {
                         emitSideEffect(
                             AlarmAddEditContract.SideEffect.ShowSnackBar(
-                                message = "선택한 시간에 이미 설정된 알림이 있어요",
+                                message = resourceProvider.getString(R.string.alarm_already_set),
                                 label = "",
+                                iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_alert),
+                                bottomPadding = 78.dp,
                                 duration = SnackbarDuration.Short,
                                 onDismiss = { },
                                 onAction = { },
