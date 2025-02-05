@@ -46,11 +46,7 @@ fun FortunePage(page: Int) {
 
     when (page) {
         0 -> FortuneFirstPage()
-        in 1..4 -> {
-            val index = (page - 1).coerceIn(0, fortunePages.lastIndex)
-            FortunePageLayout(fortunePages[index])
-        }
-
+        in 1..4 -> FortunePageLayout(fortunePages[page - 1])
         5 -> FortuneCompletePage(hasReward = false)
         else -> DefaultFortunePage(page)
     }
