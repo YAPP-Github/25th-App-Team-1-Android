@@ -88,6 +88,8 @@ sealed class AlarmAddEditContract {
 
         data class SaveAlarm(val alarm: Alarm) : SideEffect()
 
+        data class UpdateAlarm(val alarm: Alarm) : SideEffect()
+
         data class ShowSnackBar(
             val message: String,
             val label: String,

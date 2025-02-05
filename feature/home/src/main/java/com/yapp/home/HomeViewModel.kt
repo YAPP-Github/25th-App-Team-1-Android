@@ -63,6 +63,33 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun updateAlarm(alarmJson: String) {
+        val newAlarm = alarmJson.toAlarm()
+        if (newAlarm != null) {
+            viewModelScope.launch {
+                alarmUseCase.updateAlarm(newAlarm).onSuccess { updatedAlarm ->
+                    updateState {
+                        val updatedAlarms = currentState.alarms.toMutableList()
+                        val index = updatedAlarms.indexOfFirst { it.id == updatedAlarm.id }
+
+                        if (index != -1) {
+                            updatedAlarms[index] = updatedAlarm
+                        }
+
+                        copy(
+                            alarms = updatedAlarms,
+                            lastAddedAlarmIndex = if (index != -1) index else lastAddedAlarmIndex,
+                        )
+                    }
+                }.onFailure { error ->
+                    Log.e("HomeViewModel", "Failed to update alarm", error)
+                }
+            }
+        } else {
+            Log.e("HomeViewModel", "Failed to parse updated alarm from JSON")
+        }
+    }
+
     private fun navigateToAlarmAdd() {
         emitSideEffect(HomeContract.SideEffect.Navigate(HomeDestination.AlarmAddEdit.route))
     }
@@ -130,17 +157,15 @@ class HomeViewModel @Inject constructor(
         val selectedIds = currentState.selectedAlarmIds
         if (selectedIds.isEmpty()) return
 
-        // 삭제할 알람과 그들의 원래 인덱스 저장
         val alarmsWithIndex = currentState.alarms.withIndex()
             .filter { it.value.id in selectedIds }
             .map { it.index to it.value }
 
-        // 삭제할 알람 리스트만 추출
         val alarmsToDelete = alarmsWithIndex.map { it.second }
 
         updateState {
             copy(
-                alarms = currentState.alarms - alarmsToDelete.toSet(), // UI에서 바로 삭제
+                alarms = currentState.alarms - alarmsToDelete.toSet(),
                 selectedAlarmIds = emptySet(),
                 isDeleteDialogVisible = false,
                 isSelectionMode = false,
@@ -160,10 +185,9 @@ class HomeViewModel @Inject constructor(
                 },
                 onAction = {
                     updateState {
-                        // 기존 alarms 리스트에 원래 위치에 삽입
                         val restoredAlarms = currentState.alarms.toMutableList()
                         alarmsWithIndex.forEach { (index, alarm) ->
-                            restoredAlarms.add(index, alarm) // 원래 위치에 추가
+                            restoredAlarms.add(index, alarm)
                         }
                         copy(alarms = restoredAlarms)
                     }

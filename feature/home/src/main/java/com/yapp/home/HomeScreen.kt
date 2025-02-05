@@ -79,13 +79,23 @@ fun HomeRoute(
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
 
-    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<String>(ALARM_RESULT_KEY)) {
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<String>(ADD_ALARM_RESULT_KEY)) {
         navigator.navController.currentBackStackEntry
             ?.savedStateHandle
-            ?.get<String>("alarmResult")
+            ?.get<String>(ADD_ALARM_RESULT_KEY)
             ?.let { alarmJson ->
                 viewModel.addNewAlarm(alarmJson)
-                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<String>(ALARM_RESULT_KEY)
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<String>(ADD_ALARM_RESULT_KEY)
+            }
+    }
+
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<String>(UPDATE_ALARM_RESULT_KEY)) {
+        navigator.navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.get<String>(UPDATE_ALARM_RESULT_KEY)
+            ?.let { alarmJson ->
+                viewModel.updateAlarm(alarmJson)
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<String>(UPDATE_ALARM_RESULT_KEY)
             }
     }
 

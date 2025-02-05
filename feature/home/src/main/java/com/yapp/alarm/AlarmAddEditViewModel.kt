@@ -103,7 +103,7 @@ class AlarmAddEditViewModel @Inject constructor(
 
                         alarmUseCase.updateAlarm(updatedAlarm)
                             .onSuccess {
-                                // 알람 수정
+                                emitSideEffect(AlarmAddEditContract.SideEffect.UpdateAlarm(it))
                             }
                             .onFailure {
                                 Log.e("AlarmAddEditViewModel", "Failed to update alarm", it)
