@@ -24,6 +24,7 @@ fun LuckyColorBox(
     colorTitle: String,
     resId: Int,
     contentLabel: String,
+    colorTint: Color,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -43,7 +44,7 @@ fun LuckyColorBox(
             Icon(
                 painter = painterResource(id = resId),
                 contentDescription = null,
-                tint = Color.Unspecified,
+                tint = colorTint,
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
@@ -62,5 +63,6 @@ fun LuckyColorBoxPreview() {
         colorTitle = "행운의 색",
         resId = core.designsystem.R.drawable.ic_circle,
         contentLabel = "회색",
+        colorTint = Color.Gray,
     )
 }

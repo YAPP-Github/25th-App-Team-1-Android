@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.LuckyColorBox
 
 /**
@@ -28,18 +30,21 @@ fun LuckyColorContent() {
             colorTitle = "행운의 색상",
             resId = core.designsystem.R.drawable.ic_circle,
             contentLabel = "색상1",
+            colorTint = OrbitTheme.colors.gray,
         )
         Spacer(modifier = Modifier.height(52.dp))
         LuckyColorBox(
             colorTitle = "피해야할 색",
             resId = core.designsystem.R.drawable.ic_circle,
             contentLabel = "색상2",
+            colorTint = OrbitTheme.colors.gray,
         )
         Spacer(modifier = Modifier.height(52.dp))
         LuckyColorBox(
             colorTitle = "추천 음식",
             resId = core.designsystem.R.drawable.ic_food,
             contentLabel = "햄버거",
+            colorTint = Color.Unspecified,
         )
     }
 }
