@@ -17,8 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
@@ -72,6 +72,7 @@ internal fun AlarmListBottomSheet(
     halfExpandedHeight: Dp = 0.dp,
     isLoading: Boolean,
     hasMoreData: Boolean,
+    listState: LazyListState,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     onClickCheckAll: () -> Unit,
@@ -129,6 +130,7 @@ internal fun AlarmListBottomSheet(
                 isSelectionMode = isSelectionMode,
                 isAllSelected = isAllSelected,
                 selectedAlarmIds = selectedAlarmIds,
+                listState = listState,
                 onClickAdd = onClickAdd,
                 onClickMore = onClickMore,
                 onClickCheckAll = onClickCheckAll,
@@ -165,6 +167,7 @@ internal fun AlarmBottomSheetContent(
     isSelectionMode: Boolean,
     isAllSelected: Boolean,
     selectedAlarmIds: Set<Long>,
+    listState: LazyListState,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     onClickCheckAll: () -> Unit,
@@ -182,8 +185,6 @@ internal fun AlarmBottomSheetContent(
 
     val cornerRadius = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 16.dp else 0.dp
     val topPadding = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 14.dp else 14.dp + statusBarHeight
-
-    val listState = rememberLazyListState()
 
     listState.OnLoadMore(
         hasMoreData = hasMoreData,

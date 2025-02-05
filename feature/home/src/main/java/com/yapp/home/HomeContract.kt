@@ -9,6 +9,7 @@ sealed class HomeContract {
     data class State(
         val initialLoading: Boolean = true,
         val alarms: List<Alarm> = emptyList(),
+        val lastAddedAlarmIndex: Int? = null,
         val paginationState: PaginationState = PaginationState(),
         val dropdownMenuExpanded: Boolean = false,
         val selectedAlarmIds: Set<Long> = emptySet(),
@@ -39,6 +40,7 @@ sealed class HomeContract {
         data object HideDeleteDialog : Action()
         data object ConfirmDelete : Action()
         data object LoadMoreAlarms : Action()
+        data object ResetLastAddedAlarmIndex : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {

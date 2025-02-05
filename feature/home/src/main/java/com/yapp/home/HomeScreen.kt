@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -183,6 +184,15 @@ private fun HomeContent(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     var sheetHalfExpandHeight by remember { mutableStateOf(0.dp) }
 
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(state.lastAddedAlarmIndex) {
+        state.lastAddedAlarmIndex?.let { index ->
+            listState.animateScrollToItem(index)
+            eventDispatcher(HomeContract.Action.ResetLastAddedAlarmIndex) // ✅ null로 변경 요청
+        }
+    }
+
     Box {
         AlarmListBottomSheet(
             alarms = state.alarms,
@@ -193,6 +203,7 @@ private fun HomeContent(
             halfExpandedHeight = sheetHalfExpandHeight,
             isLoading = state.paginationState.isLoading,
             hasMoreData = state.paginationState.hasMoreData,
+            listState = listState,
             onClickAdd = {
                 eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)
             },

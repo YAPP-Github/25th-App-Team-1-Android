@@ -32,6 +32,7 @@ class HomeViewModel @Inject constructor(
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
             HomeContract.Action.ConfirmDelete -> confirmDelete()
             HomeContract.Action.LoadMoreAlarms -> loadMoreAlarms()
+            HomeContract.Action.ResetLastAddedAlarmIndex -> restLastAddedAlarmIndex()
         }
     }
 
@@ -39,9 +40,13 @@ class HomeViewModel @Inject constructor(
         val newAlarm = alarmJson.toAlarm()
         if (newAlarm != null) {
             updateState {
+                val updatedAlarms = (currentState.alarms + newAlarm)
+                    .sortedWith(compareBy({ !it.isAm }, { it.hour }, { it.minute }))
+                val newAlarmIndex = updatedAlarms.indexOf(newAlarm)
+
                 copy(
-                    alarms = (currentState.alarms + newAlarm)
-                        .sortedWith(compareBy({ !it.isAm }, { it.hour }, { it.minute })), // ✅ 시간 순 정렬
+                    alarms = updatedAlarms,
+                    lastAddedAlarmIndex = newAlarmIndex,
                 )
             }
 
@@ -165,6 +170,10 @@ class HomeViewModel @Inject constructor(
                 },
             ),
         )
+    }
+
+    private fun restLastAddedAlarmIndex() {
+        updateState { copy(lastAddedAlarmIndex = null) }
     }
 
     private fun loadMoreAlarms() {
