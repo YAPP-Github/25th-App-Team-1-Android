@@ -1,6 +1,5 @@
 package com.yapp.home
 
-import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -85,8 +84,8 @@ fun HomeRoute(
             ?.savedStateHandle
             ?.get<String>("alarmResult")
             ?.let { alarmJson ->
-                Log.d("HomeRoute", "New alarm JSON: $alarmJson")
                 viewModel.addNewAlarm(alarmJson)
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<String>("alarmResult")
             }
     }
 
@@ -188,7 +187,7 @@ private fun HomeContent(
 
     LaunchedEffect(state.lastAddedAlarmIndex) {
         state.lastAddedAlarmIndex?.let { index ->
-            listState.animateScrollToItem(index)
+            listState.scrollToItem(index)
             eventDispatcher(HomeContract.Action.ResetLastAddedAlarmIndex) // ✅ null로 변경 요청
         }
     }
