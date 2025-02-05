@@ -1,9 +1,11 @@
 package com.yapp.alarm
 
+import androidx.compose.material3.SnackbarDuration
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
 import com.yapp.domain.model.toRepeatDays
+import com.yapp.home.HomeContract.SideEffect
 import com.yapp.ui.base.UiState
 
 sealed class AlarmAddEditContract {
@@ -85,6 +87,14 @@ sealed class AlarmAddEditContract {
         data object NavigateBack : SideEffect()
 
         data class SaveAlarm(val alarm: Alarm) : SideEffect()
+
+        data class ShowSnackBar(
+            val message: String,
+            val label: String,
+            val duration: SnackbarDuration = SnackbarDuration.Short,
+            val onDismiss: () -> Unit,
+            val onAction: () -> Unit,
+        ) : SideEffect()
     }
 }
 

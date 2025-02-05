@@ -28,6 +28,7 @@ fun NavGraphBuilder.homeNavGraph(
         composable(route = HomeDestination.AlarmAddEdit.route) {
             AlarmAddEditRoute(
                 navigator = navigator,
+                snackBarHostState = snackBarHostState,
             )
         }
     }

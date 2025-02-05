@@ -1,6 +1,7 @@
 package com.yapp.alarm
 
 import android.util.Log
+import androidx.compose.material3.SnackbarDuration
 import androidx.lifecycle.viewModelScope
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toDayOfWeek
@@ -66,14 +67,59 @@ class AlarmAddEditViewModel @Inject constructor(
     }
 
     private fun saveAlarm() {
-        val alarm = currentState.toAlarm()
+        val newAlarm = currentState.toAlarm()
+
         viewModelScope.launch {
-            alarmUseCase.insertAlarm(alarm)
-                .onSuccess {
-                    emitSideEffect(AlarmAddEditContract.SideEffect.SaveAlarm(it))
+            alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute)
+                .onSuccess { timeMatchedAlarms ->
+                    val exactMatch = timeMatchedAlarms.find { it.copy(id = 0) == newAlarm.copy(id = 0) }
+                    if (exactMatch != null) {
+                        emitSideEffect(
+                            AlarmAddEditContract.SideEffect.ShowSnackBar(
+                                message = "선택한 시간에 이미 설정된 알림이 있어요",
+                                label = "",
+                                duration = SnackbarDuration.Short,
+                                onDismiss = { },
+                                onAction = { },
+                            ),
+                        )
+                        return@launch
+                    }
+
+                    val timeMatch = timeMatchedAlarms.firstOrNull()
+                    if (timeMatch != null) {
+                        val updatedAlarm = timeMatch.copy(
+                            repeatDays = newAlarm.repeatDays,
+                            isHolidayAlarmOff = newAlarm.isHolidayAlarmOff,
+                            isSnoozeEnabled = newAlarm.isSnoozeEnabled,
+                            snoozeInterval = newAlarm.snoozeInterval,
+                            snoozeCount = newAlarm.snoozeCount,
+                            isVibrationEnabled = newAlarm.isVibrationEnabled,
+                            isSoundEnabled = newAlarm.isSoundEnabled,
+                            soundUri = newAlarm.soundUri,
+                            soundVolume = newAlarm.soundVolume,
+                            isAlarmActive = newAlarm.isAlarmActive,
+                        )
+
+                        alarmUseCase.updateAlarm(updatedAlarm)
+                            .onSuccess {
+                                // 알람 수정
+                            }
+                            .onFailure {
+                                Log.e("AlarmAddEditViewModel", "Failed to update alarm", it)
+                            }
+                    } else {
+                        alarmUseCase.insertAlarm(newAlarm)
+                            .onSuccess {
+                                emitSideEffect(AlarmAddEditContract.SideEffect.SaveAlarm(it))
+                            }
+                            .onFailure {
+                                Log.e("AlarmAddEditViewModel", "Failed to insert alarm", it)
+                            }
+                    }
                 }
                 .onFailure {
-                    Log.e("AlarmAddEditViewModel", "Failed to insert alarm", it)
+                    Log.e("AlarmAddEditViewModel", "Failed to get alarms by time", it)
                 }
         }
     }

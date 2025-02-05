@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -54,6 +56,7 @@ import kotlinx.coroutines.launch
 fun AlarmAddEditRoute(
     viewModel: AlarmAddEditViewModel = hiltViewModel(),
     navigator: OrbitNavigator,
+    snackBarHostState: SnackbarHostState,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
@@ -76,6 +79,18 @@ fun AlarmAddEditRoute(
                         ?.savedStateHandle
                         ?.set(ALARM_RESULT_KEY, effect.alarm.toJson())
                     navigator.navController.popBackStack()
+                }
+                is AlarmAddEditContract.SideEffect.ShowSnackBar -> {
+                    val result = snackBarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.label,
+                        duration = effect.duration,
+                    )
+
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> effect.onAction()
+                        SnackbarResult.Dismissed -> effect.onDismiss()
+                    }
                 }
             }
         }
