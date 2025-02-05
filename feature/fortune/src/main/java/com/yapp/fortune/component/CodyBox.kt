@@ -31,14 +31,14 @@ fun CodyBox(
             tint = Color.Unspecified,
             contentDescription = null,
         )
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(20.dp))
         Bubble(
             text = categoryLabel,
             backGroundColor = OrbitTheme.colors.gray_50,
             textColor = OrbitTheme.colors.gray_500,
             textStyle = OrbitTheme.typography.label2SemiBold,
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = clothsNameLabel,
             style = OrbitTheme.typography.body1Regular,
