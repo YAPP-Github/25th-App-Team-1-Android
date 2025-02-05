@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.FortuneTopAppBar
 import com.yapp.fortune.component.SlidingIndicator
+import com.yapp.fortune.page.FortunePager
 
 @Composable
 fun FortuneRoute() {
@@ -30,7 +31,8 @@ fun FortuneScreen() {
 
     val backgroundRes = when (pagerState.currentPage) {
         0 -> core.designsystem.R.drawable.ic_fortune_letter_background
-        else -> core.designsystem.R.drawable.ic_fortune_horoscope_background
+        in 1..4 -> core.designsystem.R.drawable.ic_fortune_horoscope_background
+        else -> core.designsystem.R.drawable.ic_fortune_complete_background
     }
 
     Box(
