@@ -32,12 +32,12 @@ fun DetailHoroScopeText(
 ) {
     Column(
         modifier = modifier
-            .fillMaxWidth() // 🔥 너비 통일
+            .fillMaxWidth()
             .paddingForScreenPercentage(horizontalPercentage = 0.170f),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(), // 🔥 너비 맞추기
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
@@ -55,7 +55,7 @@ fun DetailHoroScopeText(
                 textAlign = TextAlign.Start,
             )
         }
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Text(
             text = fortuneContentText,
             style = OrbitTheme.typography.body2Regular,
