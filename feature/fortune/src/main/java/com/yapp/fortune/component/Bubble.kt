@@ -8,6 +8,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
@@ -16,11 +18,14 @@ import com.yapp.designsystem.theme.OrbitTheme
 fun Bubble(
     modifier: Modifier = Modifier,
     text: String,
+    backGroundColor: Color = OrbitTheme.colors.white.copy(alpha = 0.2f),
+    textColor: Color = OrbitTheme.colors.white,
+    textStyle: TextStyle = OrbitTheme.typography.body1Medium,
 ) {
     Box(
         modifier = modifier
             .background(
-                color = OrbitTheme.colors.white.copy(alpha = 0.2f),
+                color = backGroundColor,
                 shape = RoundedCornerShape(20.dp),
             )
             .padding(vertical = 10.dp, horizontal = 16.dp),
@@ -28,8 +33,8 @@ fun Bubble(
     ) {
         Text(
             text = text,
-            color = OrbitTheme.colors.white,
-            style = OrbitTheme.typography.body1Medium,
+            color = textColor,
+            style = textStyle,
         )
     }
 }
