@@ -42,6 +42,12 @@ class AlarmRepositoryImpl @Inject constructor(
         return Result.failure(Exception("Failed to get paged alarms"))
     }
 
+    override suspend fun getAlarmsByTime(hour: Int, minute: Int): Result<List<Alarm>> = runCatching {
+        alarmLocalDataSource.getAlarmsByTime(hour, minute)
+    }.onFailure {
+        return Result.failure(Exception("Failed to get alarms by time"))
+    }
+
     override suspend fun getAlarmCount(): Result<Int> = runCatching {
         alarmLocalDataSource.getAlarmCount()
     }.onFailure {

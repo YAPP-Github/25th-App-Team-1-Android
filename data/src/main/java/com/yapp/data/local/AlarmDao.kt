@@ -19,7 +19,10 @@ interface AlarmDao {
     suspend fun getAlarm(id: Long): AlarmEntity?
 
     @Query("SELECT * FROM ${AlarmDatabase.DATABASE_NAME} ORDER BY isAm DESC, hour ASC, minute ASC LIMIT :limit OFFSET :offset")
-    suspend fun getAlarms(limit: Int, offset: Int): List<AlarmEntity>
+    suspend fun getPagedAlarms(limit: Int, offset: Int): List<AlarmEntity>
+
+    @Query("SELECT * FROM ${AlarmDatabase.DATABASE_NAME} WHERE hour = :hour AND minute = :minute")
+    suspend fun getAlarmsByTime(hour: Int, minute: Int): List<AlarmEntity>
 
     @Query("SELECT COUNT(*) FROM ${AlarmDatabase.DATABASE_NAME}")
     suspend fun getAlarmCount(): Int

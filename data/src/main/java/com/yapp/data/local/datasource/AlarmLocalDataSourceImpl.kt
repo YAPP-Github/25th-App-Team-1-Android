@@ -13,7 +13,13 @@ class AlarmLocalDataSourceImpl @Inject constructor(
         limit: Int,
         offset: Int,
     ): List<Alarm> {
-        return alarmDao.getAlarms(limit, offset).map {
+        return alarmDao.getPagedAlarms(limit, offset).map {
+            it.toDomain()
+        }
+    }
+
+    override suspend fun getAlarmsByTime(hour: Int, minute: Int): List<Alarm> {
+        return alarmDao.getAlarmsByTime(hour, minute).map {
             it.toDomain()
         }
     }

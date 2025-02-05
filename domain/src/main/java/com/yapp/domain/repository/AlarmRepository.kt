@@ -10,6 +10,7 @@ interface AlarmRepository {
     fun updateAlarmVolume(volume: Int)
     fun releaseSoundPlayer()
     suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>>
+    suspend fun getAlarmsByTime(hour: Int, minute: Int): Result<List<Alarm>>
     suspend fun getAlarmCount(): Result<Int>
     suspend fun insertAlarm(alarm: Alarm): Result<Alarm>
     suspend fun updateAlarm(alarm: Alarm): Result<Alarm>
