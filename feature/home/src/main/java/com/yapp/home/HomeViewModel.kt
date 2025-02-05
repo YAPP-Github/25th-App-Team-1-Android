@@ -127,20 +127,20 @@ class HomeViewModel @Inject constructor(
 
     private fun toggleAlarmActive(alarmId: Long) {
         viewModelScope.launch {
-            val currentAlarm = currentState.alarms.find { it.id == alarmId }
-            currentAlarm?.let {
-                val updatedAlarm = it.copy(isAlarmActive = !it.isAlarmActive)
+            val currentIndex = currentState.alarms.indexOfFirst { it.id == alarmId }
+            if (currentIndex == -1) return@launch
 
-                alarmUseCase.updateAlarm(updatedAlarm).onSuccess { newAlarm ->
-                    updateState {
-                        val updatedAlarms = currentState.alarms.map { alarm ->
-                            if (alarm.id == alarmId) newAlarm else alarm
-                        }
-                        copy(alarms = updatedAlarms)
-                    }
-                }.onFailure { error ->
-                    Log.e("HomeViewModel", "Failed to update alarm state", error)
+            val currentAlarm = currentState.alarms[currentIndex]
+            val updatedAlarm = currentAlarm.copy(isAlarmActive = !currentAlarm.isAlarmActive)
+
+            alarmUseCase.updateAlarm(updatedAlarm).onSuccess { newAlarm ->
+                updateState {
+                    val updatedAlarms = currentState.alarms.toMutableList()
+                    updatedAlarms[currentIndex] = newAlarm
+                    copy(alarms = updatedAlarms)
                 }
+            }.onFailure { error ->
+                Log.e("HomeViewModel", "Failed to update alarm state", error)
             }
         }
     }
