@@ -1,14 +1,24 @@
 package com.yapp.home
 
+import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.HomeDestination
+import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HomeViewModel @Inject constructor() : BaseViewModel<HomeContract.State, HomeContract.SideEffect>(
+class HomeViewModel @Inject constructor(
+    private val alarmUseCase: AlarmUseCase,
+) : BaseViewModel<HomeContract.State, HomeContract.SideEffect>(
     initialState = HomeContract.State(),
 ) {
+    init {
+        loadAllAlarms()
+    }
+
     fun processAction(action: HomeContract.Action) {
         when (action) {
             HomeContract.Action.NavigateToAlarmAdd -> navigateToAlarmAdd()
@@ -20,6 +30,39 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeContract.State, Ho
             HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
             HomeContract.Action.ConfirmDelete -> confirmDelete()
+            HomeContract.Action.LoadMoreAlarms -> loadAllAlarms()
+            HomeContract.Action.ResetLastAddedAlarmIndex -> restLastAddedAlarmIndex()
+        }
+    }
+
+    fun scrollToAddedAlarm(id: Long) {
+        val newAlarmIndex = currentState.alarms.indexOfFirst { it.id == id }
+        if (newAlarmIndex == -1) return
+
+        updateState {
+            copy(
+                lastAddedAlarmIndex = newAlarmIndex,
+            )
+        }
+
+        emitSideEffect(
+            HomeContract.SideEffect.ShowSnackBar(
+                message = "기상알람이 추가되었어요.",
+                label = "",
+                onAction = { },
+                onDismiss = { },
+            ),
+        )
+    }
+
+    fun scrollToUpdatedAlarm(id: Long) {
+        val updatedAlarmIndex = currentState.alarms.indexOfFirst { it.id == id }
+        if (updatedAlarmIndex == -1) return
+
+        updateState {
+            copy(
+                lastAddedAlarmIndex = updatedAlarmIndex,
+            )
         }
     }
 
@@ -59,15 +102,22 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeContract.State, Ho
     }
 
     private fun toggleAlarmActive(alarmId: Long) {
-        updateState {
-            val updatedAlarms = currentState.alarms.map { alarm ->
-                if (alarm.id == alarmId) {
-                    alarm.copy(isAlarmActive = !alarm.isAlarmActive)
-                } else {
-                    alarm
+        viewModelScope.launch {
+            val currentIndex = currentState.alarms.indexOfFirst { it.id == alarmId }
+            if (currentIndex == -1) return@launch
+
+            val currentAlarm = currentState.alarms[currentIndex]
+            val updatedAlarm = currentAlarm.copy(isAlarmActive = !currentAlarm.isAlarmActive)
+
+            alarmUseCase.updateAlarm(updatedAlarm).onSuccess { newAlarm ->
+                updateState {
+                    val updatedAlarms = currentState.alarms.toMutableList()
+                    updatedAlarms[currentIndex] = newAlarm
+                    copy(alarms = updatedAlarms)
                 }
+            }.onFailure { error ->
+                Log.e("HomeViewModel", "Failed to update alarm state", error)
             }
-            copy(alarms = updatedAlarms)
         }
     }
 
@@ -80,14 +130,105 @@ class HomeViewModel @Inject constructor() : BaseViewModel<HomeContract.State, Ho
     }
 
     private fun confirmDelete() {
+        val selectedIds = currentState.selectedAlarmIds
+        if (selectedIds.isEmpty()) return
+
+        val alarmsWithIndex = currentState.alarms.withIndex()
+            .filter { it.value.id in selectedIds }
+            .map { it.index to it.value }
+
+        val alarmsToDelete = alarmsWithIndex.map { it.second }
+
         updateState {
-            val updatedAlarms = currentState.alarms.filterNot { it.id in currentState.selectedAlarmIds }
             copy(
-                alarms = updatedAlarms,
+                alarms = currentState.alarms - alarmsToDelete.toSet(),
                 selectedAlarmIds = emptySet(),
                 isDeleteDialogVisible = false,
                 isSelectionMode = false,
             )
         }
+
+        emitSideEffect(
+            HomeContract.SideEffect.ShowSnackBar(
+                message = "삭제되었어요.",
+                label = "취소",
+                onDismiss = {
+                    viewModelScope.launch {
+                        alarmsToDelete.forEach { alarm ->
+                            alarmUseCase.deleteAlarm(alarm.id)
+                        }
+                    }
+                },
+                onAction = {
+                    updateState {
+                        val restoredAlarms = currentState.alarms.toMutableList()
+                        alarmsWithIndex.forEach { (index, alarm) ->
+                            restoredAlarms.add(index, alarm)
+                        }
+                        copy(alarms = restoredAlarms)
+                    }
+                },
+            ),
+        )
     }
+
+    private fun restLastAddedAlarmIndex() {
+        updateState { copy(lastAddedAlarmIndex = null) }
+    }
+
+    private fun loadAllAlarms() {
+        updateState { copy(initialLoading = true) }
+
+        viewModelScope.launch {
+            alarmUseCase.getAllAlarms().collect {
+                updateState {
+                    copy(
+                        alarms = it,
+                        initialLoading = false,
+                    )
+                }
+            }
+        }
+    }
+
+    /*
+    private fun loadMoreAlarms() {
+        val currentPage = currentState.paginationState.currentPage
+        if (currentState.paginationState.isLoading || !currentState.paginationState.hasMoreData) return
+
+        val pageSize = 10
+        val offset = currentPage * pageSize
+
+        updateState {
+            copy(
+                paginationState = currentState.paginationState.copy(isLoading = true),
+            )
+        }
+
+        viewModelScope.launch {
+            alarmUseCase.getPagedAlarms(limit = pageSize, offset = offset)
+                .onSuccess {
+                    updateState {
+                        copy(
+                            alarms = currentState.alarms + it,
+                            paginationState = currentState.paginationState.copy(
+                                currentPage = currentPage + 1,
+                                isLoading = false,
+                                hasMoreData = it.size == pageSize,
+                            ),
+                            initialLoading = false,
+                        )
+                    }
+                }
+                .onFailure {
+                    Log.e("HomeViewModel", "Failed to get paged alarms", it)
+                    updateState {
+                        copy(
+                            paginationState = currentState.paginationState.copy(isLoading = false),
+                            initialLoading = false,
+                        )
+                    }
+                }
+        }
+    }*/
 }

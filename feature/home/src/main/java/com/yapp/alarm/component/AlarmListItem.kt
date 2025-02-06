@@ -76,6 +76,7 @@ internal fun AlarmListItem(
 
         AlarmListItemContent(
             repeatDays = repeatDays,
+            isActive = isActive,
             isHolidayAlarmOff = isHolidayAlarmOff,
             isAm = isAm,
             hour = hour,
@@ -96,24 +97,31 @@ internal fun AlarmListItem(
 @Composable
 private fun AlarmListItemContent(
     repeatDays: Int,
+    isActive: Boolean,
     isHolidayAlarmOff: Boolean,
     isAm: Boolean,
     hour: Int,
     minute: Int,
 ) {
+    val (textColor, iconColor) = if (isActive) {
+        OrbitTheme.colors.gray_300 to OrbitTheme.colors.gray_200
+    } else {
+        OrbitTheme.colors.gray_500 to OrbitTheme.colors.gray_500
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = repeatDays.toRepeatDaysString(isAm, hour, minute),
                 style = OrbitTheme.typography.label1SemiBold,
-                color = OrbitTheme.colors.gray_300,
+                color = textColor,
             )
             if (isHolidayAlarmOff) {
                 Spacer(modifier = Modifier.width(4.dp))
                 Icon(
                     painter = painterResource(id = core.designsystem.R.drawable.ic_holiday),
                     contentDescription = "Holiday Alarm Off",
-                    tint = OrbitTheme.colors.gray_200,
+                    tint = iconColor,
                     modifier = Modifier.size(12.dp),
                 )
             }
@@ -122,7 +130,7 @@ private fun AlarmListItemContent(
         Text(
             text = formatAlarmTime(isAm, hour, minute),
             style = OrbitTheme.typography.title2Medium,
-            color = OrbitTheme.colors.white,
+            color = if (isActive) OrbitTheme.colors.white else OrbitTheme.colors.gray_500,
         )
     }
 }
@@ -183,7 +191,7 @@ private fun getNextAlarmDateWithTime(isAm: Boolean, hour: Int, minute: Int): Str
 @Composable
 private fun AlarmListItemPreview() {
     OrbitTheme {
-        val selectedDays = listOf(AlarmDay.MON, AlarmDay.WED, AlarmDay.FRI).toRepeatDays()
+        val selectedDays = setOf(AlarmDay.MON, AlarmDay.WED, AlarmDay.FRI).toRepeatDays()
         var isActive by remember { mutableStateOf(true) }
         var selected by remember { mutableStateOf(true) }
 
@@ -214,7 +222,7 @@ private fun AlarmListItemPreview() {
             )
             AlarmListItem(
                 id = 0,
-                repeatDays = emptyList<AlarmDay>().toRepeatDays(),
+                repeatDays = emptySet<AlarmDay>().toRepeatDays(),
                 isHolidayAlarmOff = false,
                 selectable = false,
                 selected = false,

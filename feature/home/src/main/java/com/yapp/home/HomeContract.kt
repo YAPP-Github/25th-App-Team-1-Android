@@ -1,35 +1,15 @@
 package com.yapp.home
 
+import androidx.compose.material3.SnackbarDuration
 import com.yapp.domain.model.Alarm
-import com.yapp.domain.model.AlarmDay
-import com.yapp.domain.model.toRepeatDays
 import com.yapp.ui.base.UiState
 
 sealed class HomeContract {
 
     data class State(
-        val alarms: List<Alarm> = listOf(
-            Alarm(
-                id = 0,
-                repeatDays = listOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.FRI).toRepeatDays(),
-            ),
-            Alarm(
-                id = 1,
-                repeatDays = listOf(AlarmDay.SUN, AlarmDay.SAT).toRepeatDays(),
-            ),
-            Alarm(
-                id = 2,
-                repeatDays = listOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI).toRepeatDays(),
-            ),
-            Alarm(
-                id = 3,
-                repeatDays = listOf(AlarmDay.SUN, AlarmDay.SAT).toRepeatDays(),
-            ),
-            Alarm(
-                id = 4,
-                repeatDays = listOf(AlarmDay.WED, AlarmDay.THU).toRepeatDays(),
-            ),
-        ),
+        val initialLoading: Boolean = true,
+        val alarms: List<Alarm> = emptyList(),
+        val lastAddedAlarmIndex: Int? = null,
         val dropdownMenuExpanded: Boolean = false,
         val selectedAlarmIds: Set<Long> = emptySet(),
         val isSelectionMode: Boolean = false,
@@ -52,6 +32,8 @@ sealed class HomeContract {
         data object ShowDeleteDialog : Action()
         data object HideDeleteDialog : Action()
         data object ConfirmDelete : Action()
+        data object LoadMoreAlarms : Action()
+        data object ResetLastAddedAlarmIndex : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {
@@ -62,5 +44,13 @@ sealed class HomeContract {
         ) : SideEffect()
 
         data object NavigateBack : SideEffect()
+
+        data class ShowSnackBar(
+            val message: String,
+            val label: String,
+            val duration: SnackbarDuration = SnackbarDuration.Short,
+            val onDismiss: () -> Unit,
+            val onAction: () -> Unit,
+        ) : SideEffect()
     }
 }

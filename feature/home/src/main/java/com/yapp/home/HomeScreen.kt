@@ -21,13 +21,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,9 +74,30 @@ import java.util.Locale
 fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
     navigator: OrbitNavigator,
+    snackBarHostState: SnackbarHostState,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
+
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<Long>(ADD_ALARM_RESULT_KEY)) {
+        navigator.navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.get<Long>(ADD_ALARM_RESULT_KEY)
+            ?.let { id ->
+                viewModel.scrollToAddedAlarm(id)
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<Long>(ADD_ALARM_RESULT_KEY)
+            }
+    }
+
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<Long>(UPDATE_ALARM_RESULT_KEY)) {
+        navigator.navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.get<Long>(UPDATE_ALARM_RESULT_KEY)
+            ?.let { id ->
+                viewModel.scrollToUpdatedAlarm(id)
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<Long>(UPDATE_ALARM_RESULT_KEY)
+            }
+    }
 
     LaunchedEffectWithLifecycle(sideEffect) {
         sideEffect.collect { effect ->
@@ -86,6 +111,18 @@ fun HomeRoute(
                         popUpTo = effect.popUpTo,
                         inclusive = effect.inclusive,
                     )
+                }
+                is HomeContract.SideEffect.ShowSnackBar -> {
+                    val result = snackBarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.label,
+                        duration = effect.duration,
+                    )
+
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> effect.onAction()
+                        SnackbarResult.Dismissed -> effect.onDismiss()
+                    }
                 }
             }
         }
@@ -104,7 +141,9 @@ fun HomeScreen(
 ) {
     val state = stateProvider()
 
-    if (state.alarms.isEmpty()) {
+    if (state.initialLoading) {
+        HomeLoadingScreen()
+    } else if (state.alarms.isEmpty()) {
         HomeAlarmEmptyScreen(
             onSettingClick = { },
             onMailClick = { },
@@ -119,12 +158,49 @@ fun HomeScreen(
 }
 
 @Composable
+private fun HomeLoadingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF1F3B64)),
+    ) {
+        HillWithGradient()
+
+        SkyImage()
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    color = Color(0xFF17191F).copy(alpha = 0.8f),
+                ),
+        )
+
+        LottieAnimation(
+            modifier = Modifier
+                .size(70.dp)
+                .align(Alignment.Center),
+            resId = core.designsystem.R.raw.star_loading,
+        )
+    }
+}
+
+@Composable
 private fun HomeContent(
     state: HomeContract.State,
     eventDispatcher: (HomeContract.Action) -> Unit,
 ) {
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     var sheetHalfExpandHeight by remember { mutableStateOf(0.dp) }
+
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(state.lastAddedAlarmIndex) {
+        state.lastAddedAlarmIndex?.let { index ->
+            listState.scrollToItem(index)
+            eventDispatcher(HomeContract.Action.ResetLastAddedAlarmIndex) // ✅ null로 변경 요청
+        }
+    }
 
     Box {
         AlarmListBottomSheet(
@@ -134,6 +210,9 @@ private fun HomeContent(
             isSelectionMode = state.isSelectionMode,
             selectedAlarmIds = state.selectedAlarmIds,
             halfExpandedHeight = sheetHalfExpandHeight,
+            isLoading = false,
+            hasMoreData = false,
+            listState = listState,
             onClickAdd = {
                 eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)
             },
@@ -157,6 +236,9 @@ private fun HomeContent(
             },
             onToggleActive = { alarmId ->
                 eventDispatcher(HomeContract.Action.ToggleAlarmActive(alarmId))
+            },
+            onLoadMore = {
+                eventDispatcher(HomeContract.Action.LoadMoreAlarms)
             },
         ) {
             Box(

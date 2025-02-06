@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,10 +17,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetValue
@@ -33,12 +34,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,7 +53,9 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.Alarm
 import com.yapp.home.component.AlarmListDropDownMenu
 import com.yapp.ui.component.checkbox.OrbitCheckBox
+import com.yapp.ui.utils.OnLoadMore
 import feature.home.R
+import kotlinx.coroutines.launch
 
 enum class BottomSheetExpandState {
     EXPANDED, HALF_EXPANDED
@@ -64,6 +70,9 @@ internal fun AlarmListBottomSheet(
     isSelectionMode: Boolean,
     selectedAlarmIds: Set<Long>,
     halfExpandedHeight: Dp = 0.dp,
+    isLoading: Boolean,
+    hasMoreData: Boolean,
+    listState: LazyListState,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     onClickCheckAll: () -> Unit,
@@ -72,6 +81,7 @@ internal fun AlarmListBottomSheet(
     onDismissRequest: () -> Unit,
     onToggleSelect: (Long) -> Unit,
     onToggleActive: (Long) -> Unit,
+    onLoadMore: () -> Unit,
     content: @Composable () -> Unit,
 ) {
     var expandedType by remember { mutableStateOf(BottomSheetExpandState.HALF_EXPANDED) }
@@ -87,6 +97,21 @@ internal fun AlarmListBottomSheet(
     )
 
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
+    val coroutineScope = rememberCoroutineScope()
+
+    val nestedScrollConnection = remember {
+        object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
+            override fun onPreScroll(
+                available: Offset, // 변경된 부분
+                source: androidx.compose.ui.input.nestedscroll.NestedScrollSource,
+            ): Offset { // 변경된 부분
+                if (available.y < 0 && sheetState.currentValue == SheetValue.PartiallyExpanded) {
+                    coroutineScope.launch { sheetState.expand() }
+                }
+                return Offset.Zero
+            }
+        }
+    }
 
     LaunchedEffect(sheetState.currentValue) {
         expandedType = when (sheetState.currentValue) {
@@ -99,12 +124,13 @@ internal fun AlarmListBottomSheet(
         scaffoldState = scaffoldState,
         sheetContent = {
             AlarmBottomSheetContent(
-                modifier = Modifier.fillMaxHeight(),
+                modifier = Modifier.nestedScroll(nestedScrollConnection),
                 alarms = alarms,
                 menuExpanded = menuExpanded,
                 isSelectionMode = isSelectionMode,
                 isAllSelected = isAllSelected,
                 selectedAlarmIds = selectedAlarmIds,
+                listState = listState,
                 onClickAdd = onClickAdd,
                 onClickMore = onClickMore,
                 onClickCheckAll = onClickCheckAll,
@@ -114,6 +140,9 @@ internal fun AlarmListBottomSheet(
                 onDismissRequest = onDismissRequest,
                 onToggleSelect = onToggleSelect,
                 onToggleActive = onToggleActive,
+                isLoading = isLoading,
+                hasMoreData = hasMoreData,
+                onLoadMore = onLoadMore,
             )
         },
         sheetShadowElevation = 0.dp,
@@ -138,6 +167,7 @@ internal fun AlarmBottomSheetContent(
     isSelectionMode: Boolean,
     isAllSelected: Boolean,
     selectedAlarmIds: Set<Long>,
+    listState: LazyListState,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     onClickCheckAll: () -> Unit,
@@ -147,11 +177,21 @@ internal fun AlarmBottomSheetContent(
     onToggleSelect: (Long) -> Unit,
     onToggleActive: (Long) -> Unit,
     expandedType: BottomSheetExpandState,
+    isLoading: Boolean,
+    hasMoreData: Boolean,
+    onLoadMore: () -> Unit,
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
     val cornerRadius = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 16.dp else 0.dp
     val topPadding = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 14.dp else 14.dp + statusBarHeight
+
+    listState.OnLoadMore(
+        hasMoreData = hasMoreData,
+        isLoading = isLoading,
+    ) {
+        onLoadMore()
+    }
 
     Column(
         modifier = modifier
@@ -180,7 +220,9 @@ internal fun AlarmBottomSheetContent(
             )
         }
 
-        LazyColumn {
+        LazyColumn(
+            state = listState,
+        ) {
             itemsIndexed(alarms) { index, alarm ->
                 AlarmListItem(
                     id = alarm.id,
@@ -203,6 +245,19 @@ internal fun AlarmBottomSheetContent(
                             .background(OrbitTheme.colors.gray_800)
                             .padding(horizontal = 24.dp),
                     )
+                }
+            }
+
+            if (isLoading) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }
