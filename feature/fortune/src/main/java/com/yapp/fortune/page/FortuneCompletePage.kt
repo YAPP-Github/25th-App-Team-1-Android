@@ -18,14 +18,18 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.HillWithGradient
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.lottie.LottieAnimation
+import com.yapp.ui.utils.paddingForScreenPercentage
 
 /**
  * 운세 확인 완료 페이지
  */
 @Composable
-fun FortuneCompletePage(hasReward: Boolean) {
+fun FortuneCompletePage(
+    hasReward: Boolean,
+    onCompleteClick: () -> Unit,
+) {
     val message = if (hasReward) {
-        "첫 알람에 잘 일어났네!\n" + "보상으로 행운 부적을 줄게"
+        "첫 알람에 잘 일어났네!\n보상으로 행운 부적을 줄게"
     } else {
         "운세 확인 끝!\n이제 든든하게 하루 시작해봐"
     }
@@ -36,16 +40,14 @@ fun FortuneCompletePage(hasReward: Boolean) {
         core.designsystem.R.raw.reward_false
     }
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center,
-    ) {
+    Box(modifier = Modifier.fillMaxSize()) {
         HillWithGradient(heightPercentage = 0.48f)
 
         LottieAnimation(
             modifier = Modifier
                 .scale(0.5f)
-                .zIndex(1f),
+                .zIndex(1f)
+                .paddingForScreenPercentage(topPercentage = if (hasReward) 0.12f else 0.0f),
             resId = animationResId,
         )
 
@@ -78,13 +80,7 @@ fun FortuneCompletePage(hasReward: Boolean) {
             OrbitButton(
                 label = if (hasReward) "부적 보러가기" else "완료",
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-                onClick = {
-                    if (hasReward) {
-                        // 리워드 있을 시
-                    } else {
-                        //  리워드 없을 시
-                    }
-                },
+                onClick = onCompleteClick,
                 enabled = true,
             )
         }
@@ -94,5 +90,5 @@ fun FortuneCompletePage(hasReward: Boolean) {
 @Composable
 @Preview
 fun FortuneCompletePagePreview() {
-    FortuneCompletePage(hasReward = false)
+    FortuneCompletePage(hasReward = true, onCompleteClick = {})
 }
