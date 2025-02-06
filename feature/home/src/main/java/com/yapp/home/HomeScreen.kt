@@ -1,5 +1,6 @@
 package com.yapp.home
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -120,6 +121,7 @@ fun HomeRoute(
                         actionLabel = effect.label,
                         iconRes = effect.iconRes,
                         bottomPadding = effect.bottomPadding,
+                        duration = effect.duration,
                     )
 
                     when (result) {
@@ -201,7 +203,7 @@ private fun HomeContent(
     LaunchedEffect(state.lastAddedAlarmIndex) {
         state.lastAddedAlarmIndex?.let { index ->
             listState.scrollToItem(index)
-            eventDispatcher(HomeContract.Action.ResetLastAddedAlarmIndex) // ✅ null로 변경 요청
+            eventDispatcher(HomeContract.Action.ResetLastAddedAlarmIndex)
         }
     }
 
@@ -216,6 +218,10 @@ private fun HomeContent(
             isLoading = false,
             hasMoreData = false,
             listState = listState,
+            onClickAlarm = { alarmId ->
+                Log.d("HomeScreen", "onClickAlarm: $alarmId")
+                eventDispatcher(HomeContract.Action.SelectAlarm(alarmId))
+            },
             onClickAdd = {
                 eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)
             },

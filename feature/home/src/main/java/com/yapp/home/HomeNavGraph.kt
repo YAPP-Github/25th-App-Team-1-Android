@@ -2,8 +2,10 @@ package com.yapp.home
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.navArgument
 import com.yapp.alarm.AlarmAddEditRoute
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.HomeDestination
@@ -26,7 +28,15 @@ fun NavGraphBuilder.homeNavGraph(
             )
         }
 
-        composable(route = HomeDestination.AlarmAddEdit.route) {
+        composable(
+            route = "${HomeDestination.AlarmAddEdit.route}?id={alarmId}",
+            arguments = listOf(
+                navArgument("alarmId") {
+                    type = NavType.LongType
+                    defaultValue = -1
+                },
+            ),
+        ) {
             AlarmAddEditRoute(
                 navigator = navigator,
                 snackBarHostState = snackBarHostState,

@@ -35,6 +35,7 @@ class HomeViewModel @Inject constructor(
             HomeContract.Action.ConfirmDelete -> confirmDelete()
             HomeContract.Action.LoadMoreAlarms -> loadAllAlarms()
             HomeContract.Action.ResetLastAddedAlarmIndex -> restLastAddedAlarmIndex()
+            is HomeContract.Action.SelectAlarm -> selectAlarm(action.alarmId)
         }
     }
 
@@ -193,6 +194,10 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun selectAlarm(alarmId: Long) {
+        emitSideEffect(HomeContract.SideEffect.Navigate("${HomeDestination.AlarmAddEdit.route}?id=$alarmId"))
     }
 
     /*

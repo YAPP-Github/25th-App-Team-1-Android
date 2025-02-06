@@ -36,6 +36,7 @@ sealed class HomeContract {
         data object ConfirmDelete : Action()
         data object LoadMoreAlarms : Action()
         data object ResetLastAddedAlarmIndex : Action()
+        data class SelectAlarm(val alarmId: Long) : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {
