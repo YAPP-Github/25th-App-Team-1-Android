@@ -26,6 +26,7 @@ fun LottieAnimation(
     contentScale: ContentScale = ContentScale.FillWidth,
     scaleXAdjustment: Float = 1f,
     scaleYAdjustment: Float = 1f,
+    onAnimationEnd: (() -> Unit)? = null,
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(resId))
     val progress by animateLottieCompositionAsState(
@@ -40,6 +41,12 @@ fun LottieAnimation(
                 targetValue = 1f,
                 animationSpec = tween(durationMillis = 500),
             )
+        }
+    }
+
+    LaunchedEffect(progress) {
+        if (progress == 1f) {
+            onAnimationEnd?.invoke()
         }
     }
 
