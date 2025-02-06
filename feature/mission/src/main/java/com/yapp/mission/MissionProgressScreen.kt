@@ -63,6 +63,7 @@ fun MissionProgressRoute(viewModel: MissionViewModel = hiltViewModel()) {
         state = state,
         onShowExitDialog = { viewModel.onAction(MissionContract.Action.ShowExitDialog) },
         onDismissExitDialog = { viewModel.onAction(MissionContract.Action.HideExitDialog) },
+        onMissionCompleted = { viewModel.onAction(MissionContract.Action.CompleteMission) },
     )
 }
 
@@ -71,6 +72,7 @@ fun MissionProgressScreen(
     state: MissionContract.State,
     onShowExitDialog: () -> Unit,
     onDismissExitDialog: () -> Unit,
+    onMissionCompleted: () -> Unit,
 
 ) {
     Box(
@@ -217,7 +219,7 @@ fun MissionProgressScreen(
                         scaleYAdjustment = 1.3f,
                         resId = core.designsystem.R.raw.mission_success,
                         iterations = 1,
-
+                        onAnimationEnd = onMissionCompleted,
                     )
                     Text(
                         text = "미션 성공!",
@@ -240,5 +242,6 @@ fun MissionProgressRoutePreview() {
         state = MissionContract.State(),
         onShowExitDialog = {},
         onDismissExitDialog = {},
+        onMissionCompleted = {},
     )
 }

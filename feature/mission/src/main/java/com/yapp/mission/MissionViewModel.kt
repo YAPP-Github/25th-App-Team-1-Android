@@ -1,5 +1,6 @@
 package com.yapp.mission
 
+import com.yapp.common.navigation.destination.FortuneDestination
 import com.yapp.common.navigation.destination.MissionDestination
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,16 @@ class MissionViewModel @Inject constructor() : BaseViewModel<MissionContract.Sta
 
             is MissionContract.Action.PreviousStep -> {
                 emitSideEffect(MissionContract.SideEffect.NavigateBack)
+            }
+
+            is MissionContract.Action.CompleteMission -> {
+                emitSideEffect(
+                    MissionContract.SideEffect.Navigate(
+                        route = FortuneDestination.Route.route,
+                        popUpTo = MissionDestination.Route.route,
+                        inclusive = true,
+                    ),
+                )
             }
 
             is MissionContract.Action.StartOverlayTimer -> startOverlayTimer()
