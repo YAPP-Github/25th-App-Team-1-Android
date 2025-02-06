@@ -223,8 +223,27 @@ class AlarmAddEditViewModel @Inject constructor(
         val newHolidayState = currentState.holidayState.copy(
             isDisableHolidayChecked = !currentState.holidayState.isDisableHolidayChecked,
         )
+
         updateState {
             copy(holidayState = newHolidayState)
+        }
+
+        if (newHolidayState.isDisableHolidayChecked) {
+            emitSideEffect(
+                AlarmAddEditContract.SideEffect.ShowSnackBar(
+                    message = resourceProvider.getString(R.string.alarm_disabled_warning),
+                    label = resourceProvider.getString(R.string.alarm_delete_dialog_btn_cancel),
+                    iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
+                    bottomPadding = 78.dp,
+                    duration = SnackbarDuration.Short,
+                    onDismiss = { },
+                    onAction = {
+                        updateState {
+                            copy(holidayState = holidayState.copy(isDisableHolidayChecked = false))
+                        }
+                    },
+                ),
+            )
         }
     }
 
