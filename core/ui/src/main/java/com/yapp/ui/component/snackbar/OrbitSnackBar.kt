@@ -119,11 +119,13 @@ suspend fun showCustomSnackBar(
     actionLabel: String? = null,
     iconRes: Int? = null,
     bottomPadding: Dp = 12.dp,
+    duration: SnackbarDuration,
 ): SnackbarResult {
     return snackBarHostState.showSnackbar(
         CustomSnackBarVisuals(
             message = message,
             actionLabel = actionLabel,
+            duration = duration,
             iconRes = iconRes,
             bottomPadding = bottomPadding,
         ),
