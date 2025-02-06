@@ -32,6 +32,7 @@ class OrbitColors(
     green: Color = Color(0xFF4ADE80),
     blue: Color = Color(0xFF2563EB),
     blue_2: Color = Color(0xFF69A8F6),
+    blue_3: Color = Color(0xFF7EA9DE),
     purple: Color = Color(0xFF735AFF),
     brown: Color = Color(0xFFCA8A04),
     gray: Color = Color(0xFF9DA7AE),
@@ -86,6 +87,8 @@ class OrbitColors(
         private set
     var blue_2 by mutableStateOf(blue_2)
         private set
+    var blue_3 by mutableStateOf(blue_3)
+        private set
     var purple by mutableStateOf(purple)
         private set
     var brown by mutableStateOf(brown)
@@ -120,6 +123,7 @@ class OrbitColors(
         green: Color = this.green,
         blue: Color = this.blue,
         blue_2: Color = this.blue_2,
+        blue_3: Color = this.blue_3,
         purple: Color = this.purple,
         brown: Color = this.brown,
         gray: Color = this.gray,
@@ -149,6 +153,7 @@ class OrbitColors(
         green = green,
         blue = blue,
         blue_2 = blue_2,
+        blue_3 = blue_3,
         purple = purple,
         brown = brown,
         gray = gray,
@@ -180,6 +185,7 @@ class OrbitColors(
         green = other.green
         blue = other.blue
         blue_2 = other.blue_2
+        blue_3 = other.blue_3
         purple = other.purple
         brown = other.brown
         gray = other.gray

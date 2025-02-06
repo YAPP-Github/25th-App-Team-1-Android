@@ -9,11 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,14 +22,13 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun SlidingIndicator(
-    pagerState: PagerState,
+    currentIndex: Int,
     count: Int,
     dotHeight: Dp,
     spacing: Dp,
     inactiveColor: Color,
     activeColor: Color,
 ) {
-    val currentPage by remember { derivedStateOf { pagerState.currentPage } }
     val currentConfiguration = LocalConfiguration.current
 
     val horizontalPadding = 20.dp
@@ -57,7 +54,7 @@ internal fun SlidingIndicator(
                         .width(dotWidth.value)
                         .height(dotHeight)
                         .background(
-                            color = if (index <= currentPage) activeColor else inactiveColor,
+                            color = if (index <= currentIndex) activeColor else inactiveColor,
                             shape = RoundedCornerShape(3.dp),
                         ),
                 )

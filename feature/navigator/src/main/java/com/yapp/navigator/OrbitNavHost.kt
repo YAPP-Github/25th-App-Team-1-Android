@@ -16,6 +16,7 @@ import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.TopLevelDestination
 import com.yapp.common.navigation.rememberOrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.fortune.fortuneNavGraph
 import com.yapp.home.homeNavGraph
 import com.yapp.mission.missionNavGraph
 import com.yapp.mypage.myPageNavGraph
@@ -62,6 +63,9 @@ internal fun OrbitNavHost(
                 navigator = navigator,
             )
             missionNavGraph(
+                navigator = navigator,
+            )
+            fortuneNavGraph(
                 navigator = navigator,
             )
         }
