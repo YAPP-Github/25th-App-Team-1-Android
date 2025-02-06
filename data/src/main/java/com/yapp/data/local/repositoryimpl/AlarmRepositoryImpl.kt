@@ -7,6 +7,7 @@ import com.yapp.domain.model.AlarmSound
 import com.yapp.domain.repository.AlarmRepository
 import com.yapp.media.ringtone.RingtoneManagerHelper
 import com.yapp.media.sound.SoundPlayer
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class AlarmRepositoryImpl @Inject constructor(
@@ -36,23 +37,17 @@ class AlarmRepositoryImpl @Inject constructor(
         soundPlayer.release()
     }
 
-    override suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = runCatching {
+    override fun getAllAlarms(): Flow<List<Alarm>> =
+        alarmLocalDataSource.getAllAlarms()
+
+    override fun getPagedAlarms(limit: Int, offset: Int): Flow<List<Alarm>> =
         alarmLocalDataSource.getPagedAlarms(limit, offset)
-    }.onFailure {
-        throw Exception("Failed to get paged alarms")
-    }
 
-    override suspend fun getAlarmsByTime(hour: Int, minute: Int): Result<List<Alarm>> = runCatching {
+    override fun getAlarmsByTime(hour: Int, minute: Int): Flow<List<Alarm>> =
         alarmLocalDataSource.getAlarmsByTime(hour, minute)
-    }.onFailure {
-        throw Exception("Failed to get alarms by time")
-    }
 
-    override suspend fun getAlarmCount(): Result<Int> = runCatching {
+    override fun getAlarmCount(): Flow<Int> =
         alarmLocalDataSource.getAlarmCount()
-    }.onFailure {
-        throw Exception("Failed to get alarm count")
-    }
 
     override suspend fun insertAlarm(alarm: Alarm): Result<Alarm> = runCatching {
         val alarmId = alarmLocalDataSource.insertAlarm(alarm.toEntity())

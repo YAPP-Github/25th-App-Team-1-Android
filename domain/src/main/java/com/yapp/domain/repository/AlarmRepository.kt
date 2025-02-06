@@ -2,6 +2,7 @@ package com.yapp.domain.repository
 
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmSound
+import kotlinx.coroutines.flow.Flow
 
 interface AlarmRepository {
     suspend fun getAlarmSounds(): Result<List<AlarmSound>>
@@ -9,9 +10,10 @@ interface AlarmRepository {
     fun stopAlarmSound()
     fun updateAlarmVolume(volume: Int)
     fun releaseSoundPlayer()
-    suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>>
-    suspend fun getAlarmsByTime(hour: Int, minute: Int): Result<List<Alarm>>
-    suspend fun getAlarmCount(): Result<Int>
+    fun getAllAlarms(): Flow<List<Alarm>>
+    fun getPagedAlarms(limit: Int, offset: Int): Flow<List<Alarm>>
+    fun getAlarmsByTime(hour: Int, minute: Int): Flow<List<Alarm>>
+    fun getAlarmCount(): Flow<Int>
     suspend fun insertAlarm(alarm: Alarm): Result<Alarm>
     suspend fun updateAlarm(alarm: Alarm): Result<Alarm>
     suspend fun getAlarm(id: Long): Result<Alarm>

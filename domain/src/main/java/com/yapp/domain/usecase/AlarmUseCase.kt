@@ -3,6 +3,7 @@ package com.yapp.domain.usecase
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmSound
 import com.yapp.domain.repository.AlarmRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class AlarmUseCase @Inject constructor(
@@ -13,9 +14,10 @@ class AlarmUseCase @Inject constructor(
     fun stopAlarmSound() = alarmRepository.stopAlarmSound()
     fun updateAlarmVolume(volume: Int) = alarmRepository.updateAlarmVolume(volume)
     fun releaseSoundPlayer() = alarmRepository.releaseSoundPlayer()
-    suspend fun getPagedAlarms(limit: Int, offset: Int): Result<List<Alarm>> = alarmRepository.getPagedAlarms(limit, offset)
-    suspend fun getAlarmsByTime(hour: Int, minute: Int): Result<List<Alarm>> = alarmRepository.getAlarmsByTime(hour, minute)
-    suspend fun getAlarmCount(): Result<Int> = alarmRepository.getAlarmCount()
+    fun getAllAlarms(): Flow<List<Alarm>> = alarmRepository.getAllAlarms()
+    fun getPagedAlarms(limit: Int, offset: Int): Flow<List<Alarm>> = alarmRepository.getPagedAlarms(limit, offset)
+    fun getAlarmsByTime(hour: Int, minute: Int): Flow<List<Alarm>> = alarmRepository.getAlarmsByTime(hour, minute)
+    fun getAlarmCount(): Flow<Int> = alarmRepository.getAlarmCount()
     suspend fun insertAlarm(alarm: Alarm): Result<Alarm> = alarmRepository.insertAlarm(alarm)
     suspend fun updateAlarm(alarm: Alarm): Result<Alarm> = alarmRepository.updateAlarm(alarm)
     suspend fun getAlarm(id: Long): Result<Alarm> = alarmRepository.getAlarm(id)
