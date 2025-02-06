@@ -18,6 +18,7 @@ sealed class MissionContract {
     sealed class Action {
         data object NextStep : Action()
         data object PreviousStep : Action()
+        data object CompleteMission : Action()
         object StartOverlayTimer : Action()
         object ShakeCard : Action()
         object ShowExitDialog : Action()

@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -41,6 +43,8 @@ import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
+import com.yapp.home.ADD_ALARM_RESULT_KEY
+import com.yapp.home.UPDATE_ALARM_RESULT_KEY
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.switch.OrbitSwitch
 import com.yapp.ui.component.timepicker.OrbitPicker
@@ -52,6 +56,7 @@ import kotlinx.coroutines.launch
 fun AlarmAddEditRoute(
     viewModel: AlarmAddEditViewModel = hiltViewModel(),
     navigator: OrbitNavigator,
+    snackBarHostState: SnackbarHostState,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
@@ -68,6 +73,30 @@ fun AlarmAddEditRoute(
                         popUpTo = effect.popUpTo,
                         inclusive = effect.inclusive,
                     )
+                }
+                is AlarmAddEditContract.SideEffect.SaveAlarm -> {
+                    navigator.navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(ADD_ALARM_RESULT_KEY, effect.id)
+                    navigator.navController.popBackStack()
+                }
+                is AlarmAddEditContract.SideEffect.UpdateAlarm -> {
+                    navigator.navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(UPDATE_ALARM_RESULT_KEY, effect.id)
+                    navigator.navigateBack()
+                }
+                is AlarmAddEditContract.SideEffect.ShowSnackBar -> {
+                    val result = snackBarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.label,
+                        duration = effect.duration,
+                    )
+
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> effect.onAction()
+                        SnackbarResult.Dismissed -> effect.onDismiss()
+                    }
                 }
             }
         }
@@ -122,9 +151,7 @@ fun AlarmAddEditScreen(
                     start = 20.dp,
                     end = 20.dp,
                     bottom = 12.dp,
-                )
-                .height(56.dp)
-                .fillMaxWidth(),
+                ),
         )
     }
 

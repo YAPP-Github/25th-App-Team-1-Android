@@ -23,6 +23,21 @@ class OrbitColors(
     alert: Color = Color(0xFFF2544A),
     alert_pressed: Color = Color(0xFFE53D33),
     success: Color = Color(0xFF22C55E),
+
+    red: Color = Color(0xFFEF4444),
+    pink: Color = Color(0xFFE682D7),
+    babypink: Color = Color(0xFFFFA9A9),
+    orange: Color = Color(0xFFFB923C),
+    yellow: Color = Color(0xFFFDE047),
+    green: Color = Color(0xFF4ADE80),
+    blue: Color = Color(0xFF2563EB),
+    blue_2: Color = Color(0xFF69A8F6),
+    blue_3: Color = Color(0xFF7EA9DE),
+    purple: Color = Color(0xFF735AFF),
+    brown: Color = Color(0xFFCA8A04),
+    gray: Color = Color(0xFF9DA7AE),
+    indigo: Color = Color(0xFF12304C),
+
 ) {
     var main by mutableStateOf(main)
         private set
@@ -56,6 +71,32 @@ class OrbitColors(
         private set
     var success by mutableStateOf(success)
         private set
+    var red by mutableStateOf(red)
+        private set
+    var pink by mutableStateOf(pink)
+        private set
+    var babypink by mutableStateOf(babypink)
+        private set
+    var orange by mutableStateOf(orange)
+        private set
+    var yellow by mutableStateOf(yellow)
+        private set
+    var green by mutableStateOf(green)
+        private set
+    var blue by mutableStateOf(blue)
+        private set
+    var blue_2 by mutableStateOf(blue_2)
+        private set
+    var blue_3 by mutableStateOf(blue_3)
+        private set
+    var purple by mutableStateOf(purple)
+        private set
+    var brown by mutableStateOf(brown)
+        private set
+    var gray by mutableStateOf(gray)
+        private set
+    var indigo by mutableStateOf(indigo)
+        private set
 
     fun copy(
         main: Color = this.main,
@@ -74,6 +115,19 @@ class OrbitColors(
         alert: Color = this.alert,
         alert_pressed: Color = this.alert_pressed,
         success: Color = this.success,
+        red: Color = this.red,
+        pink: Color = this.pink,
+        babypink: Color = this.babypink,
+        orange: Color = this.orange,
+        yellow: Color = this.yellow,
+        green: Color = this.green,
+        blue: Color = this.blue,
+        blue_2: Color = this.blue_2,
+        blue_3: Color = this.blue_3,
+        purple: Color = this.purple,
+        brown: Color = this.brown,
+        gray: Color = this.gray,
+        indigo: Color = this.indigo,
     ) = OrbitColors(
         main = main,
         sub_main = sub_main,
@@ -91,6 +145,19 @@ class OrbitColors(
         alert = alert,
         alert_pressed = alert_pressed,
         success = success,
+        red = red,
+        pink = pink,
+        babypink = babypink,
+        orange = orange,
+        yellow = yellow,
+        green = green,
+        blue = blue,
+        blue_2 = blue_2,
+        blue_3 = blue_3,
+        purple = purple,
+        brown = brown,
+        gray = gray,
+        indigo = indigo,
     )
 
     fun updateColorFrom(other: OrbitColors) {
@@ -110,6 +177,19 @@ class OrbitColors(
         alert = other.alert
         alert_pressed = other.alert_pressed
         success = other.success
+        red = other.red
+        pink = other.pink
+        babypink = other.babypink
+        orange = other.orange
+        yellow = other.yellow
+        green = other.green
+        blue = other.blue
+        blue_2 = other.blue_2
+        blue_3 = other.blue_3
+        purple = other.purple
+        brown = other.brown
+        gray = other.gray
+        indigo = other.indigo
     }
 }
 

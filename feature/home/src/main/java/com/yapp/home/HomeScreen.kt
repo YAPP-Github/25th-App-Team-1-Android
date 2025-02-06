@@ -20,13 +20,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,9 +57,10 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.yapp.alarm.component.bottomsheet.AlarmListBottomSheet
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.home.component.bottomsheet.AlarmListBottomSheet
+import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
@@ -68,9 +74,30 @@ import java.util.Locale
 fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
     navigator: OrbitNavigator,
+    snackBarHostState: SnackbarHostState,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
+
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<Long>(ADD_ALARM_RESULT_KEY)) {
+        navigator.navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.get<Long>(ADD_ALARM_RESULT_KEY)
+            ?.let { id ->
+                viewModel.scrollToAddedAlarm(id)
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<Long>(ADD_ALARM_RESULT_KEY)
+            }
+    }
+
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<Long>(UPDATE_ALARM_RESULT_KEY)) {
+        navigator.navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.get<Long>(UPDATE_ALARM_RESULT_KEY)
+            ?.let { id ->
+                viewModel.scrollToUpdatedAlarm(id)
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<Long>(UPDATE_ALARM_RESULT_KEY)
+            }
+    }
 
     LaunchedEffectWithLifecycle(sideEffect) {
         sideEffect.collect { effect ->
@@ -84,6 +111,18 @@ fun HomeRoute(
                         popUpTo = effect.popUpTo,
                         inclusive = effect.inclusive,
                     )
+                }
+                is HomeContract.SideEffect.ShowSnackBar -> {
+                    val result = snackBarHostState.showSnackbar(
+                        message = effect.message,
+                        actionLabel = effect.label,
+                        duration = effect.duration,
+                    )
+
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> effect.onAction()
+                        SnackbarResult.Dismissed -> effect.onDismiss()
+                    }
                 }
             }
         }
@@ -102,7 +141,9 @@ fun HomeScreen(
 ) {
     val state = stateProvider()
 
-    if (state.alarms.isEmpty()) {
+    if (state.initialLoading) {
+        HomeLoadingScreen()
+    } else if (state.alarms.isEmpty()) {
         HomeAlarmEmptyScreen(
             onSettingClick = { },
             onMailClick = { },
@@ -117,6 +158,34 @@ fun HomeScreen(
 }
 
 @Composable
+private fun HomeLoadingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF1F3B64)),
+    ) {
+        HillWithGradient()
+
+        SkyImage()
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    color = Color(0xFF17191F).copy(alpha = 0.8f),
+                ),
+        )
+
+        LottieAnimation(
+            modifier = Modifier
+                .size(70.dp)
+                .align(Alignment.Center),
+            resId = core.designsystem.R.raw.star_loading,
+        )
+    }
+}
+
+@Composable
 private fun HomeContent(
     state: HomeContract.State,
     eventDispatcher: (HomeContract.Action) -> Unit,
@@ -124,56 +193,125 @@ private fun HomeContent(
     val screenHeight = LocalConfiguration.current.screenHeightDp.dp
     var sheetHalfExpandHeight by remember { mutableStateOf(0.dp) }
 
-    AlarmListBottomSheet(
-        alarms = state.alarms,
-        halfExpandedHeight = sheetHalfExpandHeight,
-        onClickAdd = {
-            eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)
-        },
-        onClickMore = { },
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0xFF1F3B64)),
+    val listState = rememberLazyListState()
+
+    LaunchedEffect(state.lastAddedAlarmIndex) {
+        state.lastAddedAlarmIndex?.let { index ->
+            listState.scrollToItem(index)
+            eventDispatcher(HomeContract.Action.ResetLastAddedAlarmIndex) // ✅ null로 변경 요청
+        }
+    }
+
+    Box {
+        AlarmListBottomSheet(
+            alarms = state.alarms,
+            menuExpanded = state.dropdownMenuExpanded,
+            isAllSelected = state.isAllSelected,
+            isSelectionMode = state.isSelectionMode,
+            selectedAlarmIds = state.selectedAlarmIds,
+            halfExpandedHeight = sheetHalfExpandHeight,
+            isLoading = false,
+            hasMoreData = false,
+            listState = listState,
+            onClickAdd = {
+                eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)
+            },
+            onClickMore = {
+                eventDispatcher(HomeContract.Action.ToggleDropdownMenu)
+            },
+            onClickCheckAll = {
+                eventDispatcher(HomeContract.Action.ToggleAllAlarmSelection)
+            },
+            onClickClose = {
+                eventDispatcher(HomeContract.Action.ToggleSelectionMode)
+            },
+            onClickEdit = {
+                eventDispatcher(HomeContract.Action.ToggleSelectionMode)
+            },
+            onDismissRequest = {
+                eventDispatcher(HomeContract.Action.ToggleDropdownMenu)
+            },
+            onToggleSelect = { alarmId ->
+                eventDispatcher(HomeContract.Action.ToggleAlarmSelection(alarmId))
+            },
+            onToggleActive = { alarmId ->
+                eventDispatcher(HomeContract.Action.ToggleAlarmActive(alarmId))
+            },
+            onLoadMore = {
+                eventDispatcher(HomeContract.Action.LoadMoreAlarms)
+            },
         ) {
-            HillWithGradient()
-
-            SkyImage()
-
-            val characterY = (screenHeight * 0.28f) - 130.dp
-
-            Column(
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .layout { measurable, constraints ->
-                        val placeable = measurable.measure(constraints)
-                        sheetHalfExpandHeight = screenHeight - placeable.height.toDp()
-                        layout(placeable.width, placeable.height) {
-                            placeable.placeRelative(0, 0)
-                        }
-                    },
-                horizontalAlignment = Alignment.CenterHorizontally,
+                    .fillMaxSize()
+                    .background(Color(0xFF1F3B64)),
             ) {
-                Spacer(modifier = Modifier.height(characterY))
+                HillWithGradient()
 
-                HomeCharacterAnimation(
-                    fortuneScore = state.lastFortuneScore,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                HomeFortuneDescription(
-                    fortuneScore = state.lastFortuneScore,
-                    name = state.name,
-                    deliveryTime = state.deliveryTime,
+                SkyImage()
+
+                val characterY = (screenHeight * 0.28f) - 130.dp
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            sheetHalfExpandHeight = screenHeight - placeable.height.toDp()
+                            layout(placeable.width, placeable.height) {
+                                placeable.placeRelative(0, 0)
+                            }
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Spacer(modifier = Modifier.height(characterY))
+
+                    HomeCharacterAnimation(
+                        fortuneScore = state.lastFortuneScore,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    HomeFortuneDescription(
+                        fortuneScore = state.lastFortuneScore,
+                        name = state.name,
+                        deliveryTime = state.deliveryTime,
+                    )
+                }
+
+                HomeTopBar(
+                    isTitleVisible = false,
+                    onSettingClick = { },
+                    onMailClick = { },
                 )
             }
+        }
 
-            HomeTopBar(
-                isTitleVisible = false,
-                onSettingClick = { },
-                onMailClick = { },
+        if (state.isSelectionMode && state.selectedAlarmIds.isNotEmpty()) {
+            DeleteAlarmButton(
+                modifier = Modifier
+                    .widthIn(min = 130.dp)
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 26.dp),
+                selectedAlarmCount = state.selectedAlarmIds.size,
+                onClick = {
+                    eventDispatcher(HomeContract.Action.ShowDeleteDialog)
+                },
             )
         }
+    }
+
+    if (state.isDeleteDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.alarm_delete_dialog_title),
+            message = stringResource(id = R.string.alarm_delete_dialog_message),
+            confirmText = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
+            cancelText = stringResource(id = R.string.alarm_delete_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(HomeContract.Action.ConfirmDelete)
+            },
+            onCancel = {
+                eventDispatcher(HomeContract.Action.HideDeleteDialog)
+            },
+        )
     }
 }
 
@@ -450,39 +588,38 @@ private fun AddAlarmButton(
     disabledContentColor: Color = OrbitTheme.colors.gray_400,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val isPressed = interactionSource.collectIsPressedAsState().value
+    val isPressed by interactionSource.collectIsPressedAsState()
 
-    val currentContainerColor = if (isPressed) pressedContainerColor else containerColor
-    val currentContentColor = if (isPressed) pressedContentColor else contentColor
+    val (currentContainerColor, currentContentColor) = when {
+        !enabled -> disabledContainerColor to disabledContentColor
+        isPressed -> pressedContainerColor to pressedContentColor
+        else -> containerColor to contentColor
+    }
 
     val padding by animateDpAsState(
         targetValue = if (isPressed) 2.dp else 0.dp,
         animationSpec = tween(durationMillis = 100),
-        label = "",
+        label = "PaddingAnimation",
     )
 
     Button(
         onClick = onClick,
-        modifier = modifier
-            .padding(all = padding)
-            .height(height),
         enabled = enabled,
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = currentContainerColor,
             contentColor = currentContentColor,
-            disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor,
         ),
-        contentPadding = PaddingValues(
-            horizontal = 32.dp,
-        ),
+        contentPadding = PaddingValues(horizontal = 32.dp),
         interactionSource = interactionSource,
+        modifier = modifier
+            .then(if (padding > 0.dp) Modifier.padding(padding) else Modifier)
+            .height(height - padding * 2),
     ) {
         Icon(
             painter = painterResource(core.designsystem.R.drawable.ic_plus),
             tint = Color.Unspecified,
-            contentDescription = "IC_PLUS",
+            contentDescription = "Add Alarm",
         )
 
         Spacer(modifier = Modifier.width(4.dp))
@@ -490,6 +627,49 @@ private fun AddAlarmButton(
         Text(
             text = stringResource(id = R.string.home_btn_add_alarm),
             style = OrbitTheme.typography.heading1SemiBold,
+        )
+    }
+}
+
+@Composable
+private fun DeleteAlarmButton(
+    modifier: Modifier = Modifier,
+    selectedAlarmCount: Int,
+    onClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val padding by animateDpAsState(
+        targetValue = if (isPressed) 2.dp else 0.dp,
+        animationSpec = tween(durationMillis = 100),
+        label = "PaddingAnimation",
+    )
+
+    val (containerColor, contentColor) = if (isPressed) {
+        OrbitTheme.colors.white.copy(alpha = 0.8f) to OrbitTheme.colors.gray_600
+    } else {
+        OrbitTheme.colors.white to OrbitTheme.colors.gray_900
+    }
+
+    Button(
+        onClick = onClick,
+        shape = CircleShape,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+        ),
+        contentPadding = PaddingValues(horizontal = 40.dp),
+        modifier = modifier
+            .then(if (padding > 0.dp) Modifier.padding(padding) else Modifier)
+            .height(54.dp - padding * 2),
+    ) {
+        Text(
+            text = stringResource(
+                id = R.string.alarm_list_bottom_sheet_selection_btn_delete,
+                selectedAlarmCount,
+            ),
+            style = OrbitTheme.typography.body1SemiBold,
         )
     }
 }

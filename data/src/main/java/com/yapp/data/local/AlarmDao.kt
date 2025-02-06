@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface AlarmDao {
@@ -18,11 +19,17 @@ interface AlarmDao {
     @Query("SELECT * FROM ${AlarmDatabase.DATABASE_NAME} WHERE id = :id")
     suspend fun getAlarm(id: Long): AlarmEntity?
 
-    @Query("SELECT * FROM ${AlarmDatabase.DATABASE_NAME} ORDER BY id LIMIT :limit OFFSET :offset")
-    suspend fun getAlarms(limit: Int, offset: Int): List<AlarmEntity>
+    @Query("SELECT * FROM ${AlarmDatabase.DATABASE_NAME} ORDER BY isAm DESC, hour ASC, minute ASC LIMIT :limit OFFSET :offset")
+    fun getPagedAlarms(limit: Int, offset: Int): Flow<List<AlarmEntity>>
+
+    @Query("SELECT * FROM ${AlarmDatabase.DATABASE_NAME} ORDER BY isAm DESC, hour ASC, minute ASC")
+    fun getAllAlarms(): Flow<List<AlarmEntity>>
+
+    @Query("SELECT * FROM ${AlarmDatabase.DATABASE_NAME} WHERE hour = :hour AND minute = :minute AND isAm = :isAm")
+    fun getAlarmsByTime(hour: Int, minute: Int, isAm: Boolean): Flow<List<AlarmEntity>>
 
     @Query("SELECT COUNT(*) FROM ${AlarmDatabase.DATABASE_NAME}")
-    suspend fun getAlarmCount(): Int
+    fun getAlarmCount(): Flow<Int>
 
     @Query("DELETE FROM ${AlarmDatabase.DATABASE_NAME} WHERE id = :id")
     suspend fun deleteAlarm(id: Long): Int

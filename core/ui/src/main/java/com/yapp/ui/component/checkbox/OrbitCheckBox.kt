@@ -21,10 +21,10 @@ import com.yapp.designsystem.theme.OrbitTheme
 
 @Composable
 fun OrbitCheckBox(
-    isSelected: Boolean,
-    onClick: (Boolean) -> Unit,
+    checked: Boolean,
+    onCheckedChange: () -> Unit,
 ) {
-    val backgroundColor = if (isSelected) {
+    val backgroundColor = if (checked) {
         OrbitTheme.colors.main
     } else {
         OrbitTheme.colors.gray_600
@@ -38,9 +38,7 @@ fun OrbitCheckBox(
                 shape = RoundedCornerShape(4.dp),
             )
             .clip(RoundedCornerShape(4.dp))
-            .clickable {
-                onClick(!isSelected)
-            },
+            .clickable { onCheckedChange() },
         contentAlignment = Alignment.Center,
     ) {
         Icon(
@@ -55,12 +53,12 @@ fun OrbitCheckBox(
 @Composable
 fun OrbitCheckBoxPreview() {
     OrbitTheme {
-        var isSelected by remember { mutableStateOf(false) }
+        var isChecked by remember { mutableStateOf(false) }
 
         OrbitCheckBox(
-            isSelected = isSelected,
-            onClick = {
-                isSelected = it
+            checked = isChecked,
+            onCheckedChange = {
+                isChecked = !isChecked
             },
         )
     }

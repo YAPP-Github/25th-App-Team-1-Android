@@ -18,12 +18,13 @@ import com.yapp.designsystem.theme.OrbitTheme
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FortuneTopAppBar(
+    titleLabel: String,
     onCloseClick: () -> Unit,
 ) {
     CenterAlignedTopAppBar(
         title = {
             Text(
-                text = "미래에서 온 편지",
+                text = titleLabel,
                 style = OrbitTheme.typography.body1SemiBold,
                 color = OrbitTheme.colors.white,
             )
@@ -45,5 +46,8 @@ fun FortuneTopAppBar(
 @Composable
 @Preview
 fun FortuneTopAppBarPreview() {
-    FortuneTopAppBar(onCloseClick = {})
+    FortuneTopAppBar(
+        titleLabel = "미래에서 온 편지",
+        onCloseClick = {},
+    )
 }

@@ -15,7 +15,7 @@ fun AlarmDay.toDayOfWeek(): java.time.DayOfWeek {
     return java.time.DayOfWeek.of(this.ordinal + 1)
 }
 
-fun List<AlarmDay>.toRepeatDays(): Int {
+fun Set<AlarmDay>.toRepeatDays(): Int {
     return this.fold(0) { acc, day ->
         acc or day.bitValue
     }

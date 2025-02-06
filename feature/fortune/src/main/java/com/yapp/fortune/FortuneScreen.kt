@@ -6,8 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,22 +18,45 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.FortuneTopAppBar
 import com.yapp.fortune.component.SlidingIndicator
+import com.yapp.fortune.page.FortunePager
 
 @Composable
-fun FortuneRoute() {
-    FortuneScreen()
+fun FortuneRoute(
+    viewModel: FortuneViewModel = hiltViewModel(),
+) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    val pagerState = rememberPagerState(
+        initialPage = state.currentStep,
+        pageCount = { state.fortunePages.size + 2 },
+    )
+
+    LaunchedEffect(state.currentStep) {
+        pagerState.animateScrollToPage(state.currentStep)
+    }
+
+    FortuneScreen(
+        state = state,
+        pagerState = pagerState,
+        onNextStep = { viewModel.onAction(FortuneContract.Action.NextStep) },
+    )
 }
 
 @Composable
-fun FortuneScreen() {
-    val pagerState = rememberPagerState { 6 }
-
-    val backgroundRes = when (pagerState.currentPage) {
+fun FortuneScreen(
+    state: FortuneContract.State,
+    pagerState: PagerState,
+    onNextStep: () -> Unit,
+) {
+    val backgroundRes = when (state.currentStep) {
         0 -> core.designsystem.R.drawable.ic_fortune_letter_background
-        else -> core.designsystem.R.drawable.ic_fortune_horoscope_background
+        in 1..4 -> core.designsystem.R.drawable.ic_fortune_horoscope_background
+        else -> core.designsystem.R.drawable.ic_fortune_complete_background
     }
 
     Box(
@@ -46,20 +72,24 @@ fun FortuneScreen() {
             modifier = Modifier.matchParentSize(),
         )
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            FortuneTopAppBar(onCloseClick = {})
+            FortuneTopAppBar(
+                titleLabel = "미래에서 온 편지",
+                onCloseClick = {},
+            )
+
             SlidingIndicator(
-                pagerState = pagerState,
+                currentIndex = pagerState.currentPage,
                 count = 6,
                 dotHeight = 5.dp,
                 spacing = 4.dp,
-                inactiveColor = OrbitTheme.colors.white.copy(alpha = 0.2f),
+                inactiveColor = OrbitTheme.colors.white.copy(0.2f),
                 activeColor = OrbitTheme.colors.white,
             )
-            FortunePager(pagerState)
+
+            FortunePager(state, pagerState, onNextStep)
         }
     }
 }
@@ -67,5 +97,4 @@ fun FortuneScreen() {
 @Composable
 @Preview
 fun FortuneRoutePreview() {
-    FortuneScreen()
 }

@@ -30,4 +30,10 @@ object Routes {
         const val MISSION = "mission_main"
         const val PROGRESS = "mission_progress"
     }
+
+    object Fortune {
+        const val ROUTE = "fortune_route"
+        const val FORTUNE = "fortune_main"
+        const val REWARD = "fortune_reward"
+    }
 }
