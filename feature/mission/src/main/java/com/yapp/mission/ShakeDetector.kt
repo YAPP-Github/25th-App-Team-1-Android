@@ -34,11 +34,12 @@ class ShakeDetector(
         val gForce = sqrt(x * x + y * y + z * z) / SensorManager.GRAVITY_EARTH
 
         if (gForce > shakeThresholdGravity) {
-            val currentTime = System.currentTimeMillis()
-            if (currentTime - shakeTimestamp > shakeInterval) {
-                shakeTimestamp = currentTime
-                onShake()
-            }
+            onShake()
+//            val currentTime = System.currentTimeMillis()
+//            if (currentTime - shakeTimestamp > shakeInterval) {
+//                shakeTimestamp = currentTime
+//                onShake()
+//            }
         }
     }
 
