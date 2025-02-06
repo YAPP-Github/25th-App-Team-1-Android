@@ -48,7 +48,7 @@ class HomeViewModel @Inject constructor(
         emitSideEffect(
             HomeContract.SideEffect.ShowSnackBar(
                 message = "기상알람이 추가되었어요.",
-                label = "확인",
+                label = "",
                 onAction = { },
                 onDismiss = { },
             ),

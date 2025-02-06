@@ -70,7 +70,7 @@ class AlarmAddEditViewModel @Inject constructor(
         val newAlarm = currentState.toAlarm()
 
         viewModelScope.launch {
-            alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute)
+            alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute, newAlarm.isAm)
                 .collect { timeMatchedAlarms ->
                     val exactMatch = timeMatchedAlarms.find { it.copy(id = 0) == newAlarm.copy(id = 0) }
                     if (exactMatch != null) {
