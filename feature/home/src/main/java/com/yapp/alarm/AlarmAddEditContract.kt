@@ -5,7 +5,6 @@ import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
 import com.yapp.domain.model.toRepeatDays
-import com.yapp.home.HomeContract.SideEffect
 import com.yapp.ui.base.UiState
 
 sealed class AlarmAddEditContract {
@@ -86,9 +85,9 @@ sealed class AlarmAddEditContract {
 
         data object NavigateBack : SideEffect()
 
-        data class SaveAlarm(val alarm: Alarm) : SideEffect()
+        data class SaveAlarm(val id: Long) : SideEffect()
 
-        data class UpdateAlarm(val alarm: Alarm) : SideEffect()
+        data class UpdateAlarm(val id: Long) : SideEffect()
 
         data class ShowSnackBar(
             val message: String,

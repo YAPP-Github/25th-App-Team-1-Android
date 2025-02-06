@@ -79,23 +79,23 @@ fun HomeRoute(
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
 
-    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<String>(ADD_ALARM_RESULT_KEY)) {
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<Long>(ADD_ALARM_RESULT_KEY)) {
         navigator.navController.currentBackStackEntry
             ?.savedStateHandle
-            ?.get<String>(ADD_ALARM_RESULT_KEY)
-            ?.let { alarmJson ->
-                viewModel.addNewAlarm(alarmJson)
-                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<String>(ADD_ALARM_RESULT_KEY)
+            ?.get<Long>(ADD_ALARM_RESULT_KEY)
+            ?.let { id ->
+                viewModel.scrollToAddedAlarm(id)
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<Long>(ADD_ALARM_RESULT_KEY)
             }
     }
 
-    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<String>(UPDATE_ALARM_RESULT_KEY)) {
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<Long>(UPDATE_ALARM_RESULT_KEY)) {
         navigator.navController.currentBackStackEntry
             ?.savedStateHandle
-            ?.get<String>(UPDATE_ALARM_RESULT_KEY)
-            ?.let { alarmJson ->
-                viewModel.updateAlarm(alarmJson)
-                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<String>(UPDATE_ALARM_RESULT_KEY)
+            ?.get<Long>(UPDATE_ALARM_RESULT_KEY)
+            ?.let { id ->
+                viewModel.scrollToUpdatedAlarm(id)
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<Long>(UPDATE_ALARM_RESULT_KEY)
             }
     }
 
@@ -210,8 +210,8 @@ private fun HomeContent(
             isSelectionMode = state.isSelectionMode,
             selectedAlarmIds = state.selectedAlarmIds,
             halfExpandedHeight = sheetHalfExpandHeight,
-            isLoading = state.paginationState.isLoading,
-            hasMoreData = state.paginationState.hasMoreData,
+            isLoading = false,
+            hasMoreData = false,
             listState = listState,
             onClickAdd = {
                 eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)

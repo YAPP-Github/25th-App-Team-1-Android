@@ -43,7 +43,6 @@ import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
-import com.yapp.domain.model.toJson
 import com.yapp.home.ADD_ALARM_RESULT_KEY
 import com.yapp.home.UPDATE_ALARM_RESULT_KEY
 import com.yapp.ui.component.button.OrbitButton
@@ -78,13 +77,13 @@ fun AlarmAddEditRoute(
                 is AlarmAddEditContract.SideEffect.SaveAlarm -> {
                     navigator.navController.previousBackStackEntry
                         ?.savedStateHandle
-                        ?.set(ADD_ALARM_RESULT_KEY, effect.alarm.toJson())
+                        ?.set(ADD_ALARM_RESULT_KEY, effect.id)
                     navigator.navController.popBackStack()
                 }
                 is AlarmAddEditContract.SideEffect.UpdateAlarm -> {
                     navigator.navController.previousBackStackEntry
                         ?.savedStateHandle
-                        ?.set(UPDATE_ALARM_RESULT_KEY, effect.alarm.toJson())
+                        ?.set(UPDATE_ALARM_RESULT_KEY, effect.id)
                     navigator.navigateBack()
                 }
                 is AlarmAddEditContract.SideEffect.ShowSnackBar -> {

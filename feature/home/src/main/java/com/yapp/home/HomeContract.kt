@@ -10,7 +10,6 @@ sealed class HomeContract {
         val initialLoading: Boolean = true,
         val alarms: List<Alarm> = emptyList(),
         val lastAddedAlarmIndex: Int? = null,
-        val paginationState: PaginationState = PaginationState(),
         val dropdownMenuExpanded: Boolean = false,
         val selectedAlarmIds: Set<Long> = emptySet(),
         val isSelectionMode: Boolean = false,
@@ -22,12 +21,6 @@ sealed class HomeContract {
         val isAllSelected: Boolean
             get() = alarms.isNotEmpty() && selectedAlarmIds.size == alarms.size
     }
-
-    data class PaginationState(
-        val currentPage: Int = 0,
-        val isLoading: Boolean = false,
-        val hasMoreData: Boolean = true,
-    )
 
     sealed class Action {
         data object NavigateToAlarmAdd : Action()

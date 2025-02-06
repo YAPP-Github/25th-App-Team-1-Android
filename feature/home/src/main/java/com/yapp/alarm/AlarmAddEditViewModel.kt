@@ -71,7 +71,7 @@ class AlarmAddEditViewModel @Inject constructor(
 
         viewModelScope.launch {
             alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute)
-                .onSuccess { timeMatchedAlarms ->
+                .collect { timeMatchedAlarms ->
                     val exactMatch = timeMatchedAlarms.find { it.copy(id = 0) == newAlarm.copy(id = 0) }
                     if (exactMatch != null) {
                         emitSideEffect(
@@ -83,7 +83,7 @@ class AlarmAddEditViewModel @Inject constructor(
                                 onAction = { },
                             ),
                         )
-                        return@launch
+                        return@collect
                     }
 
                     val timeMatch = timeMatchedAlarms.firstOrNull()
@@ -103,7 +103,7 @@ class AlarmAddEditViewModel @Inject constructor(
 
                         alarmUseCase.updateAlarm(updatedAlarm)
                             .onSuccess {
-                                emitSideEffect(AlarmAddEditContract.SideEffect.UpdateAlarm(it))
+                                emitSideEffect(AlarmAddEditContract.SideEffect.UpdateAlarm(it.id))
                             }
                             .onFailure {
                                 Log.e("AlarmAddEditViewModel", "Failed to update alarm", it)
@@ -111,15 +111,12 @@ class AlarmAddEditViewModel @Inject constructor(
                     } else {
                         alarmUseCase.insertAlarm(newAlarm)
                             .onSuccess {
-                                emitSideEffect(AlarmAddEditContract.SideEffect.SaveAlarm(it))
+                                emitSideEffect(AlarmAddEditContract.SideEffect.SaveAlarm(it.id))
                             }
                             .onFailure {
                                 Log.e("AlarmAddEditViewModel", "Failed to insert alarm", it)
                             }
                     }
-                }
-                .onFailure {
-                    Log.e("AlarmAddEditViewModel", "Failed to get alarms by time", it)
                 }
         }
     }

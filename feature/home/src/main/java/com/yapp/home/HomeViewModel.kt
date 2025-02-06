@@ -3,7 +3,6 @@ package com.yapp.home
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.HomeDestination
-import com.yapp.domain.model.toAlarm
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +16,7 @@ class HomeViewModel @Inject constructor(
     initialState = HomeContract.State(),
 ) {
     init {
-        loadMoreAlarms()
+        loadAllAlarms()
     }
 
     fun processAction(action: HomeContract.Action) {
@@ -31,62 +30,39 @@ class HomeViewModel @Inject constructor(
             HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
             HomeContract.Action.ConfirmDelete -> confirmDelete()
-            HomeContract.Action.LoadMoreAlarms -> loadMoreAlarms()
+            HomeContract.Action.LoadMoreAlarms -> loadAllAlarms()
             HomeContract.Action.ResetLastAddedAlarmIndex -> restLastAddedAlarmIndex()
         }
     }
 
-    fun addNewAlarm(alarmJson: String) {
-        val newAlarm = alarmJson.toAlarm()
-        if (newAlarm != null) {
-            updateState {
-                val updatedAlarms = (currentState.alarms + newAlarm)
-                    .sortedWith(compareBy({ !it.isAm }, { it.hour }, { it.minute }))
-                val newAlarmIndex = updatedAlarms.indexOf(newAlarm)
+    fun scrollToAddedAlarm(id: Long) {
+        val newAlarmIndex = currentState.alarms.indexOfFirst { it.id == id }
+        if (newAlarmIndex == -1) return
 
-                copy(
-                    alarms = updatedAlarms,
-                    lastAddedAlarmIndex = newAlarmIndex,
-                )
-            }
-
-            emitSideEffect(
-                HomeContract.SideEffect.ShowSnackBar(
-                    message = "기상알람이 추가되었어요.",
-                    label = "확인",
-                    onAction = { },
-                    onDismiss = { },
-                ),
+        updateState {
+            copy(
+                lastAddedAlarmIndex = newAlarmIndex,
             )
-        } else {
-            Log.e("HomeViewModel", "Failed to parse new alarm from JSON")
         }
+
+        emitSideEffect(
+            HomeContract.SideEffect.ShowSnackBar(
+                message = "기상알람이 추가되었어요.",
+                label = "확인",
+                onAction = { },
+                onDismiss = { },
+            ),
+        )
     }
 
-    fun updateAlarm(alarmJson: String) {
-        val newAlarm = alarmJson.toAlarm()
-        if (newAlarm != null) {
-            viewModelScope.launch {
-                alarmUseCase.updateAlarm(newAlarm).onSuccess { updatedAlarm ->
-                    updateState {
-                        val updatedAlarms = currentState.alarms.toMutableList()
-                        val index = updatedAlarms.indexOfFirst { it.id == updatedAlarm.id }
+    fun scrollToUpdatedAlarm(id: Long) {
+        val updatedAlarmIndex = currentState.alarms.indexOfFirst { it.id == id }
+        if (updatedAlarmIndex == -1) return
 
-                        if (index != -1) {
-                            updatedAlarms[index] = updatedAlarm
-                        }
-
-                        copy(
-                            alarms = updatedAlarms,
-                            lastAddedAlarmIndex = if (index != -1) index else lastAddedAlarmIndex,
-                        )
-                    }
-                }.onFailure { error ->
-                    Log.e("HomeViewModel", "Failed to update alarm", error)
-                }
-            }
-        } else {
-            Log.e("HomeViewModel", "Failed to parse updated alarm from JSON")
+        updateState {
+            copy(
+                lastAddedAlarmIndex = updatedAlarmIndex,
+            )
         }
     }
 
@@ -200,6 +176,22 @@ class HomeViewModel @Inject constructor(
         updateState { copy(lastAddedAlarmIndex = null) }
     }
 
+    private fun loadAllAlarms() {
+        updateState { copy(initialLoading = true) }
+
+        viewModelScope.launch {
+            alarmUseCase.getAllAlarms().collect {
+                updateState {
+                    copy(
+                        alarms = it,
+                        initialLoading = false,
+                    )
+                }
+            }
+        }
+    }
+
+    /*
     private fun loadMoreAlarms() {
         val currentPage = currentState.paginationState.currentPage
         if (currentState.paginationState.isLoading || !currentState.paginationState.hasMoreData) return
@@ -238,5 +230,5 @@ class HomeViewModel @Inject constructor(
                     }
                 }
         }
-    }
+    }*/
 }
