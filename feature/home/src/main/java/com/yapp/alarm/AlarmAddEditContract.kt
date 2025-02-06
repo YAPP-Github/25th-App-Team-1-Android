@@ -2,6 +2,7 @@ package com.yapp.alarm
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
@@ -92,9 +93,9 @@ sealed class AlarmAddEditContract {
 
         data class ShowSnackBar(
             val message: String,
-            val label: String,
+            val label: String = "",
             val iconRes: Int,
-            val bottomPadding: Dp,
+            val bottomPadding: Dp = 12.dp,
             val duration: SnackbarDuration = SnackbarDuration.Short,
             val onDismiss: () -> Unit,
             val onAction: () -> Unit,

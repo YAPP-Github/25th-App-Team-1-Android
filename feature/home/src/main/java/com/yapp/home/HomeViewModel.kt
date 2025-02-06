@@ -3,15 +3,18 @@ package com.yapp.home
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.HomeDestination
+import com.yapp.common.util.ResourceProvider
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import feature.home.R
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val alarmUseCase: AlarmUseCase,
+    private val resourceProvider: ResourceProvider,
 ) : BaseViewModel<HomeContract.State, HomeContract.SideEffect>(
     initialState = HomeContract.State(),
 ) {
@@ -47,8 +50,8 @@ class HomeViewModel @Inject constructor(
 
         emitSideEffect(
             HomeContract.SideEffect.ShowSnackBar(
-                message = "기상알람이 추가되었어요.",
-                label = "",
+                message = resourceProvider.getString(R.string.alarm_added),
+                iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
                 onAction = { },
                 onDismiss = { },
             ),
@@ -150,8 +153,9 @@ class HomeViewModel @Inject constructor(
 
         emitSideEffect(
             HomeContract.SideEffect.ShowSnackBar(
-                message = "삭제되었어요.",
-                label = "취소",
+                message = resourceProvider.getString(R.string.alarm_deleted),
+                label = resourceProvider.getString(R.string.alarm_delete_dialog_btn_cancel),
+                iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
                 onDismiss = {
                     viewModelScope.launch {
                         alarmsToDelete.forEach { alarm ->

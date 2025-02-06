@@ -81,7 +81,6 @@ class AlarmAddEditViewModel @Inject constructor(
                         emitSideEffect(
                             AlarmAddEditContract.SideEffect.ShowSnackBar(
                                 message = resourceProvider.getString(R.string.alarm_already_set),
-                                label = "",
                                 iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_alert),
                                 bottomPadding = 78.dp,
                                 duration = SnackbarDuration.Short,

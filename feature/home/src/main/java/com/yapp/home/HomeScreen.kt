@@ -62,6 +62,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.home.component.bottomsheet.AlarmListBottomSheet
 import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
+import com.yapp.ui.component.snackbar.showCustomSnackBar
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
@@ -113,10 +114,12 @@ fun HomeRoute(
                     )
                 }
                 is HomeContract.SideEffect.ShowSnackBar -> {
-                    val result = snackBarHostState.showSnackbar(
+                    val result = showCustomSnackBar(
+                        snackBarHostState = snackBarHostState,
                         message = effect.message,
                         actionLabel = effect.label,
-                        duration = effect.duration,
+                        iconRes = effect.iconRes,
+                        bottomPadding = effect.bottomPadding,
                     )
 
                     when (result) {
