@@ -78,13 +78,12 @@ fun OrbitYearMonthPicker(
             Box(
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                val totalItemHeight = screenWidth * 0.15f
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.Center)
                         .padding(horizontal = screenWidth * 0.05f)
-                        .height(totalItemHeight)
+                        .height(50.dp)
                         .background(OrbitTheme.colors.gray_700, shape = RoundedCornerShape(12.dp)),
                 )
 

@@ -49,7 +49,7 @@ fun OnboardingBirthdayScreen(
         isButtonEnabled = true,
         onNextClick = onNextClick,
         onBackClick = onBackClick,
-        buttonLabel = "만들기",
+        buttonLabel = "다음",
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Spacer(modifier = Modifier.heightForScreenPercentage(0.05f))
