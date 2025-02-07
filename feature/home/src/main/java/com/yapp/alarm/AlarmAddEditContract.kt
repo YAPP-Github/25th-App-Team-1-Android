@@ -8,6 +8,7 @@ import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
 import com.yapp.domain.model.toAlarmDays
 import com.yapp.domain.model.toRepeatDays
+import com.yapp.home.HomeContract.Action
 import com.yapp.ui.base.UiState
 
 sealed class AlarmAddEditContract {
@@ -22,6 +23,7 @@ sealed class AlarmAddEditContract {
         val soundState: AlarmSoundState = AlarmSoundState(),
         val bottomSheetState: BottomSheetType? = null,
         val isDeleteDialogVisible: Boolean = false,
+        val isUnsavedChangesDialogVisible: Boolean = false,
     ) : UiState
 
     data class AlarmTimeState(
@@ -67,10 +69,13 @@ sealed class AlarmAddEditContract {
     }
 
     sealed class Action {
+        data object CheckUnsavedChangesBeforeExit : Action()
         data object NavigateBack : Action()
         data object SaveAlarm : Action()
         data object ShowDeleteDialog : Action()
         data object HideDeleteDialog : Action()
+        data object ShowUnsavedChangesDialog : Action()
+        data object HideUnsavedChangesDialog : Action()
         data object DeleteAlarm : Action()
         data class SetAlarmTime(val amPm: String, val hour: Int, val minute: Int) : Action()
         data object ToggleWeekdaysSelection : Action()

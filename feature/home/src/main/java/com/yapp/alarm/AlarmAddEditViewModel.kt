@@ -62,8 +62,6 @@ class AlarmAddEditViewModel @Inject constructor(
 
     private suspend fun loadExistingAlarm(sounds: List<AlarmSound>) {
         alarmUseCase.getAlarm(alarmId).onSuccess { alarm ->
-            Log.d("AlarmAddEditViewModel", "Loaded alarm: $alarm")
-
             val repeatDays = alarm.repeatDays.toAlarmDays()
             val isAM = alarm.hour < 12
             val hour = if (isAM) alarm.hour else alarm.hour - 12
@@ -124,10 +122,13 @@ class AlarmAddEditViewModel @Inject constructor(
 
     fun processAction(action: AlarmAddEditContract.Action) {
         when (action) {
+            is AlarmAddEditContract.Action.CheckUnsavedChangesBeforeExit -> checkUnsavedChangesBeforeExit()
             is AlarmAddEditContract.Action.NavigateBack -> navigateBack()
             is AlarmAddEditContract.Action.SaveAlarm -> saveAlarm()
             is AlarmAddEditContract.Action.ShowDeleteDialog -> showDeleteDialog()
             is AlarmAddEditContract.Action.HideDeleteDialog -> hideDeleteDialog()
+            is AlarmAddEditContract.Action.ShowUnsavedChangesDialog -> showUnsavedChangesDialog()
+            is AlarmAddEditContract.Action.HideUnsavedChangesDialog -> hideUnsavedChangesDialog()
             is AlarmAddEditContract.Action.DeleteAlarm -> deleteAlarm()
             is AlarmAddEditContract.Action.SetAlarmTime -> setAlarmTime(action.amPm, action.hour, action.minute)
             is AlarmAddEditContract.Action.ToggleWeekdaysSelection -> toggleWeekdaysSelection()
@@ -142,6 +143,23 @@ class AlarmAddEditViewModel @Inject constructor(
             is AlarmAddEditContract.Action.AdjustSoundVolume -> adjustSoundVolume(action.volume)
             is AlarmAddEditContract.Action.SelectAlarmSound -> selectAlarmSound(action.index)
             is AlarmAddEditContract.Action.ToggleBottomSheet -> toggleBottomSheet(action.sheetType)
+        }
+    }
+
+    private fun checkUnsavedChangesBeforeExit() {
+        if (currentState.mode == AlarmAddEditContract.EditMode.ADD) {
+            navigateBack()
+        } else {
+            val updatedAlarm = currentState.toAlarm()
+            viewModelScope.launch {
+                alarmUseCase.getAlarm(alarmId).onSuccess { existingAlarm ->
+                    if (updatedAlarm.copy(id = alarmId) != existingAlarm) {
+                        showUnsavedChangesDialog()
+                    } else {
+                        emitSideEffect(AlarmAddEditContract.SideEffect.NavigateBack)
+                    }
+                }
+            }
         }
     }
 
@@ -232,6 +250,14 @@ class AlarmAddEditViewModel @Inject constructor(
 
     private fun hideDeleteDialog() {
         updateState { copy(isDeleteDialogVisible = false) }
+    }
+
+    private fun showUnsavedChangesDialog() {
+        updateState { copy(isUnsavedChangesDialogVisible = true) }
+    }
+
+    private fun hideUnsavedChangesDialog() {
+        updateState { copy(isUnsavedChangesDialogVisible = false) }
     }
 
     private fun deleteAlarm() {

@@ -1,6 +1,7 @@
 package com.yapp.alarm
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -150,6 +151,10 @@ fun AlarmAddEditContent(
     state: AlarmAddEditContract.State,
     eventDispatcher: (AlarmAddEditContract.Action) -> Unit,
 ) {
+    BackHandler {
+        eventDispatcher(AlarmAddEditContract.Action.CheckUnsavedChangesBeforeExit)
+    }
+
     val snoozeState = state.snoozeState
     val snoozeBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val soundBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -162,7 +167,7 @@ fun AlarmAddEditContent(
         AlarmAddEditTopBar(
             mode = state.mode,
             title = state.timeState.alarmMessage,
-            onBack = { eventDispatcher(AlarmAddEditContract.Action.NavigateBack) },
+            onBack = { eventDispatcher(AlarmAddEditContract.Action.CheckUnsavedChangesBeforeExit) },
             onDelete = { eventDispatcher(AlarmAddEditContract.Action.ShowDeleteDialog) },
         )
         Box(
@@ -260,6 +265,21 @@ fun AlarmAddEditContent(
             },
             onCancel = {
                 eventDispatcher(AlarmAddEditContract.Action.HideDeleteDialog)
+            },
+        )
+    }
+
+    if (state.isUnsavedChangesDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.alarm_unsaved_changes_dialog_title),
+            message = stringResource(id = R.string.alarm_unsaved_changes_dialog_message),
+            confirmText = stringResource(id = R.string.alarm_unsaved_changes_dialog_btn_discard),
+            cancelText = stringResource(id = R.string.alarm_unsaved_changes_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(AlarmAddEditContract.Action.NavigateBack)
+            },
+            onCancel = {
+                eventDispatcher(AlarmAddEditContract.Action.HideUnsavedChangesDialog)
             },
         )
     }
