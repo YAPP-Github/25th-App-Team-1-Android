@@ -67,9 +67,6 @@ import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
 import feature.home.R
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @Composable
 fun HomeRoute(
@@ -516,7 +513,7 @@ private fun HomeFortuneDescription(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = formatFortuneDeliveryTime(deliveryTime),
+            text = deliveryTime,
             style = OrbitTheme.typography.label1Medium,
             color = OrbitTheme.colors.white.copy(
                 alpha = 0.7f,
@@ -688,35 +685,6 @@ private fun DeleteAlarmButton(
             ),
             style = OrbitTheme.typography.body1SemiBold,
         )
-    }
-}
-
-private fun formatFortuneDeliveryTime(formattedTime: String): String {
-    return try {
-        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm", Locale.getDefault())
-        val timeFormatter = DateTimeFormatter.ofPattern("a h:mm", Locale.getDefault()) // 오전/오후 hh:mm
-        val monthDayFormatter = DateTimeFormatter.ofPattern("M월 d일 a h:mm", Locale.getDefault()) // M월 d일 오전/오후 hh:mm
-        val yearMonthDayFormatter = DateTimeFormatter.ofPattern("yy년 M월 d일 a h:mm", Locale.getDefault()) // yy년 M월 d일 오전/오후 hh:mm
-
-        val inputDateTime = LocalDateTime.parse(formattedTime, inputFormatter)
-        val now = LocalDateTime.now()
-
-        val startOfTomorrow = now.toLocalDate().plusDays(1).atStartOfDay()
-        val endOfTomorrow = startOfTomorrow.plusDays(1)
-
-        when {
-            inputDateTime.isAfter(startOfTomorrow) && inputDateTime.isBefore(endOfTomorrow) -> {
-                "내일 ${inputDateTime.format(timeFormatter)}"
-            }
-            inputDateTime.year == now.year -> {
-                inputDateTime.format(monthDayFormatter)
-            }
-            else -> {
-                inputDateTime.format(yearMonthDayFormatter)
-            }
-        }
-    } catch (e: Exception) {
-        ""
     }
 }
 
