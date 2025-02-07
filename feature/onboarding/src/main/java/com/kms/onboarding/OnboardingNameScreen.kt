@@ -6,11 +6,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -30,11 +33,17 @@ fun OnboardingNameRoute(
     viewModel: OnboardingViewModel,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     OnboardingNameScreen(
         state = state,
         currentStep = 4,
         totalSteps = 6,
+        focusRequester = focusRequester,
         onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
         onTextChange = { value ->
@@ -48,6 +57,7 @@ fun OnboardingNameScreen(
     state: OnboardingContract.State,
     currentStep: Int,
     totalSteps: Int,
+    focusRequester: FocusRequester,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
     onTextChange: (String) -> Unit,
@@ -78,6 +88,7 @@ fun OnboardingNameScreen(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )
+
             var textFieldValue by remember {
                 mutableStateOf(
                     TextFieldValue(
@@ -86,6 +97,7 @@ fun OnboardingNameScreen(
                     ),
                 )
             }
+
             OrbitTextField(
                 text = textFieldValue,
                 onTextChange = { newValue ->
@@ -99,6 +111,7 @@ fun OnboardingNameScreen(
                 warningMessage = stringResource(id = R.string.onboarding_step5_textfield_warning),
                 modifier = Modifier
                     .fillMaxWidth()
+                    .focusRequester(focusRequester) // ✅ 자동 포커스 적용
                     .paddingForScreenPercentage(horizontalPercentage = 0.192f, topPercentage = 0.086f),
             )
         }
@@ -119,5 +132,6 @@ fun PreviewOnboardingNameScreen() {
         onNextClick = {},
         onBackClick = {},
         onTextChange = {},
+        focusRequester = remember { FocusRequester() },
     )
 }
