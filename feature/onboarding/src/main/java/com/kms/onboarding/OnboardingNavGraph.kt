@@ -1,12 +1,13 @@
 package com.kms.onboarding
 
 import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.OnboardingDestination
-import com.yapp.common.navigation.extensions.sharedViewModel
+import com.yapp.common.navigation.extensions.sharedHiltViewModel
 
 fun NavGraphBuilder.onboardingNavGraph(
     navigator: OrbitNavigator,
@@ -18,7 +19,9 @@ fun NavGraphBuilder.onboardingNavGraph(
     ) {
         OnboardingDestination.routes.forEach { destination ->
             composable(destination.route) { backStackEntry ->
-                val viewModel = backStackEntry.sharedViewModel<OnboardingViewModel>(navigator.navController)
+                val viewModel = backStackEntry.sharedHiltViewModel<OnboardingViewModel>(navigator.navController)
+
+                val onboardingViewModel = hiltViewModel<OnboardingViewModel>()
 
                 LaunchedEffect(viewModel) {
                     viewModel.container.sideEffectFlow.collect { sideEffect ->

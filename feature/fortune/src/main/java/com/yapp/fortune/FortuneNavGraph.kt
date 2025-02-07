@@ -6,7 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.FortuneDestination
-import com.yapp.common.navigation.extensions.sharedViewModel
+import com.yapp.common.navigation.extensions.sharedHiltViewModel
 
 fun NavGraphBuilder.fortuneNavGraph(
     navigator: OrbitNavigator,
@@ -17,7 +17,7 @@ fun NavGraphBuilder.fortuneNavGraph(
     ) {
         FortuneDestination.routes.forEach { destination ->
             composable(destination.route) { backStackEntry ->
-                val viewModel = backStackEntry.sharedViewModel<FortuneViewModel>(navigator.navController)
+                val viewModel = backStackEntry.sharedHiltViewModel<FortuneViewModel>(navigator.navController)
 
                 LaunchedEffect(viewModel) {
                     viewModel.container.sideEffectFlow.collect { sideEffect ->
