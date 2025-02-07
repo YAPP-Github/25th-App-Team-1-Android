@@ -62,7 +62,11 @@ internal fun AlarmListItem(
                 interactionSource = interactionSource,
                 indication = null,
             ) {
-                if (!selectable) onClick(id)
+                if (selectable) {
+                    onToggleSelect(id)
+                } else {
+                    onClick(id)
+                }
             },
         verticalAlignment = Alignment.CenterVertically,
     ) {
