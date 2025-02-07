@@ -111,24 +111,24 @@ class AlarmAddEditViewModel @Inject constructor(
 
     fun processAction(action: AlarmAddEditContract.Action) {
         when (action) {
-            is AlarmAddEditContract.Action.ClickBack -> navigateBack()
-            is AlarmAddEditContract.Action.ClickSave -> saveAlarm()
+            is AlarmAddEditContract.Action.NavigateBack -> navigateBack()
+            is AlarmAddEditContract.Action.SaveAlarm -> saveAlarm()
             is AlarmAddEditContract.Action.ShowDeleteDialog -> showDeleteDialog()
             is AlarmAddEditContract.Action.HideDeleteDialog -> hideDeleteDialog()
             is AlarmAddEditContract.Action.DeleteAlarm -> deleteAlarm()
-            is AlarmAddEditContract.Action.UpdateAlarmTime -> updateAlarmTime(action.amPm, action.hour, action.minute)
-            is AlarmAddEditContract.Action.ToggleWeekdaysChecked -> toggleWeekdaysChecked()
-            is AlarmAddEditContract.Action.ToggleWeekendsChecked -> toggleWeekendsChecked()
-            is AlarmAddEditContract.Action.ToggleDaySelection -> toggleDaySelection(action.day)
-            is AlarmAddEditContract.Action.ToggleDisableHolidayChecked -> toggleDisableHolidayChecked()
-            is AlarmAddEditContract.Action.ToggleSnoozeEnabled -> toggleSnoozeEnabled()
-            is AlarmAddEditContract.Action.UpdateSnoozeInterval -> updateSnoozeInterval(action.index)
-            is AlarmAddEditContract.Action.UpdateSnoozeCount -> updateSnoozeCount(action.index)
-            is AlarmAddEditContract.Action.ToggleVibrationEnabled -> toggleVibrationEnabled()
-            is AlarmAddEditContract.Action.ToggleSoundEnabled -> toggleSoundEnabled()
-            is AlarmAddEditContract.Action.UpdateSoundVolume -> updateSoundVolume(action.volume)
-            is AlarmAddEditContract.Action.UpdateSoundIndex -> updateSoundIndex(action.index)
-            is AlarmAddEditContract.Action.ToggleBottomSheetOpen -> toggleBottomSheet(action.sheetType)
+            is AlarmAddEditContract.Action.SetAlarmTime -> setAlarmTime(action.amPm, action.hour, action.minute)
+            is AlarmAddEditContract.Action.ToggleWeekdaysSelection -> toggleWeekdaysSelection()
+            is AlarmAddEditContract.Action.ToggleWeekendsSelection -> toggleWeekendsSelection()
+            is AlarmAddEditContract.Action.ToggleSpecificDaySelection -> toggleSpecificDaySelection(action.day)
+            is AlarmAddEditContract.Action.ToggleHolidaySkipOption -> toggleHolidaySkipOption()
+            is AlarmAddEditContract.Action.ToggleSnoozeOption -> toggleSnoozeOption()
+            is AlarmAddEditContract.Action.SetSnoozeInterval -> setSnoozeInterval(action.index)
+            is AlarmAddEditContract.Action.SetSnoozeRepeatCount -> setSnoozeRepeatCount(action.index)
+            is AlarmAddEditContract.Action.ToggleVibrationOption -> toggleVibrationOption()
+            is AlarmAddEditContract.Action.ToggleSoundOption -> toggleSoundOption()
+            is AlarmAddEditContract.Action.AdjustSoundVolume -> adjustSoundVolume(action.volume)
+            is AlarmAddEditContract.Action.SelectAlarmSound -> selectAlarmSound(action.index)
+            is AlarmAddEditContract.Action.ToggleBottomSheet -> toggleBottomSheet(action.sheetType)
         }
     }
 
@@ -199,7 +199,7 @@ class AlarmAddEditViewModel @Inject constructor(
             }
     }
 
-    private fun updateAlarmTime(amPm: String, hour: Int, minute: Int) {
+    private fun setAlarmTime(amPm: String, hour: Int, minute: Int) {
         val newTimeState = currentState.timeState.copy(
             currentAmPm = amPm,
             currentHour = hour,
@@ -223,7 +223,7 @@ class AlarmAddEditViewModel @Inject constructor(
         emitSideEffect(AlarmAddEditContract.SideEffect.DeleteAlarm(alarmId))
     }
 
-    private fun toggleWeekdaysChecked() {
+    private fun toggleWeekdaysSelection() {
         val weekdays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI)
         val isChecked = !currentState.daySelectionState.isWeekdaysChecked
         val updatedDays = if (isChecked) {
@@ -249,7 +249,7 @@ class AlarmAddEditViewModel @Inject constructor(
         }
     }
 
-    private fun toggleWeekendsChecked() {
+    private fun toggleWeekendsSelection() {
         val weekends = setOf(AlarmDay.SAT, AlarmDay.SUN)
         val isChecked = !currentState.daySelectionState.isWeekendsChecked
         val updatedDays = if (isChecked) {
@@ -275,7 +275,7 @@ class AlarmAddEditViewModel @Inject constructor(
         }
     }
 
-    private fun toggleDaySelection(day: AlarmDay) {
+    private fun toggleSpecificDaySelection(day: AlarmDay) {
         val updatedDays = if (day in currentState.daySelectionState.selectedDays) {
             currentState.daySelectionState.selectedDays - day
         } else {
@@ -303,7 +303,7 @@ class AlarmAddEditViewModel @Inject constructor(
         }
     }
 
-    private fun toggleDisableHolidayChecked() {
+    private fun toggleHolidaySkipOption() {
         val newHolidayState = currentState.holidayState.copy(
             isDisableHolidayChecked = !currentState.holidayState.isDisableHolidayChecked,
         )
@@ -331,7 +331,7 @@ class AlarmAddEditViewModel @Inject constructor(
         }
     }
 
-    private fun toggleSnoozeEnabled() {
+    private fun toggleSnoozeOption() {
         val newSnoozeState = currentState.snoozeState.copy(
             isSnoozeEnabled = !currentState.snoozeState.isSnoozeEnabled,
         )
@@ -340,28 +340,28 @@ class AlarmAddEditViewModel @Inject constructor(
         }
     }
 
-    private fun updateSnoozeInterval(index: Int) {
+    private fun setSnoozeInterval(index: Int) {
         val newSnoozeState = currentState.snoozeState.copy(snoozeIntervalIndex = index)
         updateState {
             copy(snoozeState = newSnoozeState)
         }
     }
 
-    private fun updateSnoozeCount(index: Int) {
+    private fun setSnoozeRepeatCount(index: Int) {
         val newSnoozeState = currentState.snoozeState.copy(snoozeCountIndex = index)
         updateState {
             copy(snoozeState = newSnoozeState)
         }
     }
 
-    private fun toggleVibrationEnabled() {
+    private fun toggleVibrationOption() {
         val newSoundState = currentState.soundState.copy(isVibrationEnabled = !currentState.soundState.isVibrationEnabled)
         updateState {
             copy(soundState = newSoundState)
         }
     }
 
-    private fun toggleSoundEnabled() {
+    private fun toggleSoundOption() {
         val newSoundState = currentState.soundState.copy(isSoundEnabled = !currentState.soundState.isSoundEnabled)
         if (newSoundState.isSoundEnabled) {
             alarmUseCase.playAlarmSound(
@@ -376,7 +376,7 @@ class AlarmAddEditViewModel @Inject constructor(
         }
     }
 
-    private fun updateSoundVolume(volume: Int) {
+    private fun adjustSoundVolume(volume: Int) {
         val newSoundState = currentState.soundState.copy(soundVolume = volume)
         alarmUseCase.updateAlarmVolume(volume)
         updateState {
@@ -384,7 +384,7 @@ class AlarmAddEditViewModel @Inject constructor(
         }
     }
 
-    private fun updateSoundIndex(index: Int) {
+    private fun selectAlarmSound(index: Int) {
         val newSoundState = currentState.soundState.copy(soundIndex = index)
         updateState {
             copy(soundState = newSoundState)

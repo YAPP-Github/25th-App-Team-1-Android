@@ -25,19 +25,19 @@ sealed class HomeContract {
     }
 
     sealed class Action {
-        data object NavigateToAlarmAdd : Action()
-        data object ToggleSelectionMode : Action()
-        data object ToggleDropdownMenu : Action()
+        data object NavigateToAlarmCreation : Action()
+        data object ToggleMultiSelectionMode : Action()
+        data object ToggleDropdownMenuVisibility : Action()
         data class ToggleAlarmSelection(val alarmId: Long) : Action()
-        data class ToggleAlarmActive(val alarmId: Long) : Action()
+        data class ToggleAlarmActivation(val alarmId: Long) : Action()
         data object ToggleAllAlarmSelection : Action()
         data object ShowDeleteDialog : Action()
         data object HideDeleteDialog : Action()
-        data object ConfirmDelete : Action()
+        data object ConfirmDeletion : Action()
         data class DeleteSingleAlarm(val alarmId: Long) : Action()
         data object LoadMoreAlarms : Action()
         data object ResetLastAddedAlarmIndex : Action()
-        data class SelectAlarm(val alarmId: Long) : Action()
+        data class EditAlarm(val alarmId: Long) : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {

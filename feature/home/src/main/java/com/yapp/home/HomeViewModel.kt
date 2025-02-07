@@ -24,19 +24,19 @@ class HomeViewModel @Inject constructor(
 
     fun processAction(action: HomeContract.Action) {
         when (action) {
-            HomeContract.Action.NavigateToAlarmAdd -> navigateToAlarmAdd()
-            HomeContract.Action.ToggleSelectionMode -> toggleSelectionMode()
-            HomeContract.Action.ToggleDropdownMenu -> toggleDropdownMenu()
+            HomeContract.Action.NavigateToAlarmCreation -> navigateToAlarmCreation()
+            HomeContract.Action.ToggleMultiSelectionMode -> toggleMultiSelectionMode()
+            HomeContract.Action.ToggleDropdownMenuVisibility -> toggleDropdownMenuVisibility()
             is HomeContract.Action.ToggleAlarmSelection -> toggleAlarmSelection(action.alarmId)
             HomeContract.Action.ToggleAllAlarmSelection -> toggleAllAlarmSelection()
-            is HomeContract.Action.ToggleAlarmActive -> toggleAlarmActive(action.alarmId)
+            is HomeContract.Action.ToggleAlarmActivation -> toggleAlarmActivation(action.alarmId)
             HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
-            HomeContract.Action.ConfirmDelete -> confirmDelete()
-            is HomeContract.Action.DeleteSingleAlarm -> deleteAlarm(action.alarmId)
+            HomeContract.Action.ConfirmDeletion -> confirmDeletetion()
+            is HomeContract.Action.DeleteSingleAlarm -> deleteSingleAlarm(action.alarmId)
             HomeContract.Action.LoadMoreAlarms -> loadAllAlarms()
             HomeContract.Action.ResetLastAddedAlarmIndex -> restLastAddedAlarmIndex()
-            is HomeContract.Action.SelectAlarm -> selectAlarm(action.alarmId)
+            is HomeContract.Action.EditAlarm -> editAlarm(action.alarmId)
         }
     }
 
@@ -71,11 +71,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun navigateToAlarmAdd() {
+    private fun navigateToAlarmCreation() {
         emitSideEffect(HomeContract.SideEffect.Navigate(HomeDestination.AlarmAddEdit.route))
     }
 
-    private fun toggleSelectionMode() {
+    private fun toggleMultiSelectionMode() {
         updateState {
             copy(
                 isSelectionMode = !currentState.isSelectionMode,
@@ -85,7 +85,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun toggleDropdownMenu() {
+    private fun toggleDropdownMenuVisibility() {
         updateState { copy(dropdownMenuExpanded = !currentState.dropdownMenuExpanded) }
     }
 
@@ -106,7 +106,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun toggleAlarmActive(alarmId: Long) {
+    private fun toggleAlarmActivation(alarmId: Long) {
         viewModelScope.launch {
             val currentIndex = currentState.alarms.indexOfFirst { it.id == alarmId }
             if (currentIndex == -1) return@launch
@@ -134,7 +134,7 @@ class HomeViewModel @Inject constructor(
         updateState { copy(isDeleteDialogVisible = false) }
     }
 
-    private fun confirmDelete() {
+    private fun confirmDeletetion() {
         val selectedIds = currentState.selectedAlarmIds
         if (selectedIds.isEmpty()) return
 
@@ -178,7 +178,7 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private fun deleteAlarm(alarmId: Long) {
+    private fun deleteSingleAlarm(alarmId: Long) {
         val alarmWithIndex = currentState.alarms.withIndex()
             .filter { it.value.id == alarmId }
             .map { it.index to it.value }
@@ -236,7 +236,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun selectAlarm(alarmId: Long) {
+    private fun editAlarm(alarmId: Long) {
         emitSideEffect(HomeContract.SideEffect.Navigate("${HomeDestination.AlarmAddEdit.route}?id=$alarmId"))
     }
 

@@ -228,31 +228,31 @@ private fun HomeContent(
             hasMoreData = false,
             listState = listState,
             onClickAlarm = { alarmId ->
-                eventDispatcher(HomeContract.Action.SelectAlarm(alarmId))
+                eventDispatcher(HomeContract.Action.EditAlarm(alarmId))
             },
             onClickAdd = {
-                eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)
+                eventDispatcher(HomeContract.Action.NavigateToAlarmCreation)
             },
             onClickMore = {
-                eventDispatcher(HomeContract.Action.ToggleDropdownMenu)
+                eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
             },
             onClickCheckAll = {
                 eventDispatcher(HomeContract.Action.ToggleAllAlarmSelection)
             },
             onClickClose = {
-                eventDispatcher(HomeContract.Action.ToggleSelectionMode)
+                eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
             },
             onClickEdit = {
-                eventDispatcher(HomeContract.Action.ToggleSelectionMode)
+                eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
             },
             onDismissRequest = {
-                eventDispatcher(HomeContract.Action.ToggleDropdownMenu)
+                eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
             },
             onToggleSelect = { alarmId ->
                 eventDispatcher(HomeContract.Action.ToggleAlarmSelection(alarmId))
             },
             onToggleActive = { alarmId ->
-                eventDispatcher(HomeContract.Action.ToggleAlarmActive(alarmId))
+                eventDispatcher(HomeContract.Action.ToggleAlarmActivation(alarmId))
             },
             onLoadMore = {
                 eventDispatcher(HomeContract.Action.LoadMoreAlarms)
@@ -323,7 +323,7 @@ private fun HomeContent(
             confirmText = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
             cancelText = stringResource(id = R.string.alarm_delete_dialog_btn_cancel),
             onConfirm = {
-                eventDispatcher(HomeContract.Action.ConfirmDelete)
+                eventDispatcher(HomeContract.Action.ConfirmDeletion)
             },
             onCancel = {
                 eventDispatcher(HomeContract.Action.HideDeleteDialog)
