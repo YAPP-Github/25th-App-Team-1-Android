@@ -6,7 +6,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.util.ResourceProvider
+import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
+import com.yapp.domain.model.copyFrom
 import com.yapp.domain.model.toAlarmDays
 import com.yapp.domain.model.toDayOfWeek
 import com.yapp.domain.usecase.AlarmUseCase
@@ -130,56 +132,62 @@ class AlarmAddEditViewModel @Inject constructor(
         val newAlarm = currentState.toAlarm()
 
         viewModelScope.launch {
-            alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute, newAlarm.isAm)
-                .collect { timeMatchedAlarms ->
-                    val exactMatch = timeMatchedAlarms.find { it.copy(id = 0) == newAlarm.copy(id = 0) }
-                    if (exactMatch != null) {
-                        emitSideEffect(
-                            AlarmAddEditContract.SideEffect.ShowSnackBar(
-                                message = resourceProvider.getString(R.string.alarm_already_set),
-                                iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_alert),
-                                bottomPadding = 78.dp,
-                                duration = SnackbarDuration.Short,
-                                onDismiss = { },
-                                onAction = { },
-                            ),
-                        )
+            when (currentState.mode) {
+                AlarmAddEditContract.EditMode.EDIT -> updateExistingAlarm(newAlarm)
+                AlarmAddEditContract.EditMode.ADD -> checkAndCreateAlarm(newAlarm)
+            }
+        }
+    }
+
+    private suspend fun updateExistingAlarm(alarm: Alarm) {
+        alarmUseCase.updateAlarm(alarm.copy(id = alarmId))
+            .onSuccess {
+                emitSideEffect(AlarmAddEditContract.SideEffect.UpdateAlarm(it.id))
+            }
+            .onFailure {
+                Log.e("AlarmAddEditViewModel", "Failed to update alarm", it)
+            }
+    }
+
+    private suspend fun checkAndCreateAlarm(newAlarm: Alarm) {
+        alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute, newAlarm.isAm)
+            .collect { timeMatchedAlarms ->
+                when {
+                    timeMatchedAlarms.any { it.copy(id = 0) == newAlarm.copy(id = 0) } -> {
+                        showAlarmAlreadySetWarning()
                         return@collect
                     }
 
-                    val timeMatch = timeMatchedAlarms.firstOrNull()
-                    if (timeMatch != null) {
-                        val updatedAlarm = timeMatch.copy(
-                            repeatDays = newAlarm.repeatDays,
-                            isHolidayAlarmOff = newAlarm.isHolidayAlarmOff,
-                            isSnoozeEnabled = newAlarm.isSnoozeEnabled,
-                            snoozeInterval = newAlarm.snoozeInterval,
-                            snoozeCount = newAlarm.snoozeCount,
-                            isVibrationEnabled = newAlarm.isVibrationEnabled,
-                            isSoundEnabled = newAlarm.isSoundEnabled,
-                            soundUri = newAlarm.soundUri,
-                            soundVolume = newAlarm.soundVolume,
-                            isAlarmActive = newAlarm.isAlarmActive,
-                        )
-
-                        alarmUseCase.updateAlarm(updatedAlarm)
-                            .onSuccess {
-                                emitSideEffect(AlarmAddEditContract.SideEffect.UpdateAlarm(it.id))
-                            }
-                            .onFailure {
-                                Log.e("AlarmAddEditViewModel", "Failed to update alarm", it)
-                            }
-                    } else {
-                        alarmUseCase.insertAlarm(newAlarm)
-                            .onSuccess {
-                                emitSideEffect(AlarmAddEditContract.SideEffect.SaveAlarm(it.id))
-                            }
-                            .onFailure {
-                                Log.e("AlarmAddEditViewModel", "Failed to insert alarm", it)
-                            }
+                    timeMatchedAlarms.isNotEmpty() -> {
+                        updateExistingAlarm(timeMatchedAlarms.first().copyFrom(newAlarm))
                     }
+
+                    else -> createNewAlarm(newAlarm)
                 }
-        }
+            }
+    }
+
+    private fun showAlarmAlreadySetWarning() {
+        emitSideEffect(
+            AlarmAddEditContract.SideEffect.ShowSnackBar(
+                message = resourceProvider.getString(R.string.alarm_already_set),
+                iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_alert),
+                bottomPadding = 78.dp,
+                duration = SnackbarDuration.Short,
+                onDismiss = { },
+                onAction = { },
+            ),
+        )
+    }
+
+    private suspend fun createNewAlarm(alarm: Alarm) {
+        alarmUseCase.insertAlarm(alarm)
+            .onSuccess {
+                emitSideEffect(AlarmAddEditContract.SideEffect.SaveAlarm(it.id))
+            }
+            .onFailure {
+                Log.e("AlarmAddEditViewModel", "Failed to insert alarm", it)
+            }
     }
 
     private fun updateAlarmTime(amPm: String, hour: Int, minute: Int) {
