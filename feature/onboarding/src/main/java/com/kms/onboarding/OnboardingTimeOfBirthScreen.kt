@@ -1,6 +1,5 @@
 package com.kms.onboarding
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,11 +7,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -20,6 +19,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -46,11 +47,17 @@ fun OnboardingTimeOfBirthRoute(
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
     val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(key1 = Unit) {
+        focusRequester.requestFocus()
+    }
 
     OnboardingTimeOfBirthScreen(
         state = state,
         currentStep = 3,
         totalSteps = 6,
+        focusRequester = focusRequester,
         onNextClick = {
             viewModel.processAction(OnboardingContract.Action.Reset)
             viewModel.processAction(OnboardingContract.Action.NextStep)
@@ -71,6 +78,7 @@ fun OnboardingTimeOfBirthScreen(
     state: OnboardingContract.State,
     currentStep: Int,
     totalSteps: Int,
+    focusRequester: FocusRequester,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
     onTextChange: (String) -> Unit,
@@ -126,6 +134,7 @@ fun OnboardingTimeOfBirthScreen(
                         onTextChange(formattedValue)
                     },
                     hint = "23:59",
+                    isValid = state.isValid,
                     keyboardOptions = KeyboardOptions.Default.copy(
                         keyboardType = KeyboardType.Number,
                     ),
@@ -133,16 +142,20 @@ fun OnboardingTimeOfBirthScreen(
                     warningMessage = stringResource(id = R.string.onboarding_step4_textfield_warning),
                     modifier = Modifier
                         .fillMaxWidth()
+                        .focusRequester(focusRequester)
                         .paddingForScreenPercentage(horizontalPercentage = 0.192f, topPercentage = 0.086f),
                 )
             }
 
             Row(
                 modifier = Modifier
-                    .wrapContentWidth()
-                    .paddingForScreenPercentage(bottomPercentage = 0.017f)
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp)
                     .align(Alignment.CenterHorizontally)
-                    .clickable { isChecked = !isChecked },
+                    .customClickable(
+                        rippleEnabled = false,
+                        onClick = { isChecked = !isChecked },
+                    ),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -165,14 +178,22 @@ fun OnboardingTimeOfBirthScreen(
 
 fun formatTimeInput(input: String, previousText: String): String {
     val sanitizedValue = input.filter { it.isDigit() }
+    val isDeleting = sanitizedValue.length < previousText.filter { it.isDigit() }.length
+
     return when {
-        sanitizedValue.length < previousText.filter { it.isDigit() }.length -> sanitizedValue
+        isDeleting && previousText.endsWith(":") -> sanitizedValue
         sanitizedValue.length > 2 -> {
             val hours = sanitizedValue.take(2)
             val minutes = sanitizedValue.drop(2).take(2)
             "$hours:$minutes"
         }
-        sanitizedValue.length == 2 -> "$sanitizedValue:"
+        sanitizedValue.length == 2 -> {
+            if (previousText.length == 3 && previousText.endsWith(":")) {
+                sanitizedValue
+            } else {
+                "$sanitizedValue:"
+            }
+        }
         else -> sanitizedValue
     }
 }
@@ -190,6 +211,7 @@ fun OnboardingTimeOfBirthScreenPreview() {
         totalSteps = 4,
         onNextClick = {},
         onBackClick = {},
+        focusRequester = remember { FocusRequester() },
         onTextChange = {},
     )
 }
