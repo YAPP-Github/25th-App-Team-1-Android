@@ -21,19 +21,22 @@ sealed class OnboardingContract {
     ) : UiState {
         val birthDateFormatted: String
             get() {
-                if (birthDate.isBlank()) return "생년월일 없음"
                 val parts = birthDate.split("-")
-                if (parts.size < 3) return "잘못된 날짜"
+                val year = parts[0] + "년"
+                val month = parts[1].toInt().toString() + "월"
+                val day = parts[2].toInt().toString() + "일"
 
-                val year = parts[0]
-                val month = parts[1].toInt().toString()
-                val day = parts[2].toInt().toString()
-
-                return "$birthType ${year}년 ${month}월 ${day}일"
+                return "$birthType $year $month $day"
             }
 
         val birthTimeFormatted: String
-            get() = if (isBirthTimeValid) birthTime else "시간 미입력"
+            get() {
+                val parts = birthTime.split(":")
+                val hour = parts[0].toInt().toString() + "시" // ✅ 00 → 0시
+                val minute = parts[1].toInt().toString() + "분" // ✅ 00 → 0분
+
+                return "$hour $minute"
+            }
     }
 
     sealed class Action {
