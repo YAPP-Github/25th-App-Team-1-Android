@@ -3,6 +3,7 @@ package com.yapp.home
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.HomeDestination
+import com.yapp.common.navigation.destination.MissionDestination
 import com.yapp.common.util.ResourceProvider
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.toAlarmDays
@@ -43,6 +44,15 @@ class HomeViewModel @Inject constructor(
             HomeContract.Action.LoadMoreAlarms -> loadAllAlarms()
             HomeContract.Action.ResetLastAddedAlarmIndex -> restLastAddedAlarmIndex()
             is HomeContract.Action.EditAlarm -> editAlarm(action.alarmId)
+            HomeContract.Action.FakeAction -> {
+                emitSideEffect(
+                    HomeContract.SideEffect.Navigate(
+                        route = MissionDestination.Route.route,
+                        popUpTo = HomeDestination.Route.route,
+                        inclusive = true,
+                    ),
+                )
+            }
         }
     }
 
