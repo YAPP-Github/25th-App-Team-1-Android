@@ -4,7 +4,7 @@
     <string name="home_empty_title">기상 알림이 없어요</string>
     <string name="home_empty_description">알림을 추가하고\n운세 편지를 받아보세요</string>
 
-    <string name="home_fortune_preload_description">미래에서 온 운세 편지를 작성 중이야</string>
+    <string name="home_fortune_preload_description">미래에서 운세 편지를\n작성 중이야!</string>
     <string name="home_fortune_0_to_49_description">오늘 %s의 하루는 주의가 필요해</string>
     <string name="home_fortune_50_to_79_description">오늘 %s의 하루는 최고야</string>
     <string name="home_fortune_80_to_100_description">오늘 %s의 하루는 누구보다 빛나!</string>
@@ -54,4 +54,15 @@
     <string name="alarm_delete_dialog_message">삭제하시겠어요?</string>
     <string name="alarm_delete_dialog_btn_cancel">취소</string>
     <string name="alarm_delete_dialog_btn_delete">삭제</string>
+
+    <string name="alarm_unsaved_changes_dialog_title">변경 사항 삭제</string>
+    <string name="alarm_unsaved_changes_dialog_message">변경 사항을 저장하지 않고\n나가시겠어요?</string>
+    <string name="alarm_unsaved_changes_dialog_btn_cancel">취소</string>
+    <string name="alarm_unsaved_changes_dialog_btn_discard">나가기</string>
+
+
+    <string name="alarm_disabled_warning">알람을 끄면 운세가 도착하지 않아요.</string>
+    <string name="alarm_already_set">선택한 시간에 이미 설정된 알람이 있어요.</string>
+    <string name="alarm_deleted">삭제되었어요.</string>
+    <string name="alarm_added">기상 알람이 추가되었어요.</string>
 </resources>

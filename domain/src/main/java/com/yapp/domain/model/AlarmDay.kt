@@ -21,6 +21,6 @@ fun Set<AlarmDay>.toRepeatDays(): Int {
     }
 }
 
-fun Int.toAlarmDays(): List<AlarmDay> {
-    return AlarmDay.entries.filter { (this and it.bitValue) != 0 }
+fun Int.toAlarmDays(): Set<AlarmDay> {
+    return AlarmDay.entries.filterTo(mutableSetOf()) { (this and it.bitValue) != 0 }
 }

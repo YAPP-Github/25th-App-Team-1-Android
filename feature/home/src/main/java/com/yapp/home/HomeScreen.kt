@@ -62,6 +62,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.home.component.bottomsheet.AlarmListBottomSheet
 import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
+import com.yapp.ui.component.snackbar.showCustomSnackBar
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
@@ -99,6 +100,16 @@ fun HomeRoute(
             }
     }
 
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<Long>(DELETE_ALARM_RESULT_KEY)) {
+        navigator.navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.get<Long>(DELETE_ALARM_RESULT_KEY)
+            ?.let { id ->
+                viewModel.processAction(HomeContract.Action.DeleteSingleAlarm(id))
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<Long>(DELETE_ALARM_RESULT_KEY)
+            }
+    }
+
     LaunchedEffectWithLifecycle(sideEffect) {
         sideEffect.collect { effect ->
             when (effect) {
@@ -113,9 +124,12 @@ fun HomeRoute(
                     )
                 }
                 is HomeContract.SideEffect.ShowSnackBar -> {
-                    val result = snackBarHostState.showSnackbar(
+                    val result = showCustomSnackBar(
+                        snackBarHostState = snackBarHostState,
                         message = effect.message,
                         actionLabel = effect.label,
+                        iconRes = effect.iconRes,
+                        bottomPadding = effect.bottomPadding,
                         duration = effect.duration,
                     )
 
@@ -198,7 +212,7 @@ private fun HomeContent(
     LaunchedEffect(state.lastAddedAlarmIndex) {
         state.lastAddedAlarmIndex?.let { index ->
             listState.scrollToItem(index)
-            eventDispatcher(HomeContract.Action.ResetLastAddedAlarmIndex) // ✅ null로 변경 요청
+            eventDispatcher(HomeContract.Action.ResetLastAddedAlarmIndex)
         }
     }
 
@@ -213,29 +227,32 @@ private fun HomeContent(
             isLoading = false,
             hasMoreData = false,
             listState = listState,
+            onClickAlarm = { alarmId ->
+                eventDispatcher(HomeContract.Action.EditAlarm(alarmId))
+            },
             onClickAdd = {
-                eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)
+                eventDispatcher(HomeContract.Action.NavigateToAlarmCreation)
             },
             onClickMore = {
-                eventDispatcher(HomeContract.Action.ToggleDropdownMenu)
+                eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
             },
             onClickCheckAll = {
                 eventDispatcher(HomeContract.Action.ToggleAllAlarmSelection)
             },
             onClickClose = {
-                eventDispatcher(HomeContract.Action.ToggleSelectionMode)
+                eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
             },
             onClickEdit = {
-                eventDispatcher(HomeContract.Action.ToggleSelectionMode)
+                eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
             },
             onDismissRequest = {
-                eventDispatcher(HomeContract.Action.ToggleDropdownMenu)
+                eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
             },
             onToggleSelect = { alarmId ->
                 eventDispatcher(HomeContract.Action.ToggleAlarmSelection(alarmId))
             },
             onToggleActive = { alarmId ->
-                eventDispatcher(HomeContract.Action.ToggleAlarmActive(alarmId))
+                eventDispatcher(HomeContract.Action.ToggleAlarmActivation(alarmId))
             },
             onLoadMore = {
                 eventDispatcher(HomeContract.Action.LoadMoreAlarms)
@@ -306,7 +323,7 @@ private fun HomeContent(
             confirmText = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
             cancelText = stringResource(id = R.string.alarm_delete_dialog_btn_cancel),
             onConfirm = {
-                eventDispatcher(HomeContract.Action.ConfirmDelete)
+                eventDispatcher(HomeContract.Action.ConfirmDeletion)
             },
             onCancel = {
                 eventDispatcher(HomeContract.Action.HideDeleteDialog)

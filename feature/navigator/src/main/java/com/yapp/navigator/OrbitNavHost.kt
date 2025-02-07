@@ -20,6 +20,7 @@ import com.yapp.fortune.fortuneNavGraph
 import com.yapp.home.homeNavGraph
 import com.yapp.mission.missionNavGraph
 import com.yapp.mypage.myPageNavGraph
+import com.yapp.ui.component.snackbar.CustomSnackBarVisuals
 import com.yapp.ui.component.snackbar.OrbitSnackBar
 import kotlinx.collections.immutable.toImmutableList
 
@@ -79,15 +80,17 @@ private fun OrbitSnackBarHost(
     SnackbarHost(
         hostState = snackBarHostState,
         snackbar = { data ->
+            val visuals = data.visuals as? CustomSnackBarVisuals
+
             OrbitSnackBar(
                 modifier = Modifier.padding(
                     start = 20.dp,
                     end = 20.dp,
-                    bottom = 12.dp,
+                    bottom = visuals?.bottomPadding ?: 12.dp,
                 ),
-                label = data.visuals.actionLabel ?: "",
-                iconRes = core.designsystem.R.drawable.ic_check_green,
-                message = data.visuals.message,
+                label = visuals?.actionLabel ?: "",
+                iconRes = visuals?.iconRes,
+                message = visuals?.message ?: "",
                 onAction = { snackBarHostState.currentSnackbarData?.performAction() },
             )
         },

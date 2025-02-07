@@ -3,15 +3,19 @@ package com.yapp.home
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.HomeDestination
+import com.yapp.common.util.ResourceProvider
+import com.yapp.domain.model.Alarm
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import feature.home.R
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val alarmUseCase: AlarmUseCase,
+    private val resourceProvider: ResourceProvider,
 ) : BaseViewModel<HomeContract.State, HomeContract.SideEffect>(
     initialState = HomeContract.State(),
 ) {
@@ -21,17 +25,19 @@ class HomeViewModel @Inject constructor(
 
     fun processAction(action: HomeContract.Action) {
         when (action) {
-            HomeContract.Action.NavigateToAlarmAdd -> navigateToAlarmAdd()
-            HomeContract.Action.ToggleSelectionMode -> toggleSelectionMode()
-            HomeContract.Action.ToggleDropdownMenu -> toggleDropdownMenu()
+            HomeContract.Action.NavigateToAlarmCreation -> navigateToAlarmCreation()
+            HomeContract.Action.ToggleMultiSelectionMode -> toggleMultiSelectionMode()
+            HomeContract.Action.ToggleDropdownMenuVisibility -> toggleDropdownMenuVisibility()
             is HomeContract.Action.ToggleAlarmSelection -> toggleAlarmSelection(action.alarmId)
             HomeContract.Action.ToggleAllAlarmSelection -> toggleAllAlarmSelection()
-            is HomeContract.Action.ToggleAlarmActive -> toggleAlarmActive(action.alarmId)
+            is HomeContract.Action.ToggleAlarmActivation -> toggleAlarmActivation(action.alarmId)
             HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
-            HomeContract.Action.ConfirmDelete -> confirmDelete()
+            HomeContract.Action.ConfirmDeletion -> confirmDeletion()
+            is HomeContract.Action.DeleteSingleAlarm -> deleteSingleAlarm(action.alarmId)
             HomeContract.Action.LoadMoreAlarms -> loadAllAlarms()
             HomeContract.Action.ResetLastAddedAlarmIndex -> restLastAddedAlarmIndex()
+            is HomeContract.Action.EditAlarm -> editAlarm(action.alarmId)
         }
     }
 
@@ -47,8 +53,8 @@ class HomeViewModel @Inject constructor(
 
         emitSideEffect(
             HomeContract.SideEffect.ShowSnackBar(
-                message = "기상알람이 추가되었어요.",
-                label = "",
+                message = resourceProvider.getString(R.string.alarm_added),
+                iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
                 onAction = { },
                 onDismiss = { },
             ),
@@ -66,11 +72,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun navigateToAlarmAdd() {
+    private fun navigateToAlarmCreation() {
         emitSideEffect(HomeContract.SideEffect.Navigate(HomeDestination.AlarmAddEdit.route))
     }
 
-    private fun toggleSelectionMode() {
+    private fun toggleMultiSelectionMode() {
         updateState {
             copy(
                 isSelectionMode = !currentState.isSelectionMode,
@@ -80,7 +86,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun toggleDropdownMenu() {
+    private fun toggleDropdownMenuVisibility() {
         updateState { copy(dropdownMenuExpanded = !currentState.dropdownMenuExpanded) }
     }
 
@@ -101,7 +107,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun toggleAlarmActive(alarmId: Long) {
+    private fun toggleAlarmActivation(alarmId: Long) {
         viewModelScope.launch {
             val currentIndex = currentState.alarms.indexOfFirst { it.id == alarmId }
             if (currentIndex == -1) return@launch
@@ -129,12 +135,19 @@ class HomeViewModel @Inject constructor(
         updateState { copy(isDeleteDialogVisible = false) }
     }
 
-    private fun confirmDelete() {
-        val selectedIds = currentState.selectedAlarmIds
-        if (selectedIds.isEmpty()) return
+    private fun confirmDeletion() {
+        deleteAlarms(currentState.selectedAlarmIds)
+    }
+
+    private fun deleteSingleAlarm(alarmId: Long) {
+        deleteAlarms(setOf(alarmId))
+    }
+
+    private fun deleteAlarms(alarmIds: Set<Long>) {
+        if (alarmIds.isEmpty()) return
 
         val alarmsWithIndex = currentState.alarms.withIndex()
-            .filter { it.value.id in selectedIds }
+            .filter { it.value.id in alarmIds }
             .map { it.index to it.value }
 
         val alarmsToDelete = alarmsWithIndex.map { it.second }
@@ -150,8 +163,9 @@ class HomeViewModel @Inject constructor(
 
         emitSideEffect(
             HomeContract.SideEffect.ShowSnackBar(
-                message = "삭제되었어요.",
-                label = "취소",
+                message = resourceProvider.getString(R.string.alarm_deleted),
+                label = resourceProvider.getString(R.string.alarm_delete_dialog_btn_cancel),
+                iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
                 onDismiss = {
                     viewModelScope.launch {
                         alarmsToDelete.forEach { alarm ->
@@ -160,16 +174,20 @@ class HomeViewModel @Inject constructor(
                     }
                 },
                 onAction = {
-                    updateState {
-                        val restoredAlarms = currentState.alarms.toMutableList()
-                        alarmsWithIndex.forEach { (index, alarm) ->
-                            restoredAlarms.add(index, alarm)
-                        }
-                        copy(alarms = restoredAlarms)
-                    }
+                    restoreDeletedAlarms(alarmsWithIndex)
                 },
             ),
         )
+    }
+
+    private fun restoreDeletedAlarms(alarmsWithIndex: List<Pair<Int, Alarm>>) {
+        updateState {
+            val restoredAlarms = currentState.alarms.toMutableList()
+            alarmsWithIndex.forEach { (index, alarm) ->
+                restoredAlarms.add(index, alarm)
+            }
+            copy(alarms = restoredAlarms)
+        }
     }
 
     private fun restLastAddedAlarmIndex() {
@@ -189,6 +207,10 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun editAlarm(alarmId: Long) {
+        emitSideEffect(HomeContract.SideEffect.Navigate("${HomeDestination.AlarmAddEdit.route}?id=$alarmId"))
     }
 
     /*

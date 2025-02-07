@@ -36,11 +36,13 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun AlarmListItem(
+    modifier: Modifier = Modifier,
     id: Long,
     repeatDays: Int,
     isHolidayAlarmOff: Boolean,
     selectable: Boolean = false,
     selected: Boolean = false,
+    onClick: (Long) -> Unit,
     onToggleSelect: (Long) -> Unit,
     isAm: Boolean,
     hour: Int,
@@ -52,9 +54,9 @@ internal fun AlarmListItem(
     val isPressed by interactionSource.collectIsPressedAsState()
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .background(if (selectable && isPressed) OrbitTheme.colors.gray_800 else OrbitTheme.colors.gray_900)
+            .background(if (isPressed) OrbitTheme.colors.gray_800 else OrbitTheme.colors.gray_900)
             .padding(horizontal = 24.dp, vertical = 20.dp)
             .clickable(
                 interactionSource = interactionSource,
@@ -62,6 +64,8 @@ internal fun AlarmListItem(
             ) {
                 if (selectable) {
                     onToggleSelect(id)
+                } else {
+                    onClick(id)
                 }
             },
         verticalAlignment = Alignment.CenterVertically,
@@ -206,6 +210,7 @@ private fun AlarmListItemPreview() {
                 hour = 6,
                 minute = 0,
                 isActive = isActive,
+                onClick = { },
                 onToggleActive = {
                     isActive = !isActive
                 },
@@ -230,6 +235,7 @@ private fun AlarmListItemPreview() {
                 hour = 6,
                 minute = 0,
                 isActive = isActive,
+                onClick = { },
                 onToggleActive = {
                     isActive = !isActive
                 },

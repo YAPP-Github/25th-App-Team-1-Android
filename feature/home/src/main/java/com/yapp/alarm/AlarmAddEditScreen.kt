@@ -1,8 +1,11 @@
 package com.yapp.alarm
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,14 +23,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -44,8 +51,12 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
 import com.yapp.home.ADD_ALARM_RESULT_KEY
+import com.yapp.home.DELETE_ALARM_RESULT_KEY
 import com.yapp.home.UPDATE_ALARM_RESULT_KEY
 import com.yapp.ui.component.button.OrbitButton
+import com.yapp.ui.component.dialog.OrbitDialog
+import com.yapp.ui.component.lottie.LottieAnimation
+import com.yapp.ui.component.snackbar.showCustomSnackBar
 import com.yapp.ui.component.switch.OrbitSwitch
 import com.yapp.ui.component.timepicker.OrbitPicker
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
@@ -86,10 +97,19 @@ fun AlarmAddEditRoute(
                         ?.set(UPDATE_ALARM_RESULT_KEY, effect.id)
                     navigator.navigateBack()
                 }
+                is AlarmAddEditContract.SideEffect.DeleteAlarm -> {
+                    navigator.navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(DELETE_ALARM_RESULT_KEY, effect.id)
+                    navigator.navigateBack()
+                }
                 is AlarmAddEditContract.SideEffect.ShowSnackBar -> {
-                    val result = snackBarHostState.showSnackbar(
+                    val result = showCustomSnackBar(
+                        snackBarHostState = snackBarHostState,
                         message = effect.message,
                         actionLabel = effect.label,
+                        iconRes = effect.iconRes,
+                        bottomPadding = effect.bottomPadding,
                         duration = effect.duration,
                     )
 
@@ -108,13 +128,33 @@ fun AlarmAddEditRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlarmAddEditScreen(
     stateProvider: () -> AlarmAddEditContract.State,
     eventDispatcher: (AlarmAddEditContract.Action) -> Unit,
 ) {
     val state = stateProvider()
+
+    if (state.initialLoading) {
+        AlarmAddEditLoadingScreen()
+    } else {
+        AlarmAddEditContent(
+            state = state,
+            eventDispatcher = eventDispatcher,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AlarmAddEditContent(
+    state: AlarmAddEditContract.State,
+    eventDispatcher: (AlarmAddEditContract.Action) -> Unit,
+) {
+    BackHandler {
+        eventDispatcher(AlarmAddEditContract.Action.CheckUnsavedChangesBeforeExit)
+    }
+
     val snoozeState = state.snoozeState
     val snoozeBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val soundBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -125,15 +165,21 @@ fun AlarmAddEditScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AlarmAddEditTopBar(
+            mode = state.mode,
             title = state.timeState.alarmMessage,
-            onBack = { eventDispatcher(AlarmAddEditContract.Action.ClickBack) },
+            onBack = { eventDispatcher(AlarmAddEditContract.Action.CheckUnsavedChangesBeforeExit) },
+            onDelete = { eventDispatcher(AlarmAddEditContract.Action.ShowDeleteDialog) },
         )
         Box(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.Center,
         ) {
-            OrbitPicker { amPm, hour, minute ->
-                eventDispatcher(AlarmAddEditContract.Action.UpdateAlarmTime(amPm, hour, minute))
+            OrbitPicker(
+                initialAmPm = state.timeState.initialAmPm,
+                initialHour = state.timeState.initialHour,
+                initialMinute = state.timeState.initialMinute,
+            ) { amPm, hour, minute ->
+                eventDispatcher(AlarmAddEditContract.Action.SetAlarmTime(amPm, hour, minute))
             }
         }
         AlarmAddEditSettingsSection(
@@ -144,7 +190,7 @@ fun AlarmAddEditScreen(
         Spacer(modifier = Modifier.height(24.dp))
         OrbitButton(
             label = stringResource(R.string.alarm_add_edit_save),
-            onClick = { eventDispatcher(AlarmAddEditContract.Action.ClickSave) },
+            onClick = { eventDispatcher(AlarmAddEditContract.Action.SaveAlarm) },
             enabled = true,
             modifier = Modifier
                 .padding(
@@ -161,14 +207,14 @@ fun AlarmAddEditScreen(
         snoozeCountIndex = snoozeState.snoozeCountIndex,
         snoozeIntervals = snoozeState.snoozeIntervals,
         snoozeCounts = snoozeState.snoozeCounts,
-        onSnoozeToggle = { eventDispatcher(AlarmAddEditContract.Action.ToggleSnoozeEnabled) },
-        onIntervalSelected = { index -> eventDispatcher(AlarmAddEditContract.Action.UpdateSnoozeInterval(index)) },
-        onCountSelected = { index -> eventDispatcher(AlarmAddEditContract.Action.UpdateSnoozeCount(index)) },
+        onSnoozeToggle = { eventDispatcher(AlarmAddEditContract.Action.ToggleSnoozeOption) },
+        onIntervalSelected = { index -> eventDispatcher(AlarmAddEditContract.Action.SetSnoozeInterval(index)) },
+        onCountSelected = { index -> eventDispatcher(AlarmAddEditContract.Action.SetSnoozeRepeatCount(index)) },
         onComplete = {
             scope.launch {
                 snoozeBottomSheetState.hide()
             }.invokeOnCompletion {
-                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SnoozeSetting))
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheet(AlarmAddEditContract.BottomSheetType.SnoozeSetting))
             }
         },
         isSheetOpen = state.bottomSheetState == AlarmAddEditContract.BottomSheetType.SnoozeSetting,
@@ -176,7 +222,7 @@ fun AlarmAddEditScreen(
             scope.launch {
                 snoozeBottomSheetState.hide()
             }.invokeOnCompletion {
-                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SnoozeSetting))
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheet(AlarmAddEditContract.BottomSheetType.SnoozeSetting))
             }
         },
     )
@@ -187,15 +233,15 @@ fun AlarmAddEditScreen(
         soundVolume = state.soundState.soundVolume,
         soundIndex = state.soundState.soundIndex,
         sounds = state.soundState.sounds,
-        onVibrationToggle = { eventDispatcher(AlarmAddEditContract.Action.ToggleVibrationEnabled) },
-        onSoundToggle = { eventDispatcher(AlarmAddEditContract.Action.ToggleSoundEnabled) },
-        onVolumeChanged = { eventDispatcher(AlarmAddEditContract.Action.UpdateSoundVolume(it)) },
-        onSoundSelected = { eventDispatcher(AlarmAddEditContract.Action.UpdateSoundIndex(it)) },
+        onVibrationToggle = { eventDispatcher(AlarmAddEditContract.Action.ToggleVibrationOption) },
+        onSoundToggle = { eventDispatcher(AlarmAddEditContract.Action.ToggleSoundOption) },
+        onVolumeChanged = { eventDispatcher(AlarmAddEditContract.Action.AdjustSoundVolume(it)) },
+        onSoundSelected = { eventDispatcher(AlarmAddEditContract.Action.SelectAlarmSound(it)) },
         onComplete = {
             scope.launch {
                 soundBottomSheetState.hide()
             }.invokeOnCompletion {
-                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SoundSetting))
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheet(AlarmAddEditContract.BottomSheetType.SoundSetting))
             }
         },
         isSheetOpen = state.bottomSheetState == AlarmAddEditContract.BottomSheetType.SoundSetting,
@@ -203,16 +249,63 @@ fun AlarmAddEditScreen(
             scope.launch {
                 soundBottomSheetState.hide()
             }.invokeOnCompletion {
-                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SoundSetting))
+                eventDispatcher(AlarmAddEditContract.Action.ToggleBottomSheet(AlarmAddEditContract.BottomSheetType.SoundSetting))
             }
         },
     )
+
+    if (state.isDeleteDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.alarm_delete_dialog_title),
+            message = stringResource(id = R.string.alarm_delete_dialog_message),
+            confirmText = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
+            cancelText = stringResource(id = R.string.alarm_delete_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(AlarmAddEditContract.Action.DeleteAlarm)
+            },
+            onCancel = {
+                eventDispatcher(AlarmAddEditContract.Action.HideDeleteDialog)
+            },
+        )
+    }
+
+    if (state.isUnsavedChangesDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.alarm_unsaved_changes_dialog_title),
+            message = stringResource(id = R.string.alarm_unsaved_changes_dialog_message),
+            confirmText = stringResource(id = R.string.alarm_unsaved_changes_dialog_btn_discard),
+            cancelText = stringResource(id = R.string.alarm_unsaved_changes_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(AlarmAddEditContract.Action.NavigateBack)
+            },
+            onCancel = {
+                eventDispatcher(AlarmAddEditContract.Action.HideUnsavedChangesDialog)
+            },
+        )
+    }
+}
+
+@Composable
+private fun AlarmAddEditLoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        LottieAnimation(
+            modifier = Modifier
+                .size(70.dp)
+                .align(Alignment.Center),
+            resId = core.designsystem.R.raw.star_loading,
+        )
+    }
 }
 
 @Composable
 private fun AlarmAddEditTopBar(
+    mode: AlarmAddEditContract.EditMode = AlarmAddEditContract.EditMode.ADD,
     title: String,
     onBack: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -235,6 +328,44 @@ private fun AlarmAddEditTopBar(
             title,
             style = OrbitTheme.typography.body1SemiBold,
             color = OrbitTheme.colors.white,
+        )
+
+        if (mode == AlarmAddEditContract.EditMode.EDIT) {
+            DeleteAlarmButton(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 20.dp),
+            ) {
+                onDelete()
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeleteAlarmButton(
+    modifier: Modifier = Modifier,
+    onDelete: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed = interactionSource.collectIsPressedAsState().value
+
+    Surface(
+        onClick = onDelete,
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        interactionSource = interactionSource,
+        color = if (isPressed) OrbitTheme.colors.gray_800 else Color.Transparent,
+    ) {
+        Text(
+            text = stringResource(id = R.string.alarm_add_edit_delete),
+            style = OrbitTheme.typography.body1Medium,
+            color = OrbitTheme.colors.alert,
+            modifier = Modifier
+                .padding(
+                    horizontal = 8.dp,
+                    vertical = 4.dp,
+                ),
         )
     }
 }
@@ -265,7 +396,8 @@ private fun AlarmAddEditSettingsSection(
             processAction = processAction,
         )
         Spacer(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(1.dp)
                 .padding(horizontal = 20.dp)
                 .background(OrbitTheme.colors.gray_700),
@@ -282,10 +414,11 @@ private fun AlarmAddEditSettingsSection(
             } else {
                 stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
             },
-            onClick = { processAction(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SnoozeSetting)) },
+            onClick = { processAction(AlarmAddEditContract.Action.ToggleBottomSheet(AlarmAddEditContract.BottomSheetType.SnoozeSetting)) },
         )
         Spacer(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(1.dp)
                 .padding(horizontal = 20.dp)
                 .background(OrbitTheme.colors.gray_700),
@@ -304,7 +437,7 @@ private fun AlarmAddEditSettingsSection(
                 state.soundState.isVibrationEnabled -> stringResource(id = R.string.alarm_add_edit_vibration)
                 else -> stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
             },
-            onClick = { processAction(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SoundSetting)) },
+            onClick = { processAction(AlarmAddEditContract.Action.ToggleBottomSheet(AlarmAddEditContract.BottomSheetType.SoundSetting)) },
         )
     }
 }
@@ -374,7 +507,7 @@ private fun AlarmAddEditSelectDaysSection(
                 label = stringResource(id = R.string.alarm_add_edit_weekdays),
                 isPressed = state.isWeekdaysChecked,
                 onClick = {
-                    processAction(AlarmAddEditContract.Action.ToggleWeekdaysChecked)
+                    processAction(AlarmAddEditContract.Action.ToggleWeekdaysSelection)
                 },
             )
             Spacer(modifier = Modifier.width(2.dp))
@@ -382,7 +515,7 @@ private fun AlarmAddEditSelectDaysSection(
                 label = stringResource(id = R.string.alarm_add_edit_weekends),
                 isPressed = state.isWeekendsChecked,
                 onClick = {
-                    processAction(AlarmAddEditContract.Action.ToggleWeekendsChecked)
+                    processAction(AlarmAddEditContract.Action.ToggleWeekendsSelection)
                 },
             )
         }
@@ -398,7 +531,7 @@ private fun AlarmAddEditSelectDaysSection(
                     label = stringResource(id = day.getLabelStringRes()),
                     isPressed = state.selectedDays.contains(day),
                     onClick = {
-                        processAction(AlarmAddEditContract.Action.ToggleDaySelection(day))
+                        processAction(AlarmAddEditContract.Action.ToggleSpecificDaySelection(day))
                     },
                 )
             }
@@ -439,7 +572,7 @@ private fun AlarmAddEditDisableHolidaySwitch(
             isChecked = state.isDisableHolidayChecked,
             isEnabled = state.isDisableHolidayEnabled,
             onClick = {
-                processAction(AlarmAddEditContract.Action.ToggleDisableHolidayChecked)
+                processAction(AlarmAddEditContract.Action.ToggleHolidaySkipOption)
             },
         )
     }
@@ -503,4 +636,14 @@ fun AlarmAddEditScreenPreview() {
         },
         eventDispatcher = { },
     )
+}
+
+@Preview
+@Composable
+private fun PreviewAlarmDeleteButton() {
+    OrbitTheme {
+        DeleteAlarmButton(
+            onDelete = { },
+        )
+    }
 }

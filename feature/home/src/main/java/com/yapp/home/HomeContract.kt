@@ -1,6 +1,8 @@
 package com.yapp.home
 
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.yapp.domain.model.Alarm
 import com.yapp.ui.base.UiState
 
@@ -23,17 +25,19 @@ sealed class HomeContract {
     }
 
     sealed class Action {
-        data object NavigateToAlarmAdd : Action()
-        data object ToggleSelectionMode : Action()
-        data object ToggleDropdownMenu : Action()
+        data object NavigateToAlarmCreation : Action()
+        data object ToggleMultiSelectionMode : Action()
+        data object ToggleDropdownMenuVisibility : Action()
         data class ToggleAlarmSelection(val alarmId: Long) : Action()
-        data class ToggleAlarmActive(val alarmId: Long) : Action()
+        data class ToggleAlarmActivation(val alarmId: Long) : Action()
         data object ToggleAllAlarmSelection : Action()
         data object ShowDeleteDialog : Action()
         data object HideDeleteDialog : Action()
-        data object ConfirmDelete : Action()
+        data object ConfirmDeletion : Action()
+        data class DeleteSingleAlarm(val alarmId: Long) : Action()
         data object LoadMoreAlarms : Action()
         data object ResetLastAddedAlarmIndex : Action()
+        data class EditAlarm(val alarmId: Long) : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {
@@ -47,7 +51,9 @@ sealed class HomeContract {
 
         data class ShowSnackBar(
             val message: String,
-            val label: String,
+            val label: String = "",
+            val iconRes: Int,
+            val bottomPadding: Dp = 12.dp,
             val duration: SnackbarDuration = SnackbarDuration.Short,
             val onDismiss: () -> Unit,
             val onAction: () -> Unit,
