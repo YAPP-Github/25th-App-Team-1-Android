@@ -32,9 +32,11 @@ sealed class OnboardingContract {
 
         val birthTimeFormatted: String
             get() {
+                if (!isBirthTimeValid || birthTime.isBlank()) return "몰라요"
+
                 val parts = birthTime.split(":")
-                val hour = parts[0].toInt().toString() + "시" // ✅ 00 → 0시
-                val minute = parts[1].toInt().toString() + "분" // ✅ 00 → 0분
+                val hour = parts[0].toInt().toString() + "시"
+                val minute = parts[1].toInt().toString() + "분"
 
                 return "$hour $minute"
             }

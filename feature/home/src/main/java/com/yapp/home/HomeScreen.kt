@@ -282,6 +282,7 @@ private fun HomeContent(
 
                     HomeCharacterAnimation(
                         fortuneScore = state.lastFortuneScore,
+                        eventDispatcher = eventDispatcher,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     HomeFortuneDescription(
@@ -451,6 +452,7 @@ fun SkyImage() {
 private fun HomeCharacterAnimation(
     modifier: Modifier = Modifier,
     fortuneScore: Int,
+    eventDispatcher: (HomeContract.Action) -> Unit,
 ) {
     val (bubbleRes, starRes) = when (fortuneScore) {
         in 0..49 -> {
@@ -490,7 +492,11 @@ private fun HomeCharacterAnimation(
         )
         Spacer(modifier = Modifier.height(16.dp))
         LottieAnimation(
-            modifier = Modifier.size(110.dp),
+            modifier = Modifier
+                .size(110.dp)
+                .clickable {
+                    eventDispatcher(HomeContract.Action.FakeAction) // ✅ 클릭 시 이동
+                },
             resId = starRes,
         )
     }
