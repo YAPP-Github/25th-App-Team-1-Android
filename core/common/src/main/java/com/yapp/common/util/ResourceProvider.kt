@@ -10,6 +10,8 @@ class ResourceProvider @Inject constructor(
 ) {
     fun getString(resId: Int): String = context.getString(resId)
 
+    fun getString(resId: Int, vararg args: Any): String = context.getString(resId, *args)
+
     @DrawableRes
     fun getDrawable(@DrawableRes resId: Int): Int = resId
 }
