@@ -264,7 +264,7 @@ class HomeViewModel @Inject constructor(
 
     private fun formatDeliveryTime(deliveryTime: String): String {
         return try {
-            if (deliveryTime == "NONE") return "받을 수 있는 운세가 없어요"
+            if (deliveryTime == "NONE") return resourceProvider.getString(R.string.home_fortune_no_alarm)
 
             val inputDateTime = LocalDateTime.parse(deliveryTime, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm"))
             val now = LocalDateTime.now()
@@ -272,12 +272,21 @@ class HomeViewModel @Inject constructor(
             val tomorrow = today.plusDays(1)
 
             return when {
-                inputDateTime.toLocalDate() == tomorrow -> "내일 ${inputDateTime.format(DateTimeFormatter.ofPattern("a h:mm"))} 도착"
-                inputDateTime.year == now.year -> "${inputDateTime.format(DateTimeFormatter.ofPattern("M월 d일 a h:mm"))} 도착"
-                else -> "${inputDateTime.format(DateTimeFormatter.ofPattern("yy년 M월 d일 a h:mm"))} 도착"
+                inputDateTime.toLocalDate() == tomorrow ->
+                    resourceProvider.getString(R.string.home_fortune_delivery_tomorrow, inputDateTime.format(DateTimeFormatter.ofPattern("a h:mm")))
+                inputDateTime.year == now.year ->
+                    resourceProvider.getString(
+                        R.string.home_fortune_delivery_this_year,
+                        inputDateTime.format(DateTimeFormatter.ofPattern("M월 d일 a h:mm")),
+                    )
+                else ->
+                    resourceProvider.getString(
+                        R.string.home_fortune_delivery_other_year,
+                        inputDateTime.format(DateTimeFormatter.ofPattern("yy년 M월 d일 a h:mm")),
+                    )
             }
         } catch (e: Exception) {
-            "받을 수 있는 운세가 없어요"
+            resourceProvider.getString(R.string.home_fortune_no_alarm)
         }
     }
 
