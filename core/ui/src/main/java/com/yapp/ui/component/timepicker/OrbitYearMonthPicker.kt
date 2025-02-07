@@ -32,8 +32,8 @@ import kotlinx.coroutines.launch
 fun OrbitYearMonthPicker(
     modifier: Modifier = Modifier,
     itemSpacing: Dp = 12.dp,
-    initialLunar: String = "음력",
-    initialYear: String = "1900",
+    initialLunar: String = "양력",
+    initialYear: String = "2000",
     initialMonth: String = "1",
     initialDay: String = "01",
     onValueChange: (String, Int, Int, Int) -> Unit,
@@ -56,7 +56,6 @@ fun OrbitYearMonthPicker(
             val yearItems = remember { (1900..2024).map { it.toString() } }
             val monthItems = remember { (1..12).map { it.toString() } }
             val dayItems = remember { mutableStateListOf<String>().apply { addAll((1..31).map { it.toString().padStart(2, '0') }) } }
-
             val lunarPickerState = rememberPickerState(
                 selectedItem = lunarItems.indexOf(initialLunar).toString(),
                 startIndex = lunarItems.indexOf(initialLunar),
