@@ -42,7 +42,7 @@ fun OnboardingBottomBar(
                 onClick = { manager.debounceClick { onNextClick() } },
                 enabled = isButtonEnabled,
             )
-            if (currentStep in 2..5) {
+            if (currentStep == 2) {
                 AnnotatedTermsText(
                     onTermsClick = { /* Handle terms click */ },
                     onPrivacyPolicyClick = { /* Handle privacy policy click */ },
