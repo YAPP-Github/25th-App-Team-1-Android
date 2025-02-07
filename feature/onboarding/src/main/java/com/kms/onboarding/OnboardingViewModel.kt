@@ -74,6 +74,7 @@ class OnboardingViewModel @Inject constructor(
                         textFieldValue = value,
                         showWarning = value.isNotEmpty() && !isValid,
                         isButtonEnabled = value.isNotEmpty() && isValid,
+                        isValid = isValid,
                     )
                 }
             }

@@ -107,6 +107,7 @@ fun OnboardingNameScreen(
                     onTextChange(newValue.text)
                 },
                 hint = "이름 입력",
+                isValid = state.isValid,
                 showWarning = state.showWarning,
                 warningMessage = stringResource(id = R.string.onboarding_step5_textfield_warning),
                 modifier = Modifier
