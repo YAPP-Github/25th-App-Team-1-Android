@@ -27,7 +27,7 @@ class OnboardingViewModel @Inject constructor(
             is OnboardingContract.Action.NextStep -> moveToNextStep()
             is OnboardingContract.Action.PreviousStep -> moveToPreviousStep()
             is OnboardingContract.Action.SetAlarmTime -> setAlarmTime(action.isAm, action.hour, action.minute)
-            is OnboardingContract.Action.CreateAlarm -> createAlarm(action.isAm, action.hour, action.minute)
+            is OnboardingContract.Action.CreateAlarm -> createAlarm()
             is OnboardingContract.Action.UpdateField -> updateField(action.value, action.fieldType)
             is OnboardingContract.Action.Reset -> resetFields()
             is OnboardingContract.Action.Submit -> handleSubmission(action.stepData)
@@ -73,11 +73,11 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    private fun createAlarm(isAm: Boolean, hour: Int, minute: Int) {
+    private fun createAlarm() {
         val alarm = Alarm(
-            isAm = isAm,
-            hour = hour,
-            minute = minute,
+            isAm = currentState.timeState.selectedAmPm == "오전",
+            hour = currentState.timeState.selectedHour,
+            minute = currentState.timeState.selectedMinute,
             repeatDays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI).toRepeatDays(),
         )
 
@@ -85,7 +85,7 @@ class OnboardingViewModel @Inject constructor(
             alarmUseCase.insertAlarm(
                 alarm = alarm,
             ).onSuccess {
-                moveToNextStep()
+                emitSideEffect(OnboardingContract.SideEffect.OnboardingCompleted)
             }.onFailure {
                 Log.e("OnboardingViewModel", "Failed to create alarm", it)
             }

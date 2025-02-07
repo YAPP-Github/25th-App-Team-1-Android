@@ -1,7 +1,6 @@
 package com.kms.onboarding
 
 import androidx.compose.runtime.LaunchedEffect
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
@@ -20,8 +19,6 @@ fun NavGraphBuilder.onboardingNavGraph(
         OnboardingDestination.routes.forEach { destination ->
             composable(destination.route) { backStackEntry ->
                 val viewModel = backStackEntry.sharedHiltViewModel<OnboardingViewModel>(navigator.navController)
-
-                val onboardingViewModel = hiltViewModel<OnboardingViewModel>()
 
                 LaunchedEffect(viewModel) {
                     viewModel.container.sideEffectFlow.collect { sideEffect ->
@@ -55,7 +52,7 @@ fun NavGraphBuilder.onboardingNavGraph(
                         OnboardingCompleteRoute(viewModel)
                     }
                     OnboardingDestination.Complete2 -> {
-                        OnboardingCompleteRoute2(viewModel, onFinishOnboarding)
+                        OnboardingCompleteRoute2(viewModel)
                     }
                 }
             }

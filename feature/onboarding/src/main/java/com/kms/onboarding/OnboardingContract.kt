@@ -24,7 +24,7 @@ sealed class OnboardingContract {
         data object NextStep : Action()
         data object PreviousStep : Action()
         data class SetAlarmTime(val isAm: String, val hour: Int, val minute: Int) : Action()
-        data class CreateAlarm(val isAm: Boolean, val hour: Int, val minute: Int) : Action()
+        data object CreateAlarm : Action()
         data class UpdateField(val value: String, val fieldType: FieldType) : Action()
         data object Reset : Action()
         data class Submit(val stepData: Map<String, String>) : Action()
