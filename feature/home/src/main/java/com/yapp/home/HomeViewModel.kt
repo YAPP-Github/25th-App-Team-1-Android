@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.util.ResourceProvider
+import com.yapp.domain.model.Alarm
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,7 +33,7 @@ class HomeViewModel @Inject constructor(
             is HomeContract.Action.ToggleAlarmActivation -> toggleAlarmActivation(action.alarmId)
             HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
-            HomeContract.Action.ConfirmDeletion -> confirmDeletetion()
+            HomeContract.Action.ConfirmDeletion -> confirmDeletion()
             is HomeContract.Action.DeleteSingleAlarm -> deleteSingleAlarm(action.alarmId)
             HomeContract.Action.LoadMoreAlarms -> loadAllAlarms()
             HomeContract.Action.ResetLastAddedAlarmIndex -> restLastAddedAlarmIndex()
@@ -134,12 +135,19 @@ class HomeViewModel @Inject constructor(
         updateState { copy(isDeleteDialogVisible = false) }
     }
 
-    private fun confirmDeletetion() {
-        val selectedIds = currentState.selectedAlarmIds
-        if (selectedIds.isEmpty()) return
+    private fun confirmDeletion() {
+        deleteAlarms(currentState.selectedAlarmIds)
+    }
+
+    private fun deleteSingleAlarm(alarmId: Long) {
+        deleteAlarms(setOf(alarmId))
+    }
+
+    private fun deleteAlarms(alarmIds: Set<Long>) {
+        if (alarmIds.isEmpty()) return
 
         val alarmsWithIndex = currentState.alarms.withIndex()
-            .filter { it.value.id in selectedIds }
+            .filter { it.value.id in alarmIds }
             .map { it.index to it.value }
 
         val alarmsToDelete = alarmsWithIndex.map { it.second }
@@ -166,55 +174,20 @@ class HomeViewModel @Inject constructor(
                     }
                 },
                 onAction = {
-                    updateState {
-                        val restoredAlarms = currentState.alarms.toMutableList()
-                        alarmsWithIndex.forEach { (index, alarm) ->
-                            restoredAlarms.add(index, alarm)
-                        }
-                        copy(alarms = restoredAlarms)
-                    }
+                    restoreDeletedAlarms(alarmsWithIndex)
                 },
             ),
         )
     }
 
-    private fun deleteSingleAlarm(alarmId: Long) {
-        val alarmWithIndex = currentState.alarms.withIndex()
-            .filter { it.value.id == alarmId }
-            .map { it.index to it.value }
-
-        val alarmToDelete = currentState.alarms.find { it.id == alarmId } ?: return
-
+    private fun restoreDeletedAlarms(alarmsWithIndex: List<Pair<Int, Alarm>>) {
         updateState {
-            copy(
-                alarms = currentState.alarms - alarmToDelete,
-                selectedAlarmIds = emptySet(),
-                isDeleteDialogVisible = false,
-                isSelectionMode = false,
-            )
+            val restoredAlarms = currentState.alarms.toMutableList()
+            alarmsWithIndex.forEach { (index, alarm) ->
+                restoredAlarms.add(index, alarm)
+            }
+            copy(alarms = restoredAlarms)
         }
-
-        emitSideEffect(
-            HomeContract.SideEffect.ShowSnackBar(
-                message = resourceProvider.getString(R.string.alarm_deleted),
-                label = resourceProvider.getString(R.string.alarm_delete_dialog_btn_cancel),
-                iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
-                onDismiss = {
-                    viewModelScope.launch {
-                        alarmToDelete.id.let { alarmUseCase.deleteAlarm(it) }
-                    }
-                },
-                onAction = {
-                    updateState {
-                        val restoredAlarms = currentState.alarms.toMutableList()
-                        alarmWithIndex.forEach { (index, alarm) ->
-                            restoredAlarms.add(index, alarm)
-                        }
-                        copy(alarms = restoredAlarms)
-                    }
-                },
-            ),
-        )
     }
 
     private fun restLastAddedAlarmIndex() {
