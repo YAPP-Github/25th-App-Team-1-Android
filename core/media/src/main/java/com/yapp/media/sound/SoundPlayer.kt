@@ -1,6 +1,7 @@
 package com.yapp.media.sound
 
 import android.content.Context
+import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
@@ -22,6 +23,12 @@ class SoundPlayer @Inject constructor(
         mediaPlayer = MediaPlayer().apply {
             try {
                 setDataSource(context, uri)
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build(),
+                )
                 prepare()
             } catch (e: Exception) {
                 Log.e("SoundPlayer", "Error initializing MediaPlayer", e)
@@ -33,7 +40,7 @@ class SoundPlayer @Inject constructor(
         mediaPlayer?.let {
             if (!it.isPlaying) {
                 it.start()
-                setVolume(volume)
+                updateVolume(volume)
             }
         } ?: Log.e("SoundPlayer", "MediaPlayer is not initialized")
     }
@@ -48,17 +55,15 @@ class SoundPlayer @Inject constructor(
     }
 
     fun updateVolume(volume: Int) {
+        val clampedVolume = volume.coerceIn(0, 100)
+        val normalizedVolume = clampedVolume / 100f
+
         mediaPlayer?.let {
             if (!it.isPlaying) {
                 it.start()
             }
-            setVolume(volume)
+            it.setVolume(normalizedVolume, normalizedVolume)
         } ?: Log.e("SoundPlayer", "MediaPlayer is not initialized")
-    }
-
-    private fun setVolume(volume: Int) {
-        val normalizedVolume = (volume / 100f).coerceIn(0f, 1f)
-        mediaPlayer?.setVolume(normalizedVolume, normalizedVolume)
     }
 
     fun release() {
