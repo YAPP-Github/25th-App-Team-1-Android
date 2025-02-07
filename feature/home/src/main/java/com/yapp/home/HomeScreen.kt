@@ -271,7 +271,7 @@ private fun HomeContent(
                         .fillMaxWidth()
                         .layout { measurable, constraints ->
                             val placeable = measurable.measure(constraints)
-                            sheetHalfExpandHeight = screenHeight - placeable.height.toDp()
+                            sheetHalfExpandHeight = screenHeight - placeable.height.toDp() + 48.dp
                             layout(placeable.width, placeable.height) {
                                 placeable.placeRelative(0, 0)
                             }
@@ -311,6 +311,8 @@ private fun HomeContent(
                 },
             )
         }
+
+        BottomGradient(modifier = Modifier.align(Alignment.BottomCenter))
     }
 
     if (state.isDeleteDialogVisible) {
@@ -686,6 +688,25 @@ private fun DeleteAlarmButton(
             style = OrbitTheme.typography.body1SemiBold,
         )
     }
+}
+
+@Composable
+private fun BottomGradient(
+    modifier: Modifier = Modifier,
+) {
+    Spacer(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(104.dp)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF17171B).copy(alpha = 0f),
+                        Color(0xFF17171B).copy(alpha = 1f),
+                    ),
+                ),
+            ),
+    )
 }
 
 @Preview(
