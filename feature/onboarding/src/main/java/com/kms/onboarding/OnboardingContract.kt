@@ -10,6 +10,7 @@ sealed class OnboardingContract {
         val showWarning: Boolean = false,
         val isButtonEnabled: Boolean = false,
         val selectedGender: String? = null,
+        val isValid: Boolean = false,
         val isBottomSheetOpen: Boolean = false,
     ) : UiState
 
