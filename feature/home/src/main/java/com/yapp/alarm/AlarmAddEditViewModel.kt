@@ -156,7 +156,9 @@ class AlarmAddEditViewModel @Inject constructor(
     }
 
     private suspend fun updateExistingAlarm(alarm: Alarm) {
-        alarmUseCase.updateAlarm(alarm)
+        val updatedAlarm = alarm.copy(id = alarmId)
+
+        alarmUseCase.updateAlarm(updatedAlarm)
             .onSuccess {
                 emitSideEffect(AlarmAddEditContract.SideEffect.UpdateAlarm(it.id))
             }
