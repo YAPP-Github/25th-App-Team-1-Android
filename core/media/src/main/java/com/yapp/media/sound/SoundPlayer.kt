@@ -39,8 +39,8 @@ class SoundPlayer @Inject constructor(
     fun playSound(volume: Int) {
         mediaPlayer?.let {
             if (!it.isPlaying) {
-                it.start()
                 updateVolume(volume)
+                it.start()
             }
         } ?: Log.e("SoundPlayer", "MediaPlayer is not initialized")
     }
