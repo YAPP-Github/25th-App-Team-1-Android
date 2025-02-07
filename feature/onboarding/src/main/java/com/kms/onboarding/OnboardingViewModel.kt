@@ -29,6 +29,7 @@ class OnboardingViewModel @Inject constructor(
             is OnboardingContract.Action.SetAlarmTime -> setAlarmTime(action.isAm, action.hour, action.minute)
             is OnboardingContract.Action.CreateAlarm -> createAlarm()
             is OnboardingContract.Action.UpdateField -> updateField(action.value, action.fieldType)
+            is OnboardingContract.Action.UpdateBirthDate -> updateBirthDate(action.lunar, action.year, action.month, action.day) // ✅ 추가
             is OnboardingContract.Action.Reset -> resetFields()
             is OnboardingContract.Action.Submit -> handleSubmission(action.stepData)
             is OnboardingContract.Action.UpdateGender -> updateGender(action.gender)
@@ -93,12 +94,46 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun updateField(value: String, fieldType: OnboardingContract.FieldType) {
-        val isValid = value.matches(fieldType.validationRegex)
+        when (fieldType) {
+            OnboardingContract.FieldType.TIME -> {
+                val isComplete = value.length == 5
+                val isValid = isComplete && value.matches(fieldType.validationRegex)
+
+                updateState {
+                    copy(
+                        textFieldValue = value,
+                        birthTime = if (isValid) value else "",
+                        showWarning = isComplete && !isValid,
+                        isButtonEnabled = isValid,
+                        isBirthTimeValid = isValid,
+                    )
+                }
+            }
+
+            OnboardingContract.FieldType.NAME -> {
+                val isValid = value.matches(fieldType.validationRegex)
+
+                updateState {
+                    copy(
+                        textFieldValue = value,
+                        userName = value,
+                        showWarning = value.isNotEmpty() && !isValid,
+                        isButtonEnabled = value.isNotEmpty() && isValid,
+                        isValid = isValid,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun updateBirthDate(lunar: String, year: Int, month: Int, day: Int) {
+        val formattedDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
+
         updateState {
             copy(
-                textFieldValue = value,
-                showWarning = value.isNotEmpty() && !isValid,
-                isButtonEnabled = value.isNotEmpty() && isValid,
+                birthDate = formattedDate,
+                birthType = lunar,
+                isBirthDateValid = true,
             )
         }
     }
