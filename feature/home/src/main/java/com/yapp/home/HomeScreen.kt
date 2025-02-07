@@ -100,6 +100,16 @@ fun HomeRoute(
             }
     }
 
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<Long>(DELETE_ALARM_RESULT_KEY)) {
+        navigator.navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.get<Long>(DELETE_ALARM_RESULT_KEY)
+            ?.let { id ->
+                viewModel.processAction(HomeContract.Action.DeleteSingleAlarm(id))
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<Long>(DELETE_ALARM_RESULT_KEY)
+            }
+    }
+
     LaunchedEffectWithLifecycle(sideEffect) {
         sideEffect.collect { effect ->
             when (effect) {

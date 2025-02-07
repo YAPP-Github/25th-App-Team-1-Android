@@ -34,6 +34,7 @@ sealed class HomeContract {
         data object ShowDeleteDialog : Action()
         data object HideDeleteDialog : Action()
         data object ConfirmDelete : Action()
+        data class DeleteSingleAlarm(val alarmId: Long) : Action()
         data object LoadMoreAlarms : Action()
         data object ResetLastAddedAlarmIndex : Action()
         data class SelectAlarm(val alarmId: Long) : Action()

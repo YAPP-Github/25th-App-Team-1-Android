@@ -21,6 +21,7 @@ sealed class AlarmAddEditContract {
         val snoozeState: AlarmSnoozeState = AlarmSnoozeState(),
         val soundState: AlarmSoundState = AlarmSoundState(),
         val bottomSheetState: BottomSheetType? = null,
+        val isDeleteDialogVisible: Boolean = false,
     ) : UiState
 
     data class AlarmTimeState(
@@ -68,6 +69,9 @@ sealed class AlarmAddEditContract {
     sealed class Action {
         data object ClickBack : Action()
         data object ClickSave : Action()
+        data object ShowDeleteDialog : Action()
+        data object HideDeleteDialog : Action()
+        data object DeleteAlarm : Action()
         data class UpdateAlarmTime(val amPm: String, val hour: Int, val minute: Int) : Action()
         data object ToggleWeekdaysChecked : Action()
         data object ToggleWeekendsChecked : Action()
@@ -100,6 +104,8 @@ sealed class AlarmAddEditContract {
         data class SaveAlarm(val id: Long) : SideEffect()
 
         data class UpdateAlarm(val id: Long) : SideEffect()
+
+        data class DeleteAlarm(val id: Long) : SideEffect()
 
         data class ShowSnackBar(
             val message: String,

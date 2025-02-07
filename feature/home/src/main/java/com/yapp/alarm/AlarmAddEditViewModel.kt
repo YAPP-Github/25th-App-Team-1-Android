@@ -113,6 +113,9 @@ class AlarmAddEditViewModel @Inject constructor(
         when (action) {
             is AlarmAddEditContract.Action.ClickBack -> navigateBack()
             is AlarmAddEditContract.Action.ClickSave -> saveAlarm()
+            is AlarmAddEditContract.Action.ShowDeleteDialog -> showDeleteDialog()
+            is AlarmAddEditContract.Action.HideDeleteDialog -> hideDeleteDialog()
+            is AlarmAddEditContract.Action.DeleteAlarm -> deleteAlarm()
             is AlarmAddEditContract.Action.UpdateAlarmTime -> updateAlarmTime(action.amPm, action.hour, action.minute)
             is AlarmAddEditContract.Action.ToggleWeekdaysChecked -> toggleWeekdaysChecked()
             is AlarmAddEditContract.Action.ToggleWeekendsChecked -> toggleWeekendsChecked()
@@ -206,6 +209,18 @@ class AlarmAddEditViewModel @Inject constructor(
         updateState {
             copy(timeState = newTimeState)
         }
+    }
+
+    private fun showDeleteDialog() {
+        updateState { copy(isDeleteDialogVisible = true) }
+    }
+
+    private fun hideDeleteDialog() {
+        updateState { copy(isDeleteDialogVisible = false) }
+    }
+
+    private fun deleteAlarm() {
+        emitSideEffect(AlarmAddEditContract.SideEffect.DeleteAlarm(alarmId))
     }
 
     private fun toggleWeekdaysChecked() {

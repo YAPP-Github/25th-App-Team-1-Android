@@ -3,6 +3,8 @@ package com.yapp.alarm
 import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,14 +22,17 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -45,8 +50,10 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
 import com.yapp.home.ADD_ALARM_RESULT_KEY
+import com.yapp.home.DELETE_ALARM_RESULT_KEY
 import com.yapp.home.UPDATE_ALARM_RESULT_KEY
 import com.yapp.ui.component.button.OrbitButton
+import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.component.snackbar.showCustomSnackBar
 import com.yapp.ui.component.switch.OrbitSwitch
@@ -87,6 +94,12 @@ fun AlarmAddEditRoute(
                     navigator.navController.previousBackStackEntry
                         ?.savedStateHandle
                         ?.set(UPDATE_ALARM_RESULT_KEY, effect.id)
+                    navigator.navigateBack()
+                }
+                is AlarmAddEditContract.SideEffect.DeleteAlarm -> {
+                    navigator.navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(DELETE_ALARM_RESULT_KEY, effect.id)
                     navigator.navigateBack()
                 }
                 is AlarmAddEditContract.SideEffect.ShowSnackBar -> {
@@ -147,8 +160,10 @@ fun AlarmAddEditContent(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         AlarmAddEditTopBar(
+            mode = state.mode,
             title = state.timeState.alarmMessage,
             onBack = { eventDispatcher(AlarmAddEditContract.Action.ClickBack) },
+            onDelete = { eventDispatcher(AlarmAddEditContract.Action.ShowDeleteDialog) },
         )
         Box(
             modifier = Modifier.weight(1f),
@@ -233,6 +248,21 @@ fun AlarmAddEditContent(
             }
         },
     )
+
+    if (state.isDeleteDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.alarm_delete_dialog_title),
+            message = stringResource(id = R.string.alarm_delete_dialog_message),
+            confirmText = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
+            cancelText = stringResource(id = R.string.alarm_delete_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(AlarmAddEditContract.Action.DeleteAlarm)
+            },
+            onCancel = {
+                eventDispatcher(AlarmAddEditContract.Action.HideDeleteDialog)
+            },
+        )
+    }
 }
 
 @Composable
@@ -252,8 +282,10 @@ private fun AlarmAddEditLoadingScreen() {
 
 @Composable
 private fun AlarmAddEditTopBar(
+    mode: AlarmAddEditContract.EditMode = AlarmAddEditContract.EditMode.ADD,
     title: String,
     onBack: () -> Unit,
+    onDelete: () -> Unit,
 ) {
     Box(
         modifier = Modifier
@@ -276,6 +308,44 @@ private fun AlarmAddEditTopBar(
             title,
             style = OrbitTheme.typography.body1SemiBold,
             color = OrbitTheme.colors.white,
+        )
+
+        if (mode == AlarmAddEditContract.EditMode.EDIT) {
+            DeleteAlarmButton(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(end = 20.dp),
+            ) {
+                onDelete()
+            }
+        }
+    }
+}
+
+@Composable
+private fun DeleteAlarmButton(
+    modifier: Modifier = Modifier,
+    onDelete: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed = interactionSource.collectIsPressedAsState().value
+
+    Surface(
+        onClick = onDelete,
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        interactionSource = interactionSource,
+        color = if (isPressed) OrbitTheme.colors.gray_800 else Color.Transparent,
+    ) {
+        Text(
+            text = stringResource(id = R.string.alarm_add_edit_delete),
+            style = OrbitTheme.typography.body1Medium,
+            color = OrbitTheme.colors.alert,
+            modifier = Modifier
+                .padding(
+                    horizontal = 8.dp,
+                    vertical = 4.dp,
+                ),
         )
     }
 }
@@ -306,7 +376,8 @@ private fun AlarmAddEditSettingsSection(
             processAction = processAction,
         )
         Spacer(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(1.dp)
                 .padding(horizontal = 20.dp)
                 .background(OrbitTheme.colors.gray_700),
@@ -326,7 +397,8 @@ private fun AlarmAddEditSettingsSection(
             onClick = { processAction(AlarmAddEditContract.Action.ToggleBottomSheetOpen(AlarmAddEditContract.BottomSheetType.SnoozeSetting)) },
         )
         Spacer(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .height(1.dp)
                 .padding(horizontal = 20.dp)
                 .background(OrbitTheme.colors.gray_700),
@@ -544,4 +616,14 @@ fun AlarmAddEditScreenPreview() {
         },
         eventDispatcher = { },
     )
+}
+
+@Preview
+@Composable
+private fun PreviewAlarmDeleteButton() {
+    OrbitTheme {
+        DeleteAlarmButton(
+            onDelete = { },
+        )
+    }
 }

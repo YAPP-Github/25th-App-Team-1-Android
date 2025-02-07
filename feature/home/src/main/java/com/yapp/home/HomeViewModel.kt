@@ -33,6 +33,7 @@ class HomeViewModel @Inject constructor(
             HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
             HomeContract.Action.ConfirmDelete -> confirmDelete()
+            is HomeContract.Action.DeleteSingleAlarm -> deleteAlarm(action.alarmId)
             HomeContract.Action.LoadMoreAlarms -> loadAllAlarms()
             HomeContract.Action.ResetLastAddedAlarmIndex -> restLastAddedAlarmIndex()
             is HomeContract.Action.SelectAlarm -> selectAlarm(action.alarmId)
@@ -168,6 +169,45 @@ class HomeViewModel @Inject constructor(
                     updateState {
                         val restoredAlarms = currentState.alarms.toMutableList()
                         alarmsWithIndex.forEach { (index, alarm) ->
+                            restoredAlarms.add(index, alarm)
+                        }
+                        copy(alarms = restoredAlarms)
+                    }
+                },
+            ),
+        )
+    }
+
+    private fun deleteAlarm(alarmId: Long) {
+        val alarmWithIndex = currentState.alarms.withIndex()
+            .filter { it.value.id == alarmId }
+            .map { it.index to it.value }
+
+        val alarmToDelete = currentState.alarms.find { it.id == alarmId } ?: return
+
+        updateState {
+            copy(
+                alarms = currentState.alarms - alarmToDelete,
+                selectedAlarmIds = emptySet(),
+                isDeleteDialogVisible = false,
+                isSelectionMode = false,
+            )
+        }
+
+        emitSideEffect(
+            HomeContract.SideEffect.ShowSnackBar(
+                message = resourceProvider.getString(R.string.alarm_deleted),
+                label = resourceProvider.getString(R.string.alarm_delete_dialog_btn_cancel),
+                iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
+                onDismiss = {
+                    viewModelScope.launch {
+                        alarmToDelete.id.let { alarmUseCase.deleteAlarm(it) }
+                    }
+                },
+                onAction = {
+                    updateState {
+                        val restoredAlarms = currentState.alarms.toMutableList()
+                        alarmWithIndex.forEach { (index, alarm) ->
                             restoredAlarms.add(index, alarm)
                         }
                         copy(alarms = restoredAlarms)

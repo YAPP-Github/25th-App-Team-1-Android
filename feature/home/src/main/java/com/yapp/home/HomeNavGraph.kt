@@ -12,6 +12,7 @@ import com.yapp.common.navigation.destination.HomeDestination
 
 const val ADD_ALARM_RESULT_KEY = "addAlarmResult"
 const val UPDATE_ALARM_RESULT_KEY = "updateAlarmResult"
+const val DELETE_ALARM_RESULT_KEY = "deleteAlarmResult"
 
 fun NavGraphBuilder.homeNavGraph(
     navigator: OrbitNavigator,
