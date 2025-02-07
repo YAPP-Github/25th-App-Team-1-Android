@@ -8,6 +8,8 @@ import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toRepeatDays
 import com.yapp.domain.usecase.AlarmUseCase
+import com.yapp.media.haptic.HapticFeedbackManager
+import com.yapp.media.haptic.HapticType
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val alarmUseCase: AlarmUseCase,
+    private val hapticFeedbackManager: HapticFeedbackManager,
     private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<OnboardingContract.State, OnboardingContract.SideEffect>(
     initialState = OnboardingContract.State(
@@ -62,6 +65,8 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun setAlarmTime(amPm: String, hour: Int, minute: Int) {
+        hapticFeedbackManager.performHapticFeedback(HapticType.LIGHT_TICK)
+
         val newTimeState = currentState.timeState.copy(
             selectedAmPm = amPm,
             selectedHour = hour,
@@ -75,20 +80,28 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun createAlarm() {
-        val alarm = Alarm(
-            isAm = currentState.timeState.selectedAmPm == "오전",
-            hour = currentState.timeState.selectedHour,
-            minute = currentState.timeState.selectedMinute,
-            repeatDays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI).toRepeatDays(),
-        )
-
         viewModelScope.launch {
-            alarmUseCase.insertAlarm(
-                alarm = alarm,
-            ).onSuccess {
-                emitSideEffect(OnboardingContract.SideEffect.OnboardingCompleted)
+            alarmUseCase.getAlarmSounds().onSuccess { sounds ->
+                val defaultSoundIndex = sounds.indexOfFirst { it.title == "Homecoming" }.takeIf { it >= 0 } ?: 0
+                val defaultSoundUri = sounds[defaultSoundIndex]
+
+                val newAlarm = Alarm(
+                    isAm = currentState.timeState.selectedAmPm == "오전",
+                    hour = currentState.timeState.selectedHour,
+                    minute = currentState.timeState.selectedMinute,
+                    repeatDays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI).toRepeatDays(),
+                    soundUri = "${defaultSoundUri.uri}",
+                )
+
+                alarmUseCase.insertAlarm(
+                    alarm = newAlarm,
+                ).onSuccess {
+                    emitSideEffect(OnboardingContract.SideEffect.OnboardingCompleted)
+                }.onFailure {
+                    Log.e("OnboardingViewModel", "Failed to create alarm", it)
+                }
             }.onFailure {
-                Log.e("OnboardingViewModel", "Failed to create alarm", it)
+                Log.e("OnboardingViewModel", "Failed to get alarm sounds", it)
             }
         }
     }
@@ -128,6 +141,8 @@ class OnboardingViewModel @Inject constructor(
 
     private fun updateBirthDate(lunar: String, year: Int, month: Int, day: Int) {
         val formattedDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
+
+        hapticFeedbackManager.performHapticFeedback(HapticType.LIGHT_TICK)
 
         updateState {
             copy(

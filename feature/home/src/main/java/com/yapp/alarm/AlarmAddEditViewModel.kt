@@ -13,6 +13,8 @@ import com.yapp.domain.model.copyFrom
 import com.yapp.domain.model.toAlarmDays
 import com.yapp.domain.model.toDayOfWeek
 import com.yapp.domain.usecase.AlarmUseCase
+import com.yapp.media.haptic.HapticFeedbackManager
+import com.yapp.media.haptic.HapticType
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import feature.home.R
@@ -23,6 +25,7 @@ import javax.inject.Inject
 class AlarmAddEditViewModel @Inject constructor(
     private val alarmUseCase: AlarmUseCase,
     private val resourceProvider: ResourceProvider,
+    private val hapticFeedbackManager: HapticFeedbackManager,
     savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
     initialState = AlarmAddEditContract.State(),
@@ -239,6 +242,9 @@ class AlarmAddEditViewModel @Inject constructor(
             currentMinute = minute,
             alarmMessage = getAlarmMessage(amPm, hour, minute, currentState.daySelectionState.selectedDays),
         )
+
+        hapticFeedbackManager.performHapticFeedback(HapticType.LIGHT_TICK)
+
         updateState {
             copy(timeState = newTimeState)
         }
@@ -397,6 +403,10 @@ class AlarmAddEditViewModel @Inject constructor(
 
     private fun toggleVibrationOption() {
         val newSoundState = currentState.soundState.copy(isVibrationEnabled = !currentState.soundState.isVibrationEnabled)
+
+        if (newSoundState.isVibrationEnabled) {
+            hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
+        }
         updateState {
             copy(soundState = newSoundState)
         }

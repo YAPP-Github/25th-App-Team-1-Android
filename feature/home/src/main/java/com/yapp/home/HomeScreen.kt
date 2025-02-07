@@ -271,7 +271,7 @@ private fun HomeContent(
                         .fillMaxWidth()
                         .layout { measurable, constraints ->
                             val placeable = measurable.measure(constraints)
-                            sheetHalfExpandHeight = screenHeight - placeable.height.toDp() + 48.dp
+                            sheetHalfExpandHeight = screenHeight - placeable.height.toDp()
                             layout(placeable.width, placeable.height) {
                                 placeable.placeRelative(0, 0)
                             }
@@ -697,7 +697,7 @@ private fun BottomGradient(
     Spacer(
         modifier = modifier
             .fillMaxWidth()
-            .height(104.dp)
+            .height(56.dp)
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(

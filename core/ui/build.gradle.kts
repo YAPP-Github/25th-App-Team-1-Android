@@ -11,6 +11,7 @@ android {
 
 dependencies {
     implementation(projects.core.designsystem)
+    implementation(projects.core.media)
     implementation(libs.compose.material)
     implementation(libs.orbit.core)
     implementation(libs.orbit.compose)

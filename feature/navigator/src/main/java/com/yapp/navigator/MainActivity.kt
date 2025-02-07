@@ -21,6 +21,10 @@ class MainActivity : ComponentActivity() {
                 android.graphics.Color.TRANSPARENT,
                 android.graphics.Color.TRANSPARENT,
             ),
+            navigationBarStyle = SystemBarStyle.light(
+                android.graphics.Color.BLACK,
+                android.graphics.Color.BLACK,
+            ),
         )
         setContent {
             OrbitTheme {
