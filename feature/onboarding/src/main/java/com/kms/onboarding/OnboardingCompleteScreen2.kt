@@ -94,7 +94,7 @@ fun OnboardingCompleteScreen2(
             ) {
                 LottieAnimation(
                     modifier = Modifier
-                        .scale(1.1f)
+                        .scale(1.2f)
                         .offset(y = (-70).dp),
                     resId = core.designsystem.R.raw.step3,
                 )

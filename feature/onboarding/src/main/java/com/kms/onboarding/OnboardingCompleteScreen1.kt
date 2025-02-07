@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -73,8 +73,8 @@ fun OnboardingCompleteScreen1(
             ) {
                 LottieAnimation(
                     modifier = Modifier
-                        .scale(1.6f)
-                        .padding(bottom = 70.dp),
+                        .scale(1.4f)
+                        .offset(y = (-50).dp),
                     resId = core.designsystem.R.raw.step2,
                 )
             }
