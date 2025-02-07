@@ -373,12 +373,7 @@ class AlarmAddEditViewModel @Inject constructor(
 
     private fun toggleSoundOption() {
         val newSoundState = currentState.soundState.copy(isSoundEnabled = !currentState.soundState.isSoundEnabled)
-        if (newSoundState.isSoundEnabled) {
-            val selectedSound = currentState.soundState.sounds[currentState.soundState.soundIndex]
-
-            alarmUseCase.initializeSoundPlayer(selectedSound.uri)
-            alarmUseCase.playAlarmSound(currentState.soundState.soundVolume)
-        } else {
+        if (!newSoundState.isSoundEnabled) {
             alarmUseCase.stopAlarmSound()
         }
         updateState {
