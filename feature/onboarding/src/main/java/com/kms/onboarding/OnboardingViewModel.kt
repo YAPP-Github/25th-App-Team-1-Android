@@ -1,13 +1,21 @@
 package com.kms.onboarding
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.OnboardingDestination
+import com.yapp.domain.model.Alarm
+import com.yapp.domain.model.AlarmDay
+import com.yapp.domain.model.toRepeatDays
+import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
+    private val alarmUseCase: AlarmUseCase,
     private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<OnboardingContract.State, OnboardingContract.SideEffect>(
     initialState = OnboardingContract.State(
@@ -18,6 +26,8 @@ class OnboardingViewModel @Inject constructor(
         when (action) {
             is OnboardingContract.Action.NextStep -> moveToNextStep()
             is OnboardingContract.Action.PreviousStep -> moveToPreviousStep()
+            is OnboardingContract.Action.SetAlarmTime -> setAlarmTime(action.isAm, action.hour, action.minute)
+            is OnboardingContract.Action.CreateAlarm -> createAlarm(action.isAm, action.hour, action.minute)
             is OnboardingContract.Action.UpdateField -> updateField(action.value, action.fieldType)
             is OnboardingContract.Action.Reset -> resetFields()
             is OnboardingContract.Action.Submit -> handleSubmission(action.stepData)
@@ -47,6 +57,38 @@ class OnboardingViewModel @Inject constructor(
             savedStateHandle["currentStep"] = previousStep
             updateState { copy(currentStep = previousStep) }
             emitSideEffect(OnboardingContract.SideEffect.NavigateBack)
+        }
+    }
+
+    private fun setAlarmTime(amPm: String, hour: Int, minute: Int) {
+        val newTimeState = currentState.timeState.copy(
+            selectedAmPm = amPm,
+            selectedHour = hour,
+            selectedMinute = minute,
+        )
+        updateState {
+            copy(
+                timeState = newTimeState,
+            )
+        }
+    }
+
+    private fun createAlarm(isAm: Boolean, hour: Int, minute: Int) {
+        val alarm = Alarm(
+            isAm = isAm,
+            hour = hour,
+            minute = minute,
+            repeatDays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI).toRepeatDays(),
+        )
+
+        viewModelScope.launch {
+            alarmUseCase.insertAlarm(
+                alarm = alarm,
+            ).onSuccess {
+                moveToNextStep()
+            }.onFailure {
+                Log.e("OnboardingViewModel", "Failed to create alarm", it)
+            }
         }
     }
 
