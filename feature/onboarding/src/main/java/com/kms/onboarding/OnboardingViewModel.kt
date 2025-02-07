@@ -80,20 +80,28 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun createAlarm() {
-        val alarm = Alarm(
-            isAm = currentState.timeState.selectedAmPm == "오전",
-            hour = currentState.timeState.selectedHour,
-            minute = currentState.timeState.selectedMinute,
-            repeatDays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI).toRepeatDays(),
-        )
-
         viewModelScope.launch {
-            alarmUseCase.insertAlarm(
-                alarm = alarm,
-            ).onSuccess {
-                emitSideEffect(OnboardingContract.SideEffect.OnboardingCompleted)
+            alarmUseCase.getAlarmSounds().onSuccess { sounds ->
+                val defaultSoundIndex = sounds.indexOfFirst { it.title == "Homecoming" }.takeIf { it >= 0 } ?: 0
+                val defaultSoundUri = sounds[defaultSoundIndex]
+
+                val newAlarm = Alarm(
+                    isAm = currentState.timeState.selectedAmPm == "오전",
+                    hour = currentState.timeState.selectedHour,
+                    minute = currentState.timeState.selectedMinute,
+                    repeatDays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI).toRepeatDays(),
+                    soundUri = "${defaultSoundUri.uri}",
+                )
+
+                alarmUseCase.insertAlarm(
+                    alarm = newAlarm,
+                ).onSuccess {
+                    emitSideEffect(OnboardingContract.SideEffect.OnboardingCompleted)
+                }.onFailure {
+                    Log.e("OnboardingViewModel", "Failed to create alarm", it)
+                }
             }.onFailure {
-                Log.e("OnboardingViewModel", "Failed to create alarm", it)
+                Log.e("OnboardingViewModel", "Failed to get alarm sounds", it)
             }
         }
     }
