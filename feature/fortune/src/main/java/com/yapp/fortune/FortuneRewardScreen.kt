@@ -61,8 +61,8 @@ fun FortuneRewardScreen() {
                     .fillMaxWidth()
                     .padding(start = 30.dp)
                     .align(Alignment.Start),
-                text = "문수,\n부적에 소원을 적으면\n이루어질거야!",
-                style = OrbitTheme.typography.H2,
+                text = "\n부적에 소원을 적으면\n이루어질거야!",
+                style = OrbitTheme.typography.H1,
                 color = OrbitTheme.colors.white,
             )
             Spacer(modifier = Modifier.heightForScreenPercentage(0.0467f))
