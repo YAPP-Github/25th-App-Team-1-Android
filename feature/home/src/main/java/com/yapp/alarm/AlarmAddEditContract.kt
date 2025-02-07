@@ -128,8 +128,13 @@ internal fun AlarmAddEditContract.State.toAlarm(id: Long = 0): Alarm {
         repeatDays = daySelectionState.selectedDays.toRepeatDays(),
         isHolidayAlarmOff = holidayState.isDisableHolidayChecked,
         isSnoozeEnabled = snoozeState.isSnoozeEnabled,
-        snoozeInterval = snoozeState.snoozeIntervals.getOrNull(snoozeState.snoozeIntervalIndex)?.filter { it.isDigit() }?.toIntOrNull() ?: 5,
-        snoozeCount = snoozeState.snoozeCounts.getOrNull(snoozeState.snoozeCountIndex)?.filter { it.isDigit() }?.toIntOrNull() ?: 1,
+        snoozeInterval = snoozeState.snoozeIntervals.getOrNull(snoozeState.snoozeIntervalIndex)
+            ?.filter { it.isDigit() }
+            ?.toIntOrNull()
+            ?: 5,
+        snoozeCount = snoozeState.snoozeCounts.getOrNull(snoozeState.snoozeCountIndex)
+            ?.let { if (it == "무한") -1 else it.filter { char -> char.isDigit() }.toIntOrNull() ?: 1 }
+            ?: 1,
         isVibrationEnabled = soundState.isVibrationEnabled,
         isSoundEnabled = soundState.isSoundEnabled,
         soundUri = soundState.sounds.getOrNull(soundState.soundIndex)?.uri.toString(),

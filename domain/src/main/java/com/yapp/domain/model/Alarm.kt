@@ -15,6 +15,7 @@ data class Alarm(
     val isSnoozeEnabled: Boolean = false,
 
     val snoozeInterval: Int = 5,
+    // -1 이면 무제한
     val snoozeCount: Int = 1,
 
     val isVibrationEnabled: Boolean = true,

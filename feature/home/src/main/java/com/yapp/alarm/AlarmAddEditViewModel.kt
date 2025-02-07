@@ -62,6 +62,8 @@ class AlarmAddEditViewModel @Inject constructor(
 
     private suspend fun loadExistingAlarm(sounds: List<AlarmSound>) {
         alarmUseCase.getAlarm(alarmId).onSuccess { alarm ->
+            Log.d("AlarmAddEditViewModel", "Loaded alarm: $alarm")
+
             val repeatDays = alarm.repeatDays.toAlarmDays()
             val isAM = alarm.hour < 12
             val hour = if (isAM) alarm.hour else alarm.hour - 12
@@ -109,8 +111,11 @@ class AlarmAddEditViewModel @Inject constructor(
         snoozeCountIndex = findSnoozeIndex(alarm.snoozeCount, currentState.snoozeState.snoozeCounts),
     )
 
-    private fun findSnoozeIndex(value: Int, list: List<String>) =
-        list.indexOfFirst { it.startsWith("$value") }.takeIf { it >= 0 } ?: 0
+    private fun findSnoozeIndex(value: Int, list: List<String>): Int {
+        return list.indexOfFirst {
+            it == "무한" && value == -1 || it.filter { char -> char.isDigit() }.toIntOrNull() == value
+        }.takeIf { it >= 0 } ?: 0
+    }
 
     override fun onCleared() {
         super.onCleared()
