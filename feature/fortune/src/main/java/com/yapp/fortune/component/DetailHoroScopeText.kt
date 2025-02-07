@@ -33,7 +33,7 @@ fun DetailHoroScopeText(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .paddingForScreenPercentage(horizontalPercentage = 0.170f),
+            .paddingForScreenPercentage(horizontalPercentage = 0.055f),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Row(

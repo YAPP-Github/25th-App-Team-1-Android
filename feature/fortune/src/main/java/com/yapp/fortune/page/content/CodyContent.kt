@@ -18,12 +18,12 @@ import com.yapp.fortune.component.CodyBox
 fun CodyContent(codyList: List<CodyItem>) {
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(46.dp),
+        verticalArrangement = Arrangement.spacedBy(36.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         codyList.chunked(2).forEach { rowItems ->
             Row(
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 rowItems.forEach { item ->

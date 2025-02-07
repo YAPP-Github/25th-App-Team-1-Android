@@ -37,6 +37,8 @@ fun CodyBox(
             backGroundColor = OrbitTheme.colors.gray_50,
             textColor = OrbitTheme.colors.gray_500,
             textStyle = OrbitTheme.typography.label2SemiBold,
+            verticalPadding = 4.dp,
+            horizontalPadding = 10.dp,
         )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
