@@ -1,5 +1,6 @@
 package com.yapp.data.local.repositoryimpl
 
+import android.net.Uri
 import com.yapp.data.local.datasource.AlarmLocalDataSource
 import com.yapp.data.local.toEntity
 import com.yapp.domain.model.Alarm
@@ -21,8 +22,12 @@ class AlarmRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun playAlarmSound(alarmSound: AlarmSound, volume: Int) {
-        soundPlayer.playSound(alarmSound.uri, volume / 100f)
+    override fun initializeSoundPlayer(uri: Uri) {
+        soundPlayer.initialize(uri)
+    }
+
+    override fun playAlarmSound(volume: Int) {
+        soundPlayer.playSound(volume)
     }
 
     override fun stopAlarmSound() {

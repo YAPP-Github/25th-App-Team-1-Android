@@ -48,6 +48,10 @@ class AlarmAddEditViewModel @Inject constructor(
 
     private fun setupNewAlarmScreen(sounds: List<AlarmSound>) {
         val defaultSoundIndex = sounds.indexOfFirst { it.title == "Homecoming" }.takeIf { it >= 0 } ?: 0
+        val defaultSound = sounds[defaultSoundIndex]
+
+        alarmUseCase.initializeSoundPlayer(defaultSound.uri)
+
         updateState {
             copy(
                 initialLoading = false,
@@ -61,6 +65,10 @@ class AlarmAddEditViewModel @Inject constructor(
             val repeatDays = alarm.repeatDays.toAlarmDays()
             val isAM = alarm.hour < 12
             val hour = if (isAM) alarm.hour else alarm.hour - 12
+            val selectedSoundIndex = sounds.indexOfFirst { it.uri.toString() == alarm.soundUri }
+            val selectedSound = sounds.getOrNull(selectedSoundIndex) ?: sounds.first()
+
+            alarmUseCase.initializeSoundPlayer(selectedSound.uri)
 
             updateState {
                 copy(
@@ -82,7 +90,7 @@ class AlarmAddEditViewModel @Inject constructor(
                         isSoundEnabled = alarm.isSoundEnabled,
                         soundVolume = alarm.soundVolume,
                         sounds = sounds,
-                        soundIndex = sounds.indexOfFirst { it.uri.toString() == alarm.soundUri },
+                        soundIndex = selectedSoundIndex,
                     ),
                 )
             }
@@ -364,10 +372,10 @@ class AlarmAddEditViewModel @Inject constructor(
     private fun toggleSoundOption() {
         val newSoundState = currentState.soundState.copy(isSoundEnabled = !currentState.soundState.isSoundEnabled)
         if (newSoundState.isSoundEnabled) {
-            alarmUseCase.playAlarmSound(
-                alarmSound = currentState.soundState.sounds[currentState.soundState.soundIndex],
-                volume = currentState.soundState.soundVolume,
-            )
+            val selectedSound = currentState.soundState.sounds[currentState.soundState.soundIndex]
+
+            alarmUseCase.initializeSoundPlayer(selectedSound.uri)
+            alarmUseCase.playAlarmSound(currentState.soundState.soundVolume)
         } else {
             alarmUseCase.stopAlarmSound()
         }
@@ -389,10 +397,10 @@ class AlarmAddEditViewModel @Inject constructor(
         updateState {
             copy(soundState = newSoundState)
         }
-        alarmUseCase.playAlarmSound(
-            currentState.soundState.sounds[index],
-            currentState.soundState.soundVolume,
-        )
+
+        val selectedSound = currentState.soundState.sounds[index]
+        alarmUseCase.initializeSoundPlayer(selectedSound.uri)
+        alarmUseCase.playAlarmSound(currentState.soundState.soundVolume)
     }
 
     private fun toggleBottomSheet(sheetType: AlarmAddEditContract.BottomSheetType) {

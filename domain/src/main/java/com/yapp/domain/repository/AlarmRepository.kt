@@ -1,12 +1,14 @@
 package com.yapp.domain.repository
 
+import android.net.Uri
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmSound
 import kotlinx.coroutines.flow.Flow
 
 interface AlarmRepository {
     suspend fun getAlarmSounds(): Result<List<AlarmSound>>
-    fun playAlarmSound(alarmSound: AlarmSound, volume: Int)
+    fun initializeSoundPlayer(uri: Uri)
+    fun playAlarmSound(volume: Int)
     fun stopAlarmSound()
     fun updateAlarmVolume(volume: Int)
     fun releaseSoundPlayer()
