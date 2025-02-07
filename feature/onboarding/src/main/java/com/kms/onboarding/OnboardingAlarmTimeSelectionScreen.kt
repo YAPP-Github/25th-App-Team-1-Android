@@ -8,10 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -35,6 +31,9 @@ fun OnboardingAlarmTimeSelectionRoute(
         totalSteps = 6,
         onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
+        setAlarmTime = { isAm, hour, minute ->
+            viewModel.processAction(OnboardingContract.Action.SetAlarmTime(isAm, hour, minute))
+        },
     )
 }
 
@@ -45,11 +44,8 @@ fun OnboardingAlarmTimeSelectionScreen(
     totalSteps: Int,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
+    setAlarmTime: (String, Int, Int) -> Unit,
 ) {
-    var selectedAmPm by remember { mutableStateOf("오후") }
-    var selectedHour by remember { mutableIntStateOf(1) }
-    var selectedMinute by remember { mutableIntStateOf(0) }
-
     OnboardingScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
@@ -80,9 +76,7 @@ fun OnboardingAlarmTimeSelectionScreen(
             OrbitPicker(
                 modifier = Modifier.padding(top = 90.dp),
             ) { amPm, hour, minute ->
-                selectedAmPm = amPm
-                selectedHour = hour
-                selectedMinute = minute
+                setAlarmTime(amPm, hour, minute)
             }
         }
     }
@@ -98,6 +92,7 @@ fun OnboardingAlarmTimeSelectionScreenPreview() {
             totalSteps = 0,
             onNextClick = {},
             onBackClick = {},
+            setAlarmTime = { _, _, _ -> },
         )
     }
 }

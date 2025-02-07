@@ -16,8 +16,8 @@ sealed class HomeContract {
         val selectedAlarmIds: Set<Long> = emptySet(),
         val isSelectionMode: Boolean = false,
         val isDeleteDialogVisible: Boolean = false,
-        val lastFortuneScore: Int = 50,
-        val deliveryTime: String = "2025-02-01T22:00",
+        val lastFortuneScore: Int = -1,
+        val deliveryTime: String = "받을 수 있는 운세가 없어요",
         val name: String = "동현",
     ) : UiState {
         val isAllSelected: Boolean

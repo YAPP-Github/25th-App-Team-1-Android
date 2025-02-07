@@ -6,9 +6,7 @@ import androidx.compose.ui.unit.dp
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
-import com.yapp.domain.model.toAlarmDays
 import com.yapp.domain.model.toRepeatDays
-import com.yapp.home.HomeContract.Action
 import com.yapp.ui.base.UiState
 
 sealed class AlarmAddEditContract {
@@ -145,31 +143,5 @@ internal fun AlarmAddEditContract.State.toAlarm(id: Long = 0): Alarm {
         soundUri = soundState.sounds.getOrNull(soundState.soundIndex)?.uri.toString(),
         soundVolume = soundState.soundVolume,
         isAlarmActive = true,
-    )
-}
-
-internal fun Alarm.toAlarmAddEditState(): AlarmAddEditContract.State {
-    return AlarmAddEditContract.State(
-        mode = AlarmAddEditContract.EditMode.EDIT,
-        timeState = AlarmAddEditContract.AlarmTimeState(
-            currentAmPm = if (isAm) "오전" else "오후",
-            currentHour = hour,
-            currentMinute = minute,
-            alarmMessage = "",
-        ),
-        daySelectionState = AlarmAddEditContract.AlarmDaySelectionState(
-            selectedDays = repeatDays.toAlarmDays(),
-        ),
-        holidayState = AlarmAddEditContract.AlarmHolidayState(
-            isDisableHolidayChecked = isHolidayAlarmOff,
-        ),
-        snoozeState = AlarmAddEditContract.AlarmSnoozeState(
-            isSnoozeEnabled = isSnoozeEnabled,
-        ),
-        soundState = AlarmAddEditContract.AlarmSoundState(
-            isVibrationEnabled = isVibrationEnabled,
-            isSoundEnabled = isSoundEnabled,
-            soundVolume = soundVolume,
-        ),
     )
 }

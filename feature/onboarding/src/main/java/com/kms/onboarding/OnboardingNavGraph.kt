@@ -6,7 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.OnboardingDestination
-import com.yapp.common.navigation.extensions.sharedViewModel
+import com.yapp.common.navigation.extensions.sharedHiltViewModel
 
 fun NavGraphBuilder.onboardingNavGraph(
     navigator: OrbitNavigator,
@@ -18,7 +18,7 @@ fun NavGraphBuilder.onboardingNavGraph(
     ) {
         OnboardingDestination.routes.forEach { destination ->
             composable(destination.route) { backStackEntry ->
-                val viewModel = backStackEntry.sharedViewModel<OnboardingViewModel>(navigator.navController)
+                val viewModel = backStackEntry.sharedHiltViewModel<OnboardingViewModel>(navigator.navController)
 
                 LaunchedEffect(viewModel) {
                     viewModel.container.sideEffectFlow.collect { sideEffect ->
@@ -52,7 +52,7 @@ fun NavGraphBuilder.onboardingNavGraph(
                         OnboardingCompleteRoute(viewModel)
                     }
                     OnboardingDestination.Complete2 -> {
-                        OnboardingCompleteRoute2(viewModel, onFinishOnboarding)
+                        OnboardingCompleteRoute2(viewModel)
                     }
                 }
             }

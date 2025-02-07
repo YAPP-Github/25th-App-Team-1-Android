@@ -33,13 +33,12 @@ import feature.onboarding.R
 @Composable
 fun OnboardingCompleteRoute2(
     viewModel: OnboardingViewModel,
-    onFinishOnboarding: () -> Unit,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
     OnboardingCompleteScreen2(
         state = state,
-        onNextClick = { onFinishOnboarding() },
+        onNextClick = { viewModel.processAction(OnboardingContract.Action.CreateAlarm) },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
     )
 }

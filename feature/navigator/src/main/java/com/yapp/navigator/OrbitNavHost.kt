@@ -50,7 +50,11 @@ internal fun OrbitNavHost(
         NavHost(
             navController = navigator.navController,
             startDestination = navigator.startDestination,
-            modifier = Modifier.navigationBarsPadding(),
+            modifier = if (navigator.shouldHaveNavigationBarsPadding()) {
+                Modifier.navigationBarsPadding()
+            } else {
+                Modifier
+            },
         ) {
             onboardingNavGraph(
                 navigator = navigator,
