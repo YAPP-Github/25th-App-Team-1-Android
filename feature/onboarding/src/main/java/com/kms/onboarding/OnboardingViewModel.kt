@@ -51,13 +51,32 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun updateField(value: String, fieldType: OnboardingContract.FieldType) {
-        val isValid = value.matches(fieldType.validationRegex)
-        updateState {
-            copy(
-                textFieldValue = value,
-                showWarning = value.isNotEmpty() && !isValid,
-                isButtonEnabled = value.isNotEmpty() && isValid,
-            )
+        when (fieldType) {
+            OnboardingContract.FieldType.TIME -> {
+                val isComplete = value.length == 5
+                val isValid = isComplete && value.matches(fieldType.validationRegex)
+
+                updateState {
+                    copy(
+                        textFieldValue = value,
+                        showWarning = isComplete && !isValid,
+                        isButtonEnabled = isValid,
+                        isValid = isValid,
+                    )
+                }
+            }
+
+            OnboardingContract.FieldType.NAME -> {
+                val isValid = value.matches(fieldType.validationRegex)
+
+                updateState {
+                    copy(
+                        textFieldValue = value,
+                        showWarning = value.isNotEmpty() && !isValid,
+                        isButtonEnabled = value.isNotEmpty() && isValid,
+                    )
+                }
+            }
         }
     }
 
