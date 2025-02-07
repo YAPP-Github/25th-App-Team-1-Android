@@ -26,6 +26,7 @@ class HapticFeedbackManager @Inject constructor(
                 HapticType.LONG_PRESS -> VibrationEffect.createOneShot(100, VibrationEffect.DEFAULT_AMPLITUDE)
                 HapticType.SUCCESS -> VibrationEffect.createWaveform(longArrayOf(0, 50, 50, 50), -1)
                 HapticType.ERROR -> VibrationEffect.createWaveform(longArrayOf(0, 100, 50, 100), -1)
+                HapticType.LIGHT_TICK -> VibrationEffect.createOneShot(20, 30) // 약한 진동 추가
             }
             it.vibrate(effect)
         }
@@ -33,5 +34,5 @@ class HapticFeedbackManager @Inject constructor(
 }
 
 enum class HapticType {
-    CLICK, LONG_PRESS, SUCCESS, ERROR
+    CLICK, LONG_PRESS, SUCCESS, ERROR, LIGHT_TICK
 }

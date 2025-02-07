@@ -8,6 +8,8 @@ import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toRepeatDays
 import com.yapp.domain.usecase.AlarmUseCase
+import com.yapp.media.haptic.HapticFeedbackManager
+import com.yapp.media.haptic.HapticType
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -16,6 +18,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val alarmUseCase: AlarmUseCase,
+    private val hapticFeedbackManager: HapticFeedbackManager,
     private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<OnboardingContract.State, OnboardingContract.SideEffect>(
     initialState = OnboardingContract.State(
@@ -62,6 +65,8 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun setAlarmTime(amPm: String, hour: Int, minute: Int) {
+        hapticFeedbackManager.performHapticFeedback(HapticType.LIGHT_TICK)
+
         val newTimeState = currentState.timeState.copy(
             selectedAmPm = amPm,
             selectedHour = hour,
@@ -128,6 +133,8 @@ class OnboardingViewModel @Inject constructor(
 
     private fun updateBirthDate(lunar: String, year: Int, month: Int, day: Int) {
         val formattedDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
+
+        hapticFeedbackManager.performHapticFeedback(HapticType.LIGHT_TICK)
 
         updateState {
             copy(

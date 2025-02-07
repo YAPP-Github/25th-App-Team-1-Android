@@ -242,6 +242,9 @@ class AlarmAddEditViewModel @Inject constructor(
             currentMinute = minute,
             alarmMessage = getAlarmMessage(amPm, hour, minute, currentState.daySelectionState.selectedDays),
         )
+
+        hapticFeedbackManager.performHapticFeedback(HapticType.LIGHT_TICK)
+
         updateState {
             copy(timeState = newTimeState)
         }
