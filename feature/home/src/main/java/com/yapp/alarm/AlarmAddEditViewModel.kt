@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.yapp.common.util.ResourceProvider
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
+import com.yapp.domain.model.AlarmSound
 import com.yapp.domain.model.copyFrom
 import com.yapp.domain.model.toAlarmDays
 import com.yapp.domain.model.toDayOfWeek
@@ -29,75 +30,79 @@ class AlarmAddEditViewModel @Inject constructor(
     private val alarmId: Long = savedStateHandle.get<Long>("alarmId") ?: -1
 
     init {
-        updateState {
-            copy(mode = if (alarmId == -1L) AlarmAddEditContract.EditMode.ADD else AlarmAddEditContract.EditMode.EDIT)
-        }
-
-        initializeAlarmWithSounds()
+        updateState { copy(mode = if (alarmId == -1L) AlarmAddEditContract.EditMode.ADD else AlarmAddEditContract.EditMode.EDIT) }
+        initializeAlarmScreen()
     }
 
-    private fun initializeAlarmWithSounds() = viewModelScope.launch {
+    private fun initializeAlarmScreen() = viewModelScope.launch {
         alarmUseCase.getAlarmSounds().onSuccess { sounds ->
-            if (alarmId != -1L) {
-                alarmUseCase.getAlarm(alarmId).onSuccess { alarm ->
-                    val repeatDays = alarm.repeatDays.toAlarmDays()
-                    val isAM = alarm.hour < 12
-                    val hour = if (isAM) alarm.hour else alarm.hour - 12
-
-                    updateState {
-                        copy(
-                            initialLoading = false,
-                            timeState = timeState.copy(
-                                initialAmPm = if (isAM) "오전" else "오후",
-                                initialHour = "$hour",
-                                initialMinute = alarm.minute.toString().padStart(2, '0'),
-                                currentAmPm = if (isAM) "오전" else "오후",
-                                currentHour = hour,
-                                currentMinute = alarm.minute,
-                                alarmMessage = getAlarmMessage(if (isAM) "오전" else "오후", hour, alarm.minute, repeatDays),
-                            ),
-                            daySelectionState = daySelectionState.copy(
-                                selectedDays = repeatDays,
-                                isWeekdaysChecked = repeatDays.containsAll(
-                                    setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI),
-                                ),
-                                isWeekendsChecked = repeatDays.containsAll(setOf(AlarmDay.SAT, AlarmDay.SUN)),
-                            ),
-                            holidayState = holidayState.copy(isDisableHolidayChecked = alarm.isHolidayAlarmOff),
-                            snoozeState = snoozeState.copy(
-                                isSnoozeEnabled = alarm.isSnoozeEnabled,
-                                snoozeIntervalIndex = snoozeState.snoozeIntervals.indexOfFirst { it.startsWith("${alarm.snoozeInterval}") }
-                                    .takeIf { it >= 0 } ?: 0, // 값이 없으면 기본값 0 사용
-                                snoozeCountIndex = snoozeState.snoozeCounts.indexOfFirst { it.startsWith("${alarm.snoozeCount}") }
-                                    .takeIf { it >= 0 } ?: 0,
-                            ),
-                            soundState = soundState.copy(
-                                isVibrationEnabled = alarm.isVibrationEnabled,
-                                isSoundEnabled = alarm.isSoundEnabled,
-                                soundVolume = alarm.soundVolume,
-                                sounds = sounds,
-                                soundIndex = sounds.indexOfFirst { sound -> sound.uri.toString() == alarm.soundUri },
-                            ),
-                        )
-                    }
-                }
+            if (alarmId == -1L) {
+                setupNewAlarmScreen(sounds)
             } else {
-                val homecomingIndex = sounds.indexOfFirst { it.title == "Homecoming" }
-
-                updateState {
-                    copy(
-                        initialLoading = false,
-                        soundState = soundState.copy(
-                            sounds = sounds,
-                            soundIndex = homecomingIndex.takeIf { it >= 0 } ?: 0,
-                        ),
-                    )
-                }
+                loadExistingAlarm(sounds)
             }
         }.onFailure {
-            Log.e("AlarmAddEditViewModel", "Failed to get alarm sounds", it)
+            Log.e("AlarmAddEditViewModel", "Failed to load alarm sounds", it)
         }
     }
+
+    private fun setupNewAlarmScreen(sounds: List<AlarmSound>) {
+        val defaultSoundIndex = sounds.indexOfFirst { it.title == "Homecoming" }.takeIf { it >= 0 } ?: 0
+        updateState {
+            copy(
+                initialLoading = false,
+                soundState = soundState.copy(sounds = sounds, soundIndex = defaultSoundIndex),
+            )
+        }
+    }
+
+    private suspend fun loadExistingAlarm(sounds: List<AlarmSound>) {
+        alarmUseCase.getAlarm(alarmId).onSuccess { alarm ->
+            val repeatDays = alarm.repeatDays.toAlarmDays()
+            val isAM = alarm.hour < 12
+            val hour = if (isAM) alarm.hour else alarm.hour - 12
+
+            updateState {
+                copy(
+                    initialLoading = false,
+                    timeState = timeState.copy(
+                        initialAmPm = if (isAM) "오전" else "오후",
+                        initialHour = "$hour",
+                        initialMinute = alarm.minute.toString().padStart(2, '0'),
+                        currentAmPm = if (isAM) "오전" else "오후",
+                        currentHour = hour,
+                        currentMinute = alarm.minute,
+                        alarmMessage = getAlarmMessage(if (isAM) "오전" else "오후", hour, alarm.minute, repeatDays),
+                    ),
+                    daySelectionState = setupDaySelectionState(repeatDays),
+                    holidayState = holidayState.copy(isDisableHolidayChecked = alarm.isHolidayAlarmOff),
+                    snoozeState = setupSnoozeState(alarm),
+                    soundState = soundState.copy(
+                        isVibrationEnabled = alarm.isVibrationEnabled,
+                        isSoundEnabled = alarm.isSoundEnabled,
+                        soundVolume = alarm.soundVolume,
+                        sounds = sounds,
+                        soundIndex = sounds.indexOfFirst { it.uri.toString() == alarm.soundUri },
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun setupDaySelectionState(repeatDays: Set<AlarmDay>) = currentState.daySelectionState.copy(
+        selectedDays = repeatDays,
+        isWeekdaysChecked = repeatDays.containsAll(setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI)),
+        isWeekendsChecked = repeatDays.containsAll(setOf(AlarmDay.SAT, AlarmDay.SUN)),
+    )
+
+    private fun setupSnoozeState(alarm: Alarm) = currentState.snoozeState.copy(
+        isSnoozeEnabled = alarm.isSnoozeEnabled,
+        snoozeIntervalIndex = findSnoozeIndex(alarm.snoozeInterval, currentState.snoozeState.snoozeIntervals),
+        snoozeCountIndex = findSnoozeIndex(alarm.snoozeCount, currentState.snoozeState.snoozeCounts),
+    )
+
+    private fun findSnoozeIndex(value: Int, list: List<String>) =
+        list.indexOfFirst { it.startsWith("$value") }.takeIf { it >= 0 } ?: 0
 
     override fun onCleared() {
         super.onCleared()
@@ -140,7 +145,7 @@ class AlarmAddEditViewModel @Inject constructor(
     }
 
     private suspend fun updateExistingAlarm(alarm: Alarm) {
-        alarmUseCase.updateAlarm(alarm.copy(id = alarmId))
+        alarmUseCase.updateAlarm(alarm)
             .onSuccess {
                 emitSideEffect(AlarmAddEditContract.SideEffect.UpdateAlarm(it.id))
             }
@@ -155,11 +160,12 @@ class AlarmAddEditViewModel @Inject constructor(
                 when {
                     timeMatchedAlarms.any { it.copy(id = 0) == newAlarm.copy(id = 0) } -> {
                         showAlarmAlreadySetWarning()
-                        return@collect
                     }
 
                     timeMatchedAlarms.isNotEmpty() -> {
-                        updateExistingAlarm(timeMatchedAlarms.first().copyFrom(newAlarm))
+                        val existingAlarm = timeMatchedAlarms.first()
+                        val updatedAlarm = existingAlarm.copyFrom(newAlarm).copy(id = existingAlarm.id)
+                        updateExistingAlarm(updatedAlarm)
                     }
 
                     else -> createNewAlarm(newAlarm)
