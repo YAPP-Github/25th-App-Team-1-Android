@@ -1,6 +1,5 @@
 package com.kms.onboarding
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +31,9 @@ fun OnboardingBirthdayRoute(
         totalSteps = 6,
         onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
+        onBirthDateChange = { lunar, year, month, day ->
+            viewModel.processAction(OnboardingContract.Action.UpdateBirthDate(lunar, year, month, day)) // ✅ 생년월일 저장
+        },
     )
 }
 
@@ -42,6 +44,7 @@ fun OnboardingBirthdayScreen(
     totalSteps: Int,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
+    onBirthDateChange: (String, Int, Int, Int) -> Unit,
 ) {
     OnboardingScreen(
         currentStep = currentStep,
@@ -63,9 +66,8 @@ fun OnboardingBirthdayScreen(
 
             OrbitYearMonthPicker(
                 modifier = Modifier.padding(top = 60.dp),
-            ) { lunar, year, month, day ->
-                Log.d("BirthdayScreen", "lunar: $lunar, year: $year, month: $month, day: $day")
-            }
+                onValueChange = onBirthDateChange,
+            )
         }
     }
 }
@@ -80,6 +82,7 @@ fun OnboardingBirthdayScreenPreview() {
             totalSteps = 3,
             onNextClick = {},
             onBackClick = {},
+            onBirthDateChange = { _, _, _, _ -> },
         )
     }
 }

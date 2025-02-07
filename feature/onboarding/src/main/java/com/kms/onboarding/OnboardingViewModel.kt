@@ -19,6 +19,7 @@ class OnboardingViewModel @Inject constructor(
             is OnboardingContract.Action.NextStep -> moveToNextStep()
             is OnboardingContract.Action.PreviousStep -> moveToPreviousStep()
             is OnboardingContract.Action.UpdateField -> updateField(action.value, action.fieldType)
+            is OnboardingContract.Action.UpdateBirthDate -> updateBirthDate(action.lunar, action.year, action.month, action.day) // ✅ 추가
             is OnboardingContract.Action.Reset -> resetFields()
             is OnboardingContract.Action.Submit -> handleSubmission(action.stepData)
             is OnboardingContract.Action.UpdateGender -> updateGender(action.gender)
@@ -59,9 +60,10 @@ class OnboardingViewModel @Inject constructor(
                 updateState {
                     copy(
                         textFieldValue = value,
+                        birthTime = if (isValid) value else "",
                         showWarning = isComplete && !isValid,
                         isButtonEnabled = isValid,
-                        isValid = isValid,
+                        isBirthTimeValid = isValid,
                     )
                 }
             }
@@ -72,12 +74,25 @@ class OnboardingViewModel @Inject constructor(
                 updateState {
                     copy(
                         textFieldValue = value,
+                        userName = value,
                         showWarning = value.isNotEmpty() && !isValid,
                         isButtonEnabled = value.isNotEmpty() && isValid,
                         isValid = isValid,
                     )
                 }
             }
+        }
+    }
+
+    private fun updateBirthDate(lunar: String, year: Int, month: Int, day: Int) {
+        val formattedDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
+
+        updateState {
+            copy(
+                birthDate = formattedDate,
+                birthType = lunar,
+                isBirthDateValid = true,
+            )
         }
     }
 
