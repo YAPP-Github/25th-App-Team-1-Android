@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,6 +47,7 @@ import com.yapp.domain.model.AlarmSound
 import com.yapp.home.ADD_ALARM_RESULT_KEY
 import com.yapp.home.UPDATE_ALARM_RESULT_KEY
 import com.yapp.ui.component.button.OrbitButton
+import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.component.snackbar.showCustomSnackBar
 import com.yapp.ui.component.switch.OrbitSwitch
 import com.yapp.ui.component.timepicker.OrbitPicker
@@ -94,6 +96,7 @@ fun AlarmAddEditRoute(
                         actionLabel = effect.label,
                         iconRes = effect.iconRes,
                         bottomPadding = effect.bottomPadding,
+                        duration = effect.duration,
                     )
 
                     when (result) {
@@ -111,13 +114,29 @@ fun AlarmAddEditRoute(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AlarmAddEditScreen(
     stateProvider: () -> AlarmAddEditContract.State,
     eventDispatcher: (AlarmAddEditContract.Action) -> Unit,
 ) {
     val state = stateProvider()
+
+    if (state.initialLoading) {
+        AlarmAddEditLoadingScreen()
+    } else {
+        AlarmAddEditContent(
+            state = state,
+            eventDispatcher = eventDispatcher,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AlarmAddEditContent(
+    state: AlarmAddEditContract.State,
+    eventDispatcher: (AlarmAddEditContract.Action) -> Unit,
+) {
     val snoozeState = state.snoozeState
     val snoozeBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val soundBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -135,7 +154,11 @@ fun AlarmAddEditScreen(
             modifier = Modifier.weight(1f),
             contentAlignment = Alignment.Center,
         ) {
-            OrbitPicker { amPm, hour, minute ->
+            OrbitPicker(
+                initialAmPm = state.timeState.initialAmPm,
+                initialHour = state.timeState.initialHour,
+                initialMinute = state.timeState.initialMinute,
+            ) { amPm, hour, minute ->
                 eventDispatcher(AlarmAddEditContract.Action.UpdateAlarmTime(amPm, hour, minute))
             }
         }
@@ -210,6 +233,21 @@ fun AlarmAddEditScreen(
             }
         },
     )
+}
+
+@Composable
+private fun AlarmAddEditLoadingScreen() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        LottieAnimation(
+            modifier = Modifier
+                .size(70.dp)
+                .align(Alignment.Center),
+            resId = core.designsystem.R.raw.star_loading,
+        )
+    }
 }
 
 @Composable

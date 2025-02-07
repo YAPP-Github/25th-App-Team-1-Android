@@ -3,9 +3,11 @@ package com.yapp.alarm
 import android.util.Log
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.util.ResourceProvider
 import com.yapp.domain.model.AlarmDay
+import com.yapp.domain.model.toAlarmDays
 import com.yapp.domain.model.toDayOfWeek
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
@@ -18,26 +20,80 @@ import javax.inject.Inject
 class AlarmAddEditViewModel @Inject constructor(
     private val alarmUseCase: AlarmUseCase,
     private val resourceProvider: ResourceProvider,
+    savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
     initialState = AlarmAddEditContract.State(),
 ) {
+    private val alarmId: Long = savedStateHandle.get<Long>("alarmId") ?: -1
+
     init {
-        viewModelScope.launch {
-            alarmUseCase.getAlarmSounds()
-                .onSuccess { sounds ->
-                    val homecomingIndex = sounds.indexOfFirst { it.title == "Homecoming" }
+        updateState {
+            copy(mode = if (alarmId == -1L) AlarmAddEditContract.EditMode.ADD else AlarmAddEditContract.EditMode.EDIT)
+        }
+
+        initializeAlarmWithSounds()
+    }
+
+    private fun initializeAlarmWithSounds() = viewModelScope.launch {
+        alarmUseCase.getAlarmSounds().onSuccess { sounds ->
+            if (alarmId != -1L) {
+                alarmUseCase.getAlarm(alarmId).onSuccess { alarm ->
+                    val repeatDays = alarm.repeatDays.toAlarmDays()
+                    val isAM = alarm.hour < 12
+                    val hour = if (isAM) alarm.hour else alarm.hour - 12
+
                     updateState {
                         copy(
+                            initialLoading = false,
+                            timeState = timeState.copy(
+                                initialAmPm = if (isAM) "오전" else "오후",
+                                initialHour = "$hour",
+                                initialMinute = alarm.minute.toString().padStart(2, '0'),
+                                currentAmPm = if (isAM) "오전" else "오후",
+                                currentHour = hour,
+                                currentMinute = alarm.minute,
+                                alarmMessage = getAlarmMessage(if (isAM) "오전" else "오후", hour, alarm.minute, repeatDays),
+                            ),
+                            daySelectionState = daySelectionState.copy(
+                                selectedDays = repeatDays,
+                                isWeekdaysChecked = repeatDays.containsAll(
+                                    setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI),
+                                ),
+                                isWeekendsChecked = repeatDays.containsAll(setOf(AlarmDay.SAT, AlarmDay.SUN)),
+                            ),
+                            holidayState = holidayState.copy(isDisableHolidayChecked = alarm.isHolidayAlarmOff),
+                            snoozeState = snoozeState.copy(
+                                isSnoozeEnabled = alarm.isSnoozeEnabled,
+                                snoozeIntervalIndex = snoozeState.snoozeIntervals.indexOfFirst { it.startsWith("${alarm.snoozeInterval}") }
+                                    .takeIf { it >= 0 } ?: 0, // 값이 없으면 기본값 0 사용
+                                snoozeCountIndex = snoozeState.snoozeCounts.indexOfFirst { it.startsWith("${alarm.snoozeCount}") }
+                                    .takeIf { it >= 0 } ?: 0,
+                            ),
                             soundState = soundState.copy(
+                                isVibrationEnabled = alarm.isVibrationEnabled,
+                                isSoundEnabled = alarm.isSoundEnabled,
+                                soundVolume = alarm.soundVolume,
                                 sounds = sounds,
-                                soundIndex = if (homecomingIndex >= 0) homecomingIndex else 0,
+                                soundIndex = sounds.indexOfFirst { sound -> sound.uri.toString() == alarm.soundUri },
                             ),
                         )
                     }
                 }
-                .onFailure {
-                    Log.e("AlarmAddEditViewModel", "Failed to get alarm sounds", it)
+            } else {
+                val homecomingIndex = sounds.indexOfFirst { it.title == "Homecoming" }
+
+                updateState {
+                    copy(
+                        initialLoading = false,
+                        soundState = soundState.copy(
+                            sounds = sounds,
+                            soundIndex = homecomingIndex.takeIf { it >= 0 } ?: 0,
+                        ),
+                    )
                 }
+            }
+        }.onFailure {
+            Log.e("AlarmAddEditViewModel", "Failed to get alarm sounds", it)
         }
     }
 

@@ -6,12 +6,15 @@ import androidx.compose.ui.unit.dp
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
+import com.yapp.domain.model.toAlarmDays
 import com.yapp.domain.model.toRepeatDays
 import com.yapp.ui.base.UiState
 
 sealed class AlarmAddEditContract {
 
     data class State(
+        val mode: EditMode = EditMode.ADD,
+        val initialLoading: Boolean = true,
         val timeState: AlarmTimeState = AlarmTimeState(),
         val daySelectionState: AlarmDaySelectionState = AlarmDaySelectionState(),
         val holidayState: AlarmHolidayState = AlarmHolidayState(),
@@ -21,6 +24,9 @@ sealed class AlarmAddEditContract {
     ) : UiState
 
     data class AlarmTimeState(
+        val initialAmPm: String = "오전",
+        val initialHour: String = "1",
+        val initialMinute: String = "00",
         val currentAmPm: String = "오전",
         val currentHour: Int = 1,
         val currentMinute: Int = 0,
@@ -54,6 +60,10 @@ sealed class AlarmAddEditContract {
         val soundIndex: Int = 0,
         val sounds: List<AlarmSound> = emptyList(),
     )
+
+    enum class EditMode {
+        ADD, EDIT
+    }
 
     sealed class Action {
         data object ClickBack : Action()
@@ -119,5 +129,31 @@ internal fun AlarmAddEditContract.State.toAlarm(id: Long = 0): Alarm {
         soundUri = soundState.sounds.getOrNull(soundState.soundIndex)?.uri.toString(),
         soundVolume = soundState.soundVolume,
         isAlarmActive = true,
+    )
+}
+
+internal fun Alarm.toAlarmAddEditState(): AlarmAddEditContract.State {
+    return AlarmAddEditContract.State(
+        mode = AlarmAddEditContract.EditMode.EDIT,
+        timeState = AlarmAddEditContract.AlarmTimeState(
+            currentAmPm = if (isAm) "오전" else "오후",
+            currentHour = hour,
+            currentMinute = minute,
+            alarmMessage = "",
+        ),
+        daySelectionState = AlarmAddEditContract.AlarmDaySelectionState(
+            selectedDays = repeatDays.toAlarmDays(),
+        ),
+        holidayState = AlarmAddEditContract.AlarmHolidayState(
+            isDisableHolidayChecked = isHolidayAlarmOff,
+        ),
+        snoozeState = AlarmAddEditContract.AlarmSnoozeState(
+            isSnoozeEnabled = isSnoozeEnabled,
+        ),
+        soundState = AlarmAddEditContract.AlarmSoundState(
+            isVibrationEnabled = isVibrationEnabled,
+            isSoundEnabled = isSoundEnabled,
+            soundVolume = soundVolume,
+        ),
     )
 }

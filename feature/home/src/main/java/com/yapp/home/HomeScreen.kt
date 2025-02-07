@@ -1,6 +1,5 @@
 package com.yapp.home
 
-import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -219,7 +218,6 @@ private fun HomeContent(
             hasMoreData = false,
             listState = listState,
             onClickAlarm = { alarmId ->
-                Log.d("HomeScreen", "onClickAlarm: $alarmId")
                 eventDispatcher(HomeContract.Action.SelectAlarm(alarmId))
             },
             onClickAdd = {
