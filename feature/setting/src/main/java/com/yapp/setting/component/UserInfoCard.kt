@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -33,9 +32,7 @@ fun UserInfoCard() {
             .fillMaxWidth()
             .padding(24.dp),
     ) {
-        Column(
-            modifier = Modifier.wrapContentWidth(),
-        ) {
+        Column() {
             UserNameAndGenderText(name = "강문수", gender = "남성")
             Spacer(modifier = Modifier.height(4.dp))
             UserBirthDayText(birth = "양력 1999년 7월 8일")
@@ -52,7 +49,6 @@ fun UserInfoCard() {
 @Composable
 fun UserNameAndGenderText(name: String, gender: String) {
     Row(
-        modifier = Modifier.wrapContentWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
@@ -79,7 +75,6 @@ fun UserNameAndGenderText(name: String, gender: String) {
 @Composable
 fun UserBirthDayText(birth: String) {
     Text(
-        modifier = Modifier.wrapContentWidth(),
         text = birth,
         style = OrbitTheme.typography.body1Regular,
         color = OrbitTheme.colors.gray_50,
