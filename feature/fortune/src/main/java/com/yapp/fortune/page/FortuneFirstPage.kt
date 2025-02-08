@@ -3,9 +3,12 @@ package com.yapp.fortune.page
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -50,18 +53,24 @@ fun FortuneFirstPage() {
                 .paddingForScreenPercentage(topPercentage = 0.30f),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Box {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.wrapContentSize(),
+            ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_letter),
                     contentDescription = null,
                 )
-
                 Text(
-                    text = "오늘은 네가 가진 성실함과 진정성이\n빛을 발할 수 있는 날이야. 중요한 결정\n은 신중히, 감정적 말은 삼가고 차분히 대\n처하면 좋아. 주변 사람들과 긍정적으로 소\n통하고, 계획을 재정비하는 데 시간 써봐.\n 파란색이나 녹색 아이템이 너의 운을 더\n 북돋아줄거야! 오늘도 화이팅 하자! 오늘도\n 화이팅 하자! 오늘도 화이팅 하자! 오늘도 ",
+                    text = "오늘은 괜찮은 하루가 될 거야! 평소보다 긍정적인 마음으로 하루를 시작하면 좋은 일이 생길지도 몰라. 주변 사람들과의 관계에 신경 쓰면 더욱 행복한 하루가 될 거야. 혹시 오늘 중요한 일이 있다면, 미리 계획을 세우고 차분하게 진행하는 게 좋아. 너의 꼼꼼함이 빛을 발할 거야!",
                     style = OrbitTheme.typography.H3,
                     color = OrbitTheme.colors.gray_600,
                     modifier = Modifier
-                        .align(Alignment.Center),
+                        .width(IntrinsicSize.Max)
+                        .align(Alignment.Center)
+                        .padding(horizontal = 60.dp),
+                    maxLines = Int.MAX_VALUE,
+                    softWrap = true,
                 )
                 Text(
                     text = "From. 오르비",

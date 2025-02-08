@@ -29,14 +29,14 @@ fun LuckyColorContent() {
         LuckyColorBox(
             colorTitle = "행운의 색",
             resId = core.designsystem.R.drawable.ic_circle,
-            contentLabel = "색상1",
+            contentLabel = "초록색",
             colorTint = OrbitTheme.colors.green,
         )
         Spacer(modifier = Modifier.height(52.dp))
         LuckyColorBox(
             colorTitle = "피해야할 색",
             resId = core.designsystem.R.drawable.ic_circle,
-            contentLabel = "색상2",
+            contentLabel = "빨간색",
             colorTint = OrbitTheme.colors.red,
         )
         Spacer(modifier = Modifier.height(52.dp))
