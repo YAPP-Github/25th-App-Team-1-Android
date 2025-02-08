@@ -4,10 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -60,12 +58,13 @@ fun SettingTopAppBar(
         actions = {
             if (showTopAppBarActions) {
                 Row(
+                    modifier = Modifier.padding(end = 20.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         text = actionTitle ?: "",
                         style = OrbitTheme.typography.body1Medium,
-                        color = if (isPressed) OrbitTheme.colors.main else OrbitTheme.colors.gray_500, // ✅ Press 상태일 때만 색상 변경
+                        color = if (isPressed) OrbitTheme.colors.main else OrbitTheme.colors.gray_500,
                         modifier = Modifier
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                             .clickable(
@@ -74,7 +73,6 @@ fun SettingTopAppBar(
                                 onClick = { /* TODO: 클릭 이벤트 */ },
                             ),
                     )
-                    Spacer(modifier = Modifier.width(20.dp))
                 }
             }
         },
