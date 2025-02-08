@@ -14,18 +14,59 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
+import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
+import feature.home.R
+import java.util.Locale
 
 @Composable
-internal fun AlarmActionScreen() {
+internal fun AlarmActionRoute(
+    viewModel: AlarmActionViewModel = hiltViewModel(),
+    navigator: OrbitNavigator,
+) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val sideEffect = viewModel.container.sideEffectFlow
+
+    LaunchedEffectWithLifecycle(sideEffect) {
+        sideEffect.collect { action ->
+            when (action) {
+                is AlarmActionContract.SideEffect.Navigate -> {
+                    navigator.navigateTo(
+                        route = action.route,
+                        popUpTo = action.popUpTo,
+                        inclusive = action.inclusive,
+                    )
+                }
+            }
+        }
+    }
+
+    AlarmActionScreen(
+        stateProvider = { state },
+        eventDispatcher = viewModel::processAction,
+    )
+}
+
+@Composable
+internal fun AlarmActionScreen(
+    stateProvider: () -> AlarmActionContract.State,
+    eventDispatcher: (AlarmActionContract.Action) -> Unit,
+) {
+    val state = stateProvider()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -41,10 +82,10 @@ internal fun AlarmActionScreen() {
         )
 
         AlarmTime(
-            isAm = true,
-            hour = 7,
-            minute = 30,
-            todayDate = "1월 1일 수요일",
+            isAm = state.isAm,
+            hour = state.hour,
+            minute = state.minute,
+            todayDate = state.todayDate,
         )
 
         Spacer(modifier = Modifier.height(102.dp))
@@ -58,14 +99,14 @@ internal fun AlarmActionScreen() {
         Spacer(modifier = Modifier.height(56.dp))
 
         AlarmSnoozeButton(
-            snoozeInterval = 10,
-            snoozeCount = 3,
+            snoozeInterval = state.snoozeInterval,
+            snoozeCount = state.snoozeCount,
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         OrbitButton(
-            label = "알람끄기",
+            label = stringResource(id = R.string.alarm_off_btn),
             enabled = true,
             modifier = Modifier
                 .padding(
@@ -103,7 +144,7 @@ private fun AlarmTime(
             Spacer(modifier = Modifier.width(12.dp))
 
             Text(
-                text = "$hour:$minute",
+                text = "$hour:${String.format(Locale.getDefault(), "%02d", minute)}",
                 style = OrbitTheme.typography.displaySemiBold,
                 color = OrbitTheme.colors.white,
             )
@@ -146,7 +187,7 @@ private fun AlarmSnoozeButton(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "${snoozeInterval}분 미루기",
+                text = stringResource(id = R.string.alarm_snooze_btn, snoozeInterval),
                 style = OrbitTheme.typography.headline2SemiBold,
                 color = OrbitTheme.colors.white,
             )
@@ -165,7 +206,14 @@ private fun AlarmSnoozeButton(
                         horizontal = 10.dp,
                         vertical = 6.dp,
                     ),
-                text = if (snoozeCount == -1) "무한" else "${snoozeCount}회",
+                text = if (snoozeCount == -1) {
+                    stringResource(id = R.string.alarm_add_edit_repeat_count_infinite)
+                } else {
+                    stringResource(
+                        id = R.string.alarm_add_edit_repeat_count_times,
+                        snoozeCount,
+                    )
+                },
                 style = OrbitTheme.typography.body2Medium,
                 color = OrbitTheme.colors.main,
             )
@@ -177,6 +225,18 @@ private fun AlarmSnoozeButton(
 @Composable
 internal fun AlarmActionScreenPreview() {
     OrbitTheme {
-        AlarmActionScreen()
+        AlarmActionScreen(
+            stateProvider = {
+                AlarmActionContract.State(
+                    isAm = true,
+                    hour = 10,
+                    minute = 30,
+                    todayDate = "10월 10일 월요일",
+                    snoozeInterval = 5,
+                    snoozeCount = -1,
+                )
+            },
+            eventDispatcher = {},
+        )
     }
 }

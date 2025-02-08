@@ -6,6 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
+import com.yapp.alarm.AlarmActionRoute
 import com.yapp.alarm.AlarmAddEditRoute
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.HomeDestination
@@ -41,6 +42,14 @@ fun NavGraphBuilder.homeNavGraph(
             AlarmAddEditRoute(
                 navigator = navigator,
                 snackBarHostState = snackBarHostState,
+            )
+        }
+
+        composable(
+            route = HomeDestination.AlarmAction.route,
+        ) {
+            AlarmActionRoute(
+                navigator = navigator,
             )
         }
     }
