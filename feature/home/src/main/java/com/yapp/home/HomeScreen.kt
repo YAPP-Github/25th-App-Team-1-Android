@@ -282,11 +282,13 @@ private fun HomeContent(
 
                     HomeCharacterAnimation(
                         fortuneScore = state.lastFortuneScore,
+                        hasActivatedAlarm = state.hasActivatedAlarm,
                         eventDispatcher = eventDispatcher,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     HomeFortuneDescription(
                         fortuneScore = state.lastFortuneScore,
+                        hasActivatedAlarm = state.hasActivatedAlarm,
                         name = state.name,
                         deliveryTime = state.deliveryTime,
                     )
@@ -327,6 +329,21 @@ private fun HomeContent(
             },
             onCancel = {
                 eventDispatcher(HomeContract.Action.HideDeleteDialog)
+            },
+        )
+    }
+
+    if (state.isNoActivatedAlarmDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.no_active_alarm_dialog_title),
+            message = stringResource(id = R.string.no_active_alarm_dialog_message),
+            confirmText = stringResource(id = R.string.no_active_alarm_dialog_btn_confirm),
+            cancelText = stringResource(id = R.string.no_active_alarm_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(HomeContract.Action.HideNoActivatedAlarmDialog)
+            },
+            onCancel = {
+                eventDispatcher(HomeContract.Action.RollbackPendingAlarmToggle)
             },
         )
     }
@@ -452,28 +469,31 @@ fun SkyImage() {
 private fun HomeCharacterAnimation(
     modifier: Modifier = Modifier,
     fortuneScore: Int,
+    hasActivatedAlarm: Boolean,
     eventDispatcher: (HomeContract.Action) -> Unit,
 ) {
-    val (bubbleRes, starRes) = when (fortuneScore) {
-        in 0..49 -> {
+    val (bubbleRes, starRes) = when {
+        !hasActivatedAlarm -> {
+            Pair(null, core.designsystem.R.raw.fortune_preload)
+        }
+        fortuneScore in 0..49 -> {
             Pair(
                 core.designsystem.R.drawable.ic_fortune_0_to_49_speech_bubble,
                 core.designsystem.R.raw.fortune_0_to_49,
             )
         }
-        in 50..79 -> {
+        fortuneScore in 50..79 -> {
             Pair(
                 core.designsystem.R.drawable.ic_fortune_50_to_79_speech_bubble,
                 core.designsystem.R.raw.fortune_50_to_79,
             )
         }
-        in 80..100 -> {
+        fortuneScore in 80..100 -> {
             Pair(
                 core.designsystem.R.drawable.ic_fortune_80_to_100_speech_bubble,
                 core.designsystem.R.raw.fortune_80_to_100,
             )
         }
-
         else -> {
             Pair(
                 core.designsystem.R.drawable.ic_fortune_preload_speech_bubble,
@@ -486,16 +506,19 @@ private fun HomeCharacterAnimation(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(
-            painter = painterResource(id = bubbleRes),
-            contentDescription = "IMG_MAIN_SPEECH_BUBBLE",
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        bubbleRes?.let {
+            Image(
+                modifier = Modifier.height(46.dp),
+                painter = painterResource(id = it),
+                contentDescription = "IMG_MAIN_SPEECH_BUBBLE",
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        } ?: Spacer(modifier = Modifier.height(62.dp))
         LottieAnimation(
             modifier = Modifier
                 .size(110.dp)
                 .clickable {
-                    eventDispatcher(HomeContract.Action.FakeAction) // ✅ 클릭 시 이동
+                    eventDispatcher(HomeContract.Action.FakeAction)
                 },
             resId = starRes,
         )
@@ -506,13 +529,15 @@ private fun HomeCharacterAnimation(
 private fun HomeFortuneDescription(
     modifier: Modifier = Modifier,
     fortuneScore: Int,
+    hasActivatedAlarm: Boolean,
     name: String,
     deliveryTime: String,
 ) {
-    val descriptionRes = when (fortuneScore) {
-        in 0..49 -> R.string.home_fortune_0_to_49_description
-        in 50..79 -> R.string.home_fortune_50_to_79_description
-        in 80..100 -> R.string.home_fortune_80_to_100_description
+    val descriptionRes = when {
+        !hasActivatedAlarm -> R.string.home_fortune_no_alarm_description
+        fortuneScore in 0..49 -> R.string.home_fortune_0_to_49_description
+        fortuneScore in 50..79 -> R.string.home_fortune_50_to_79_description
+        fortuneScore in 80..100 -> R.string.home_fortune_80_to_100_description
         else -> R.string.home_fortune_preload_description
     }
 

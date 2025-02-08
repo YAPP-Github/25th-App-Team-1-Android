@@ -39,6 +39,9 @@ class HomeViewModel @Inject constructor(
             is HomeContract.Action.ToggleAlarmActivation -> toggleAlarmActivation(action.alarmId)
             HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
+            HomeContract.Action.ShowNoActivatedAlarmDialog -> showNoActivatedAlarmDialog()
+            HomeContract.Action.HideNoActivatedAlarmDialog -> hideNoActivatedAlarmDialog()
+            HomeContract.Action.RollbackPendingAlarmToggle -> rollbackAlarmActivation()
             HomeContract.Action.ConfirmDeletion -> confirmDeletion()
             is HomeContract.Action.DeleteSingleAlarm -> deleteSingleAlarm(action.alarmId)
             HomeContract.Action.LoadMoreAlarms -> loadAllAlarms()
@@ -128,13 +131,21 @@ class HomeViewModel @Inject constructor(
             if (currentIndex == -1) return@launch
 
             val currentAlarm = currentState.alarms[currentIndex]
+            val previousState = currentAlarm.isAlarmActive // 기존 상태 저장
             val updatedAlarm = currentAlarm.copy(isAlarmActive = !currentAlarm.isAlarmActive)
 
             alarmUseCase.updateAlarm(updatedAlarm).onSuccess { newAlarm ->
                 val updatedAlarms = currentState.alarms.toMutableList()
                 updatedAlarms[currentIndex] = newAlarm
-                updateState { copy(alarms = updatedAlarms) }
-                updateDeliveryTime(updatedAlarms)
+
+                val hasActivatedAlarm = updatedAlarms.any { it.isAlarmActive }
+                updateState {
+                    copy(
+                        alarms = updatedAlarms,
+                        isNoActivatedAlarmDialogVisible = !hasActivatedAlarm,
+                        pendingAlarmToggle = if (!hasActivatedAlarm) alarmId to previousState else null,
+                    )
+                }
             }.onFailure { error ->
                 Log.e("HomeViewModel", "Failed to update alarm state", error)
             }
@@ -151,6 +162,46 @@ class HomeViewModel @Inject constructor(
 
     private fun confirmDeletion() {
         deleteAlarms(currentState.selectedAlarmIds)
+    }
+
+    private fun showNoActivatedAlarmDialog() {
+        updateState { copy(isNoActivatedAlarmDialogVisible = true) }
+    }
+
+    private fun hideNoActivatedAlarmDialog() {
+        updateState {
+            copy(
+                isNoActivatedAlarmDialogVisible = false,
+                pendingAlarmToggle = null,
+            )
+        }
+    }
+
+    private fun rollbackAlarmActivation() {
+        val pendingAlarm = currentState.pendingAlarmToggle ?: return
+        val (alarmId, previousState) = pendingAlarm
+
+        viewModelScope.launch {
+            val currentIndex = currentState.alarms.indexOfFirst { it.id == alarmId }
+            if (currentIndex == -1) return@launch
+
+            val currentAlarm = currentState.alarms[currentIndex]
+            val restoredAlarm = currentAlarm.copy(isAlarmActive = previousState)
+
+            alarmUseCase.updateAlarm(restoredAlarm).onSuccess { updatedAlarm ->
+                val updatedAlarms = currentState.alarms.toMutableList()
+                updatedAlarms[currentIndex] = updatedAlarm
+                updateState {
+                    copy(
+                        alarms = updatedAlarms,
+                        pendingAlarmToggle = null,
+                        isNoActivatedAlarmDialogVisible = false,
+                    )
+                }
+            }.onFailure { error ->
+                Log.e("HomeViewModel", "Failed to rollback alarm state", error)
+            }
+        }
     }
 
     private fun deleteSingleAlarm(alarmId: Long) {

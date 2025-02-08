@@ -16,12 +16,16 @@ sealed class HomeContract {
         val selectedAlarmIds: Set<Long> = emptySet(),
         val isSelectionMode: Boolean = false,
         val isDeleteDialogVisible: Boolean = false,
+        val isNoActivatedAlarmDialogVisible: Boolean = false,
+        val pendingAlarmToggle: Pair<Long, Boolean>? = null,
         val lastFortuneScore: Int = -1,
         val deliveryTime: String = "받을 수 있는 운세가 없어요",
         val name: String = "동현",
     ) : UiState {
         val isAllSelected: Boolean
             get() = alarms.isNotEmpty() && selectedAlarmIds.size == alarms.size
+        val hasActivatedAlarm: Boolean
+            get() = alarms.any { it.isAlarmActive }
     }
 
     sealed class Action {
@@ -33,6 +37,9 @@ sealed class HomeContract {
         data object ToggleAllAlarmSelection : Action()
         data object ShowDeleteDialog : Action()
         data object HideDeleteDialog : Action()
+        data object ShowNoActivatedAlarmDialog : Action()
+        data object HideNoActivatedAlarmDialog : Action()
+        data object RollbackPendingAlarmToggle : Action()
         data object ConfirmDeletion : Action()
         data class DeleteSingleAlarm(val alarmId: Long) : Action()
         data object LoadMoreAlarms : Action()
