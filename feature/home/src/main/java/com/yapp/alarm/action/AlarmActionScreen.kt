@@ -1,4 +1,4 @@
-package com.yapp.alarm
+package com.yapp.alarm.action
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background

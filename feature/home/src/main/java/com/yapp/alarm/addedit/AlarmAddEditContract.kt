@@ -1,4 +1,4 @@
-package com.yapp.alarm
+package com.yapp.alarm.addedit
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.ui.unit.Dp

@@ -1,4 +1,4 @@
-package com.yapp.alarm
+package com.yapp.alarm.action
 
 import com.yapp.ui.base.UiState
 

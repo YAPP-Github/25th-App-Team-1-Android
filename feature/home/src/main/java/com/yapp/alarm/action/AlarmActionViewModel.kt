@@ -1,4 +1,4 @@
-package com.yapp.alarm
+package com.yapp.alarm.action
 
 import androidx.lifecycle.viewModelScope
 import com.yapp.ui.base.BaseViewModel
