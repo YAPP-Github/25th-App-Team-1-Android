@@ -145,7 +145,7 @@ class OnboardingViewModel @Inject constructor(
     private fun updateBirthDate(lunar: String, year: Int, month: Int, day: Int) {
         val formattedDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
 
-        if (container.stateFlow.value.birthDate == formattedDate && container.stateFlow.value.birthType == lunar) {
+        if (currentState.birthDate == formattedDate && currentState.birthType == lunar) {
             return
         }
         hapticFeedbackManager.performHapticFeedback(HapticType.LIGHT_TICK)
