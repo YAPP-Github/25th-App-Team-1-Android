@@ -67,6 +67,11 @@
     <string name="alarm_unsaved_changes_dialog_btn_cancel">취소</string>
     <string name="alarm_unsaved_changes_dialog_btn_discard">나가기</string>
 
+    <string name="no_active_alarm_dialog_title">모든 알람 해제</string>
+    <string name="no_active_alarm_dialog_message">알람을 설정하지 않으면\n운세 편지를 받을 수 없어요.</string>
+    <string name="no_active_alarm_dialog_btn_cancel">취소</string>
+    <string name="no_active_alarm_dialog_btn_confirm">확인</string>
+
     <string name="alarm_disabled_warning">알람을 끄면 운세가 도착하지 않아요.</string>
     <string name="alarm_already_set">선택한 시간에 이미 설정된 알람이 있어요.</string>
     <string name="alarm_deleted">삭제되었어요.</string>

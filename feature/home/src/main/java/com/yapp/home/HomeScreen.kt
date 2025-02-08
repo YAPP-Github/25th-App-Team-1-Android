@@ -332,6 +332,21 @@ private fun HomeContent(
             },
         )
     }
+
+    if (state.isNoActivatedAlarmDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.no_active_alarm_dialog_title),
+            message = stringResource(id = R.string.no_active_alarm_dialog_message),
+            confirmText = stringResource(id = R.string.no_active_alarm_dialog_btn_confirm),
+            cancelText = stringResource(id = R.string.no_active_alarm_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(HomeContract.Action.HideNoActivatedAlarmDialog)
+            },
+            onCancel = {
+                eventDispatcher(HomeContract.Action.RollbackPendingAlarmToggle)
+            },
+        )
+    }
 }
 
 @Composable
