@@ -29,6 +29,7 @@ class AlarmActionViewModel @Inject constructor() : BaseViewModel<AlarmActionCont
                         hour = if (now.hour % 12 == 0) 12 else now.hour % 12,
                         minute = now.minute,
                         todayDate = "${today.monthValue}월 ${today.dayOfMonth}일 $dayOfWeek",
+                        initialLoading = false,
                     )
                 }
             }

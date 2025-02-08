@@ -5,6 +5,7 @@ import com.yapp.ui.base.UiState
 class AlarmActionContract {
 
     data class State(
+        val initialLoading: Boolean = true,
         val isAm: Boolean = true,
         val hour: Int = 0,
         val minute: Int = 0,

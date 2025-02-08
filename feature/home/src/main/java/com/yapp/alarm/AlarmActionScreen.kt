@@ -2,12 +2,14 @@ package com.yapp.alarm
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -27,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
+import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import feature.home.R
@@ -67,6 +70,48 @@ internal fun AlarmActionScreen(
 ) {
     val state = stateProvider()
 
+    if (state.initialLoading) {
+        AlarmActionLoadingScreen()
+    } else {
+        AlarmActionContent(
+            isAm = state.isAm,
+            hour = state.hour,
+            minute = state.minute,
+            todayDate = state.todayDate,
+            snoozeInterval = state.snoozeInterval,
+            snoozeCount = state.snoozeCount,
+            onSnoozeClick = { eventDispatcher(AlarmActionContract.Action.Snooze) },
+        )
+    }
+}
+
+@Composable
+private fun AlarmActionLoadingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF496381)),
+        contentAlignment = Alignment.Center,
+    ) {
+        LottieAnimation(
+            modifier = Modifier
+                .size(70.dp)
+                .align(Alignment.Center),
+            resId = core.designsystem.R.raw.star_loading,
+        )
+    }
+}
+
+@Composable
+private fun AlarmActionContent(
+    isAm: Boolean,
+    hour: Int,
+    minute: Int,
+    todayDate: String,
+    snoozeInterval: Int,
+    snoozeCount: Int,
+    onSnoozeClick: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -82,10 +127,10 @@ internal fun AlarmActionScreen(
         )
 
         AlarmTime(
-            isAm = state.isAm,
-            hour = state.hour,
-            minute = state.minute,
-            todayDate = state.todayDate,
+            isAm = isAm,
+            hour = hour,
+            minute = minute,
+            todayDate = todayDate,
         )
 
         Spacer(modifier = Modifier.height(102.dp))
@@ -99,8 +144,8 @@ internal fun AlarmActionScreen(
         Spacer(modifier = Modifier.height(56.dp))
 
         AlarmSnoozeButton(
-            snoozeInterval = state.snoozeInterval,
-            snoozeCount = state.snoozeCount,
+            snoozeInterval = snoozeInterval,
+            snoozeCount = snoozeCount,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -115,8 +160,7 @@ internal fun AlarmActionScreen(
                     bottom = 48.dp,
                 )
                 .height(62.dp),
-            onClick = {
-            },
+            onClick = onSnoozeClick,
         )
     }
 }
