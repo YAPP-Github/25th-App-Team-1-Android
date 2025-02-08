@@ -20,8 +20,8 @@ object FortunePagesProvider {
             ),
         ),
         FortunePageData(
-            title = "오늘의 건강운",
-            description = "오늘 컨디션을 체크하고\n건강을 챙겨보세요!",
+            title = "오늘의 운세",
+            description = "오늘 나의 하루는\n" + "행운이 가득해!",
             backgroundResId = core.designsystem.R.drawable.ic_letter_horoscope,
             details = listOf(
                 Fortune("건강운 95점", "오늘은 컨디션 최고! 몸이 가볍고 활력이 넘칠 거야. 평소보다 운동을 좀 더 해보거나, 건강한 음식을 챙겨 먹으면 더욱 좋을 거야. 충분한 수면으로 컨디션을 유지하는 것도 잊지 말고!"),

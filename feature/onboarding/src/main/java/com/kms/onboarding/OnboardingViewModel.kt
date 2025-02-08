@@ -23,6 +23,8 @@ class OnboardingViewModel @Inject constructor(
 ) : BaseViewModel<OnboardingContract.State, OnboardingContract.SideEffect>(
     initialState = OnboardingContract.State(
         currentStep = savedStateHandle["currentStep"] ?: 1,
+        birthDate = savedStateHandle["birthDate"] ?: "",
+        birthType = savedStateHandle["birthType"] ?: "양력",
     ),
 ) {
     fun processAction(action: OnboardingContract.Action) {
@@ -119,6 +121,7 @@ class OnboardingViewModel @Inject constructor(
                         showWarning = isComplete && !isValid,
                         isButtonEnabled = isValid,
                         isBirthTimeValid = isValid,
+                        isValid = isValid,
                     )
                 }
             }
@@ -142,7 +145,12 @@ class OnboardingViewModel @Inject constructor(
     private fun updateBirthDate(lunar: String, year: Int, month: Int, day: Int) {
         val formattedDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
 
+        if (currentState.birthDate == formattedDate && currentState.birthType == lunar) {
+            return
+        }
         hapticFeedbackManager.performHapticFeedback(HapticType.LIGHT_TICK)
+        savedStateHandle["birthDate"] = formattedDate
+        savedStateHandle["birthType"] = lunar
 
         updateState {
             copy(

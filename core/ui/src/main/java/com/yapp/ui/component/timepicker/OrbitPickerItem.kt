@@ -34,6 +34,7 @@ fun OrbitPickerItem(
     modifier: Modifier = Modifier,
     items: List<String>,
     state: PickerState = rememberPickerState(),
+    startIndex: Int = 0,
     visibleItemsCount: Int,
     textModifier: Modifier = Modifier,
     infiniteScroll: Boolean = true,
@@ -52,16 +53,17 @@ fun OrbitPickerItem(
     val itemHeightDp = with(LocalDensity.current) { itemHeightPixels.intValue.toDp() }
 
     LaunchedEffect(key1 = state.startIndex) {
+        val safeStartIndex = state.startIndex.takeIf { it >= 0 } ?: 0
         val listStartIndex = if (infiniteScroll) {
-            calculateStartIndex(infiniteScroll, items.size, listScrollMiddle, visibleItemsMiddle, state.startIndex)
+            calculateStartIndex(infiniteScroll, items.size, listScrollMiddle, visibleItemsMiddle, safeStartIndex)
         } else {
-            state.startIndex
+            safeStartIndex
         }
 
         listState.scrollToItem(listStartIndex, 0)
 
         if (!infiniteScroll) {
-            val selectedItem = items.getOrNull(state.startIndex) ?: ""
+            val selectedItem = items.getOrNull(safeStartIndex) ?: ""
             if (selectedItem != state.selectedItem) {
                 state.selectedItem = selectedItem
                 onValueChange(selectedItem)
