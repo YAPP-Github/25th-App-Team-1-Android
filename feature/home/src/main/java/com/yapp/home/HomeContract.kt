@@ -22,6 +22,8 @@ sealed class HomeContract {
     ) : UiState {
         val isAllSelected: Boolean
             get() = alarms.isNotEmpty() && selectedAlarmIds.size == alarms.size
+        val hasActivatedAlarm: Boolean
+            get() = alarms.any { it.isAlarmActive }
     }
 
     sealed class Action {
