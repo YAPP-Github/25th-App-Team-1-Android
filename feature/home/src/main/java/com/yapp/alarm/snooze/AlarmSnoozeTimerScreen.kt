@@ -17,11 +17,14 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
@@ -33,14 +36,86 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.ui.component.lottie.LottieAnimation
+import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
 import feature.home.R
 import java.util.Locale
 
 @Composable
-internal fun AlarmSnoozeTimerScreen() {
+internal fun AlarmSnoozeTimerRoute(
+    viewModel: AlarmSnoozeTimerViewModel = hiltViewModel(),
+    navigator: OrbitNavigator,
+) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val sideEffect = viewModel.container.sideEffectFlow
+
+    LaunchedEffectWithLifecycle(sideEffect) {
+        sideEffect.collect { action ->
+            when (action) {
+                is AlarmSnoozeTimerContract.SideEffect.Navigate -> {
+                    navigator.navigateTo(
+                        route = action.route,
+                        popUpTo = action.popUpTo,
+                        inclusive = action.inclusive,
+                    )
+                }
+            }
+        }
+    }
+
+    AlarmSnoozeTimerScreen(
+        stateProvider = { state },
+        eventDispatcher = viewModel::processAction,
+    )
+}
+
+@Composable
+internal fun AlarmSnoozeTimerScreen(
+    stateProvider: () -> AlarmSnoozeTimerContract.State,
+    eventDispatcher: (AlarmSnoozeTimerContract.Action) -> Unit,
+) {
+    val state = stateProvider()
+
+    if (state.initialLoading) {
+        AlarmSnoozeLoadingScreen()
+    } else {
+        AlarmSnoozeContent(
+            remainingSeconds = state.remainingSeconds,
+            totalSeconds = state.totalSeconds,
+            onDismissClick = { eventDispatcher(AlarmSnoozeTimerContract.Action.Dismiss) },
+        )
+    }
+}
+
+@Composable
+private fun AlarmSnoozeLoadingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF3D5372)),
+        contentAlignment = Alignment.Center,
+    ) {
+        LottieAnimation(
+            modifier = Modifier
+                .size(70.dp)
+                .align(Alignment.Center),
+            resId = core.designsystem.R.raw.star_loading,
+        )
+    }
+}
+
+@Composable
+private fun AlarmSnoozeContent(
+    remainingSeconds: Int,
+    totalSeconds: Int,
+    onDismissClick: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -58,17 +133,17 @@ internal fun AlarmSnoozeTimerScreen() {
         Spacer(modifier = Modifier.heightForScreenPercentage(0.11f))
 
         AlarmSnoozeTimer(
-            remainingSeconds = 200,
-            totalSeconds = 300,
+            remainingSeconds = remainingSeconds,
+            totalSeconds = totalSeconds,
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         AlarmOffButton(
-            onClick = { },
+            onClick = onDismissClick,
         )
 
-        Spacer(modifier = Modifier.heightForScreenPercentage(0.06f))
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 
@@ -115,7 +190,7 @@ private fun CircularProgressIndicator(
     size: Dp = 274.dp,
     backgroundWidth: Dp = 20.dp,
     progressWidth: Dp = 12.dp,
-    progressBlurRadius: Dp = 2.dp,
+    progressBlurRadius: Dp = 5.dp,
 ) {
     val backgroundStrokePx = backgroundWidth.toPx()
     val progressStrokePx = progressWidth.toPx()
@@ -123,6 +198,7 @@ private fun CircularProgressIndicator(
     val offset = (backgroundStrokePx - progressStrokePx) / 2
 
     val backgroundColor = Color.White.copy(alpha = 0.2f)
+    val progressColor = OrbitTheme.colors.sub_main
 
     val progressBlurEffect = BlurMaskFilter(
         progressBlurRadius.toPx(),
@@ -130,7 +206,7 @@ private fun CircularProgressIndicator(
     )
 
     val progressPaint = Paint().apply {
-        color = OrbitTheme.colors.main.toArgb()
+        color = OrbitTheme.colors.main.copy(0.6f).toArgb()
         maskFilter = progressBlurEffect
         style = Paint.Style.STROKE
         strokeWidth = progressStrokePx
@@ -165,6 +241,16 @@ private fun CircularProgressIndicator(
                 progressPaint,
             )
         }
+
+        drawArc(
+            color = progressColor,
+            startAngle = -90f,
+            sweepAngle = 360 * progress, // 진행도 반영
+            useCenter = false,
+            topLeft = Offset(progressStrokePx / 2 + offset, progressStrokePx / 2 + offset),
+            size = Size(size.toPx() - progressStrokePx - 2 * offset, size.toPx() - progressStrokePx - 2 * offset),
+            style = Stroke(width = progressStrokePx, cap = StrokeCap.Round),
+        )
     }
 }
 
@@ -206,6 +292,9 @@ private fun AlarmOffButton(
 @Composable
 internal fun PreviewAlarmSnoozeTimerScreen() {
     OrbitTheme {
-        AlarmSnoozeTimerScreen()
+        AlarmSnoozeTimerScreen(
+            stateProvider = { AlarmSnoozeTimerContract.State() },
+            eventDispatcher = {},
+        )
     }
 }

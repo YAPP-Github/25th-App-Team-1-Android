@@ -1,6 +1,7 @@
 package com.yapp.alarm.action
 
 import androidx.lifecycle.viewModelScope
+import com.yapp.common.navigation.Routes
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -18,7 +19,6 @@ class AlarmActionViewModel @Inject constructor() : BaseViewModel<AlarmActionCont
     private fun startClock() {
         viewModelScope.launch {
             while (true) {
-                delay(1000L)
                 val now = java.time.LocalTime.now()
                 val today = java.time.LocalDate.now()
                 val dayOfWeek = today.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.KOREAN)
@@ -32,16 +32,25 @@ class AlarmActionViewModel @Inject constructor() : BaseViewModel<AlarmActionCont
                         initialLoading = false,
                     )
                 }
+
+                delay(1000L)
             }
         }
     }
 
     fun processAction(action: AlarmActionContract.Action) {
         when (action) {
-            is AlarmActionContract.Action.Snooze -> {
-            }
-            is AlarmActionContract.Action.Dismiss -> {
-            }
+            is AlarmActionContract.Action.Snooze -> snooze()
+            is AlarmActionContract.Action.Dismiss -> { }
         }
+    }
+
+    private fun snooze() {
+        updateState {
+            copy(
+                snoozeCount = currentState.snoozeCount - 1,
+            )
+        }
+        emitSideEffect(AlarmActionContract.SideEffect.Navigate(Routes.Home.ALARM_SNOOZE_TIMER))
     }
 }

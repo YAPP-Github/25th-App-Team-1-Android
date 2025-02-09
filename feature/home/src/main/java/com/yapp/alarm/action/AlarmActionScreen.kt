@@ -81,6 +81,7 @@ internal fun AlarmActionScreen(
             snoozeInterval = state.snoozeInterval,
             snoozeCount = state.snoozeCount,
             onSnoozeClick = { eventDispatcher(AlarmActionContract.Action.Snooze) },
+            onDismissClick = { eventDispatcher(AlarmActionContract.Action.Dismiss) },
         )
     }
 }
@@ -111,6 +112,7 @@ private fun AlarmActionContent(
     snoozeInterval: Int,
     snoozeCount: Int,
     onSnoozeClick: () -> Unit,
+    onDismissClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -146,6 +148,7 @@ private fun AlarmActionContent(
         AlarmSnoozeButton(
             snoozeInterval = snoozeInterval,
             snoozeCount = snoozeCount,
+            onSnoozeClick = onSnoozeClick,
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -160,7 +163,7 @@ private fun AlarmActionContent(
                     bottom = 48.dp,
                 )
                 .height(62.dp),
-            onClick = onSnoozeClick,
+            onClick = onDismissClick,
         )
     }
 }
@@ -208,6 +211,7 @@ private fun AlarmTime(
 private fun AlarmSnoozeButton(
     snoozeInterval: Int,
     snoozeCount: Int,
+    onSnoozeClick: () -> Unit,
 ) {
     Surface(
         color = OrbitTheme.colors.white.copy(
@@ -220,6 +224,7 @@ private fun AlarmSnoozeButton(
             ),
         ),
         shape = CircleShape,
+        onClick = onSnoozeClick,
     ) {
         Row(
             modifier = Modifier.padding(
