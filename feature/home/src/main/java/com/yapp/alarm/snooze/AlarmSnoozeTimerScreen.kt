@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -128,20 +129,23 @@ private fun AlarmSnoozeContent(
             color = OrbitTheme.colors.white,
         )
 
-        Spacer(modifier = Modifier.heightForScreenPercentage(0.11f))
-
-        AlarmSnoozeTimer(
-            remainingSeconds = remainingSeconds,
-            totalSeconds = totalSeconds,
-        )
-
-        Spacer(modifier = Modifier.weight(1f))
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            contentAlignment = Alignment.Center,
+        ) {
+            AlarmSnoozeTimer(
+                remainingSeconds = remainingSeconds,
+                totalSeconds = totalSeconds,
+            )
+        }
 
         AlarmOffButton(
             onClick = onDismissClick,
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(48.dp))
     }
 }
 
