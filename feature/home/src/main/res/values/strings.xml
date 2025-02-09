@@ -76,4 +76,10 @@
     <string name="alarm_already_set">선택한 시간에 이미 설정된 알람이 있어요.</string>
     <string name="alarm_deleted">삭제되었어요.</string>
     <string name="alarm_added">기상 알람이 추가되었어요.</string>
+
+    <string name="alarm_snooze_btn">%d분 미루기</string>
+    <string name="alarm_off_btn">알람끄기</string>
+
+    <string name="alarm_snooze_timer_title">알람 미루기</string>
+    <string name="alarm_snooze_timer_remaining_time">남은 시간</string>
 </resources>

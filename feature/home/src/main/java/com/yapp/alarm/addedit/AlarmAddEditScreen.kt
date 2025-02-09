@@ -1,4 +1,4 @@
-package com.yapp.alarm
+package com.yapp.alarm.addedit
 
 import android.net.Uri
 import androidx.activity.compose.BackHandler
@@ -46,6 +46,7 @@ import com.yapp.alarm.component.AlarmCheckItem
 import com.yapp.alarm.component.AlarmDayButton
 import com.yapp.alarm.component.bottomsheet.AlarmSnoozeBottomSheet
 import com.yapp.alarm.component.bottomsheet.AlarmSoundBottomSheet
+import com.yapp.alarm.getLabelStringRes
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.AlarmDay
@@ -208,8 +209,20 @@ fun AlarmAddEditContent(
         snoozeIntervals = snoozeState.snoozeIntervals,
         snoozeCounts = snoozeState.snoozeCounts,
         onSnoozeToggle = { eventDispatcher(AlarmAddEditContract.Action.ToggleSnoozeOption) },
-        onIntervalSelected = { index -> eventDispatcher(AlarmAddEditContract.Action.SetSnoozeInterval(index)) },
-        onCountSelected = { index -> eventDispatcher(AlarmAddEditContract.Action.SetSnoozeRepeatCount(index)) },
+        onIntervalSelected = { index ->
+            eventDispatcher(
+                AlarmAddEditContract.Action.SetSnoozeInterval(
+                    index,
+                ),
+            )
+        },
+        onCountSelected = { index ->
+            eventDispatcher(
+                AlarmAddEditContract.Action.SetSnoozeRepeatCount(
+                    index,
+                ),
+            )
+        },
         onComplete = {
             scope.launch {
                 snoozeBottomSheetState.hide()
@@ -414,7 +427,13 @@ private fun AlarmAddEditSettingsSection(
             } else {
                 stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
             },
-            onClick = { processAction(AlarmAddEditContract.Action.ToggleBottomSheet(AlarmAddEditContract.BottomSheetType.SnoozeSetting)) },
+            onClick = {
+                processAction(
+                    AlarmAddEditContract.Action.ToggleBottomSheet(
+                        AlarmAddEditContract.BottomSheetType.SnoozeSetting,
+                    ),
+                )
+            },
         )
         Spacer(
             modifier = Modifier
@@ -437,7 +456,13 @@ private fun AlarmAddEditSettingsSection(
                 state.soundState.isVibrationEnabled -> stringResource(id = R.string.alarm_add_edit_vibration)
                 else -> stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
             },
-            onClick = { processAction(AlarmAddEditContract.Action.ToggleBottomSheet(AlarmAddEditContract.BottomSheetType.SoundSetting)) },
+            onClick = {
+                processAction(
+                    AlarmAddEditContract.Action.ToggleBottomSheet(
+                        AlarmAddEditContract.BottomSheetType.SoundSetting,
+                    ),
+                )
+            },
         )
     }
 }

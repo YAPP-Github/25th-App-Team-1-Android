@@ -18,6 +18,8 @@ object Routes {
         const val ROUTE = "home_route"
         const val HOME = "home"
         const val ALARM_ADD_EDIT = "alarm_add_edit"
+        const val ALARM_ACTION = "alarm_action"
+        const val ALARM_SNOOZE_TIMER = "alarm_snooze_timer"
     }
 
     object MyPage {
