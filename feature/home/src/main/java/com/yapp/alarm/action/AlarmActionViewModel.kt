@@ -41,7 +41,7 @@ class AlarmActionViewModel @Inject constructor() : BaseViewModel<AlarmActionCont
     fun processAction(action: AlarmActionContract.Action) {
         when (action) {
             is AlarmActionContract.Action.Snooze -> snooze()
-            is AlarmActionContract.Action.Dismiss -> { }
+            is AlarmActionContract.Action.Dismiss -> dismiss()
         }
     }
 
@@ -52,5 +52,9 @@ class AlarmActionViewModel @Inject constructor() : BaseViewModel<AlarmActionCont
             )
         }
         emitSideEffect(AlarmActionContract.SideEffect.Navigate(Routes.Home.ALARM_SNOOZE_TIMER))
+    }
+
+    private fun dismiss() {
+        emitSideEffect(AlarmActionContract.SideEffect.Navigate(Routes.Mission.ROUTE))
     }
 }
