@@ -182,7 +182,7 @@ private fun TextFieldContainer(
                     if (text.text.isEmpty()) {
                         Text(
                             text = hint,
-                            style = OrbitTheme.typography.body1Regular.copy(textAlign = TextAlign.Center),
+                            style = OrbitTheme.typography.headline2SemiBold,
                             color = OrbitTheme.colors.gray_500,
                         )
                     }
