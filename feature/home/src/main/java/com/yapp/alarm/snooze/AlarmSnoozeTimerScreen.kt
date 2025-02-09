@@ -43,7 +43,6 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
-import com.yapp.ui.utils.toPx
 import feature.home.R
 import java.util.Locale
 
@@ -192,30 +191,31 @@ private fun CircularProgressIndicator(
     progressWidth: Dp = 12.dp,
     progressBlurRadius: Dp = 5.dp,
 ) {
-    val backgroundStrokePx = backgroundWidth.toPx()
-    val progressStrokePx = progressWidth.toPx()
-
-    val offset = (backgroundStrokePx - progressStrokePx) / 2
-
-    val backgroundColor = Color.White.copy(alpha = 0.2f)
+    val backgroundColor = OrbitTheme.colors.white.copy(alpha = 0.2f)
     val progressColor = OrbitTheme.colors.sub_main
-
-    val progressBlurEffect = BlurMaskFilter(
-        progressBlurRadius.toPx(),
-        BlurMaskFilter.Blur.NORMAL,
-    )
-
-    val progressPaint = Paint().apply {
-        color = OrbitTheme.colors.main.copy(0.6f).toArgb()
-        maskFilter = progressBlurEffect
-        style = Paint.Style.STROKE
-        strokeWidth = progressStrokePx
-        strokeCap = Paint.Cap.ROUND
-    }
+    val progressBlurColor = OrbitTheme.colors.main.copy(0.6f)
 
     Canvas(
         modifier = modifier.size(size),
     ) {
+        val backgroundStrokePx = backgroundWidth.toPx()
+        val progressStrokePx = progressWidth.toPx()
+
+        val offset = (backgroundStrokePx - progressStrokePx) / 2
+
+        val progressBlurEffect = BlurMaskFilter(
+            progressBlurRadius.toPx(),
+            BlurMaskFilter.Blur.NORMAL,
+        )
+
+        val progressPaint = Paint().apply {
+            color = progressBlurColor.toArgb()
+            maskFilter = progressBlurEffect
+            style = Paint.Style.STROKE
+            strokeWidth = progressStrokePx
+            strokeCap = Paint.Cap.ROUND
+        }
+
         val center = Offset(size.toPx() / 2, size.toPx() / 2)
         val radius = (size.toPx() - backgroundStrokePx) / 2
 
@@ -245,7 +245,7 @@ private fun CircularProgressIndicator(
         drawArc(
             color = progressColor,
             startAngle = -90f,
-            sweepAngle = 360 * progress, // 진행도 반영
+            sweepAngle = 360 * progress,
             useCenter = false,
             topLeft = Offset(progressStrokePx / 2 + offset, progressStrokePx / 2 + offset),
             size = Size(size.toPx() - progressStrokePx - 2 * offset, size.toPx() - progressStrokePx - 2 * offset),
