@@ -44,7 +44,6 @@ import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import feature.home.R
-import java.util.Locale
 
 @Composable
 internal fun AlarmSnoozeTimerRoute(
@@ -255,9 +254,9 @@ private fun CircularProgressIndicator(
 }
 
 private fun formatSecondsToTime(seconds: Int): String {
-    val minutes = seconds / 60
-    val remainingSeconds = seconds % 60
-    return String.format(Locale.getDefault(), "%02d:%02d", minutes, remainingSeconds)
+    val minutes = (seconds / 60).toString().padStart(2, '0')
+    val remainingSeconds = (seconds % 60).toString().padStart(2, '0')
+    return "$minutes:$remainingSeconds"
 }
 
 @Composable
