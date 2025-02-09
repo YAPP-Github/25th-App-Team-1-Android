@@ -10,8 +10,8 @@ class AlarmActionContract {
         val hour: Int = 0,
         val minute: Int = 0,
         val todayDate: String = "",
-        val snoozeInterval: Int = 1,
-        val snoozeCount: Int = 1,
+        val snoozeInterval: Int = 5,
+        val snoozeCount: Int = 5,
     ) : UiState
 
     sealed class Action {

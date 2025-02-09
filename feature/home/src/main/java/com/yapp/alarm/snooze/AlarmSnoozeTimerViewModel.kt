@@ -1,6 +1,7 @@
 package com.yapp.alarm.snooze
 
 import androidx.lifecycle.viewModelScope
+import com.yapp.common.navigation.Routes
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -17,14 +18,14 @@ class AlarmSnoozeTimerViewModel @Inject constructor() : BaseViewModel<AlarmSnooz
     }
 
     private fun startClock() {
-        updateState {
-            copy(
-                alarmTimeStamp = System.currentTimeMillis() / 1000 + 300,
-                totalSeconds = 300,
-            )
-        }
-
         viewModelScope.launch {
+            updateState {
+                copy(
+                    alarmTimeStamp = System.currentTimeMillis() / 1000 + 300,
+                    totalSeconds = 300,
+                )
+            }.join()
+
             while (true) {
                 val currentTime = System.currentTimeMillis() / 1000
                 val remaining = max(0, currentState.alarmTimeStamp - currentTime)
@@ -43,8 +44,11 @@ class AlarmSnoozeTimerViewModel @Inject constructor() : BaseViewModel<AlarmSnooz
 
     fun processAction(action: AlarmSnoozeTimerContract.Action) {
         when (action) {
-            is AlarmSnoozeTimerContract.Action.Dismiss -> {
-            }
+            is AlarmSnoozeTimerContract.Action.Dismiss -> dismiss()
         }
+    }
+
+    private fun dismiss() {
+        emitSideEffect(AlarmSnoozeTimerContract.SideEffect.Navigate(Routes.Mission.ROUTE))
     }
 }
