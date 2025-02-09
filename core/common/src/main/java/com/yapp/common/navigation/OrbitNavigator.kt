@@ -7,13 +7,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.yapp.common.navigation.destination.MissionDestination
+import com.yapp.common.navigation.destination.HomeDestination
+import com.yapp.common.navigation.destination.OnboardingDestination
 import com.yapp.common.navigation.destination.TopLevelDestination
 
 class OrbitNavigator(
     val navController: NavHostController,
 ) {
-    val startDestination = MissionDestination.Route.route
+    val startDestination = OnboardingDestination.Route.route
 
     private val currentDestination: NavDestination?
         @Composable get() = navController
@@ -54,9 +55,9 @@ class OrbitNavigator(
     }
 
     @Composable
-    fun shouldShowBottomBar(): Boolean {
+    fun shouldHaveNavigationBarsPadding(): Boolean {
         val currentRoute = currentDestination?.route ?: return false
-        return currentRoute in TopLevelDestination.entries.map { it.route }
+        return currentRoute !in HomeDestination.Home.route
     }
 }
 

@@ -53,7 +53,7 @@ fun FortuneCompletePage(
 
         Text(
             text = message,
-            style = OrbitTheme.typography.H2,
+            style = OrbitTheme.typography.H1,
             color = OrbitTheme.colors.white,
             modifier = Modifier
                 .fillMaxWidth()

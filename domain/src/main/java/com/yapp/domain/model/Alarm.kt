@@ -1,7 +1,5 @@
 package com.yapp.domain.model
 
-import org.json.JSONObject
-
 data class Alarm(
     val id: Long = 0,
 
@@ -17,6 +15,7 @@ data class Alarm(
     val isSnoozeEnabled: Boolean = false,
 
     val snoozeInterval: Int = 5,
+    // -1 이면 무제한
     val snoozeCount: Int = 1,
 
     val isVibrationEnabled: Boolean = true,
@@ -28,46 +27,17 @@ data class Alarm(
     val isAlarmActive: Boolean = true,
 )
 
-fun Alarm.toJson(): String {
-    return JSONObject().apply {
-        put("id", id)
-        put("isAm", isAm)
-        put("hour", hour)
-        put("minute", minute)
-        put("repeatDays", repeatDays)
-        put("isHolidayAlarmOff", isHolidayAlarmOff)
-        put("isSnoozeEnabled", isSnoozeEnabled)
-        put("snoozeInterval", snoozeInterval)
-        put("snoozeCount", snoozeCount)
-        put("isVibrationEnabled", isVibrationEnabled)
-        put("isSoundEnabled", isSoundEnabled)
-        put("soundUri", soundUri)
-        put("soundVolume", soundVolume)
-        put("isAlarmActive", isAlarmActive)
-    }.toString()
-}
-
-fun String.toAlarm(): Alarm? {
-    return try {
-        val jsonObject = JSONObject(this)
-        Alarm(
-            id = jsonObject.getLong("id"),
-            isAm = jsonObject.getBoolean("isAm"),
-            hour = jsonObject.getInt("hour"),
-            minute = jsonObject.getInt("minute"),
-            repeatDays = jsonObject.getInt("repeatDays"),
-            isHolidayAlarmOff = jsonObject.getBoolean("isHolidayAlarmOff"),
-            isSnoozeEnabled = jsonObject.getBoolean("isSnoozeEnabled"),
-            snoozeInterval = jsonObject.getInt("snoozeInterval"),
-            snoozeCount = jsonObject.getInt("snoozeCount"),
-            isVibrationEnabled = jsonObject.getBoolean("isVibrationEnabled"),
-            isSoundEnabled = jsonObject.getBoolean("isSoundEnabled"),
-            soundUri = jsonObject.getString("soundUri"),
-            soundVolume = jsonObject.getInt("soundVolume"),
-            isAlarmActive = jsonObject.getBoolean("isAlarmActive"),
-        )
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
+fun Alarm.copyFrom(source: Alarm): Alarm {
+    return this.copy(
+        repeatDays = source.repeatDays,
+        isHolidayAlarmOff = source.isHolidayAlarmOff,
+        isSnoozeEnabled = source.isSnoozeEnabled,
+        snoozeInterval = source.snoozeInterval,
+        snoozeCount = source.snoozeCount,
+        isVibrationEnabled = source.isVibrationEnabled,
+        isSoundEnabled = source.isSoundEnabled,
+        soundUri = source.soundUri,
+        soundVolume = source.soundVolume,
+        isAlarmActive = source.isAlarmActive,
+    )
 }

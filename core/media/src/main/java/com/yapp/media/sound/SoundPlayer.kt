@@ -1,6 +1,7 @@
 package com.yapp.media.sound
 
 import android.content.Context
+import android.media.AudioAttributes
 import android.media.MediaPlayer
 import android.net.Uri
 import android.util.Log
@@ -12,44 +13,61 @@ import javax.inject.Singleton
 class SoundPlayer @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
-    private val mediaPlayer: MediaPlayer = MediaPlayer()
+    private var mediaPlayer: MediaPlayer? = null
+    private var currentUri: Uri? = null
 
-    fun playSound(uri: Uri, volume: Float) {
+    fun initialize(uri: Uri) {
         stopSound()
+        currentUri = uri
 
-        try {
-            mediaPlayer.setDataSource(context, uri)
-            mediaPlayer.setOnPreparedListener { mediaPlayer.start() }
-            mediaPlayer.prepareAsync()
-            mediaPlayer.setVolume(volume, volume)
-        } catch (e: Exception) {
-            Log.e("SoundPlayer", "Error playing sound", e)
-            stopSound()
+        mediaPlayer = MediaPlayer().apply {
+            try {
+                setDataSource(context, uri)
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_ALARM)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build(),
+                )
+                prepare()
+            } catch (e: Exception) {
+                Log.e("SoundPlayer", "Error initializing MediaPlayer", e)
+            }
         }
+    }
+
+    fun playSound(volume: Int) {
+        mediaPlayer?.let {
+            if (!it.isPlaying) {
+                updateVolume(volume)
+                it.start()
+            }
+        } ?: Log.e("SoundPlayer", "MediaPlayer is not initialized")
     }
 
     fun stopSound() {
-        try {
-            mediaPlayer.setOnPreparedListener(null)
-            if (mediaPlayer.isPlaying) {
-                mediaPlayer.stop()
-            }
-            mediaPlayer.reset()
-        } catch (e: Exception) {
-            Log.e("SoundPlayer", "Error stopping sound", e)
+        mediaPlayer?.apply {
+            if (isPlaying) stop()
+            reset()
+            release()
         }
+        mediaPlayer = null
     }
 
     fun updateVolume(volume: Int) {
-        val normalizedVolume = (volume / 100f).coerceIn(0f, 1f)
-        mediaPlayer.setVolume(normalizedVolume, normalizedVolume)
+        val clampedVolume = volume.coerceIn(0, 100)
+        val normalizedVolume = clampedVolume / 100f
+
+        mediaPlayer?.let {
+            if (!it.isPlaying) {
+                it.start()
+            }
+            it.setVolume(normalizedVolume, normalizedVolume)
+        } ?: Log.e("SoundPlayer", "MediaPlayer is not initialized")
     }
 
     fun release() {
-        try {
-            mediaPlayer.release()
-        } catch (e: Exception) {
-            Log.e("SoundPlayer", "Error releasing mediaPlayer", e)
-        }
+        stopSound()
+        currentUri = null
     }
 }

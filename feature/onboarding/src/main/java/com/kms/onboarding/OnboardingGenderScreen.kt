@@ -59,7 +59,7 @@ fun OnboardingGenderScreen(
         totalSteps = totalSteps,
         isButtonEnabled = state.selectedGender != null,
         onNextClick = {
-            toggleBottomSheet()
+            toggleBottomSheet() // ✅ 바텀시트 열기
         },
         onBackClick = onBackClick,
         buttonLabel = "다음",
@@ -97,15 +97,15 @@ fun OnboardingGenderScreen(
             }
         }
     }
-    // TODO: 추후 실제 유저 정보로
+
     UserInfoBottomSheet(
         isSheetOpen = state.isBottomSheetOpen,
         onDismissRequest = { toggleBottomSheet() },
         onNextClick = onNextClick,
-        name = "오르비",
-        gender = "남성",
-        birthDate = "1999년 7월 8일",
-        birthTime = "12:00",
+        name = state.userName,
+        gender = state.selectedGender ?: "무지개",
+        birthDate = state.birthDateFormatted,
+        birthTime = state.birthTimeFormatted,
     )
 }
 

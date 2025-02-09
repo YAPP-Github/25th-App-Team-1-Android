@@ -2,14 +2,19 @@ package com.yapp.home
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
-import com.yapp.alarm.AlarmAddEditRoute
+import androidx.navigation.navArgument
+import com.yapp.alarm.action.AlarmActionRoute
+import com.yapp.alarm.addedit.AlarmAddEditRoute
+import com.yapp.alarm.snooze.AlarmSnoozeTimerRoute
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.HomeDestination
 
 const val ADD_ALARM_RESULT_KEY = "addAlarmResult"
 const val UPDATE_ALARM_RESULT_KEY = "updateAlarmResult"
+const val DELETE_ALARM_RESULT_KEY = "deleteAlarmResult"
 
 fun NavGraphBuilder.homeNavGraph(
     navigator: OrbitNavigator,
@@ -26,10 +31,34 @@ fun NavGraphBuilder.homeNavGraph(
             )
         }
 
-        composable(route = HomeDestination.AlarmAddEdit.route) {
+        composable(
+            route = "${HomeDestination.AlarmAddEdit.route}?id={alarmId}",
+            arguments = listOf(
+                navArgument("alarmId") {
+                    type = NavType.LongType
+                    defaultValue = -1
+                },
+            ),
+        ) {
             AlarmAddEditRoute(
                 navigator = navigator,
                 snackBarHostState = snackBarHostState,
+            )
+        }
+
+        composable(
+            route = HomeDestination.AlarmAction.route,
+        ) {
+            AlarmActionRoute(
+                navigator = navigator,
+            )
+        }
+
+        composable(
+            route = HomeDestination.AlarmSnoozeTimer.route,
+        ) {
+            AlarmSnoozeTimerRoute(
+                navigator = navigator,
             )
         }
     }

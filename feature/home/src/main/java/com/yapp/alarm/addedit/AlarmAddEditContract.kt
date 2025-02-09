@@ -1,6 +1,8 @@
-package com.yapp.alarm
+package com.yapp.alarm.addedit
 
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
@@ -10,15 +12,22 @@ import com.yapp.ui.base.UiState
 sealed class AlarmAddEditContract {
 
     data class State(
+        val mode: EditMode = EditMode.ADD,
+        val initialLoading: Boolean = true,
         val timeState: AlarmTimeState = AlarmTimeState(),
         val daySelectionState: AlarmDaySelectionState = AlarmDaySelectionState(),
         val holidayState: AlarmHolidayState = AlarmHolidayState(),
         val snoozeState: AlarmSnoozeState = AlarmSnoozeState(),
         val soundState: AlarmSoundState = AlarmSoundState(),
         val bottomSheetState: BottomSheetType? = null,
+        val isDeleteDialogVisible: Boolean = false,
+        val isUnsavedChangesDialogVisible: Boolean = false,
     ) : UiState
 
     data class AlarmTimeState(
+        val initialAmPm: String = "오전",
+        val initialHour: String = "1",
+        val initialMinute: String = "00",
         val currentAmPm: String = "오전",
         val currentHour: Int = 1,
         val currentMinute: Int = 0,
@@ -53,22 +62,32 @@ sealed class AlarmAddEditContract {
         val sounds: List<AlarmSound> = emptyList(),
     )
 
+    enum class EditMode {
+        ADD, EDIT
+    }
+
     sealed class Action {
-        data object ClickBack : Action()
-        data object ClickSave : Action()
-        data class UpdateAlarmTime(val amPm: String, val hour: Int, val minute: Int) : Action()
-        data object ToggleWeekdaysChecked : Action()
-        data object ToggleWeekendsChecked : Action()
-        data class ToggleDaySelection(val day: AlarmDay) : Action()
-        data object ToggleDisableHolidayChecked : Action()
-        data object ToggleSnoozeEnabled : Action()
-        data class UpdateSnoozeInterval(val index: Int) : Action()
-        data class UpdateSnoozeCount(val index: Int) : Action()
-        data object ToggleVibrationEnabled : Action()
-        data object ToggleSoundEnabled : Action()
-        data class UpdateSoundVolume(val volume: Int) : Action()
-        data class UpdateSoundIndex(val index: Int) : Action()
-        data class ToggleBottomSheetOpen(val sheetType: BottomSheetType) : Action()
+        data object CheckUnsavedChangesBeforeExit : Action()
+        data object NavigateBack : Action()
+        data object SaveAlarm : Action()
+        data object ShowDeleteDialog : Action()
+        data object HideDeleteDialog : Action()
+        data object ShowUnsavedChangesDialog : Action()
+        data object HideUnsavedChangesDialog : Action()
+        data object DeleteAlarm : Action()
+        data class SetAlarmTime(val amPm: String, val hour: Int, val minute: Int) : Action()
+        data object ToggleWeekdaysSelection : Action()
+        data object ToggleWeekendsSelection : Action()
+        data class ToggleSpecificDaySelection(val day: AlarmDay) : Action()
+        data object ToggleHolidaySkipOption : Action()
+        data object ToggleSnoozeOption : Action()
+        data class SetSnoozeInterval(val index: Int) : Action()
+        data class SetSnoozeRepeatCount(val index: Int) : Action()
+        data object ToggleVibrationOption : Action()
+        data object ToggleSoundOption : Action()
+        data class AdjustSoundVolume(val volume: Int) : Action()
+        data class SelectAlarmSound(val index: Int) : Action()
+        data class ToggleBottomSheet(val sheetType: BottomSheetType) : Action()
     }
 
     sealed class BottomSheetType {
@@ -89,9 +108,13 @@ sealed class AlarmAddEditContract {
 
         data class UpdateAlarm(val id: Long) : SideEffect()
 
+        data class DeleteAlarm(val id: Long) : SideEffect()
+
         data class ShowSnackBar(
             val message: String,
-            val label: String,
+            val label: String = "",
+            val iconRes: Int,
+            val bottomPadding: Dp = 12.dp,
             val duration: SnackbarDuration = SnackbarDuration.Short,
             val onDismiss: () -> Unit,
             val onAction: () -> Unit,
@@ -108,8 +131,13 @@ internal fun AlarmAddEditContract.State.toAlarm(id: Long = 0): Alarm {
         repeatDays = daySelectionState.selectedDays.toRepeatDays(),
         isHolidayAlarmOff = holidayState.isDisableHolidayChecked,
         isSnoozeEnabled = snoozeState.isSnoozeEnabled,
-        snoozeInterval = snoozeState.snoozeIntervals.getOrNull(snoozeState.snoozeIntervalIndex)?.filter { it.isDigit() }?.toIntOrNull() ?: 5,
-        snoozeCount = snoozeState.snoozeCounts.getOrNull(snoozeState.snoozeCountIndex)?.filter { it.isDigit() }?.toIntOrNull() ?: 1,
+        snoozeInterval = snoozeState.snoozeIntervals.getOrNull(snoozeState.snoozeIntervalIndex)
+            ?.filter { it.isDigit() }
+            ?.toIntOrNull()
+            ?: 5,
+        snoozeCount = snoozeState.snoozeCounts.getOrNull(snoozeState.snoozeCountIndex)
+            ?.let { if (it == "무한") -1 else it.filter { char -> char.isDigit() }.toIntOrNull() ?: 1 }
+            ?: 1,
         isVibrationEnabled = soundState.isVibrationEnabled,
         isSoundEnabled = soundState.isSoundEnabled,
         soundUri = soundState.sounds.getOrNull(soundState.soundIndex)?.uri.toString(),

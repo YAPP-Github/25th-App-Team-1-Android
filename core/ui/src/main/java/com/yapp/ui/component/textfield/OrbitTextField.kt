@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -47,6 +48,7 @@ fun OrbitTextField(
     hint: String,
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
+    isValid: Boolean = false,
     warningMessage: String,
     onFocusChanged: (Boolean) -> Unit = {},
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
@@ -82,6 +84,7 @@ fun OrbitTextField(
                     onFocusChanged = onFocusChanged,
                     focusRequester = focusRequester,
                     keyboardOptions = keyboardOptions,
+                    isValid = isValid,
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -116,6 +119,7 @@ private fun TextFieldContainer(
     text: TextFieldValue,
     hint: String,
     showWarning: Boolean,
+    isValid: Boolean,
     onTextChange: (TextFieldValue) -> Unit,
     onFocusChanged: (Boolean) -> Unit,
     focusRequester: FocusRequester,
@@ -126,12 +130,25 @@ private fun TextFieldContainer(
     Box(
         modifier = Modifier
             .border(
+                width = 3.dp,
+                color = when {
+                    isValid -> Color.Transparent
+                    isFocused && showWarning -> OrbitTheme.colors.alert.copy(alpha = 0.2f)
+                    isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
+                    showWarning -> OrbitTheme.colors.alert
+                    else -> Color.Transparent
+                },
+                shape = RoundedCornerShape(18.dp),
+            )
+            .padding(2.dp)
+            .border(
                 width = 1.dp,
                 color = when {
+                    isValid -> OrbitTheme.colors.gray_600
                     isFocused && showWarning -> OrbitTheme.colors.alert
                     isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
                     showWarning -> OrbitTheme.colors.alert
-                    else -> OrbitTheme.colors.gray_500
+                    else -> OrbitTheme.colors.gray_600
                 },
                 shape = RoundedCornerShape(16.dp),
             )

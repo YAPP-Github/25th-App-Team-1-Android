@@ -2,13 +2,17 @@ package com.yapp.mission
 
 import com.yapp.common.navigation.destination.FortuneDestination
 import com.yapp.common.navigation.destination.MissionDestination
+import com.yapp.media.haptic.HapticFeedbackManager
+import com.yapp.media.haptic.HapticType
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import org.orbitmvi.orbit.syntax.simple.intent
 import javax.inject.Inject
 
 @HiltViewModel
-class MissionViewModel @Inject constructor() : BaseViewModel<MissionContract.State, MissionContract.SideEffect>(
+class MissionViewModel @Inject constructor(
+    private val hapticFeedbackManager: HapticFeedbackManager,
+) : BaseViewModel<MissionContract.State, MissionContract.SideEffect>(
     MissionContract.State(),
 ) {
 
@@ -48,10 +52,12 @@ class MissionViewModel @Inject constructor() : BaseViewModel<MissionContract.Sta
 
         val currentCount = currentState.clickCount
         if (currentCount < 9) {
+            hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
             updateState { copy(clickCount = currentCount + 1, isAnimating = true) }
             kotlinx.coroutines.delay(500)
             updateState { copy(isAnimating = false) }
         } else if (currentCount == 9 && !currentState.isFlipped) {
+            hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
             updateState {
                 copy(
                     isMissionCompleted = true,

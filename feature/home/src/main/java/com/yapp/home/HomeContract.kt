@@ -1,6 +1,8 @@
 package com.yapp.home
 
 import androidx.compose.material3.SnackbarDuration
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.yapp.domain.model.Alarm
 import com.yapp.ui.base.UiState
 
@@ -14,26 +16,36 @@ sealed class HomeContract {
         val selectedAlarmIds: Set<Long> = emptySet(),
         val isSelectionMode: Boolean = false,
         val isDeleteDialogVisible: Boolean = false,
-        val lastFortuneScore: Int = 50,
-        val deliveryTime: String = "2025-02-01T22:00",
+        val isNoActivatedAlarmDialogVisible: Boolean = false,
+        val pendingAlarmToggle: Pair<Long, Boolean>? = null,
+        val lastFortuneScore: Int = -1,
+        val deliveryTime: String = "받을 수 있는 운세가 없어요",
         val name: String = "동현",
     ) : UiState {
         val isAllSelected: Boolean
             get() = alarms.isNotEmpty() && selectedAlarmIds.size == alarms.size
+        val hasActivatedAlarm: Boolean
+            get() = alarms.any { it.isAlarmActive }
     }
 
     sealed class Action {
-        data object NavigateToAlarmAdd : Action()
-        data object ToggleSelectionMode : Action()
-        data object ToggleDropdownMenu : Action()
+        data object NavigateToAlarmCreation : Action()
+        data object ToggleMultiSelectionMode : Action()
+        data object ToggleDropdownMenuVisibility : Action()
         data class ToggleAlarmSelection(val alarmId: Long) : Action()
-        data class ToggleAlarmActive(val alarmId: Long) : Action()
+        data class ToggleAlarmActivation(val alarmId: Long) : Action()
         data object ToggleAllAlarmSelection : Action()
         data object ShowDeleteDialog : Action()
         data object HideDeleteDialog : Action()
-        data object ConfirmDelete : Action()
+        data object ShowNoActivatedAlarmDialog : Action()
+        data object HideNoActivatedAlarmDialog : Action()
+        data object RollbackPendingAlarmToggle : Action()
+        data object ConfirmDeletion : Action()
+        data class DeleteSingleAlarm(val alarmId: Long) : Action()
         data object LoadMoreAlarms : Action()
         data object ResetLastAddedAlarmIndex : Action()
+        data class EditAlarm(val alarmId: Long) : Action()
+        data object FakeAction : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {
@@ -47,7 +59,9 @@ sealed class HomeContract {
 
         data class ShowSnackBar(
             val message: String,
-            val label: String,
+            val label: String = "",
+            val iconRes: Int,
+            val bottomPadding: Dp = 12.dp,
             val duration: SnackbarDuration = SnackbarDuration.Short,
             val onDismiss: () -> Unit,
             val onAction: () -> Unit,

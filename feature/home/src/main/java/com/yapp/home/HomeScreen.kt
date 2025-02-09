@@ -62,13 +62,11 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.home.component.bottomsheet.AlarmListBottomSheet
 import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
+import com.yapp.ui.component.snackbar.showCustomSnackBar
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
 import feature.home.R
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.util.Locale
 
 @Composable
 fun HomeRoute(
@@ -99,6 +97,16 @@ fun HomeRoute(
             }
     }
 
+    LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<Long>(DELETE_ALARM_RESULT_KEY)) {
+        navigator.navController.currentBackStackEntry
+            ?.savedStateHandle
+            ?.get<Long>(DELETE_ALARM_RESULT_KEY)
+            ?.let { id ->
+                viewModel.processAction(HomeContract.Action.DeleteSingleAlarm(id))
+                navigator.navController.currentBackStackEntry?.savedStateHandle?.remove<Long>(DELETE_ALARM_RESULT_KEY)
+            }
+    }
+
     LaunchedEffectWithLifecycle(sideEffect) {
         sideEffect.collect { effect ->
             when (effect) {
@@ -113,9 +121,12 @@ fun HomeRoute(
                     )
                 }
                 is HomeContract.SideEffect.ShowSnackBar -> {
-                    val result = snackBarHostState.showSnackbar(
+                    val result = showCustomSnackBar(
+                        snackBarHostState = snackBarHostState,
                         message = effect.message,
                         actionLabel = effect.label,
+                        iconRes = effect.iconRes,
+                        bottomPadding = effect.bottomPadding,
                         duration = effect.duration,
                     )
 
@@ -198,7 +209,7 @@ private fun HomeContent(
     LaunchedEffect(state.lastAddedAlarmIndex) {
         state.lastAddedAlarmIndex?.let { index ->
             listState.scrollToItem(index)
-            eventDispatcher(HomeContract.Action.ResetLastAddedAlarmIndex) // ✅ null로 변경 요청
+            eventDispatcher(HomeContract.Action.ResetLastAddedAlarmIndex)
         }
     }
 
@@ -213,29 +224,32 @@ private fun HomeContent(
             isLoading = false,
             hasMoreData = false,
             listState = listState,
+            onClickAlarm = { alarmId ->
+                eventDispatcher(HomeContract.Action.EditAlarm(alarmId))
+            },
             onClickAdd = {
-                eventDispatcher(HomeContract.Action.NavigateToAlarmAdd)
+                eventDispatcher(HomeContract.Action.NavigateToAlarmCreation)
             },
             onClickMore = {
-                eventDispatcher(HomeContract.Action.ToggleDropdownMenu)
+                eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
             },
             onClickCheckAll = {
                 eventDispatcher(HomeContract.Action.ToggleAllAlarmSelection)
             },
             onClickClose = {
-                eventDispatcher(HomeContract.Action.ToggleSelectionMode)
+                eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
             },
             onClickEdit = {
-                eventDispatcher(HomeContract.Action.ToggleSelectionMode)
+                eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
             },
             onDismissRequest = {
-                eventDispatcher(HomeContract.Action.ToggleDropdownMenu)
+                eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
             },
             onToggleSelect = { alarmId ->
                 eventDispatcher(HomeContract.Action.ToggleAlarmSelection(alarmId))
             },
             onToggleActive = { alarmId ->
-                eventDispatcher(HomeContract.Action.ToggleAlarmActive(alarmId))
+                eventDispatcher(HomeContract.Action.ToggleAlarmActivation(alarmId))
             },
             onLoadMore = {
                 eventDispatcher(HomeContract.Action.LoadMoreAlarms)
@@ -268,10 +282,13 @@ private fun HomeContent(
 
                     HomeCharacterAnimation(
                         fortuneScore = state.lastFortuneScore,
+                        hasActivatedAlarm = state.hasActivatedAlarm,
+                        eventDispatcher = eventDispatcher,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     HomeFortuneDescription(
                         fortuneScore = state.lastFortuneScore,
+                        hasActivatedAlarm = state.hasActivatedAlarm,
                         name = state.name,
                         deliveryTime = state.deliveryTime,
                     )
@@ -297,6 +314,8 @@ private fun HomeContent(
                 },
             )
         }
+
+        BottomGradient(modifier = Modifier.align(Alignment.BottomCenter))
     }
 
     if (state.isDeleteDialogVisible) {
@@ -306,10 +325,25 @@ private fun HomeContent(
             confirmText = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
             cancelText = stringResource(id = R.string.alarm_delete_dialog_btn_cancel),
             onConfirm = {
-                eventDispatcher(HomeContract.Action.ConfirmDelete)
+                eventDispatcher(HomeContract.Action.ConfirmDeletion)
             },
             onCancel = {
                 eventDispatcher(HomeContract.Action.HideDeleteDialog)
+            },
+        )
+    }
+
+    if (state.isNoActivatedAlarmDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.no_active_alarm_dialog_title),
+            message = stringResource(id = R.string.no_active_alarm_dialog_message),
+            confirmText = stringResource(id = R.string.no_active_alarm_dialog_btn_confirm),
+            cancelText = stringResource(id = R.string.no_active_alarm_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(HomeContract.Action.HideNoActivatedAlarmDialog)
+            },
+            onCancel = {
+                eventDispatcher(HomeContract.Action.RollbackPendingAlarmToggle)
             },
         )
     }
@@ -435,27 +469,31 @@ fun SkyImage() {
 private fun HomeCharacterAnimation(
     modifier: Modifier = Modifier,
     fortuneScore: Int,
+    hasActivatedAlarm: Boolean,
+    eventDispatcher: (HomeContract.Action) -> Unit,
 ) {
-    val (bubbleRes, starRes) = when (fortuneScore) {
-        in 0..49 -> {
+    val (bubbleRes, starRes) = when {
+        !hasActivatedAlarm -> {
+            Pair(null, core.designsystem.R.raw.fortune_preload)
+        }
+        fortuneScore in 0..49 -> {
             Pair(
                 core.designsystem.R.drawable.ic_fortune_0_to_49_speech_bubble,
                 core.designsystem.R.raw.fortune_0_to_49,
             )
         }
-        in 50..79 -> {
+        fortuneScore in 50..79 -> {
             Pair(
                 core.designsystem.R.drawable.ic_fortune_50_to_79_speech_bubble,
                 core.designsystem.R.raw.fortune_50_to_79,
             )
         }
-        in 80..100 -> {
+        fortuneScore in 80..100 -> {
             Pair(
                 core.designsystem.R.drawable.ic_fortune_80_to_100_speech_bubble,
                 core.designsystem.R.raw.fortune_80_to_100,
             )
         }
-
         else -> {
             Pair(
                 core.designsystem.R.drawable.ic_fortune_preload_speech_bubble,
@@ -468,13 +506,20 @@ private fun HomeCharacterAnimation(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Image(
-            painter = painterResource(id = bubbleRes),
-            contentDescription = "IMG_MAIN_SPEECH_BUBBLE",
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        bubbleRes?.let {
+            Image(
+                modifier = Modifier.height(46.dp),
+                painter = painterResource(id = it),
+                contentDescription = "IMG_MAIN_SPEECH_BUBBLE",
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        } ?: Spacer(modifier = Modifier.height(62.dp))
         LottieAnimation(
-            modifier = Modifier.size(110.dp),
+            modifier = Modifier
+                .size(110.dp)
+                .clickable {
+                    eventDispatcher(HomeContract.Action.FakeAction)
+                },
             resId = starRes,
         )
     }
@@ -484,13 +529,15 @@ private fun HomeCharacterAnimation(
 private fun HomeFortuneDescription(
     modifier: Modifier = Modifier,
     fortuneScore: Int,
+    hasActivatedAlarm: Boolean,
     name: String,
     deliveryTime: String,
 ) {
-    val descriptionRes = when (fortuneScore) {
-        in 0..49 -> R.string.home_fortune_0_to_49_description
-        in 50..79 -> R.string.home_fortune_50_to_79_description
-        in 80..100 -> R.string.home_fortune_80_to_100_description
+    val descriptionRes = when {
+        !hasActivatedAlarm -> R.string.home_fortune_no_alarm_description
+        fortuneScore in 0..49 -> R.string.home_fortune_0_to_49_description
+        fortuneScore in 50..79 -> R.string.home_fortune_50_to_79_description
+        fortuneScore in 80..100 -> R.string.home_fortune_80_to_100_description
         else -> R.string.home_fortune_preload_description
     }
 
@@ -499,7 +546,7 @@ private fun HomeFortuneDescription(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
-            text = formatFortuneDeliveryTime(deliveryTime),
+            text = deliveryTime,
             style = OrbitTheme.typography.label1Medium,
             color = OrbitTheme.colors.white.copy(
                 alpha = 0.7f,
@@ -674,33 +721,23 @@ private fun DeleteAlarmButton(
     }
 }
 
-private fun formatFortuneDeliveryTime(formattedTime: String): String {
-    return try {
-        val inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm", Locale.getDefault())
-        val timeFormatter = DateTimeFormatter.ofPattern("a h:mm", Locale.getDefault()) // 오전/오후 hh:mm
-        val monthDayFormatter = DateTimeFormatter.ofPattern("M월 d일 a h:mm", Locale.getDefault()) // M월 d일 오전/오후 hh:mm
-        val yearMonthDayFormatter = DateTimeFormatter.ofPattern("yy년 M월 d일 a h:mm", Locale.getDefault()) // yy년 M월 d일 오전/오후 hh:mm
-
-        val inputDateTime = LocalDateTime.parse(formattedTime, inputFormatter)
-        val now = LocalDateTime.now()
-
-        val startOfTomorrow = now.toLocalDate().plusDays(1).atStartOfDay()
-        val endOfTomorrow = startOfTomorrow.plusDays(1)
-
-        when {
-            inputDateTime.isAfter(startOfTomorrow) && inputDateTime.isBefore(endOfTomorrow) -> {
-                "내일 ${inputDateTime.format(timeFormatter)}"
-            }
-            inputDateTime.year == now.year -> {
-                inputDateTime.format(monthDayFormatter)
-            }
-            else -> {
-                inputDateTime.format(yearMonthDayFormatter)
-            }
-        }
-    } catch (e: Exception) {
-        ""
-    }
+@Composable
+private fun BottomGradient(
+    modifier: Modifier = Modifier,
+) {
+    Spacer(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFF17171B).copy(alpha = 0f),
+                        Color(0xFF17171B).copy(alpha = 1f),
+                    ),
+                ),
+            ),
+    )
 }
 
 @Preview(
