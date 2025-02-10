@@ -13,5 +13,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name="com.yapp.navigator.AlarmInteractionActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:showOnLockScreen="true"
+            android:theme="@style/Theme.Orbit" />
     </application>
 </manifest>

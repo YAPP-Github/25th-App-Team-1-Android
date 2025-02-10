@@ -1,14 +1,18 @@
 package com.yapp.navigator
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import com.kms.onboarding.onboardingNavGraph
@@ -32,6 +36,7 @@ internal fun OrbitNavHost(
     navigator: OrbitNavigator = rememberOrbitNavigator(),
 ) {
     val snackBarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
 
     Scaffold(
         modifier = modifier,
@@ -45,6 +50,19 @@ internal fun OrbitNavHost(
         },
         snackbarHost = {
             OrbitSnackBarHost(snackBarHostState = snackBarHostState)
+        },
+        floatingActionButton = {
+            Button(
+                onClick = {
+                    val intent = Intent(context, AlarmInteractionActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) // 새로운 태스크에서 실행
+                    }
+                    context.startActivity(intent)
+                },
+                modifier = Modifier.padding(16.dp),
+            ) {
+                Text("알람 화면 이동")
+            }
         },
         containerColor = OrbitTheme.colors.gray_900,
     ) {
