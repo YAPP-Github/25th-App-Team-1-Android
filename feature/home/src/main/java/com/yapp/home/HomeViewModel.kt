@@ -2,6 +2,7 @@ package com.yapp.home
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.yapp.common.navigation.destination.AlarmInteractionDestination
 import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.util.ResourceProvider
 import com.yapp.domain.model.Alarm
@@ -49,7 +50,7 @@ class HomeViewModel @Inject constructor(
             HomeContract.Action.FakeAction -> {
                 emitSideEffect(
                     HomeContract.SideEffect.Navigate(
-                        route = HomeDestination.AlarmAction.route,
+                        route = AlarmInteractionDestination.AlarmAction.route,
                     ),
                 )
             }

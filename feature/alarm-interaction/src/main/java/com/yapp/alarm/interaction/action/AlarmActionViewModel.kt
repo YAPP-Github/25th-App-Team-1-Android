@@ -1,4 +1,4 @@
-package com.yapp.alarm.action
+package com.yapp.alarm.interaction.action
 
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.Routes
@@ -51,7 +51,7 @@ class AlarmActionViewModel @Inject constructor() : BaseViewModel<AlarmActionCont
                 snoozeCount = currentState.snoozeCount - 1,
             )
         }
-        emitSideEffect(AlarmActionContract.SideEffect.Navigate(Routes.Home.ALARM_SNOOZE_TIMER))
+        emitSideEffect(AlarmActionContract.SideEffect.Navigate(Routes.AlarmInteraction.ALARM_SNOOZE_TIMER))
     }
 
     private fun dismiss() {

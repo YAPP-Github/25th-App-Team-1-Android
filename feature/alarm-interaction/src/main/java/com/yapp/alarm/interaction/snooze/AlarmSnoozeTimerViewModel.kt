@@ -1,4 +1,4 @@
-package com.yapp.alarm.snooze
+package com.yapp.alarm.interaction.snooze
 
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.Routes

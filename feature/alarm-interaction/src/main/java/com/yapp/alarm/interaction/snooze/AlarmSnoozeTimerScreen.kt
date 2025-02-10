@@ -1,4 +1,4 @@
-package com.yapp.alarm.snooze
+package com.yapp.alarm.interaction.snooze
 
 import Pretendard
 import android.graphics.BlurMaskFilter
@@ -44,7 +44,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
-import feature.home.R
+import feature.alarm.interaction.R
 
 @Composable
 internal fun AlarmSnoozeTimerRoute(

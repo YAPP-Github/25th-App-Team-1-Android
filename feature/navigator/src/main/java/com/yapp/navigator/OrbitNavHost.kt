@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import com.kms.onboarding.onboardingNavGraph
+import com.yapp.alarm.interaction.alarmInteractionNavGraph
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.TopLevelDestination
 import com.yapp.common.navigation.rememberOrbitNavigator
@@ -59,6 +60,9 @@ internal fun OrbitNavHost(
             homeNavGraph(
                 navigator = navigator,
                 snackBarHostState = snackBarHostState,
+            )
+            alarmInteractionNavGraph(
+                navigator = navigator,
             )
             missionNavGraph(
                 navigator = navigator,

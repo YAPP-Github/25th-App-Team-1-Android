@@ -1,4 +1,4 @@
-package com.yapp.alarm.action
+package com.yapp.alarm.interaction.action
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -32,7 +32,7 @@ import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
-import feature.home.R
+import feature.alarm.interaction.R
 import java.util.Locale
 
 @Composable
@@ -256,10 +256,10 @@ private fun AlarmSnoozeButton(
                         vertical = 6.dp,
                     ),
                 text = if (snoozeCount == -1) {
-                    stringResource(id = R.string.alarm_add_edit_repeat_count_infinite)
+                    stringResource(id = R.string.alarm_snooze_count_infinite)
                 } else {
                     stringResource(
-                        id = R.string.alarm_add_edit_repeat_count_times,
+                        id = R.string.alarm_snooze_count,
                         snoozeCount,
                     )
                 },
