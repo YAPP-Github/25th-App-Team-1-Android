@@ -13,9 +13,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 
 @Composable
-fun SettingItem(itemTitle: String) {
+fun SettingItem(
+    itemTitle: String,
+    modifier: Modifier = Modifier,
+) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(
                 color = com.yapp.designsystem.theme.OrbitTheme.colors.gray_900,

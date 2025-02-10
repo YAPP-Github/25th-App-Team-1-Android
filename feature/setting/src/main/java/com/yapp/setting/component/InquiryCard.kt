@@ -23,18 +23,19 @@ import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 
 @Composable
-fun InquiryCard() {
+fun InquiryCard(
+    modifier: Modifier = Modifier,
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
+            .fillMaxWidth()
             .background(
                 color = OrbitTheme.colors.gray_900,
-            )
-            .fillMaxWidth(),
+            ),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 24.dp)
                 .padding(vertical = 13.dp),
         ) {
             InquiryCardTitle(title = "오르비는 여러분과 함께\n" + "성장해요!")
