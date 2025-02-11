@@ -158,7 +158,9 @@ fun HomeScreen(
         HomeAlarmEmptyScreen(
             onSettingClick = { },
             onMailClick = { },
-            onAddClick = { },
+            onAddClick = {
+                eventDispatcher(HomeContract.Action.NavigateToAlarmCreation)
+            },
         )
     } else {
         HomeContent(
@@ -673,7 +675,7 @@ private fun AddAlarmButton(
 
         Text(
             text = stringResource(id = R.string.home_btn_add_alarm),
-            style = OrbitTheme.typography.heading1SemiBold,
+            style = OrbitTheme.typography.headline1SemiBold,
         )
     }
 }
