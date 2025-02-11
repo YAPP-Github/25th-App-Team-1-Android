@@ -132,9 +132,9 @@ class HomeViewModel @Inject constructor(
             val previousState = currentAlarm.isAlarmActive // 기존 상태 저장
             val updatedAlarm = currentAlarm.copy(isAlarmActive = !currentAlarm.isAlarmActive)
 
-            alarmUseCase.updateAlarm(updatedAlarm).onSuccess { newAlarm ->
+            alarmUseCase.updateAlarmActive(alarmId, updatedAlarm.isAlarmActive).onSuccess {
                 val updatedAlarms = currentState.alarms.toMutableList()
-                updatedAlarms[currentIndex] = newAlarm
+                updatedAlarms[currentIndex] = updatedAlarm
 
                 val hasActivatedAlarm = updatedAlarms.any { it.isAlarmActive }
                 updateState {

@@ -11,6 +11,7 @@ interface AlarmLocalDataSource {
     fun getAlarmCount(): Flow<Int>
     suspend fun insertAlarm(alarm: AlarmEntity): Long
     suspend fun updateAlarm(alarm: AlarmEntity): Int
+    suspend fun updateAlarmActive(id: Long, active: Boolean): Int
     suspend fun getAlarm(id: Long): Alarm?
     suspend fun deleteAlarm(id: Long): Int
 }
