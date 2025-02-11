@@ -66,8 +66,8 @@ class AlarmAddEditViewModel @Inject constructor(
     private suspend fun loadExistingAlarm(sounds: List<AlarmSound>) {
         alarmUseCase.getAlarm(alarmId).onSuccess { alarm ->
             val repeatDays = alarm.repeatDays.toAlarmDays()
-            val isAM = alarm.hour < 12
-            val hour = if (isAM) alarm.hour else alarm.hour - 12
+            val isAM = alarm.isAm
+            val hour = alarm.hour
             val selectedSoundIndex = sounds.indexOfFirst { it.uri.toString() == alarm.soundUri }
             val selectedSound = sounds.getOrNull(selectedSoundIndex) ?: sounds.first()
 
