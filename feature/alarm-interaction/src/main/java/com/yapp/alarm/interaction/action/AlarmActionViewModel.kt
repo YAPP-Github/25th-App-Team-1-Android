@@ -10,6 +10,7 @@ import com.yapp.domain.model.Alarm
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,7 +38,7 @@ class AlarmActionViewModel @Inject constructor(
 
     private fun startClock() {
         viewModelScope.launch {
-            while (true) {
+            while (isActive) {
                 val now = java.time.LocalTime.now()
                 val today = java.time.LocalDate.now()
                 val dayOfWeek = today.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.KOREAN)
