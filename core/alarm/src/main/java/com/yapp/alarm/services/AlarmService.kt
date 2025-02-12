@@ -25,6 +25,8 @@ import com.yapp.alarm.AlarmConstants
 import com.yapp.alarm.AlarmHelper
 import com.yapp.alarm.pendingIntent.interaction.createAlarmAlertPendingIntent
 import com.yapp.alarm.pendingIntent.interaction.createAlarmDismissPendingIntent
+import com.yapp.alarm.pendingIntent.interaction.createAlarmSnoozePendingIntent
+import com.yapp.domain.model.Alarm
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.media.sound.SoundPlayer
 import dagger.hilt.android.AndroidEntryPoint
@@ -56,17 +58,21 @@ class AlarmService : Service() {
             super.handleMessage(message)
 
             val bundle = message.data
-            val notificationId = bundle.getLong(AlarmConstants.EXTRA_NOTIFICATION_ID, 0)
-            val isSnoozeEnabled = bundle.getBoolean(AlarmConstants.EXTRA_SNOOZE_ENABLED, false)
-            val snoozeInterval = bundle.getInt(AlarmConstants.EXTRA_SNOOZE_INTERVAL, 0)
-            val snoozeCount = bundle.getInt(AlarmConstants.EXTRA_SNOOZE_COUNT, 0)
-            val isSoundEnabled = bundle.getBoolean(AlarmConstants.EXTRA_SOUND_ENABLED, false)
-            val soundUri = bundle.getString(AlarmConstants.EXTRA_SOUND_URI, "")
-            val soundVolume = bundle.getInt(AlarmConstants.EXTRA_SOUND_VOLUME, 0)
-            val isVibrationEnabled = bundle.getBoolean(AlarmConstants.EXTRA_VIBRATION_ENABLED, false)
+            val alarm: Alarm? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                bundle?.getParcelable(AlarmConstants.EXTRA_ALARM, Alarm::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                bundle?.getParcelable(AlarmConstants.EXTRA_ALARM)
+            }
 
-            val isOneTimeAlarm = bundle.getBoolean(AlarmConstants.EXTRA_IS_ONE_TIME_ALARM, false)
+            if (alarm == null) {
+                Log.e("AlarmService", "Failed to retrieve Alarm object from intent")
+                return
+            }
+
+            val notificationId = alarm.id
             val isDismiss = bundle.getBoolean(AlarmConstants.EXTRA_IS_DISMISS, false)
+            val isOneTimeAlarm = alarm.repeatDays == 0
 
             when (isDismiss) {
                 true -> {
@@ -76,10 +82,10 @@ class AlarmService : Service() {
                 false -> {
                     startForeground(
                         notificationId.toInt(),
-                        createNotification(notificationId, isSnoozeEnabled, snoozeInterval, snoozeCount),
+                        createNotification(alarm),
                     )
-                    if (isVibrationEnabled) startVibration()
-                    if (isSoundEnabled) startSound(soundUri, soundVolume)
+                    if (alarm.isVibrationEnabled) startVibration()
+                    if (alarm.isSoundEnabled) startSound(alarm.soundUri, alarm.soundVolume)
                 }
             }
 
@@ -123,34 +129,39 @@ class AlarmService : Service() {
     }
 
     private fun createNotification(
-        alarmId: Long,
-        isSnoozeEnabled: Boolean,
-        snoozeInterval: Int,
-        snoozeCount: Int,
+        alarm: Alarm,
     ): Notification {
         Log.d("AlarmForegroundService", "createNotification()")
 
         val alarmAlertPendingIntent =
-            createAlarmAlertPendingIntent(applicationContext, alarmId, isSnoozeEnabled, snoozeInterval, snoozeCount)
+            createAlarmAlertPendingIntent(applicationContext, alarm)
         val alarmDismissPendingIntent =
-            createAlarmDismissPendingIntent(applicationContext, pendingIntentId = alarmId)
-        return NotificationCompat.Builder(applicationContext, ALARM_NOTIFICATION_CHANNEL_ID)
+            createAlarmDismissPendingIntent(applicationContext, pendingIntentId = alarm.id)
+
+        val snoozePendingIntent = if (alarm.isSnoozeEnabled && alarm.snoozeCount != 0) {
+            createAlarmSnoozePendingIntent(
+                applicationContext,
+                alarm,
+            )
+        } else {
+            null
+        }
+
+        val builder = NotificationCompat.Builder(applicationContext, ALARM_NOTIFICATION_CHANNEL_ID)
             .setSmallIcon(core.designsystem.R.mipmap.ic_launcher)
             .setLargeIcon(BitmapFactory.decodeResource(resources, core.designsystem.R.mipmap.ic_launcher))
             .setContentTitle("오르비 알람")
             .setContentText("알람을 해제할 시간이예요!")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setFullScreenIntent(
-                alarmAlertPendingIntent,
-                true,
-            )
-            .addAction(
-                core.designsystem.R.drawable.ic_cancel,
-                "알람 해제",
-                alarmDismissPendingIntent,
-            )
-            .build()
+            .setFullScreenIntent(alarmAlertPendingIntent, true)
+            .addAction(core.designsystem.R.drawable.ic_cancel, "알람 해제", alarmDismissPendingIntent)
+
+        if (snoozePendingIntent != null) {
+            builder.addAction(core.designsystem.R.drawable.ic_cancel, "미루기", snoozePendingIntent)
+        }
+
+        return builder.build()
     }
 
     private fun createNotificationChannel() {

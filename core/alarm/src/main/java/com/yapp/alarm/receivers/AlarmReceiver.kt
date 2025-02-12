@@ -3,11 +3,22 @@ package com.yapp.alarm.receivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import com.yapp.alarm.AlarmConstants
+import com.yapp.alarm.AlarmHelper
 import com.yapp.alarm.services.AlarmService
+import com.yapp.domain.model.Alarm
+import dagger.hilt.android.AndroidEntryPoint
+import java.time.LocalDateTime
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class AlarmReceiver : BroadcastReceiver() {
+
+    @Inject
+    lateinit var alarmHelper: AlarmHelper
+
     override fun onReceive(context: Context?, intent: Intent?) {
         context ?: return
         intent ?: return
@@ -18,9 +29,19 @@ class AlarmReceiver : BroadcastReceiver() {
                 Log.d("AlarmReceiver", "Alarm Triggered")
                 context.startForegroundService(alarmServiceIntent)
             }
-            AlarmConstants.ACTION_ALARM_SNOOZE -> {
+
+            AlarmConstants.ACTION_ALARM_SNOOZED -> {
                 Log.d("AlarmReceiver", "Alarm Snoozed")
+                val alarm: Alarm? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    intent.getParcelableExtra(AlarmConstants.EXTRA_ALARM, Alarm::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    intent.getParcelableExtra(AlarmConstants.EXTRA_ALARM)
+                }
+
+                alarm?.let { handleSnooze(context, it) }
             }
+
             AlarmConstants.ACTION_ALARM_DISMISSED -> {
                 Log.d("AlarmReceiver", "Alarm Dismissed")
                 context.stopService(alarmServiceIntent)
@@ -36,6 +57,36 @@ class AlarmReceiver : BroadcastReceiver() {
         return Intent(context, AlarmService::class.java).apply {
             putExtras(intent.extras!!)
         }
+    }
+
+    private fun handleSnooze(context: Context, alarm: Alarm) {
+        if (alarm.snoozeCount == 0) return
+
+        val newSnoozeCount = if (alarm.snoozeCount == -1) {
+            alarm.snoozeCount
+        } else {
+            alarm.snoozeCount - 1
+        }
+
+        val currentDateTime = LocalDateTime.now()
+            .withHour(if (alarm.isAm && alarm.hour == 12) 0 else if (!alarm.isAm && alarm.hour != 12) alarm.hour + 12 else alarm.hour)
+            .withMinute(alarm.minute)
+            .plusMinutes(alarm.snoozeInterval.toLong())
+
+        val updatedAlarm = alarm.copy(
+            isAm = currentDateTime.hour < 12,
+            hour = if (currentDateTime.hour == 0) 12 else if (currentDateTime.hour > 12) currentDateTime.hour - 12 else currentDateTime.hour,
+            minute = currentDateTime.minute,
+            snoozeCount = newSnoozeCount,
+        )
+
+        Log.d(
+            "AlarmReceiver",
+            "Scheduling snooze alarm: alarmId=${alarm.id}, newTime=${updatedAlarm.hour}:${updatedAlarm.minute}, remaining snoozeCount=$newSnoozeCount",
+        )
+
+        context.stopService(Intent(context, AlarmService::class.java))
+        alarmHelper.scheduleAlarm(updatedAlarm)
     }
 
     private fun sendBroadCastToCloseAlarmInteractionActivity(context: Context) {
