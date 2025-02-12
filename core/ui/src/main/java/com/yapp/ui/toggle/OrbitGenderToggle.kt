@@ -1,4 +1,4 @@
-package com.kms.onboarding.component
+package com.yapp.ui.toggle
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -8,7 +8,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,17 +21,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
-import com.yapp.ui.utils.paddingForScreenPercentage
 
 @Composable
-fun OnboardingGenderToggle(
+fun OrbitGenderToggle(
     label: String,
     isSelected: Boolean,
     onToggle: () -> Unit,
     modifier: Modifier = Modifier,
+    height: Dp = 148.dp,
+    textStyle: TextStyle = OrbitTheme.typography.heading2SemiBold,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -60,7 +64,8 @@ fun OnboardingGenderToggle(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .wrapContentSize()
+            .fillMaxWidth()
+            .height(height)
             .border(
                 width = if (isPressed) 0.dp else 1.dp,
                 color = borderColor,
@@ -78,14 +83,14 @@ fun OnboardingGenderToggle(
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier
-                .paddingForScreenPercentage(verticalPercentage = 0.074f, horizontalPercentage = 0.144f)
-                .wrapContentSize()
+                .fillMaxWidth()
                 .scale(innerSizeScale),
         ) {
             Text(
+                modifier = Modifier,
                 text = label,
                 color = contentColor,
-                style = OrbitTheme.typography.heading2SemiBold,
+                style = textStyle,
             )
         }
     }
@@ -96,7 +101,7 @@ fun OnboardingGenderToggle(
 fun PreviewSquareToggleButton() {
     var isSelected by remember { mutableStateOf(false) }
 
-    OnboardingGenderToggle(
+    OrbitGenderToggle(
         label = "남성",
         isSelected = isSelected,
         onToggle = { isSelected = !isSelected },

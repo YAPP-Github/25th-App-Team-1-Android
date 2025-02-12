@@ -14,4 +14,5 @@ dependencies {
     implementation(projects.feature.onboarding)
     implementation(projects.feature.mission)
     implementation(projects.feature.fortune)
+    implementation(projects.feature.setting)
 }

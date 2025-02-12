@@ -19,6 +19,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.fortuneNavGraph
 import com.yapp.home.homeNavGraph
 import com.yapp.mission.missionNavGraph
+import com.yapp.setting.settingNavGraph
 import com.yapp.ui.component.snackbar.CustomSnackBarVisuals
 import com.yapp.ui.component.snackbar.OrbitSnackBar
 import kotlinx.collections.immutable.toImmutableList
@@ -63,6 +64,9 @@ internal fun OrbitNavHost(
                 navigator = navigator,
             )
             fortuneNavGraph(
+                navigator = navigator,
+            )
+            settingNavGraph(
                 navigator = navigator,
             )
         }
