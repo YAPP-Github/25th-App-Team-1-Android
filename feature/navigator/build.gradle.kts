@@ -11,6 +11,7 @@ android {
 dependencies {
     implementation(projects.core.common)
     implementation(projects.feature.home)
+    implementation(projects.feature.alarmInteraction)
     implementation(projects.feature.onboarding)
     implementation(projects.feature.mission)
     implementation(projects.feature.fortune)

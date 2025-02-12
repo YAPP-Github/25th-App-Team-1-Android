@@ -1,21 +1,17 @@
-package com.yapp.alarm.action
+package com.yapp.alarm.interaction.snooze
 
 import com.yapp.ui.base.UiState
 
-class AlarmActionContract {
+class AlarmSnoozeTimerContract {
 
     data class State(
         val initialLoading: Boolean = true,
-        val isAm: Boolean = true,
-        val hour: Int = 0,
-        val minute: Int = 0,
-        val todayDate: String = "",
-        val snoozeInterval: Int = 5,
-        val snoozeCount: Int = 5,
+        val alarmTimeStamp: Long = 0L,
+        val remainingSeconds: Int = 1,
+        val totalSeconds: Int = 300,
     ) : UiState
 
     sealed class Action {
-        data object Snooze : Action()
         data object Dismiss : Action()
     }
 

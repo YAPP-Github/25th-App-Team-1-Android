@@ -22,6 +22,7 @@ class AlarmUseCase @Inject constructor(
     fun getAlarmCount(): Flow<Int> = alarmRepository.getAlarmCount()
     suspend fun insertAlarm(alarm: Alarm): Result<Alarm> = alarmRepository.insertAlarm(alarm)
     suspend fun updateAlarm(alarm: Alarm): Result<Alarm> = alarmRepository.updateAlarm(alarm)
+    suspend fun updateAlarmActive(id: Long, active: Boolean): Result<Alarm> = alarmRepository.updateAlarmActive(id, active)
     suspend fun getAlarm(id: Long): Result<Alarm> = alarmRepository.getAlarm(id)
     suspend fun deleteAlarm(id: Long): Result<Unit> = alarmRepository.deleteAlarm(id)
 }

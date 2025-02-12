@@ -1,8 +1,9 @@
-package com.yapp.alarm.snooze
+package com.yapp.alarm.interaction.snooze
 
 import Pretendard
 import android.graphics.BlurMaskFilter
 import android.graphics.Paint
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -30,6 +31,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -44,7 +46,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
-import feature.home.R
+import feature.alarm.interaction.R
 
 @Composable
 internal fun AlarmSnoozeTimerRoute(
@@ -80,6 +82,7 @@ internal fun AlarmSnoozeTimerScreen(
     eventDispatcher: (AlarmSnoozeTimerContract.Action) -> Unit,
 ) {
     val state = stateProvider()
+    val context = LocalContext.current
 
     if (state.initialLoading) {
         AlarmSnoozeLoadingScreen()
@@ -87,7 +90,10 @@ internal fun AlarmSnoozeTimerScreen(
         AlarmSnoozeContent(
             remainingSeconds = state.remainingSeconds,
             totalSeconds = state.totalSeconds,
-            onDismissClick = { eventDispatcher(AlarmSnoozeTimerContract.Action.Dismiss) },
+            onDismissClick = {
+                eventDispatcher(AlarmSnoozeTimerContract.Action.Dismiss)
+                (context as? ComponentActivity)?.finish()
+            },
         )
     }
 }

@@ -1,4 +1,4 @@
-package com.yapp.alarm.action
+package com.yapp.alarm.interaction.action
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,7 +33,7 @@ import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
-import feature.home.R
+import feature.alarm.interaction.R
 import java.util.Locale
 
 @Composable
@@ -69,6 +70,7 @@ internal fun AlarmActionScreen(
     eventDispatcher: (AlarmActionContract.Action) -> Unit,
 ) {
     val state = stateProvider()
+    val context = LocalContext.current
 
     if (state.initialLoading) {
         AlarmActionLoadingScreen()
@@ -78,10 +80,14 @@ internal fun AlarmActionScreen(
             hour = state.hour,
             minute = state.minute,
             todayDate = state.todayDate,
+            snoozeEnabled = state.snoozeEnabled,
             snoozeInterval = state.snoozeInterval,
             snoozeCount = state.snoozeCount,
             onSnoozeClick = { eventDispatcher(AlarmActionContract.Action.Snooze) },
-            onDismissClick = { eventDispatcher(AlarmActionContract.Action.Dismiss) },
+            onDismissClick = {
+                eventDispatcher(AlarmActionContract.Action.Dismiss)
+                (context as? androidx.activity.ComponentActivity)?.finish()
+            },
         )
     }
 }
@@ -109,6 +115,7 @@ private fun AlarmActionContent(
     hour: Int,
     minute: Int,
     todayDate: String,
+    snoozeEnabled: Boolean,
     snoozeInterval: Int,
     snoozeCount: Int,
     onSnoozeClick: () -> Unit,
@@ -145,11 +152,15 @@ private fun AlarmActionContent(
 
         Spacer(modifier = Modifier.height(56.dp))
 
-        AlarmSnoozeButton(
-            snoozeInterval = snoozeInterval,
-            snoozeCount = snoozeCount,
-            onSnoozeClick = onSnoozeClick,
-        )
+        if (snoozeEnabled && snoozeCount != 0) {
+            AlarmSnoozeButton(
+                snoozeInterval = snoozeInterval,
+                snoozeCount = snoozeCount,
+                onSnoozeClick = onSnoozeClick,
+            )
+        } else {
+            Spacer(modifier = Modifier.height(54.dp))
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -227,12 +238,12 @@ private fun AlarmSnoozeButton(
         onClick = onSnoozeClick,
     ) {
         Row(
-            modifier = Modifier.padding(
-                start = 20.dp,
-                end = 10.dp,
-                top = 12.dp,
-                bottom = 12.dp,
-            ),
+            modifier = Modifier
+                .height(54.dp)
+                .padding(
+                    start = 20.dp,
+                    end = 10.dp,
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
@@ -256,10 +267,10 @@ private fun AlarmSnoozeButton(
                         vertical = 6.dp,
                     ),
                 text = if (snoozeCount == -1) {
-                    stringResource(id = R.string.alarm_add_edit_repeat_count_infinite)
+                    stringResource(id = R.string.alarm_snooze_count_infinite)
                 } else {
                     stringResource(
-                        id = R.string.alarm_add_edit_repeat_count_times,
+                        id = R.string.alarm_snooze_count,
                         snoozeCount,
                     )
                 },
