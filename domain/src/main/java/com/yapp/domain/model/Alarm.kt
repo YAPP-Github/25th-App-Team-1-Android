@@ -1,5 +1,9 @@
 package com.yapp.domain.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Alarm(
     val id: Long = 0,
 
@@ -25,7 +29,7 @@ data class Alarm(
     val soundVolume: Int = 70,
 
     val isAlarmActive: Boolean = true,
-)
+) : Parcelable
 
 fun Alarm.copyFrom(source: Alarm): Alarm {
     return this.copy(

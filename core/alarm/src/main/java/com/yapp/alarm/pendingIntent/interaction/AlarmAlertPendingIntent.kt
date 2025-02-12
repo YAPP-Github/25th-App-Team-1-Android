@@ -5,23 +5,19 @@ import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
 import android.content.Intent
 import com.yapp.alarm.AlarmConstants
+import com.yapp.domain.model.Alarm
 
 fun createAlarmAlertPendingIntent(
     context: Context,
-    alarmId: Long,
-    snoozeEnabled: Boolean,
-    snoozeInterval: Int,
-    snoozeCount: Int,
+    alarm: Alarm,
 ): PendingIntent {
     val alarmAlertIntent = createAlarmAlertIntent(
-        alarmId,
-        snoozeEnabled,
-        snoozeInterval,
-        snoozeCount,
+        alarm.id,
+        alarm,
     )
     return PendingIntent.getActivity(
         context,
-        alarmId.toInt(),
+        alarm.id.toInt(),
         alarmAlertIntent,
         PendingIntent.FLAG_UPDATE_CURRENT or FLAG_IMMUTABLE,
     )
@@ -29,15 +25,11 @@ fun createAlarmAlertPendingIntent(
 
 private fun createAlarmAlertIntent(
     notificationId: Long,
-    snoozeEnabled: Boolean,
-    snoozeInterval: Int,
-    snoozeCount: Int,
+    alarm: Alarm,
 ): Intent {
     return Intent("com.yapp.alarm.interaction.ACTION_ALARM_INTERACTION").apply {
         putExtra(AlarmConstants.EXTRA_NOTIFICATION_ID, notificationId)
-        putExtra(AlarmConstants.EXTRA_SNOOZE_ENABLED, snoozeEnabled)
-        putExtra(AlarmConstants.EXTRA_SNOOZE_INTERVAL, snoozeInterval)
-        putExtra(AlarmConstants.EXTRA_SNOOZE_COUNT, snoozeCount)
+        putExtra(AlarmConstants.EXTRA_ALARM, alarm)
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
 }

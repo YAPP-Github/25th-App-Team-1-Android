@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -21,6 +21,7 @@ import com.yapp.alarm.receivers.AlarmInteractionActivityReceiver
 import com.yapp.common.navigation.destination.AlarmInteractionDestination
 import com.yapp.common.navigation.rememberOrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.domain.model.Alarm
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,12 +34,12 @@ class AlarmInteractionActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
-        val notificationId = intent.getLongExtra(AlarmConstants.EXTRA_NOTIFICATION_ID, -1L)
-        val snoozeEnabled = intent.getBooleanExtra(AlarmConstants.EXTRA_SNOOZE_ENABLED, false)
-        val snoozeInterval = intent.getIntExtra(AlarmConstants.EXTRA_SNOOZE_INTERVAL, 5)
-        val snoozeCount = intent.getIntExtra(AlarmConstants.EXTRA_SNOOZE_COUNT, 1)
-
-        Log.d("AlarmInteractionActivity", "notificationId: $notificationId, snoozeEnabled: $snoozeEnabled, snoozeInterval: $snoozeInterval, snoozeCount: $snoozeCount")
+        val alarm: Alarm? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(AlarmConstants.EXTRA_ALARM, Alarm::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(AlarmConstants.EXTRA_ALARM)
+        }
 
         unlockScreen()
 
@@ -77,10 +78,10 @@ class AlarmInteractionActivity : ComponentActivity() {
             LaunchedEffect(Unit) {
                 val route =
                     "${AlarmInteractionDestination.AlarmAction.route}?" +
-                        "notificationId=$notificationId" +
-                        "&snoozeEnabled=$snoozeEnabled" +
-                        "&snoozeInterval=$snoozeInterval" +
-                        "&snoozeCount=$snoozeCount"
+                        "notificationId=${alarm!!.id}" +
+                        "&snoozeEnabled=${alarm.isSnoozeEnabled}" +
+                        "&snoozeInterval=${alarm.snoozeInterval}" +
+                        "&snoozeCount=${alarm.snoozeCount}"
 
                 navigator.navController.navigate(route) {
                     popUpTo(AlarmInteractionDestination.Route.route) { inclusive = true }

@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.Application
 import android.content.Intent
 import android.util.Log
+import com.yapp.alarm.pendingIntent.interaction.createAlarmDismissPendingIntent
 import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForSchedule
 import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForUnSchedule
 import com.yapp.alarm.services.AlarmService
@@ -53,13 +54,20 @@ class AlarmHelper @Inject constructor(
         }
     }
 
+    fun cancelAlarm(alarm: Alarm) {
+        val pendingIntent = createAlarmDismissPendingIntent(
+            app,
+            alarm.id,
+        )
+    }
+
     fun stopAlarm() {
         app.stopService(Intent(app, AlarmService::class.java))
     }
 
     private fun setRepeatingAlarm(day: AlarmDay, alarm: Alarm) {
         val alarmReceiverPendingIntent =
-            createAlarmReceiverPendingIntentForSchedule(app, alarm, alarm.snoozeCount, day)
+            createAlarmReceiverPendingIntentForSchedule(app, alarm, day)
         val firstAlarmTriggerMillis = getNextAlarmTimeMillis(alarm, day)
 
         Log.d("AlarmHelper", "Setting repeating alarm at: $firstAlarmTriggerMillis")
@@ -73,7 +81,7 @@ class AlarmHelper @Inject constructor(
 
     private fun setNonRepeatingAlarm(alarm: Alarm) {
         val alarmReceiverPendingIntent =
-            createAlarmReceiverPendingIntentForSchedule(app, alarm, alarm.snoozeCount)
+            createAlarmReceiverPendingIntentForSchedule(app, alarm)
 
         val triggerMillis = getNextAlarmTimeMillis(alarm, null)
 
