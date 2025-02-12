@@ -20,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -69,6 +70,7 @@ internal fun AlarmActionScreen(
     eventDispatcher: (AlarmActionContract.Action) -> Unit,
 ) {
     val state = stateProvider()
+    val context = LocalContext.current
 
     if (state.initialLoading) {
         AlarmActionLoadingScreen()
@@ -82,7 +84,10 @@ internal fun AlarmActionScreen(
             snoozeInterval = state.snoozeInterval,
             snoozeCount = state.snoozeCount,
             onSnoozeClick = { eventDispatcher(AlarmActionContract.Action.Snooze) },
-            onDismissClick = { eventDispatcher(AlarmActionContract.Action.Dismiss) },
+            onDismissClick = {
+                eventDispatcher(AlarmActionContract.Action.Dismiss)
+                (context as? androidx.activity.ComponentActivity)?.finish()
+            },
         )
     }
 }
@@ -147,7 +152,7 @@ private fun AlarmActionContent(
 
         Spacer(modifier = Modifier.height(56.dp))
 
-        if (snoozeEnabled) {
+        if (snoozeEnabled && snoozeCount != 0) {
             AlarmSnoozeButton(
                 snoozeInterval = snoozeInterval,
                 snoozeCount = snoozeCount,
