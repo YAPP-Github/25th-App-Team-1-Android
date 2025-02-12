@@ -1,6 +1,9 @@
 package com.yapp.domain.model
 
+import android.net.Uri
 import android.os.Parcelable
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -29,7 +32,19 @@ data class Alarm(
     val soundVolume: Int = 70,
 
     val isAlarmActive: Boolean = true,
-) : Parcelable
+) : Parcelable {
+    fun toJson(): String {
+        return Gson().toJson(this)
+    }
+
+    companion object {
+        fun fromJson(json: String): Alarm {
+            return Gson().fromJson(json, object : TypeToken<Alarm>() {}.type)
+        }
+    }
+
+    override fun toString(): String = Uri.encode(Gson().toJson(this))
+}
 
 fun Alarm.copyFrom(source: Alarm): Alarm {
     return this.copy(

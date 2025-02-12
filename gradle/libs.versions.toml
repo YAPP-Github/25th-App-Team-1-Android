@@ -54,6 +54,7 @@ coil = "2.4.0"
 sentry = "5.0.0"
 sentry-android = "8.0.0"
 sentry-compose = "8.0.0"
+gson = "2.11.0"
 
 # Google Libraries Versions
 google-service = "4.4.2"
@@ -145,6 +146,7 @@ okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor",
 flexible-bottomsheet = { group = "com.github.skydoves", name = "flexible-bottomsheet-material3", version.ref = "flexible-bottomsheet" }
 #sentry-android = { group = "io.sentry", name = "sentry-android", version.ref = "sentry-android" }
 #sentry-compose = { group = "io.sentry", name = "sentry-compose", version.ref = "sentry-compose" }
+gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 
 # Google Libraries
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom" }

@@ -76,13 +76,7 @@ class AlarmInteractionActivity : ComponentActivity() {
             }
 
             LaunchedEffect(Unit) {
-                val route =
-                    "${AlarmInteractionDestination.AlarmAction.route}?" +
-                        "notificationId=${alarm!!.id}" +
-                        "&snoozeEnabled=${alarm.isSnoozeEnabled}" +
-                        "&snoozeInterval=${alarm.snoozeInterval}" +
-                        "&snoozeCount=${alarm.snoozeCount}"
-
+                val route = "${AlarmInteractionDestination.AlarmAction.route}/$alarm"
                 navigator.navController.navigate(route) {
                     popUpTo(AlarmInteractionDestination.Route.route) { inclusive = true }
                 }
