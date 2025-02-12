@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.dataStoreFile
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
 import com.yapp.datastore.token.AuthToken
 import com.yapp.datastore.token.TokenDataSerializer
 import dagger.Module
@@ -26,5 +28,14 @@ object DataStoreModule {
             serializer = tokenDataSerializer,
         ) {
             context.dataStoreFile("token.json")
+        }
+
+    @Provides
+    @Singleton
+    fun providesPreferencesDataStore(
+        @ApplicationContext context: Context,
+    ): DataStore<Preferences> =
+        PreferenceDataStoreFactory.create {
+            context.dataStoreFile("user_prefs.preferences_pb")
         }
 }
