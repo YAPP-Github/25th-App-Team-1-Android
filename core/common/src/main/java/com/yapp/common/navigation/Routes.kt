@@ -49,4 +49,9 @@ object Routes {
         const val EDIT_PROFILE = "setting_edit_profile"
         const val EDIT_BIRTHDAY = "setting_edit_birthday"
     }
+
+    object Splash {
+        const val ROUTE = "splash_route"
+        const val SPLASH = "splash"
+    }
 }
