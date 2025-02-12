@@ -1,6 +1,7 @@
 package com.yapp.setting
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,9 +11,12 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.setting.component.InquiryCard
 import com.yapp.setting.component.SettingItem
@@ -22,12 +26,26 @@ import com.yapp.setting.component.UserInfoCard
 import com.yapp.setting.component.VersionCodeText
 
 @Composable
-fun SettingRoute() {
-    SettingScreen()
+fun SettingRoute(
+    viewModel: SettingViewModel = hiltViewModel(),
+) {
+    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    SettingScreen(
+        state = state,
+        onNavigateToEditProfile = {
+            viewModel.onAction(
+                SettingContract.Action.NavigateToEditProfile,
+            )
+        },
+    )
 }
 
 @Composable
-fun SettingScreen() {
+fun SettingScreen(
+    state: SettingContract.State,
+    onNavigateToEditProfile: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,7 +63,9 @@ fun SettingScreen() {
             name = "강문수",
             gender = "남",
             birth = "양력 1999년 7월 8일",
-            modifier = Modifier.padding(horizontal = 24.dp),
+            modifier = Modifier
+                .padding(horizontal = 24.dp)
+                .clickable { onNavigateToEditProfile() },
         )
         Spacer(modifier = Modifier.height(24.dp))
         InquiryCard(
@@ -80,5 +100,8 @@ fun SettingScreen() {
 @Composable
 @Preview
 fun SettingScreenPreview() {
-    SettingScreen()
+    SettingScreen(
+        state = SettingContract.State(),
+        onNavigateToEditProfile = {},
+    )
 }
