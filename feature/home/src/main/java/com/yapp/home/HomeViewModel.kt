@@ -2,6 +2,7 @@ package com.yapp.home
 
 import android.util.Log
 import androidx.lifecycle.viewModelScope
+import com.yapp.alarm.AlarmHelper
 import com.yapp.common.navigation.destination.AlarmInteractionDestination
 import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.util.ResourceProvider
@@ -22,6 +23,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val alarmUseCase: AlarmUseCase,
     private val resourceProvider: ResourceProvider,
+    private val alarmHelper: AlarmHelper,
 ) : BaseViewModel<HomeContract.State, HomeContract.SideEffect>(
     initialState = HomeContract.State(),
 ) {
@@ -144,6 +146,12 @@ class HomeViewModel @Inject constructor(
                         pendingAlarmToggle = if (!hasActivatedAlarm) alarmId to previousState else null,
                     )
                 }
+
+                if (updatedAlarm.isAlarmActive) {
+                    alarmHelper.scheduleAlarm(updatedAlarm)
+                } else {
+                    alarmHelper.unScheduleAlarm(updatedAlarm)
+                }
             }.onFailure { error ->
                 Log.e("HomeViewModel", "Failed to update alarm state", error)
             }
@@ -196,6 +204,12 @@ class HomeViewModel @Inject constructor(
                         isNoActivatedAlarmDialogVisible = false,
                     )
                 }
+
+                if (updatedAlarm.isAlarmActive) {
+                    alarmHelper.scheduleAlarm(updatedAlarm)
+                } else {
+                    alarmHelper.unScheduleAlarm(updatedAlarm)
+                }
             }.onFailure { error ->
                 Log.e("HomeViewModel", "Failed to rollback alarm state", error)
             }
@@ -233,6 +247,7 @@ class HomeViewModel @Inject constructor(
                     viewModelScope.launch {
                         alarmsToDelete.forEach { alarm ->
                             alarmUseCase.deleteAlarm(alarm.id)
+                            alarmHelper.unScheduleAlarm(alarm)
                         }
                     }
                 },

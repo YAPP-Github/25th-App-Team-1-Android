@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Intent
 import android.util.Log
 import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForSchedule
+import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForUnSchedule
 import com.yapp.alarm.services.AlarmService
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
@@ -34,14 +35,20 @@ class AlarmHelper @Inject constructor(
         val selectedDays = alarm.repeatDays.toAlarmDays()
 
         if (selectedDays.isEmpty()) {
-            alarmManager.cancel(
-                createAlarmReceiverPendingIntentForSchedule(app, alarm, alarm.snoozeCount),
+            val pendingIntent = createAlarmReceiverPendingIntentForUnSchedule(
+                app,
+                alarm,
+                null,
             )
+            alarmManager.cancel(pendingIntent)
         } else {
             selectedDays.forEach { day ->
-                val alarmReceiverPendingIntent =
-                    createAlarmReceiverPendingIntentForSchedule(app, alarm, alarm.snoozeCount, day)
-                alarmManager.cancel(alarmReceiverPendingIntent)
+                val pendingIntent = createAlarmReceiverPendingIntentForUnSchedule(
+                    app,
+                    alarm,
+                    day,
+                )
+                alarmManager.cancel(pendingIntent)
             }
         }
     }
