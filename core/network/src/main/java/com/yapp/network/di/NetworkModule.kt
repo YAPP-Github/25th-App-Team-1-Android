@@ -35,6 +35,14 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideJson(): Json = Json {
+        ignoreUnknownKeys = true
+        prettyPrint = true
+        isLenient = true
+    }
+
+    @Provides
+    @Singleton
     @Auth
     fun provideAuthOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
@@ -74,9 +82,13 @@ object NetworkModule {
     @Provides
     @Singleton
     @NoneAuth
-    fun provideNoneAuthRetrofit(@NoneAuth okHttpClient: OkHttpClient, buildConfigFieldProvider: BuildConfigFieldProvider): Retrofit =
+    fun provideNoneAuthRetrofit(
+        @NoneAuth okHttpClient: OkHttpClient,
+        buildConfigFieldProvider: BuildConfigFieldProvider,
+        json: Json,
+    ): Retrofit =
         Retrofit.Builder()
-            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .baseUrl(buildConfigFieldProvider.get().baseUrl)
             .client(okHttpClient)
             .build()
