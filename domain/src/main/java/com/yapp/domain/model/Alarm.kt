@@ -1,5 +1,12 @@
 package com.yapp.domain.model
 
+import android.net.Uri
+import android.os.Parcelable
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Alarm(
     val id: Long = 0,
 
@@ -7,6 +14,7 @@ data class Alarm(
 
     val hour: Int = 6,
     val minute: Int = 0,
+    val second: Int = 0,
 
     // 반복 요일 (bitmask 를 통해 설정)
     val repeatDays: Int = 0,
@@ -25,7 +33,16 @@ data class Alarm(
     val soundVolume: Int = 70,
 
     val isAlarmActive: Boolean = true,
-)
+) : Parcelable {
+
+    companion object {
+        fun fromJson(json: String): Alarm {
+            return Gson().fromJson(json, object : TypeToken<Alarm>() {}.type)
+        }
+    }
+
+    override fun toString(): String = Uri.encode(Gson().toJson(this))
+}
 
 fun Alarm.copyFrom(source: Alarm): Alarm {
     return this.copy(

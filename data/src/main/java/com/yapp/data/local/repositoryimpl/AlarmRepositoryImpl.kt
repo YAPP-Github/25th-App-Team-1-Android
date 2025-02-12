@@ -72,6 +72,16 @@ class AlarmRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun updateAlarmActive(id: Long, active: Boolean) = runCatching {
+        val updatedRows = alarmLocalDataSource.updateAlarmActive(id, active)
+        if (updatedRows > 0) {
+            alarmLocalDataSource.getAlarm(id)
+                ?: throw Exception("Failed to update alarm active")
+        } else {
+            throw Exception("No rows updated")
+        }
+    }
+
     override suspend fun getAlarm(id: Long): Result<Alarm> = runCatching {
         alarmLocalDataSource.getAlarm(id)
             ?: throw Exception("Failed to get alarm")
