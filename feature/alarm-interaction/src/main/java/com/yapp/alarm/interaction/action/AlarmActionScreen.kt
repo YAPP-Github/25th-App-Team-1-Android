@@ -78,6 +78,7 @@ internal fun AlarmActionScreen(
             hour = state.hour,
             minute = state.minute,
             todayDate = state.todayDate,
+            snoozeEnabled = state.snoozeEnabled,
             snoozeInterval = state.snoozeInterval,
             snoozeCount = state.snoozeCount,
             onSnoozeClick = { eventDispatcher(AlarmActionContract.Action.Snooze) },
@@ -109,6 +110,7 @@ private fun AlarmActionContent(
     hour: Int,
     minute: Int,
     todayDate: String,
+    snoozeEnabled: Boolean,
     snoozeInterval: Int,
     snoozeCount: Int,
     onSnoozeClick: () -> Unit,
@@ -145,11 +147,15 @@ private fun AlarmActionContent(
 
         Spacer(modifier = Modifier.height(56.dp))
 
-        AlarmSnoozeButton(
-            snoozeInterval = snoozeInterval,
-            snoozeCount = snoozeCount,
-            onSnoozeClick = onSnoozeClick,
-        )
+        if (snoozeEnabled) {
+            AlarmSnoozeButton(
+                snoozeInterval = snoozeInterval,
+                snoozeCount = snoozeCount,
+                onSnoozeClick = onSnoozeClick,
+            )
+        } else {
+            Spacer(modifier = Modifier.height(54.dp))
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 
@@ -227,12 +233,12 @@ private fun AlarmSnoozeButton(
         onClick = onSnoozeClick,
     ) {
         Row(
-            modifier = Modifier.padding(
-                start = 20.dp,
-                end = 10.dp,
-                top = 12.dp,
-                bottom = 12.dp,
-            ),
+            modifier = Modifier
+                .height(54.dp)
+                .padding(
+                    start = 20.dp,
+                    end = 10.dp,
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
