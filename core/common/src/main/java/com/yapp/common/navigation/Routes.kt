@@ -38,4 +38,11 @@ object Routes {
         const val FORTUNE = "fortune_main"
         const val REWARD = "fortune_reward"
     }
+
+    object Setting {
+        const val ROUTE = "setting_route"
+        const val SETTING = "setting_main"
+        const val EDIT_PROFILE = "setting_edit_profile"
+        const val EDIT_BIRTHDAY = "setting_edit_birthday"
+    }
 }
