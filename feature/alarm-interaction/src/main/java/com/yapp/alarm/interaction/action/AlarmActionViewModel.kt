@@ -4,7 +4,9 @@ import android.app.Application
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.yapp.alarm.pendingIntent.interaction.createAlarmDismissIntent
+import com.yapp.alarm.pendingIntent.interaction.createAlarmSnoozeIntent
 import com.yapp.common.navigation.Routes
+import com.yapp.domain.model.Alarm
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -18,14 +20,15 @@ class AlarmActionViewModel @Inject constructor(
 ) : BaseViewModel<AlarmActionContract.State, AlarmActionContract.SideEffect>(
     AlarmActionContract.State(),
 ) {
-    private val notificationId = savedStateHandle.get<Long>("notificationId")
+    private val alarmJson: String? = savedStateHandle.get<String>("alarm")
+    private val alarm: Alarm? = alarmJson?.let { Alarm.fromJson(it) }
 
     init {
         updateState {
             copy(
-                snoozeEnabled = savedStateHandle.get<Boolean>("snoozeEnabled") ?: false,
-                snoozeCount = savedStateHandle.get<Int>("snoozeCount") ?: 5,
-                snoozeInterval = savedStateHandle.get<Int>("snoozeInterval") ?: 5,
+                snoozeEnabled = alarm?.isSnoozeEnabled ?: false,
+                snoozeCount = alarm?.snoozeCount ?: 5,
+                snoozeInterval = alarm?.snoozeInterval ?: 5,
             )
         }
 
@@ -62,20 +65,41 @@ class AlarmActionViewModel @Inject constructor(
     }
 
     private fun snooze() {
+        sendAlarmSnoozeEventToAlarmReceiver()
         updateState {
             copy(
-                snoozeCount = currentState.snoozeCount - 1,
+                snoozeCount = if (currentState.snoozeCount == -1) {
+                    currentState.snoozeCount
+                } else {
+                    currentState.snoozeCount - 1
+                },
             )
         }
-        emitSideEffect(AlarmActionContract.SideEffect.Navigate(Routes.AlarmInteraction.ALARM_SNOOZE_TIMER))
+        emitSideEffect(
+            AlarmActionContract.SideEffect.Navigate(
+                route = "${Routes.AlarmInteraction.ALARM_SNOOZE_TIMER}/$alarm",
+                popUpTo = Routes.AlarmInteraction.ALARM_ACTION,
+                inclusive = true,
+            ),
+        )
     }
 
     private fun dismiss() {
         sendAlarmDismissEventToAlarmReceiver()
     }
 
+    private fun sendAlarmSnoozeEventToAlarmReceiver() {
+        alarm?.let {
+            val alarmSnoozeIntent = createAlarmSnoozeIntent(
+                context = app,
+                alarm = it,
+            )
+            app.sendBroadcast(alarmSnoozeIntent)
+        }
+    }
+
     private fun sendAlarmDismissEventToAlarmReceiver() {
-        notificationId?.let { id ->
+        alarm?.id?.let { id ->
             val alarmDismissIntent = createAlarmDismissIntent(
                 context = app,
                 notificationId = id,

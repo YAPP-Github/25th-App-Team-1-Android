@@ -91,6 +91,7 @@ internal fun AlarmSnoozeTimerScreen(
             remainingSeconds = state.remainingSeconds,
             totalSeconds = state.totalSeconds,
             onDismissClick = {
+                eventDispatcher(AlarmSnoozeTimerContract.Action.Dismiss)
                 (context as? ComponentActivity)?.finish()
             },
         )

@@ -44,7 +44,13 @@ fun NavGraphBuilder.alarmInteractionNavGraph(
         }
 
         composable(
-            route = AlarmInteractionDestination.AlarmSnoozeTimer.route,
+            route = "${AlarmInteractionDestination.AlarmSnoozeTimer.route}/{alarm}",
+            arguments = listOf(
+                navArgument("alarm") {
+                    type = AlarmArgType()
+                    defaultValue = Alarm()
+                },
+            ),
         ) {
             AlarmSnoozeTimerRoute(
                 navigator = navigator,
