@@ -1,0 +1,35 @@
+package com.yapp.data.remote.di
+
+import com.yapp.data.remote.repositoryimpl.DummyRepositoryImpl
+import com.yapp.data.remote.repositoryimpl.SignUpRepositoryImpl
+import com.yapp.data.remote.repositoryimpl.UserInfoRepositoryImpl
+import com.yapp.domain.repository.DummyRepository
+import com.yapp.domain.repository.SignUpRepository
+import com.yapp.domain.repository.UserInfoRepository
+import dagger.Binds
+import dagger.Module
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+    @Binds
+    @Singleton
+    abstract fun bindsDummyRepository(
+        dummyRepository: DummyRepositoryImpl,
+    ): DummyRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindsSignUpRepository(
+        signUpRepository: SignUpRepositoryImpl,
+    ): SignUpRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindsUserInfoRepository(
+        userInfoRepository: UserInfoRepositoryImpl,
+    ): UserInfoRepository
+}
