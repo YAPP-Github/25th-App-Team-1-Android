@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.Application
 import android.content.Intent
 import android.util.Log
-import com.yapp.alarm.pendingIntent.interaction.createAlarmDismissPendingIntent
 import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForSchedule
 import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForUnSchedule
 import com.yapp.alarm.services.AlarmService
@@ -54,13 +53,6 @@ class AlarmHelper @Inject constructor(
         }
     }
 
-    fun cancelAlarm(alarm: Alarm) {
-        val pendingIntent = createAlarmDismissPendingIntent(
-            app,
-            alarm.id,
-        )
-    }
-
     fun stopAlarm() {
         app.stopService(Intent(app, AlarmService::class.java))
     }
@@ -103,7 +95,7 @@ class AlarmHelper @Inject constructor(
             else -> alarm.hour
         }
 
-        var alarmDateTime = now.withHour(alarmHour).withMinute(alarm.minute).withSecond(0)
+        var alarmDateTime = now.withHour(alarmHour).withMinute(alarm.minute).withSecond(alarm.second)
 
         if (day != null) {
             val targetDayOfWeek = day.toDayOfWeek()

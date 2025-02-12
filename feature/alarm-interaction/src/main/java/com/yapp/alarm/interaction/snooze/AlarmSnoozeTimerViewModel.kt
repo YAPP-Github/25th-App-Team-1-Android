@@ -32,7 +32,7 @@ class AlarmSnoozeTimerViewModel @Inject constructor(
     private fun startClock() {
         viewModelScope.launch {
             val nowMillis = System.currentTimeMillis()
-            val nextSnoozeTimeMillis = alarm?.let { getNextSnoozeAlarmTimeMillis(it) } ?: nowMillis
+            val nextSnoozeTimeMillis = alarm?.let { getNextSnoozeAlarmTimeMillis(it.snoozeInterval) } ?: nowMillis
             val remainingMillis = max(0, nextSnoozeTimeMillis - nowMillis)
             val remainingSeconds = (remainingMillis / 1000).toInt()
 
@@ -84,19 +84,10 @@ class AlarmSnoozeTimerViewModel @Inject constructor(
     }
 
     private fun getNextSnoozeAlarmTimeMillis(
-        alarm: Alarm,
+        snoozeInterval: Int,
     ): Long {
-        val now = LocalDateTime.now().withNano(0)
+        val now = LocalDateTime.now().withNano(0).plusMinutes(snoozeInterval.toLong())
 
-        val alarmHour = when {
-            alarm.isAm && alarm.hour == 12 -> 0
-            !alarm.isAm && alarm.hour != 12 -> alarm.hour + 12
-            else -> alarm.hour
-        }
-
-        var alarmDateTime = now.withHour(alarmHour).withMinute(alarm.minute).withSecond(0)
-        alarmDateTime = alarmDateTime.plusMinutes(alarm.snoozeInterval.toLong())
-
-        return alarmDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        return now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 }

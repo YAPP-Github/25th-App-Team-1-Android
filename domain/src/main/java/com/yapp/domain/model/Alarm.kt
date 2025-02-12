@@ -14,6 +14,7 @@ data class Alarm(
 
     val hour: Int = 6,
     val minute: Int = 0,
+    val second: Int = 0,
 
     // 반복 요일 (bitmask 를 통해 설정)
     val repeatDays: Int = 0,
@@ -33,9 +34,6 @@ data class Alarm(
 
     val isAlarmActive: Boolean = true,
 ) : Parcelable {
-    fun toJson(): String {
-        return Gson().toJson(this)
-    }
 
     companion object {
         fun fromJson(json: String): Alarm {

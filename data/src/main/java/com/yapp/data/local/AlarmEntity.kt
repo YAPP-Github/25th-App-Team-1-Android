@@ -13,6 +13,7 @@ data class AlarmEntity(
 
     val hour: Int = 6,
     val minute: Int = 0,
+    val second: Int = 0,
 
     // 반복 요일 (bitmask 를 통해 설정)
     val repeatDays: Int = 0,
@@ -37,6 +38,7 @@ fun AlarmEntity.toDomain() = Alarm(
     isAm = isAm,
     hour = hour,
     minute = minute,
+    second = second,
     repeatDays = repeatDays,
     isHolidayAlarmOff = isHolidayAlarmOff,
     isSnoozeEnabled = isSnoozeEnabled,
@@ -54,6 +56,7 @@ fun Alarm.toEntity() = AlarmEntity(
     isAm = isAm,
     hour = hour,
     minute = minute,
+    second = second,
     repeatDays = repeatDays,
     isHolidayAlarmOff = isHolidayAlarmOff,
     isSnoozeEnabled = isSnoozeEnabled,

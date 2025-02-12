@@ -68,15 +68,14 @@ class AlarmReceiver : BroadcastReceiver() {
             alarm.snoozeCount - 1
         }
 
-        val currentDateTime = LocalDateTime.now()
-            .withHour(if (alarm.isAm && alarm.hour == 12) 0 else if (!alarm.isAm && alarm.hour != 12) alarm.hour + 12 else alarm.hour)
-            .withMinute(alarm.minute)
+        val snoozeDateTime = LocalDateTime.now()
             .plusMinutes(alarm.snoozeInterval.toLong())
 
         val updatedAlarm = alarm.copy(
-            isAm = currentDateTime.hour < 12,
-            hour = if (currentDateTime.hour == 0) 12 else if (currentDateTime.hour > 12) currentDateTime.hour - 12 else currentDateTime.hour,
-            minute = currentDateTime.minute,
+            isAm = snoozeDateTime.hour < 12,
+            hour = if (snoozeDateTime.hour == 0) 12 else if (snoozeDateTime.hour > 12) snoozeDateTime.hour - 12 else snoozeDateTime.hour,
+            minute = snoozeDateTime.minute,
+            second = snoozeDateTime.second,
             snoozeCount = newSnoozeCount,
         )
 
