@@ -1,18 +1,22 @@
 package com.yapp.navigator
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import com.kms.onboarding.onboardingNavGraph
 import com.yapp.common.navigation.OrbitNavigator
+import com.yapp.common.navigation.destination.OnboardingDestination
 import com.yapp.common.navigation.destination.TopLevelDestination
 import com.yapp.common.navigation.rememberOrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
@@ -29,7 +33,23 @@ import kotlinx.collections.immutable.toImmutableList
 internal fun OrbitNavHost(
     modifier: Modifier = Modifier,
     navigator: OrbitNavigator = rememberOrbitNavigator(),
+    mainViewModel: MainViewModel,
 ) {
+    val state by mainViewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    if (state.isLoading) {
+        SplashScreen()
+        return
+    }
+
+    val startDestination = if (state.userId != null && state.onboardingCompleted) {
+        Log.d("OrbitNavHost", "✅ 온보딩 완료")
+        TopLevelDestination.HOME.route
+    } else {
+        Log.d("OrbitNavHost", "🛑 온보딩 미완료")
+        OnboardingDestination.Route.route
+    }
+
     val snackBarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -49,7 +69,7 @@ internal fun OrbitNavHost(
     ) {
         NavHost(
             navController = navigator.navController,
-            startDestination = navigator.startDestination,
+            startDestination = startDestination,
             modifier = Modifier.navigationBarsPadding(),
         ) {
             onboardingNavGraph(
