@@ -296,7 +296,7 @@ private fun HomeContent(
 
                 HomeTopBar(
                     isTitleVisible = false,
-                    onSettingClick = { },
+                    onSettingClick = { eventDispatcher(HomeContract.Action.NavigateToSetting) },
                     onMailClick = { },
                 )
             }

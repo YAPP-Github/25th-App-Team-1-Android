@@ -46,6 +46,7 @@ sealed class HomeContract {
         data object ResetLastAddedAlarmIndex : Action()
         data class EditAlarm(val alarmId: Long) : Action()
         data object FakeAction : Action()
+        data object NavigateToSetting : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {
