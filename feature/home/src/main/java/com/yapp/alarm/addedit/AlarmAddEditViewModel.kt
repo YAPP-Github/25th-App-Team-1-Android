@@ -5,6 +5,7 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.yapp.alarm.AlarmHelper
 import com.yapp.common.util.ResourceProvider
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
@@ -26,6 +27,7 @@ class AlarmAddEditViewModel @Inject constructor(
     private val alarmUseCase: AlarmUseCase,
     private val resourceProvider: ResourceProvider,
     private val hapticFeedbackManager: HapticFeedbackManager,
+    private val alarmHelper: AlarmHelper,
     savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
     initialState = AlarmAddEditContract.State(),
@@ -228,6 +230,7 @@ class AlarmAddEditViewModel @Inject constructor(
     private suspend fun createNewAlarm(alarm: Alarm) {
         alarmUseCase.insertAlarm(alarm)
             .onSuccess {
+                alarmHelper.scheduleAlarm(it)
                 emitSideEffect(AlarmAddEditContract.SideEffect.SaveAlarm(it.id))
             }
             .onFailure {
