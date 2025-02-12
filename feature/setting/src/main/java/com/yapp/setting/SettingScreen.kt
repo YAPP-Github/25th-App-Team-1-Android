@@ -38,6 +38,7 @@ fun SettingRoute(
                 SettingContract.Action.NavigateToEditProfile,
             )
         },
+        onBackClick = { viewModel.onAction(SettingContract.Action.PreviousStep) },
     )
 }
 
@@ -45,6 +46,7 @@ fun SettingRoute(
 fun SettingScreen(
     state: SettingContract.State,
     onNavigateToEditProfile: () -> Unit,
+    onBackClick: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -54,15 +56,15 @@ fun SettingScreen(
             .navigationBarsPadding(),
     ) {
         SettingTopAppBar(
-            onBackClick = { },
+            onBackClick = onBackClick,
             showTopAppBarActions = true,
             title = "설정",
         )
         Spacer(modifier = Modifier.height(12.dp))
         UserInfoCard(
-            name = "강문수",
-            gender = "남",
-            birth = "양력 1999년 7월 8일",
+            name = state.name,
+            gender = state.selectedGender ?: "",
+            birth = state.birthDate,
             modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .clickable { onNavigateToEditProfile() },

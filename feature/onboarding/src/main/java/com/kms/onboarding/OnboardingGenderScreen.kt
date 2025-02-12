@@ -36,7 +36,7 @@ fun OnboardingGenderRoute(
         state = state,
         currentStep = 5,
         totalSteps = 6,
-        onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
+        onNextClick = { viewModel.processAction(OnboardingContract.Action.Submit) },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
         onGenderSelect = { gender ->
             viewModel.processAction(OnboardingContract.Action.UpdateGender(gender))

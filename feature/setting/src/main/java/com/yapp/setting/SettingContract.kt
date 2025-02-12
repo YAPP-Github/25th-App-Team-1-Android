@@ -4,8 +4,8 @@ import com.yapp.ui.base.UiState
 
 sealed class SettingContract {
     data class State(
-        val name: String = "테스트",
-        val birthDate: String = "양력 1999년 7월 8일",
+        val name: String = "",
+        val birthDate: String = "",
         val selectedGender: String? = null,
         val checkBoxState: Boolean = false,
         val isMaleSelected: Boolean = true,

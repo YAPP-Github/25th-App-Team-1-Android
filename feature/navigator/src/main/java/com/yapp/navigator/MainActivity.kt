@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.yapp.designsystem.theme.OrbitTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,8 +28,9 @@ class MainActivity : ComponentActivity() {
             ),
         )
         setContent {
+            val mainViewModel: MainViewModel = hiltViewModel()
             OrbitTheme {
-                OrbitNavHost()
+                OrbitNavHost(mainViewModel = mainViewModel)
             }
         }
     }

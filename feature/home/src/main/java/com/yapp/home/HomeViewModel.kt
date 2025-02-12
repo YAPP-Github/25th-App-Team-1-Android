@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.yapp.alarm.AlarmHelper
 import com.yapp.common.navigation.destination.AlarmInteractionDestination
 import com.yapp.common.navigation.destination.HomeDestination
+import com.yapp.common.navigation.destination.SettingDestination
 import com.yapp.common.util.ResourceProvider
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.toAlarmDays
@@ -53,6 +54,13 @@ class HomeViewModel @Inject constructor(
                 emitSideEffect(
                     HomeContract.SideEffect.Navigate(
                         route = AlarmInteractionDestination.AlarmAction.route,
+                    ),
+                )
+            }
+            HomeContract.Action.NavigateToSetting -> {
+                emitSideEffect(
+                    HomeContract.SideEffect.Navigate(
+                        route = SettingDestination.Route.route,
                     ),
                 )
             }

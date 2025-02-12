@@ -55,10 +55,11 @@ sealed class OnboardingContract {
         data object CreateAlarm : Action()
         data class UpdateField(val value: String, val fieldType: FieldType) : Action()
         data object Reset : Action()
-        data class Submit(val stepData: Map<String, String>) : Action()
+        data object Submit : Action()
         data class UpdateGender(val gender: String) : Action()
-        data class UpdateBirthDate(val lunar: String, val year: Int, val month: Int, val day: Int) : Action() // ✅ 추가
+        data class UpdateBirthDate(val lunar: String, val year: Int, val month: Int, val day: Int) : Action()
         data object ToggleBottomSheet : Action()
+        data object CompleteOnboarding : Action()
     }
 
     enum class FieldType(val validationRegex: Regex) {

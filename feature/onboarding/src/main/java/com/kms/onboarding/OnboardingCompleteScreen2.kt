@@ -38,7 +38,10 @@ fun OnboardingCompleteRoute2(
 
     OnboardingCompleteScreen2(
         state = state,
-        onNextClick = { viewModel.processAction(OnboardingContract.Action.CreateAlarm) },
+        onNextClick = {
+            viewModel.processAction(OnboardingContract.Action.CompleteOnboarding)
+            viewModel.processAction(OnboardingContract.Action.CreateAlarm)
+        },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
     )
 }

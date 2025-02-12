@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.OnboardingDestination
+import com.yapp.datastore.UserPreferences
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toRepeatDays
+import com.yapp.domain.repository.SignUpRepository
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.media.haptic.HapticFeedbackManager
 import com.yapp.media.haptic.HapticType
@@ -17,6 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
+    private val signUpRepository: SignUpRepository,
+    private val userPreferences: UserPreferences,
     private val alarmUseCase: AlarmUseCase,
     private val hapticFeedbackManager: HapticFeedbackManager,
     private val savedStateHandle: SavedStateHandle,
@@ -34,11 +38,36 @@ class OnboardingViewModel @Inject constructor(
             is OnboardingContract.Action.SetAlarmTime -> setAlarmTime(action.isAm, action.hour, action.minute)
             is OnboardingContract.Action.CreateAlarm -> createAlarm()
             is OnboardingContract.Action.UpdateField -> updateField(action.value, action.fieldType)
-            is OnboardingContract.Action.UpdateBirthDate -> updateBirthDate(action.lunar, action.year, action.month, action.day) // ✅ 추가
+            is OnboardingContract.Action.UpdateBirthDate -> updateBirthDate(action.lunar, action.year, action.month, action.day)
             is OnboardingContract.Action.Reset -> resetFields()
-            is OnboardingContract.Action.Submit -> handleSubmission(action.stepData)
+            is OnboardingContract.Action.Submit -> submitUserInfo()
             is OnboardingContract.Action.UpdateGender -> updateGender(action.gender)
             is OnboardingContract.Action.ToggleBottomSheet -> toggleBottomSheet()
+            is OnboardingContract.Action.CompleteOnboarding -> completeOnboarding()
+        }
+    }
+
+    private fun submitUserInfo() {
+        viewModelScope.launch {
+            val state = container.stateFlow.value
+
+            val result = signUpRepository.postSignUp(
+                name = state.userName,
+                calendarType = state.birthType,
+                birthDate = state.birthDate,
+                birthTime = state.birthTime,
+                gender = state.selectedGender ?: "",
+            )
+
+            if (result.isSuccess) {
+                val userId = result.getOrNull() ?: return@launch
+                userPreferences.saveUserId(userId)
+
+                updateState { copy(isBottomSheetOpen = false) }
+                moveToNextStep()
+            } else {
+                emitSideEffect(OnboardingContract.SideEffect.NavigateBack)
+            }
         }
     }
 
@@ -180,7 +209,10 @@ class OnboardingViewModel @Inject constructor(
         updateState { copy(isBottomSheetOpen = !isCurrentlyOpen) }
     }
 
-    private fun handleSubmission(stepData: Map<String, String>) {
-        emitSideEffect(OnboardingContract.SideEffect.OnboardingCompleted)
+    private fun completeOnboarding() {
+        viewModelScope.launch {
+            userPreferences.setOnboardingCompleted()
+            emitSideEffect(OnboardingContract.SideEffect.OnboardingCompleted)
+        }
     }
 }
