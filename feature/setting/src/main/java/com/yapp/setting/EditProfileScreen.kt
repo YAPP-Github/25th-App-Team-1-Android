@@ -76,7 +76,10 @@ fun EditProfileRoute(
                 SettingContract.Action.NavigateToEditBirthday,
             )
         },
-        onConfirmExit = { viewModel.onAction(SettingContract.Action.PreviousStep) },
+        onConfirmExit = {
+            viewModel.onAction(SettingContract.Action.HideDialog)
+            viewModel.onAction(SettingContract.Action.PreviousStep)
+        },
         onCancelDialog = { viewModel.onAction(SettingContract.Action.HideDialog) },
     )
 }
@@ -198,7 +201,8 @@ fun EditProfileScreen(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(horizontal = 18.dp),
         ) {
             Row(
@@ -270,6 +274,7 @@ fun formatTimeInput(input: String, previousText: String): String {
             val minutes = sanitizedValue.drop(2).take(2)
             "$hours:$minutes"
         }
+
         sanitizedValue.length == 2 -> {
             if (previousText.length == 3 && previousText.endsWith(":")) {
                 sanitizedValue
@@ -277,6 +282,7 @@ fun formatTimeInput(input: String, previousText: String): String {
                 "$sanitizedValue:"
             }
         }
+
         else -> sanitizedValue
     }
 }
