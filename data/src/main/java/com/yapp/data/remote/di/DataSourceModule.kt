@@ -2,6 +2,8 @@ package com.yapp.data.remote.di
 
 import com.yapp.data.remote.datasource.DummyDataSource
 import com.yapp.data.remote.datasource.DummyDataSourceImpl
+import com.yapp.data.remote.datasource.FortuneDataSource
+import com.yapp.data.remote.datasource.FortuneDataSourceImpl
 import com.yapp.data.remote.datasource.SignUpDataSource
 import com.yapp.data.remote.datasource.SignUpDataSourceImpl
 import com.yapp.data.remote.datasource.UserInfoDataSource
@@ -32,4 +34,10 @@ abstract class DataSourceModule {
     abstract fun bindsUserInfoDataSource(
         userInfoDataSource: UserInfoDataSourceImpl,
     ): UserInfoDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindsFortuneDataSource(
+        fortuneDataSource: FortuneDataSourceImpl,
+    ): FortuneDataSource
 }
