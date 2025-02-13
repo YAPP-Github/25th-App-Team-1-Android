@@ -8,18 +8,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -92,12 +95,19 @@ fun FortuneRewardScreen(
                 contentDescription = null,
                 tint = Color.Unspecified,
             )
+            Spacer(modifier = Modifier.height(30.dp))
+            Icon(
+                painter = painterResource(id = core.designsystem.R.drawable.ic_shadow),
+                contentDescription = null,
+                tint = Color.Unspecified,
+            )
             Spacer(modifier = Modifier.weight(1f))
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp),
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 OrbitButton(
@@ -119,4 +129,19 @@ fun FortuneRewardScreen(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewFortuneRewardScreen() {
+    val fakeState = remember {
+        mutableStateOf(
+            FortuneContract.State(
+                dailyFortune = "오르비, 오늘은 기회가 많으니 적극적으로 움직여봐!",
+                hasReward = true,
+            ),
+        )
+    }
+
+    FortuneRewardScreen(state = fakeState)
 }
