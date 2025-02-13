@@ -7,6 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.yapp.common.navigation.rememberOrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -27,8 +28,12 @@ class MainActivity : ComponentActivity() {
             ),
         )
         setContent {
+            val navigator = rememberOrbitNavigator()
+
             OrbitTheme {
-                OrbitNavHost()
+                OrbitNavHost(
+                    navigator = navigator,
+                )
             }
         }
     }

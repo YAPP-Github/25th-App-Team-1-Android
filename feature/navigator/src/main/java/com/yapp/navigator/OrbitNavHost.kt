@@ -52,7 +52,7 @@ internal fun OrbitNavHost(
     ) {
         NavHost(
             navController = navigator.navController,
-            startDestination = SplashDestination.Route.route, // ✅ Splash를 가장 먼저 띄움
+            startDestination = SplashDestination.Route.route,
             modifier = Modifier.navigationBarsPadding(),
         ) {
             composable(SplashDestination.Route.route) {
