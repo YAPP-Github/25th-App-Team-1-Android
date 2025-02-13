@@ -24,7 +24,7 @@ import com.yapp.ui.utils.paddingForScreenPercentage
 import core.designsystem.R
 
 @Composable
-fun FortuneFirstPage() {
+fun FortuneFirstPage(dailyFortune: String) {
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -62,7 +62,7 @@ fun FortuneFirstPage() {
                     contentDescription = null,
                 )
                 Text(
-                    text = "오늘은 괜찮은 하루가 될 거야! 평소보다 긍정적인 마음으로 하루를 시작하면 좋은 일이 생길지도 몰라. 주변 사람들과의 관계에 신경 쓰면 더욱 행복한 하루가 될 거야. 혹시 오늘 중요한 일이 있다면, 미리 계획을 세우고 차분하게 진행하는 게 좋아. 너의 꼼꼼함이 빛을 발할 거야!",
+                    text = dailyFortune,
                     style = OrbitTheme.typography.H3,
                     color = OrbitTheme.colors.gray_600,
                     modifier = Modifier
@@ -88,5 +88,7 @@ fun FortuneFirstPage() {
 @Composable
 @Preview
 fun FortuneFirstPagePreview() {
-    FortuneFirstPage()
+    FortuneFirstPage(
+        dailyFortune = "",
+    )
 }

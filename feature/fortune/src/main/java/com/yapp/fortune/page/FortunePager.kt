@@ -35,7 +35,8 @@ fun FortunePager(
             },
     ) { page ->
         when (page) {
-            0 -> FortuneFirstPage()
+            0 -> FortuneFirstPage(state.dailyFortune)
+
             in 1..4 -> {
                 val index = (page - 1).coerceIn(0, state.fortunePages.lastIndex)
                 FortunePageLayout(state.fortunePages[index])
@@ -44,7 +45,7 @@ fun FortunePager(
                 hasReward = state.hasReward,
                 onCompleteClick = onNextStep,
             )
-            else -> DefaultFortunePage(page)
+            else -> {}
         }
     }
 }
