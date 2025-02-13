@@ -246,6 +246,7 @@ class HomeViewModel @Inject constructor(
             )
         }
 
+        Log.d("HomeViewModel", "Deleting alarms: $alarmsToDelete")
         emitSideEffect(
             HomeContract.SideEffect.ShowSnackBar(
                 message = resourceProvider.getString(R.string.alarm_deleted),

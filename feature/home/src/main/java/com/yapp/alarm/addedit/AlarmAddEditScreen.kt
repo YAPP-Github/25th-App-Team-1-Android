@@ -27,6 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -60,7 +61,6 @@ import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.component.snackbar.showCustomSnackBar
 import com.yapp.ui.component.switch.OrbitSwitch
 import com.yapp.ui.component.timepicker.OrbitPicker
-import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import feature.home.R
 import kotlinx.coroutines.launch
 
@@ -73,7 +73,7 @@ fun AlarmAddEditRoute(
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
 
-    LaunchedEffectWithLifecycle(sideEffect) {
+    LaunchedEffect(sideEffect) {
         sideEffect.collect { effect ->
             when (effect) {
                 is AlarmAddEditContract.SideEffect.NavigateBack -> {
