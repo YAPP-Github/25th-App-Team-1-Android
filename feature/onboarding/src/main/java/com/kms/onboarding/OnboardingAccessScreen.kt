@@ -48,7 +48,9 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.utils.heightForScreenPercentage
 import feature.onboarding.R
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -104,10 +106,12 @@ fun OnboardingAccessRoute(
             permissionState?.launchPermissionRequest()
         } else if (!isAlarmPermissionGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !hasCheckedAlarm) {
             hasCheckedAlarm = true
-            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                data = Uri.fromParts("package", context.packageName, null)
+            withContext(Dispatchers.Main) {
+                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                    data = Uri.fromParts("package", context.packageName, null)
+                }
+                context.startActivity(intent)
             }
-            context.startActivity(intent)
         }
 
         if ((hasCheckedNotification || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) &&
