@@ -1,22 +1,20 @@
 package com.yapp.navigator
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.kms.onboarding.onboardingNavGraph
 import com.yapp.common.navigation.OrbitNavigator
-import com.yapp.common.navigation.destination.OnboardingDestination
+import com.yapp.common.navigation.destination.SplashDestination
 import com.yapp.common.navigation.destination.TopLevelDestination
 import com.yapp.common.navigation.rememberOrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
@@ -24,6 +22,7 @@ import com.yapp.fortune.fortuneNavGraph
 import com.yapp.home.homeNavGraph
 import com.yapp.mission.missionNavGraph
 import com.yapp.setting.settingNavGraph
+import com.yapp.splash.SplashRoute
 import com.yapp.ui.component.snackbar.CustomSnackBarVisuals
 import com.yapp.ui.component.snackbar.OrbitSnackBar
 import kotlinx.collections.immutable.toImmutableList
@@ -33,23 +32,7 @@ import kotlinx.collections.immutable.toImmutableList
 internal fun OrbitNavHost(
     modifier: Modifier = Modifier,
     navigator: OrbitNavigator = rememberOrbitNavigator(),
-    mainViewModel: MainViewModel,
 ) {
-    val state by mainViewModel.container.stateFlow.collectAsStateWithLifecycle()
-
-    if (state.isLoading) {
-        SplashScreen()
-        return
-    }
-
-    val startDestination = if (state.userId != null && state.onboardingCompleted) {
-        Log.d("OrbitNavHost", "✅ 온보딩 완료")
-        TopLevelDestination.HOME.route
-    } else {
-        Log.d("OrbitNavHost", "🛑 온보딩 미완료")
-        OnboardingDestination.Route.route
-    }
-
     val snackBarHostState = remember { SnackbarHostState() }
 
     Scaffold(
@@ -69,9 +52,12 @@ internal fun OrbitNavHost(
     ) {
         NavHost(
             navController = navigator.navController,
-            startDestination = startDestination,
+            startDestination = SplashDestination.Route.route, // ✅ Splash를 가장 먼저 띄움
             modifier = Modifier.navigationBarsPadding(),
         ) {
+            composable(SplashDestination.Route.route) {
+                SplashRoute(navigator)
+            }
             onboardingNavGraph(
                 navigator = navigator,
                 onFinishOnboarding = { navigator.navigateToTopLevelDestination(TopLevelDestination.HOME) },
@@ -80,15 +66,9 @@ internal fun OrbitNavHost(
                 navigator = navigator,
                 snackBarHostState = snackBarHostState,
             )
-            missionNavGraph(
-                navigator = navigator,
-            )
-            fortuneNavGraph(
-                navigator = navigator,
-            )
-            settingNavGraph(
-                navigator = navigator,
-            )
+            missionNavGraph(navigator = navigator)
+            fortuneNavGraph(navigator = navigator)
+            settingNavGraph(navigator = navigator)
         }
     }
 }
