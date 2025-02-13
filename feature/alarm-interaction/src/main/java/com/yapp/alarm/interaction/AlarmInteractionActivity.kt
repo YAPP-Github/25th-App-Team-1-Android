@@ -99,7 +99,7 @@ class AlarmInteractionActivity : ComponentActivity() {
 
     private fun registerAlarmInteractionActivityCloseReceiver() {
         val filter = IntentFilter(AlarmConstants.ACTION_ALARM_INTERACTION_ACTIVITY_CLOSE)
-        registerReceiver(broadcastReceiver, filter, RECEIVER_NOT_EXPORTED)
+        registerReceiver(broadcastReceiver, filter, RECEIVER_EXPORTED)
     }
 
     private fun unregisterAlarmInteractionActivityCloseReceiver() {
