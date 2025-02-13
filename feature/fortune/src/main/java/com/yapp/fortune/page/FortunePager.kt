@@ -35,7 +35,10 @@ fun FortunePager(
             },
     ) { page ->
         when (page) {
-            0 -> FortuneFirstPage(state.dailyFortune)
+            0 -> FortuneFirstPage(
+                dailyFortune = state.dailyFortune,
+                avgFortuneScore = state.avgFortuneScore,
+            )
 
             in 1..4 -> {
                 val index = (page - 1).coerceIn(0, state.fortunePages.lastIndex)

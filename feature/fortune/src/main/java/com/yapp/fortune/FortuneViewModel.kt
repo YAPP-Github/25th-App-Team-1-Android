@@ -38,6 +38,7 @@ class FortuneViewModel @Inject constructor(
                 copy(
                     isLoading = false,
                     dailyFortune = fortune.dailyFortune,
+                    avgFortuneScore = fortune.avgFortuneScore,
                     fortunePages = fortune.toFortunePages(),
                 )
             }

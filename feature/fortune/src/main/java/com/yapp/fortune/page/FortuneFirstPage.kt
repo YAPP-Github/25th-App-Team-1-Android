@@ -20,27 +20,27 @@ import androidx.compose.ui.zIndex
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.FortuneCharacter
 import com.yapp.fortune.component.HillWithGradient
+import com.yapp.fortune.component.SpeechBubble
 import com.yapp.ui.utils.paddingForScreenPercentage
 import core.designsystem.R
 
 @Composable
-fun FortuneFirstPage(dailyFortune: String) {
+fun FortuneFirstPage(dailyFortune: String, avgFortuneScore: Int) {
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
-        Image(
-            painter = painterResource(id = R.drawable.ic_100_buble),
-            contentDescription = null,
+        SpeechBubble(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .paddingForScreenPercentage(topPercentage = 0.04f),
+                .paddingForScreenPercentage(topPercentage = 0.055f),
+            text = "오늘의 운세 점수 ${avgFortuneScore}점",
         )
         FortuneCharacter(
             modifier = Modifier
                 .paddingForScreenPercentage(topPercentage = 0.12f)
                 .zIndex(1f)
                 .align(Alignment.TopCenter),
-            fortuneScore = 100,
+            fortuneScore = avgFortuneScore,
         )
 
         HillWithGradient(
@@ -90,5 +90,6 @@ fun FortuneFirstPage(dailyFortune: String) {
 fun FortuneFirstPagePreview() {
     FortuneFirstPage(
         dailyFortune = "",
+        avgFortuneScore = 0,
     )
 }
