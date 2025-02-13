@@ -6,6 +6,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
@@ -25,6 +26,7 @@ import com.yapp.mission.MissionContract
 @Composable
 fun FlipCard(
     state: MissionContract.State,
+    eventDispatcher: (MissionContract.Action) -> Unit, // ✅ 추가
 ) {
     val rotationZ = remember { Animatable(0f) }
     val rotationY = remember { Animatable(state.rotationY) }
@@ -74,7 +76,8 @@ fun FlipCard(
                 rotationY = rotationY.value,
                 scaleX = scale.value,
                 scaleY = scale.value,
-            ),
+            )
+            .clickable { eventDispatcher(MissionContract.Action.ClickCard) }, // ✅ 카드 클릭 시 count 증가
         contentAlignment = Alignment.Center,
     ) {
         if (rotationY.value <= 90f) {
@@ -108,6 +111,7 @@ fun FlipCardPreview() {
     ) {
         FlipCard(
             state = state.copy(rotationY = rotationY, rotationZ = rotationZ),
+            eventDispatcher = {},
         )
     }
 }

@@ -63,7 +63,7 @@ fun MissionProgressRoute(viewModel: MissionViewModel = hiltViewModel()) {
         state = state,
         onShowExitDialog = { viewModel.onAction(MissionContract.Action.ShowExitDialog) },
         onDismissExitDialog = { viewModel.onAction(MissionContract.Action.HideExitDialog) },
-        onMissionCompleted = { viewModel.onAction(MissionContract.Action.CompleteMission) },
+        eventDispatcher = { viewModel.onAction(MissionContract.Action.ClickCard) },
     )
 }
 
@@ -72,7 +72,7 @@ fun MissionProgressScreen(
     state: MissionContract.State,
     onShowExitDialog: () -> Unit,
     onDismissExitDialog: () -> Unit,
-    onMissionCompleted: () -> Unit,
+    eventDispatcher: (MissionContract.Action) -> Unit,
 
 ) {
     Box(
@@ -148,6 +148,7 @@ fun MissionProgressScreen(
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.0665f))
                 FlipCard(
                     state = state,
+                    eventDispatcher = eventDispatcher,
                 )
             }
         }
@@ -219,7 +220,6 @@ fun MissionProgressScreen(
                         scaleYAdjustment = 1.3f,
                         resId = core.designsystem.R.raw.mission_success,
                         iterations = 1,
-                        onAnimationEnd = onMissionCompleted,
                     )
                     Text(
                         text = "미션 성공!",
@@ -242,6 +242,6 @@ fun MissionProgressRoutePreview() {
         state = MissionContract.State(),
         onShowExitDialog = {},
         onDismissExitDialog = {},
-        onMissionCompleted = {},
+        eventDispatcher = {},
     )
 }
