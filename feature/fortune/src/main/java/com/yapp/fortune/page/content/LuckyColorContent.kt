@@ -18,7 +18,11 @@ import com.yapp.fortune.component.LuckyColorBox
  * 행운의 색상 정보
  */
 @Composable
-fun LuckyColorContent() {
+fun LuckyColorContent(
+    luckyColor: String,
+    unluckyColor: String,
+    luckyFood: String,
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -29,22 +33,39 @@ fun LuckyColorContent() {
         LuckyColorBox(
             colorTitle = "행운의 색",
             resId = core.designsystem.R.drawable.ic_circle,
-            contentLabel = "초록색",
-            colorTint = OrbitTheme.colors.green,
+            contentLabel = luckyColor,
+            colorTint = getColorFromName(luckyColor),
         )
         Spacer(modifier = Modifier.height(52.dp))
         LuckyColorBox(
             colorTitle = "피해야할 색",
             resId = core.designsystem.R.drawable.ic_circle,
-            contentLabel = "빨간색",
-            colorTint = OrbitTheme.colors.red,
+            contentLabel = unluckyColor,
+            colorTint = getColorFromName(unluckyColor),
         )
         Spacer(modifier = Modifier.height(52.dp))
         LuckyColorBox(
             colorTitle = "추천 음식",
             resId = core.designsystem.R.drawable.ic_food,
-            contentLabel = "햄버거",
+            contentLabel = luckyFood,
             colorTint = Color.Unspecified,
         )
+    }
+}
+
+@Composable
+fun getColorFromName(colorName: String): Color {
+    return when (colorName.lowercase()) {
+        "빨강", "레드" -> OrbitTheme.colors.red
+        "분홍", "핑크" -> OrbitTheme.colors.pink
+        "주황", "오렌지" -> OrbitTheme.colors.orange
+        "노랑", "옐로우" -> OrbitTheme.colors.yellow
+        "초록", "그린" -> OrbitTheme.colors.green
+        "파랑", "블루" -> OrbitTheme.colors.blue
+        "보라", "퍼플" -> OrbitTheme.colors.purple
+        "갈색", "브라운" -> OrbitTheme.colors.brown
+        "회색", "그레이" -> OrbitTheme.colors.gray
+        "인디고" -> OrbitTheme.colors.indigo
+        else -> OrbitTheme.colors.gray_600
     }
 }
