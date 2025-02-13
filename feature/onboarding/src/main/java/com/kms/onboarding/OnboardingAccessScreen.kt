@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,13 +71,13 @@ fun OnboardingAccessRoute(
             null
         }
 
-    var hasRequestedPermission by remember { mutableStateOf(false) }
-    var hasCheckedNotification by remember { mutableStateOf(false) }
-    var hasCheckedAlarm by remember { mutableStateOf(false) }
+    var hasRequestedPermission by rememberSaveable { mutableStateOf(false) }
+    var hasCheckedNotification by rememberSaveable { mutableStateOf(false) }
+    var hasCheckedAlarm by rememberSaveable { mutableStateOf(false) }
 
-    var isAlarmPermissionGranted by remember { mutableStateOf(false) }
+    var isAlarmPermissionGranted by rememberSaveable { mutableStateOf(false) }
 
-    var hasDelayed by remember { mutableStateOf(false) }
+    var hasDelayed by rememberSaveable { mutableStateOf(false) }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
