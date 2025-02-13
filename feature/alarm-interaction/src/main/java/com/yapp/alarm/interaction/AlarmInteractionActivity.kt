@@ -2,10 +2,12 @@ package com.yapp.alarm.interaction
 
 import android.annotation.SuppressLint
 import android.app.KeyguardManager
+import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -13,8 +15,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.core.util.Consumer
 import androidx.navigation.compose.NavHost
 import com.yapp.alarm.AlarmConstants
 import com.yapp.alarm.receivers.AlarmInteractionActivityReceiver
@@ -75,6 +79,27 @@ class AlarmInteractionActivity : ComponentActivity() {
                 }
             }
 
+            DisposableEffect(this, navigator.navController) {
+                val onNewIntentConsumer = Consumer<Intent> { newIntent ->
+                    val newAlarm: Alarm? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        newIntent.getParcelableExtra(AlarmConstants.EXTRA_ALARM, Alarm::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        newIntent.getParcelableExtra(AlarmConstants.EXTRA_ALARM)
+                    }
+                    Log.d("AlarmInteractionActivity", "New Intent: $newIntent")
+                    newAlarm?.let { alarm ->
+                        navigator.navController.navigate("${AlarmInteractionDestination.AlarmAction.route}/$alarm")
+                    }
+                }
+
+                this@AlarmInteractionActivity.addOnNewIntentListener(onNewIntentConsumer)
+
+                onDispose {
+                    this@AlarmInteractionActivity.removeOnNewIntentListener(onNewIntentConsumer)
+                }
+            }
+
             LaunchedEffect(Unit) {
                 val route = "${AlarmInteractionDestination.AlarmAction.route}/$alarm"
                 navigator.navController.navigate(route) {
@@ -99,7 +124,7 @@ class AlarmInteractionActivity : ComponentActivity() {
 
     private fun registerAlarmInteractionActivityCloseReceiver() {
         val filter = IntentFilter(AlarmConstants.ACTION_ALARM_INTERACTION_ACTIVITY_CLOSE)
-        registerReceiver(broadcastReceiver, filter, RECEIVER_NOT_EXPORTED)
+        registerReceiver(broadcastReceiver, filter, RECEIVER_EXPORTED)
     }
 
     private fun unregisterAlarmInteractionActivityCloseReceiver() {

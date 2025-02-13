@@ -1,5 +1,6 @@
 package com.yapp.home
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -63,7 +64,6 @@ import com.yapp.home.component.bottomsheet.AlarmListBottomSheet
 import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.component.snackbar.showCustomSnackBar
-import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
 import feature.home.R
@@ -107,7 +107,7 @@ fun HomeRoute(
             }
     }
 
-    LaunchedEffectWithLifecycle(sideEffect) {
+    LaunchedEffect(sideEffect) {
         sideEffect.collect { effect ->
             when (effect) {
                 is HomeContract.SideEffect.NavigateBack -> {
@@ -121,6 +121,8 @@ fun HomeRoute(
                     )
                 }
                 is HomeContract.SideEffect.ShowSnackBar -> {
+                    Log.d("HomeScreen", "ShowSnackBar: ${effect.message}")
+
                     val result = showCustomSnackBar(
                         snackBarHostState = snackBarHostState,
                         message = effect.message,

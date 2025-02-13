@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,7 +45,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.lottie.LottieAnimation
-import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import feature.alarm.interaction.R
 
@@ -56,7 +56,7 @@ internal fun AlarmSnoozeTimerRoute(
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
 
-    LaunchedEffectWithLifecycle(sideEffect) {
+    LaunchedEffect(sideEffect) {
         sideEffect.collect { action ->
             when (action) {
                 is AlarmSnoozeTimerContract.SideEffect.Navigate -> {

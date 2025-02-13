@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,7 +22,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.SplashDestination
 import com.yapp.designsystem.theme.OrbitTheme
-import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 
 @Composable
 fun SplashRoute(
@@ -31,7 +31,7 @@ fun SplashRoute(
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
 
-    LaunchedEffectWithLifecycle(sideEffect) {
+    LaunchedEffect(sideEffect) {
         sideEffect.collect { effect ->
             when (effect) {
                 is SplashContract.SideEffect.Navigate -> {
