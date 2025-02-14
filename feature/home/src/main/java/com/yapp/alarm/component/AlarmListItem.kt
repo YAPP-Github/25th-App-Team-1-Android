@@ -56,7 +56,12 @@ internal fun AlarmListItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(if (isPressed) OrbitTheme.colors.gray_800 else OrbitTheme.colors.gray_900)
+            .background(
+                when {
+                    isPressed || selected -> OrbitTheme.colors.gray_800
+                    else -> OrbitTheme.colors.gray_900
+                },
+            )
             .padding(horizontal = 24.dp, vertical = 20.dp)
             .clickable(
                 interactionSource = interactionSource,
