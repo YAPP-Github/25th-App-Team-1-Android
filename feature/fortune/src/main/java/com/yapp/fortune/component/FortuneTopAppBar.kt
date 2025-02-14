@@ -1,6 +1,6 @@
 package com.yapp.fortune.component
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -14,6 +14,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.ui.extensions.customClickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,10 +35,10 @@ fun FortuneTopAppBar(
                 painter = painterResource(id = core.designsystem.R.drawable.ic_close),
                 contentDescription = "Close",
                 modifier = Modifier
-                    .clickable(onClick = onCloseClick)
-                    .padding(end = 12.dp),
+                    .customClickable(onClick = onCloseClick),
                 tint = OrbitTheme.colors.white,
             )
+            Spacer(modifier = Modifier.padding(end = 12.dp))
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
     )
