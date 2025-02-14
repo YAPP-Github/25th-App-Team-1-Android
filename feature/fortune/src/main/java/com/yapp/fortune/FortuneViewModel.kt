@@ -43,9 +43,6 @@ class FortuneViewModel @Inject constructor(
         fortuneRepository.getFortune(fortuneId).onSuccess { fortune ->
             val savedImageId = userPreferences.fortuneImageIdFlow.firstOrNull()
             val imageId = savedImageId ?: getRandomImage()
-            if (savedImageId == null) {
-                userPreferences.saveFortuneImageId(imageId)
-            }
 
             updateState {
                 copy(
@@ -108,6 +105,8 @@ class FortuneViewModel @Inject constructor(
 
         if (isSuccess) {
             Log.d("FortuneViewModel", "이미지 저장 성공")
+            userPreferences.saveFortuneImageId(resId)
+            updateState { copy(fortuneImageId = resId) }
         } else {
             Log.e("FortuneViewModel", "이미지 저장 실패")
         }

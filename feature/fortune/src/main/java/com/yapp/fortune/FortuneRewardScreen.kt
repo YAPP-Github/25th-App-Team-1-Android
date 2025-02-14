@@ -38,25 +38,24 @@ fun FortuneRewardRoute(
     val state = viewModel.container.stateFlow.collectAsStateWithLifecycle()
     FortuneRewardScreen(
         state = state,
+        onCloseClick = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
+        onCompleteClick = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
+        onSaveImage = { viewModel.onAction(FortuneContract.Action.SaveImage(it)) },
     )
 }
 
 @Composable
 fun FortuneRewardScreen(
     state: State<FortuneContract.State>,
+    onCloseClick: () -> Unit,
+    onCompleteClick: () -> Unit = {},
+    onSaveImage: (Int) -> Unit,
 ) {
     val parts = state.value.dailyFortuneTitle.split(" ")
     val nickName = parts.getOrNull(0)?.trim() ?: ""
 
-    val randomImageRes = remember {
-        listOf(
-            core.designsystem.R.drawable.ic_fortune_reward1,
-            core.designsystem.R.drawable.ic_fortune_reward2,
-            core.designsystem.R.drawable.ic_fortune_reward3,
-            core.designsystem.R.drawable.ic_fortune_reward4,
-            core.designsystem.R.drawable.ic_fortune_reward5,
-        ).random()
-    }
+    val imageRes = state.value.fortuneImageId
+        ?: core.designsystem.R.drawable.ic_fortune_reward1 // ✅ 저장된 이미지 사용
 
     Box(
         modifier = Modifier
@@ -77,7 +76,7 @@ fun FortuneRewardScreen(
         ) {
             FortuneTopAppBar(
                 titleLabel = "행운 부적",
-                onCloseClick = {},
+                onCloseClick = onCloseClick,
             )
             Text(
                 modifier = Modifier
@@ -91,7 +90,7 @@ fun FortuneRewardScreen(
             Spacer(modifier = Modifier.heightForScreenPercentage(0.0467f))
 
             Icon(
-                painter = painterResource(id = randomImageRes),
+                painter = painterResource(id = imageRes),
                 contentDescription = null,
                 tint = Color.Unspecified,
             )
@@ -113,7 +112,7 @@ fun FortuneRewardScreen(
                 OrbitButton(
                     label = "완료",
                     modifier = Modifier.weight(1f),
-                    onClick = {},
+                    onClick = onCompleteClick,
                     enabled = true,
                     containerColor = OrbitTheme.colors.gray_600,
                     contentColor = OrbitTheme.colors.white,
@@ -123,7 +122,7 @@ fun FortuneRewardScreen(
                 OrbitButton(
                     label = "앨범에 저장",
                     modifier = Modifier.weight(1f),
-                    onClick = {},
+                    onClick = { onSaveImage(imageRes) },
                     enabled = true,
                 )
             }
@@ -143,5 +142,5 @@ fun PreviewFortuneRewardScreen() {
         )
     }
 
-    FortuneRewardScreen(state = fakeState)
+    FortuneRewardScreen(state = fakeState, onCloseClick = {}, onCompleteClick = {}, onSaveImage = {})
 }
