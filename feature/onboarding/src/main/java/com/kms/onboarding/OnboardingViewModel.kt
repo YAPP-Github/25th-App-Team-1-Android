@@ -197,6 +197,7 @@ class OnboardingViewModel @Inject constructor(
                 textFieldValue = "",
                 showWarning = false,
                 isButtonEnabled = false,
+                isValid = false,
             )
         }
     }
