@@ -301,6 +301,8 @@ private fun HomeContent(
             }
         }
 
+        BottomGradient(modifier = Modifier.align(Alignment.BottomCenter))
+
         if (state.isSelectionMode && state.selectedAlarmIds.isNotEmpty()) {
             DeleteAlarmButton(
                 modifier = Modifier
@@ -313,8 +315,6 @@ private fun HomeContent(
                 },
             )
         }
-
-        BottomGradient(modifier = Modifier.align(Alignment.BottomCenter))
     }
 
     if (state.isDeleteDialogVisible) {
