@@ -63,6 +63,7 @@ fun MissionProgressRoute(viewModel: MissionViewModel = hiltViewModel()) {
         state = state,
         onShowExitDialog = { viewModel.onAction(MissionContract.Action.ShowExitDialog) },
         onDismissExitDialog = { viewModel.onAction(MissionContract.Action.HideExitDialog) },
+        onRetryPostFortune = { viewModel.onAction(MissionContract.Action.RetryPostFortune) },
         eventDispatcher = { viewModel.onAction(MissionContract.Action.ClickCard) },
     )
 }
@@ -72,6 +73,7 @@ fun MissionProgressScreen(
     state: MissionContract.State,
     onShowExitDialog: () -> Unit,
     onDismissExitDialog: () -> Unit,
+    onRetryPostFortune: () -> Unit,
     eventDispatcher: (MissionContract.Action) -> Unit,
 
 ) {
@@ -232,6 +234,15 @@ fun MissionProgressScreen(
                 }
             }
         }
+
+        if (state.errorMessage != null) {
+            OrbitDialog(
+                title = "오류",
+                message = state.errorMessage,
+                confirmText = "확인",
+                onConfirm = { onRetryPostFortune() },
+            )
+        }
     }
 }
 
@@ -243,5 +254,6 @@ fun MissionProgressRoutePreview() {
         onShowExitDialog = {},
         onDismissExitDialog = {},
         eventDispatcher = {},
+        onRetryPostFortune = {},
     )
 }

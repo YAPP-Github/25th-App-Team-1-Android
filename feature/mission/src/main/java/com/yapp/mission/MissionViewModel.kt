@@ -3,6 +3,7 @@ package com.yapp.mission
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.FortuneDestination
+import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.navigation.destination.MissionDestination
 import com.yapp.datastore.UserPreferences
 import com.yapp.domain.repository.FortuneRepository
@@ -44,6 +45,7 @@ class MissionViewModel @Inject constructor(
 
             is MissionContract.Action.ShowExitDialog -> updateState { copy(showExitDialog = true) }
             is MissionContract.Action.HideExitDialog -> updateState { copy(showExitDialog = false) }
+            is MissionContract.Action.RetryPostFortune -> retryPostFortune()
         }
     }
 
@@ -93,8 +95,46 @@ class MissionViewModel @Inject constructor(
                 )
             }.onFailure { error ->
                 Log.e("MissionViewModel", "운세 데이터 요청 실패: ${error.message}")
+                updateState { copy(errorMessage = error.message) }
             }
         }
+    }
+
+    private fun retryPostFortune() {
+        viewModelScope.launch {
+            val userId = userPreferences.userIdFlow.firstOrNull() ?: return@launch
+            val fortuneResult = runCatching {
+                withContext(Dispatchers.IO) {
+                    fortuneRepository.postFortune(userId)
+                }
+            }
+
+            fortuneResult.onSuccess { fortune ->
+                val fortuneData = fortune.getOrThrow()
+                userPreferences.saveFortuneId(fortuneData.id)
+
+                emitSideEffect(
+                    MissionContract.SideEffect.Navigate(
+                        route = FortuneDestination.Route.route,
+                        popUpTo = MissionDestination.Route.route,
+                        inclusive = true,
+                    ),
+                )
+            }.onFailure {
+                Log.e("MissionViewModel", "운세 데이터 재요청 실패: ${it.message}")
+                navigateToHome()
+            }
+        }
+    }
+
+    private fun navigateToHome() {
+        emitSideEffect(
+            MissionContract.SideEffect.Navigate(
+                route = HomeDestination.Route.route,
+                popUpTo = MissionDestination.Route.route,
+                inclusive = true,
+            ),
+        )
     }
 
     private suspend fun startOverlayTimer() {
