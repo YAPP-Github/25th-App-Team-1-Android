@@ -56,7 +56,6 @@ class MissionViewModel @Inject constructor(
         if (currentCount < 9) {
             hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
             updateState { copy(clickCount = currentCount + 1, isAnimating = true) }
-            kotlinx.coroutines.delay(500)
             updateState { copy(isAnimating = false) }
         } else if (currentCount == 9 && !currentState.isFlipped) {
             hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
