@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -516,6 +517,9 @@ private fun AlarmAddEditSelectDaysSection(
     state: AlarmAddEditContract.AlarmDaySelectionState,
     processAction: (AlarmAddEditContract.Action) -> Unit,
 ) {
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp.dp
+
     Column(
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
     ) {
@@ -556,6 +560,9 @@ private fun AlarmAddEditSelectDaysSection(
         ) {
             state.days.forEach { day ->
                 AlarmDayButton(
+                    modifier = Modifier.size(
+                        if (screenWidthDp > 360.dp) 36.dp else 34.dp,
+                    ),
                     label = stringResource(id = day.getLabelStringRes()),
                     isPressed = state.selectedDays.contains(day),
                     onClick = {
@@ -664,14 +671,4 @@ fun AlarmAddEditScreenPreview() {
         },
         eventDispatcher = { },
     )
-}
-
-@Preview
-@Composable
-private fun PreviewAlarmDeleteButton() {
-    OrbitTheme {
-        DeleteAlarmButton(
-            onDelete = { },
-        )
-    }
 }
