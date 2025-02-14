@@ -250,6 +250,12 @@ internal fun AlarmBottomSheetContent(
                     )
                 }
             }
+
+            if (isSelectionMode) {
+                item {
+                    Spacer(modifier = Modifier.height(104.dp))
+                }
+            }
         }
     }
 }
