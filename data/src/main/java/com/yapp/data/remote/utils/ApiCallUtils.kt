@@ -18,6 +18,7 @@ private fun mapHttpException(exception: HttpException): ApiError {
         401 -> ApiError("인증이 필요합니다")
         403 -> ApiError("권한이 없습니다")
         404 -> ApiError("요청한 리소스를 찾을 수 없습니다")
-        else -> ApiError("서버 오류")
+        in 500..599 -> ApiError("서버 오류")
+        else -> ApiError("알 수 없는 서버 오류가 발생했습니다.")
     }
 }

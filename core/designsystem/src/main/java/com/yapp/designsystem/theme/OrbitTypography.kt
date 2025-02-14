@@ -99,6 +99,13 @@ data class OrbitTypography(
         lineHeight = 24.sp,
         letterSpacing = (-0.17).sp,
     ),
+    val body1Bold: TextStyle = TextStyle(
+        fontFamily = Pretendard,
+        fontWeight = FontWeight.Bold,
+        fontSize = 16.sp,
+        lineHeight = 26.sp,
+        letterSpacing = (-0.16).sp,
+    ),
     val body1SemiBold: TextStyle = TextStyle(
         fontFamily = Pretendard,
         fontWeight = FontWeight.SemiBold,

@@ -1,17 +1,28 @@
 package com.yapp.mission
 
+import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.FortuneDestination
+import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.navigation.destination.MissionDestination
+import com.yapp.datastore.UserPreferences
+import com.yapp.domain.repository.FortuneRepository
 import com.yapp.media.haptic.HapticFeedbackManager
 import com.yapp.media.haptic.HapticType
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.orbitmvi.orbit.syntax.simple.intent
 import javax.inject.Inject
 
 @HiltViewModel
 class MissionViewModel @Inject constructor(
     private val hapticFeedbackManager: HapticFeedbackManager,
+    private val fortuneRepository: FortuneRepository,
+    private val userPreferences: UserPreferences,
 ) : BaseViewModel<MissionContract.State, MissionContract.SideEffect>(
     MissionContract.State(),
 ) {
@@ -28,22 +39,13 @@ class MissionViewModel @Inject constructor(
                 emitSideEffect(MissionContract.SideEffect.NavigateBack)
             }
 
-            is MissionContract.Action.CompleteMission -> {
-                emitSideEffect(
-                    MissionContract.SideEffect.Navigate(
-                        route = FortuneDestination.Route.route,
-                        popUpTo = MissionDestination.Route.route,
-                        inclusive = true,
-                    ),
-                )
-            }
-
             is MissionContract.Action.StartOverlayTimer -> startOverlayTimer()
 
-            is MissionContract.Action.ShakeCard -> handleIncreaseCount()
+            is MissionContract.Action.ShakeCard, is MissionContract.Action.ClickCard -> handleIncreaseCount()
 
             is MissionContract.Action.ShowExitDialog -> updateState { copy(showExitDialog = true) }
             is MissionContract.Action.HideExitDialog -> updateState { copy(showExitDialog = false) }
+            is MissionContract.Action.RetryPostFortune -> retryPostFortune()
         }
     }
 
@@ -58,6 +60,7 @@ class MissionViewModel @Inject constructor(
             updateState { copy(isAnimating = false) }
         } else if (currentCount == 9 && !currentState.isFlipped) {
             hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
+            postFortune()
             updateState {
                 copy(
                     isMissionCompleted = true,
@@ -69,6 +72,69 @@ class MissionViewModel @Inject constructor(
             kotlinx.coroutines.delay(500)
             updateState { copy(isAnimating = false) }
         }
+    }
+
+    private fun postFortune() {
+        viewModelScope.launch {
+            val userId = userPreferences.userIdFlow.firstOrNull() ?: return@launch
+            val fortuneResult = runCatching {
+                withContext(Dispatchers.IO) {
+                    fortuneRepository.postFortune(userId)
+                }
+            }
+            fortuneResult.onSuccess { fortune ->
+                val fortuneData = fortune.getOrThrow()
+                userPreferences.saveFortuneId(fortuneData.id)
+
+                emitSideEffect(
+                    MissionContract.SideEffect.Navigate(
+                        route = FortuneDestination.Route.route,
+                        popUpTo = MissionDestination.Route.route,
+                        inclusive = true,
+                    ),
+                )
+            }.onFailure { error ->
+                Log.e("MissionViewModel", "운세 데이터 요청 실패: ${error.message}")
+                updateState { copy(errorMessage = error.message) }
+            }
+        }
+    }
+
+    private fun retryPostFortune() {
+        viewModelScope.launch {
+            val userId = userPreferences.userIdFlow.firstOrNull() ?: return@launch
+            val fortuneResult = runCatching {
+                withContext(Dispatchers.IO) {
+                    fortuneRepository.postFortune(userId)
+                }
+            }
+
+            fortuneResult.onSuccess { fortune ->
+                val fortuneData = fortune.getOrThrow()
+                userPreferences.saveFortuneId(fortuneData.id)
+
+                emitSideEffect(
+                    MissionContract.SideEffect.Navigate(
+                        route = FortuneDestination.Route.route,
+                        popUpTo = MissionDestination.Route.route,
+                        inclusive = true,
+                    ),
+                )
+            }.onFailure {
+                Log.e("MissionViewModel", "운세 데이터 재요청 실패: ${it.message}")
+                navigateToHome()
+            }
+        }
+    }
+
+    private fun navigateToHome() {
+        emitSideEffect(
+            MissionContract.SideEffect.Navigate(
+                route = HomeDestination.Route.route,
+                popUpTo = MissionDestination.Route.route,
+                inclusive = true,
+            ),
+        )
     }
 
     private suspend fun startOverlayTimer() {

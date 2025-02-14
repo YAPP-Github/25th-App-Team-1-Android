@@ -1,14 +1,15 @@
 package com.yapp.fortune
 
-import FortunePagesProvider
 import com.yapp.fortune.page.FortunePageData
 
 sealed class FortuneContract {
-
     data class State(
+        val isLoading: Boolean = true,
         val currentStep: Int = 0,
         val hasReward: Boolean = true,
-        val fortunePages: List<FortunePageData> = FortunePagesProvider.fortunePages,
+        val dailyFortune: String = "",
+        val avgFortuneScore: Int = 0,
+        val fortunePages: List<FortunePageData> = emptyList(),
     ) : com.yapp.ui.base.UiState
 
     sealed class Action {

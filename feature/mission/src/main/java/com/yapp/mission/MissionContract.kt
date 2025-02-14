@@ -13,16 +13,18 @@ sealed class MissionContract {
         val rotationZ: Float = 0f,
         val isAnimating: Boolean = false,
         val showExitDialog: Boolean = false,
+        val errorMessage: String? = null,
     ) : com.yapp.ui.base.UiState
 
     sealed class Action {
         data object NextStep : Action()
         data object PreviousStep : Action()
-        data object CompleteMission : Action()
         object StartOverlayTimer : Action()
         object ShakeCard : Action()
+        object ClickCard : Action()
         object ShowExitDialog : Action()
         object HideExitDialog : Action()
+        object RetryPostFortune : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {

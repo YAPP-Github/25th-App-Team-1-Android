@@ -63,7 +63,8 @@ fun MissionProgressRoute(viewModel: MissionViewModel = hiltViewModel()) {
         state = state,
         onShowExitDialog = { viewModel.onAction(MissionContract.Action.ShowExitDialog) },
         onDismissExitDialog = { viewModel.onAction(MissionContract.Action.HideExitDialog) },
-        onMissionCompleted = { viewModel.onAction(MissionContract.Action.CompleteMission) },
+        onRetryPostFortune = { viewModel.onAction(MissionContract.Action.RetryPostFortune) },
+        eventDispatcher = { viewModel.onAction(MissionContract.Action.ClickCard) },
     )
 }
 
@@ -72,7 +73,8 @@ fun MissionProgressScreen(
     state: MissionContract.State,
     onShowExitDialog: () -> Unit,
     onDismissExitDialog: () -> Unit,
-    onMissionCompleted: () -> Unit,
+    onRetryPostFortune: () -> Unit,
+    eventDispatcher: (MissionContract.Action) -> Unit,
 
 ) {
     Box(
@@ -148,6 +150,7 @@ fun MissionProgressScreen(
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.0665f))
                 FlipCard(
                     state = state,
+                    eventDispatcher = eventDispatcher,
                 )
             }
         }
@@ -219,7 +222,6 @@ fun MissionProgressScreen(
                         scaleYAdjustment = 1.3f,
                         resId = core.designsystem.R.raw.mission_success,
                         iterations = 1,
-                        onAnimationEnd = onMissionCompleted,
                     )
                     Text(
                         text = "미션 성공!",
@@ -232,6 +234,15 @@ fun MissionProgressScreen(
                 }
             }
         }
+
+        if (state.errorMessage != null) {
+            OrbitDialog(
+                title = "오류",
+                message = state.errorMessage,
+                confirmText = "확인",
+                onConfirm = { onRetryPostFortune() },
+            )
+        }
     }
 }
 
@@ -242,6 +253,7 @@ fun MissionProgressRoutePreview() {
         state = MissionContract.State(),
         onShowExitDialog = {},
         onDismissExitDialog = {},
-        onMissionCompleted = {},
+        eventDispatcher = {},
+        onRetryPostFortune = {},
     )
 }

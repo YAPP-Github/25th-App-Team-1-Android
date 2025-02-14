@@ -35,11 +35,6 @@ class ShakeDetector(
 
         if (gForce > shakeThresholdGravity) {
             onShake()
-//            val currentTime = System.currentTimeMillis()
-//            if (currentTime - shakeTimestamp > shakeInterval) {
-//                shakeTimestamp = currentTime
-//                onShake()
-//            }
         }
     }
 
