@@ -67,7 +67,7 @@ fun OrbitYearMonthPicker(
             verticalArrangement = Arrangement.Bottom,
             modifier = Modifier.wrapContentSize().background(OrbitTheme.colors.gray_900),
         ) {
-            val lunarItems = listOf("음력", "양력")
+            val lunarItems = listOf("양력", "음력")
             val yearItems = (1900..2024).map { it.toString() }
             val startIndex = yearItems.indexOf("2000").takeIf { it >= 0 } ?: 0
             val yearPickerState = rememberPickerState(startIndex = startIndex)
