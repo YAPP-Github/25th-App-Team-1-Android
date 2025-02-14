@@ -22,7 +22,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SheetValue
@@ -252,17 +251,8 @@ internal fun AlarmBottomSheetContent(
                 }
             }
 
-            if (isLoading) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
+            item {
+                Spacer(modifier = Modifier.height(104.dp))
             }
         }
     }
@@ -338,6 +328,7 @@ private fun AlarmSelectionTopBar(
         Spacer(modifier = Modifier.width(22.dp))
 
         Text(
+            modifier = Modifier.clickable { onClickCheckAll() },
             text = stringResource(id = R.string.alarm_list_bottom_sheet_selection_title),
             style = OrbitTheme.typography.heading2SemiBold,
             color = OrbitTheme.colors.white,

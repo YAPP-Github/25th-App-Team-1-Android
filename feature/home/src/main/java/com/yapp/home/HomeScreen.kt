@@ -51,7 +51,6 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -300,12 +299,13 @@ private fun HomeContent(
                 }
 
                 HomeTopBar(
-                    isTitleVisible = false,
                     onSettingClick = { eventDispatcher(HomeContract.Action.NavigateToSetting) },
                     onMailClick = { },
                 )
             }
         }
+
+        BottomGradient(modifier = Modifier.align(Alignment.BottomCenter))
 
         if (state.isSelectionMode && state.selectedAlarmIds.isNotEmpty()) {
             DeleteAlarmButton(
@@ -319,8 +319,6 @@ private fun HomeContent(
                 },
             )
         }
-
-        BottomGradient(modifier = Modifier.align(Alignment.BottomCenter))
     }
 
     if (state.isDeleteDialogVisible) {
@@ -356,7 +354,6 @@ private fun HomeContent(
 
 @Composable
 private fun HomeTopBar(
-    isTitleVisible: Boolean = true,
     onSettingClick: () -> Unit,
     onMailClick: () -> Unit,
 ) {
@@ -370,16 +367,6 @@ private fun HomeTopBar(
                 .padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (isTitleVisible) {
-                Text(
-                    text = stringResource(id = R.string.home_top_bar_title),
-                    style = OrbitTheme.typography.heading1SemiBold.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
-                    color = OrbitTheme.colors.main,
-                )
-            }
-
             Spacer(modifier = Modifier.weight(1f))
 
             Box(
