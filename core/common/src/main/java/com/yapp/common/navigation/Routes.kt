@@ -54,4 +54,9 @@ object Routes {
         const val ROUTE = "splash_route"
         const val SPLASH = "splash"
     }
+
+    object WebView {
+        const val ROUTE = "webview_route"
+        const val WEBVIEW = "webview"
+    }
 }
