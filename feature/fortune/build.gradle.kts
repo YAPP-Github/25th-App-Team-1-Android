@@ -17,4 +17,5 @@ dependencies {
     implementation(libs.orbit.viewmodel)
     implementation(libs.coil.compose)
     implementation(projects.domain)
+    implementation(projects.core.media)
 }
