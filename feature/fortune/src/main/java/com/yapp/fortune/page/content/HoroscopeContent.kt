@@ -1,9 +1,11 @@
 package com.yapp.fortune.page.content
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,19 +21,29 @@ import core.designsystem.R
  */
 @Composable
 fun HoroscopeContent(details: List<Contents>) {
-    Column(
-        modifier = Modifier.wrapContentSize(),
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(32.dp),
     ) {
-        details.forEachIndexed { index, detail ->
-            DetailHoroScopeText(
-                fortuneTitleText = detail.contentScore,
-                fortuneSubTitleText = detail.contentTitle,
-                fortuneContentText = detail.contentDescription,
-                color = getFortuneColor(detail.contentScore, index),
-                iconRes = getFortuneIcon(detail.contentScore, index),
-            )
-            if (index < details.size - 1) Spacer(modifier = Modifier.height(32.dp))
+        items(details.chunked(2)) { columnItems ->
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                columnItems.forEach { detail ->
+                    DetailHoroScopeText(
+                        fortuneTitleText = detail.contentScore,
+                        fortuneSubTitleText = detail.contentTitle,
+                        fortuneContentText = detail.contentDescription,
+                        color = getFortuneColor(detail.contentScore, details.indexOf(detail)),
+                        iconRes = getFortuneIcon(detail.contentScore, details.indexOf(detail)),
+                    )
+                }
+            }
         }
     }
 }
