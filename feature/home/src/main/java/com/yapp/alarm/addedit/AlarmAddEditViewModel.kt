@@ -88,7 +88,10 @@ class AlarmAddEditViewModel @Inject constructor(
                         alarmMessage = getAlarmMessage(if (isAM) "오전" else "오후", hour, alarm.minute, repeatDays),
                     ),
                     daySelectionState = setupDaySelectionState(repeatDays),
-                    holidayState = holidayState.copy(isDisableHolidayChecked = alarm.isHolidayAlarmOff),
+                    holidayState = holidayState.copy(
+                        isDisableHolidayEnabled = repeatDays.isNotEmpty(),
+                        isDisableHolidayChecked = alarm.isHolidayAlarmOff,
+                    ),
                     snoozeState = setupSnoozeState(alarm),
                     soundState = soundState.copy(
                         isVibrationEnabled = alarm.isVibrationEnabled,
