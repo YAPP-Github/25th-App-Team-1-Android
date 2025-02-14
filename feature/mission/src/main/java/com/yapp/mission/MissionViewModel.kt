@@ -50,6 +50,8 @@ class MissionViewModel @Inject constructor(
     }
 
     private fun handleIncreaseCount() = intent {
+        if (currentState.showOverlay) updateState { copy(showOverlay = false) }
+        if (currentState.showOverlayText) updateState { copy(showOverlayText = false) }
         if (currentState.isAnimating) return@intent
 
         val currentCount = currentState.clickCount
