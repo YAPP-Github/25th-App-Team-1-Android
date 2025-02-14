@@ -18,6 +18,7 @@ import com.yapp.media.haptic.HapticType
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import feature.home.R
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -200,22 +201,24 @@ class AlarmAddEditViewModel @Inject constructor(
     }
 
     private suspend fun checkAndCreateAlarm(newAlarm: Alarm) {
-        alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute, newAlarm.isAm)
-            .collect { timeMatchedAlarms ->
-                when {
-                    timeMatchedAlarms.any { it.copy(id = 0) == newAlarm.copy(id = 0) } -> {
-                        showAlarmAlreadySetWarning()
-                    }
+        val timeMatchedAlarms = alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute, newAlarm.isAm)
+            .first()
 
-                    timeMatchedAlarms.isNotEmpty() -> {
-                        val existingAlarm = timeMatchedAlarms.first()
-                        val updatedAlarm = existingAlarm.copyFrom(newAlarm).copy(id = existingAlarm.id)
-                        updateExistingAlarm(updatedAlarm)
-                    }
-
-                    else -> createNewAlarm(newAlarm)
-                }
+        when {
+            timeMatchedAlarms.any { it.copy(id = 0) == newAlarm.copy(id = 0) } -> {
+                showAlarmAlreadySetWarning()
             }
+
+            timeMatchedAlarms.isNotEmpty() -> {
+                val existingAlarm = timeMatchedAlarms.first()
+                val updatedAlarm = existingAlarm.copyFrom(newAlarm).copy(id = existingAlarm.id)
+                updateExistingAlarm(updatedAlarm)
+            }
+
+            else -> {
+                createNewAlarm(newAlarm)
+            }
+        }
     }
 
     private fun showAlarmAlreadySetWarning() {
