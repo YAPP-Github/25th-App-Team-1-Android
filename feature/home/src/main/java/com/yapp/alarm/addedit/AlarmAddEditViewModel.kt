@@ -1,7 +1,6 @@
 package com.yapp.alarm.addedit
 
 import android.util.Log
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -19,6 +18,7 @@ import com.yapp.media.haptic.HapticType
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import feature.home.R
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -88,7 +88,10 @@ class AlarmAddEditViewModel @Inject constructor(
                         alarmMessage = getAlarmMessage(if (isAM) "오전" else "오후", hour, alarm.minute, repeatDays),
                     ),
                     daySelectionState = setupDaySelectionState(repeatDays),
-                    holidayState = holidayState.copy(isDisableHolidayChecked = alarm.isHolidayAlarmOff),
+                    holidayState = holidayState.copy(
+                        isDisableHolidayEnabled = repeatDays.isNotEmpty(),
+                        isDisableHolidayChecked = alarm.isHolidayAlarmOff,
+                    ),
                     snoozeState = setupSnoozeState(alarm),
                     soundState = soundState.copy(
                         isVibrationEnabled = alarm.isVibrationEnabled,
@@ -201,22 +204,24 @@ class AlarmAddEditViewModel @Inject constructor(
     }
 
     private suspend fun checkAndCreateAlarm(newAlarm: Alarm) {
-        alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute, newAlarm.isAm)
-            .collect { timeMatchedAlarms ->
-                when {
-                    timeMatchedAlarms.any { it.copy(id = 0) == newAlarm.copy(id = 0) } -> {
-                        showAlarmAlreadySetWarning()
-                    }
+        val timeMatchedAlarms = alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute, newAlarm.isAm)
+            .first()
 
-                    timeMatchedAlarms.isNotEmpty() -> {
-                        val existingAlarm = timeMatchedAlarms.first()
-                        val updatedAlarm = existingAlarm.copyFrom(newAlarm).copy(id = existingAlarm.id)
-                        updateExistingAlarm(updatedAlarm)
-                    }
-
-                    else -> createNewAlarm(newAlarm)
-                }
+        when {
+            timeMatchedAlarms.any { it.copy(id = 0) == newAlarm.copy(id = 0) } -> {
+                showAlarmAlreadySetWarning()
             }
+
+            timeMatchedAlarms.isNotEmpty() -> {
+                val existingAlarm = timeMatchedAlarms.first()
+                val updatedAlarm = existingAlarm.copyFrom(newAlarm).copy(id = existingAlarm.id)
+                updateExistingAlarm(updatedAlarm)
+            }
+
+            else -> {
+                createNewAlarm(newAlarm)
+            }
+        }
     }
 
     private fun showAlarmAlreadySetWarning() {
@@ -225,7 +230,6 @@ class AlarmAddEditViewModel @Inject constructor(
                 message = resourceProvider.getString(R.string.alarm_already_set),
                 iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_alert),
                 bottomPadding = 78.dp,
-                duration = SnackbarDuration.Short,
                 onDismiss = { },
                 onAction = { },
             ),
@@ -374,7 +378,6 @@ class AlarmAddEditViewModel @Inject constructor(
                     label = resourceProvider.getString(R.string.alarm_delete_dialog_btn_cancel),
                     iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
                     bottomPadding = 78.dp,
-                    duration = SnackbarDuration.Short,
                     onDismiss = { },
                     onAction = {
                         updateState {

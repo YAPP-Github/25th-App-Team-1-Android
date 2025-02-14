@@ -1,6 +1,11 @@
 package com.yapp.navigator
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
@@ -77,22 +82,30 @@ internal fun OrbitNavHost(
 private fun OrbitSnackBarHost(
     snackBarHostState: SnackbarHostState,
 ) {
-    SnackbarHost(
-        hostState = snackBarHostState,
-        snackbar = { data ->
-            val visuals = data.visuals as? CustomSnackBarVisuals
+    AnimatedVisibility(
+        visible = snackBarHostState.currentSnackbarData != null,
+        enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+        exit = slideOutVertically(
+            targetOffsetY = { it },
+        ) + fadeOut(),
+    ) {
+        SnackbarHost(
+            hostState = snackBarHostState,
+            snackbar = { data ->
+                val visuals = data.visuals as? CustomSnackBarVisuals
 
-            OrbitSnackBar(
-                modifier = Modifier.padding(
-                    start = 20.dp,
-                    end = 20.dp,
-                    bottom = visuals?.bottomPadding ?: 12.dp,
-                ),
-                label = visuals?.actionLabel ?: "",
-                iconRes = visuals?.iconRes,
-                message = visuals?.message ?: "",
-                onAction = { snackBarHostState.currentSnackbarData?.performAction() },
-            )
-        },
-    )
+                OrbitSnackBar(
+                    modifier = Modifier.padding(
+                        start = 20.dp,
+                        end = 20.dp,
+                        bottom = visuals?.bottomPadding ?: 12.dp,
+                    ),
+                    label = visuals?.actionLabel ?: "",
+                    iconRes = visuals?.iconRes,
+                    message = visuals?.message ?: "",
+                    onAction = { snackBarHostState.currentSnackbarData?.performAction() },
+                )
+            },
+        )
+    }
 }

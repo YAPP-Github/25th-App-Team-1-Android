@@ -124,7 +124,7 @@ private fun BottomSheetContent(
                 count = snoozeCounts[snoozeCountIndex],
             )
         }
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(40.dp))
         OrbitButton(
             label = stringResource(id = R.string.alarm_add_edit_complete),
             enabled = true,

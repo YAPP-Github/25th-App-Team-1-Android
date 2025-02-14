@@ -25,6 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun OrbitSnackBar(
@@ -111,6 +114,48 @@ fun OrbitSnackBarPreview() {
             )
         }
     }
+}
+
+suspend fun showCustomSnackBar(
+    scope: CoroutineScope,
+    snackBarHostState: SnackbarHostState,
+    message: String,
+    actionLabel: String? = null,
+    iconRes: Int? = null,
+    bottomPadding: Dp = 12.dp,
+    durationMillis: Long = 2000L, // 지정된 duration 만큼 유지
+    onDismiss: () -> Unit = {},
+    onAction: () -> Unit = {},
+): SnackbarResult {
+    var result: SnackbarResult = SnackbarResult.Dismissed
+    val job = scope.launch {
+        result = snackBarHostState.showSnackbar(
+            CustomSnackBarVisuals(
+                message = message,
+                actionLabel = actionLabel,
+                iconRes = iconRes,
+                bottomPadding = bottomPadding,
+            ),
+        )
+
+        if (result == SnackbarResult.Dismissed) {
+            onDismiss()
+        } else if (result == SnackbarResult.ActionPerformed) {
+            onAction()
+        }
+    }
+
+    scope.launch {
+        delay(durationMillis)
+        if (job.isActive) {
+            job.cancel()
+            result = SnackbarResult.Dismissed
+            onDismiss()
+        }
+    }
+
+    job.join()
+    return result
 }
 
 suspend fun showCustomSnackBar(

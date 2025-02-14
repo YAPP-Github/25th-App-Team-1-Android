@@ -1,6 +1,5 @@
 package com.yapp.home
 
-import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -36,6 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,6 +76,8 @@ fun HomeRoute(
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
+
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<Long>(ADD_ALARM_RESULT_KEY)) {
         navigator.navController.currentBackStackEntry
@@ -121,15 +123,14 @@ fun HomeRoute(
                     )
                 }
                 is HomeContract.SideEffect.ShowSnackBar -> {
-                    Log.d("HomeScreen", "ShowSnackBar: ${effect.message}")
-
                     val result = showCustomSnackBar(
+                        scope = coroutineScope,
                         snackBarHostState = snackBarHostState,
                         message = effect.message,
                         actionLabel = effect.label,
                         iconRes = effect.iconRes,
                         bottomPadding = effect.bottomPadding,
-                        duration = effect.duration,
+                        durationMillis = effect.durationMillis,
                     )
 
                     when (result) {
