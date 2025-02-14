@@ -27,7 +27,7 @@ class MissionViewModel @Inject constructor(
     MissionContract.State(),
 ) {
 
-    fun onAction(action: MissionContract.Action) = intent {
+    fun processAction(action: MissionContract.Action) = intent {
         when (action) {
             is MissionContract.Action.NextStep -> {
                 emitSideEffect(

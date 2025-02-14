@@ -1,5 +1,6 @@
 package com.yapp.mission
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -26,6 +28,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
+import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.utils.heightForScreenPercentage
 
 @Composable
@@ -33,16 +36,29 @@ fun MissionRoute(viewModel: MissionViewModel = hiltViewModel()) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
     MissionScreen(
-        state = state,
-        onNext = { viewModel.onAction(MissionContract.Action.NextStep) },
+        stateProvider = { state },
+        eventDispatcher = viewModel::processAction,
+        onNext = { viewModel.processAction(MissionContract.Action.NextStep) },
     )
 }
 
 @Composable
 fun MissionScreen(
-    state: MissionContract.State,
+    stateProvider: () -> MissionContract.State,
+    eventDispatcher: (MissionContract.Action) -> Unit,
     onNext: () -> Unit,
 ) {
+    val state = stateProvider()
+    val context = LocalContext.current
+
+    BackHandler {
+        if (state.showExitDialog) {
+            eventDispatcher(MissionContract.Action.HideExitDialog)
+        } else {
+            eventDispatcher(MissionContract.Action.ShowExitDialog)
+        }
+    }
+
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -67,7 +83,7 @@ fun MissionScreen(
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.0418f))
                 MissionLabel(label = "10회를 흔들어", style = OrbitTheme.typography.headline2Medium)
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.01f))
-                MissionLabel(label = "부적을 뒤집어줘", style = OrbitTheme.typography.title1Bold)
+                MissionLabel(label = "부적을 뒤집어줘", style = OrbitTheme.typography.title2Bold)
             }
             Column(
                 modifier = Modifier
@@ -98,10 +114,24 @@ fun MissionScreen(
                     label = "미션하지 않기",
                     style = OrbitTheme.typography.body1SemiBold,
                     clickable = true,
+                    onClick = {
+                        eventDispatcher(MissionContract.Action.ShowExitDialog)
+                    },
                 )
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.0714f))
             }
         }
+    }
+
+    if (state.showExitDialog) {
+        OrbitDialog(
+            title = "나가면 운세를 받을 수 없어요",
+            message = "미션을 수행하지 않고 나가시겠어요?",
+            confirmText = "나가기",
+            cancelText = "취소",
+            onConfirm = { (context as? androidx.activity.ComponentActivity)?.finish() },
+            onCancel = { eventDispatcher(MissionContract.Action.HideExitDialog) },
+        )
     }
 }
 
@@ -128,12 +158,13 @@ fun MissionLabel(
     label: String,
     style: TextStyle,
     clickable: Boolean = false,
+    onClick: () -> Unit = { },
 ) {
     Text(
         text = label,
         color = OrbitTheme.colors.white,
         style = style,
-        modifier = if (clickable) Modifier.clickable { } else Modifier,
+        modifier = if (clickable) { Modifier.clickable { onClick() } } else Modifier,
     )
 }
 
@@ -141,7 +172,8 @@ fun MissionLabel(
 @Preview
 fun MissionRoutePreview() {
     MissionScreen(
-        state = MissionContract.State(),
+        stateProvider = { MissionContract.State() },
+        eventDispatcher = { },
         onNext = { },
     )
 }

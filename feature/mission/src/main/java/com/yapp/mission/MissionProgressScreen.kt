@@ -48,11 +48,11 @@ import com.yapp.ui.utils.paddingForScreenPercentage
 fun MissionProgressRoute(viewModel: MissionViewModel = hiltViewModel()) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val shakeDetector = remember { ShakeDetector(context) { viewModel.onAction(MissionContract.Action.ShakeCard) } }
+    val shakeDetector = remember { ShakeDetector(context) { viewModel.processAction(MissionContract.Action.ShakeCard) } }
 
     LaunchedEffect(Unit) {
         shakeDetector.start()
-        viewModel.onAction(MissionContract.Action.StartOverlayTimer)
+        viewModel.processAction(MissionContract.Action.StartOverlayTimer)
     }
 
     DisposableEffect(Unit) {
@@ -61,10 +61,10 @@ fun MissionProgressRoute(viewModel: MissionViewModel = hiltViewModel()) {
 
     MissionProgressScreen(
         state = state,
-        onShowExitDialog = { viewModel.onAction(MissionContract.Action.ShowExitDialog) },
-        onDismissExitDialog = { viewModel.onAction(MissionContract.Action.HideExitDialog) },
-        onRetryPostFortune = { viewModel.onAction(MissionContract.Action.RetryPostFortune) },
-        eventDispatcher = { viewModel.onAction(MissionContract.Action.ClickCard) },
+        onShowExitDialog = { viewModel.processAction(MissionContract.Action.ShowExitDialog) },
+        onDismissExitDialog = { viewModel.processAction(MissionContract.Action.HideExitDialog) },
+        onRetryPostFortune = { viewModel.processAction(MissionContract.Action.RetryPostFortune) },
+        eventDispatcher = { viewModel.processAction(MissionContract.Action.ClickCard) },
     )
 }
 
