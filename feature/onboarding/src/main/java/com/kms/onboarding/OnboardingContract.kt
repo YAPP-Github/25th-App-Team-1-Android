@@ -77,7 +77,6 @@ sealed class OnboardingContract {
 
         data object NavigateBack : SideEffect()
         data object OnboardingCompleted : SideEffect()
-        data object ResetField : SideEffect()
         data class OpenWebView(val url: String) : SideEffect()
     }
 }

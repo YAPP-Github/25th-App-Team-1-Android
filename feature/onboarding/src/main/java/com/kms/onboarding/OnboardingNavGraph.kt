@@ -79,7 +79,6 @@ private fun handleSideEffect(
             navigator.navigateBack()
         }
         OnboardingContract.SideEffect.OnboardingCompleted -> onFinishOnboarding()
-        OnboardingContract.SideEffect.ResetField -> viewModel.processAction(OnboardingContract.Action.Reset)
 
         is OnboardingContract.SideEffect.OpenWebView -> {
             navigator.navigateTo("${WebViewDestination.WebView.route}/${Uri.encode(sideEffect.url)}")
