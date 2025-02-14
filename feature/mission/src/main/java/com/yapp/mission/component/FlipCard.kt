@@ -26,7 +26,7 @@ import com.yapp.mission.MissionContract
 @Composable
 fun FlipCard(
     state: MissionContract.State,
-    eventDispatcher: (MissionContract.Action) -> Unit, // ✅ 추가
+    eventDispatcher: (MissionContract.Action) -> Unit,
 ) {
     val rotationZ = remember { Animatable(0f) }
     val rotationY = remember { Animatable(state.rotationY) }
@@ -54,15 +54,15 @@ fun FlipCard(
         if (state.clickCount in 1..9) {
             rotationZ.animateTo(
                 targetValue = -20f,
-                animationSpec = tween(durationMillis = 250, easing = LinearEasing),
+                animationSpec = tween(durationMillis = 66, easing = LinearEasing),
             )
             rotationZ.animateTo(
                 targetValue = 20f,
-                animationSpec = tween(durationMillis = 500, easing = LinearEasing),
+                animationSpec = tween(durationMillis = 133, easing = LinearEasing),
             )
             rotationZ.animateTo(
                 targetValue = 0f,
-                animationSpec = tween(durationMillis = 250, easing = LinearEasing),
+                animationSpec = tween(durationMillis = 66, easing = LinearEasing),
             )
         }
     }
@@ -77,7 +77,7 @@ fun FlipCard(
                 scaleX = scale.value,
                 scaleY = scale.value,
             )
-            .clickable { eventDispatcher(MissionContract.Action.ClickCard) }, // ✅ 카드 클릭 시 count 증가
+            .clickable { eventDispatcher(MissionContract.Action.ClickCard) },
         contentAlignment = Alignment.Center,
     ) {
         if (rotationY.value <= 90f) {

@@ -11,7 +11,6 @@ sealed class MissionContract {
         val clickCount: Int = 0,
         val rotationY: Float = 0f,
         val rotationZ: Float = 0f,
-        val isAnimating: Boolean = false,
         val showExitDialog: Boolean = false,
         val errorMessage: String? = null,
     ) : com.yapp.ui.base.UiState

@@ -15,7 +15,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.orbitmvi.orbit.syntax.simple.intent
 import javax.inject.Inject
 
 @HiltViewModel
@@ -27,7 +26,7 @@ class MissionViewModel @Inject constructor(
     MissionContract.State(),
 ) {
 
-    fun onAction(action: MissionContract.Action) = intent {
+    fun processAction(action: MissionContract.Action) {
         when (action) {
             is MissionContract.Action.NextStep -> {
                 emitSideEffect(
@@ -49,15 +48,14 @@ class MissionViewModel @Inject constructor(
         }
     }
 
-    private fun handleIncreaseCount() = intent {
-        if (currentState.isAnimating) return@intent
+    private fun handleIncreaseCount() = viewModelScope.launch {
+        if (currentState.showOverlay) updateState { copy(showOverlay = false) }
+        if (currentState.showOverlayText) updateState { copy(showOverlayText = false) }
 
         val currentCount = currentState.clickCount
         if (currentCount < 9) {
             hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
-            updateState { copy(clickCount = currentCount + 1, isAnimating = true) }
-            kotlinx.coroutines.delay(500)
-            updateState { copy(isAnimating = false) }
+            updateState { copy(clickCount = currentCount + 1) }
         } else if (currentCount == 9 && !currentState.isFlipped) {
             hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
             postFortune()
@@ -66,11 +64,9 @@ class MissionViewModel @Inject constructor(
                     isMissionCompleted = true,
                     clickCount = 10,
                     isFlipped = true,
-                    isAnimating = true,
                 )
             }
             kotlinx.coroutines.delay(500)
-            updateState { copy(isAnimating = false) }
         }
     }
 
@@ -137,7 +133,7 @@ class MissionViewModel @Inject constructor(
         )
     }
 
-    private suspend fun startOverlayTimer() {
+    private fun startOverlayTimer() = viewModelScope.launch {
         updateState { copy(showOverlay = true) }
         kotlinx.coroutines.delay(1000)
         updateState { copy(showOverlayText = true) }
