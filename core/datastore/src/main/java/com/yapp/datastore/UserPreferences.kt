@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.Flow
@@ -25,6 +26,7 @@ class UserPreferences @Inject constructor(
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val FORTUNE_ID = longPreferencesKey("fortune_id")
         val FORTUNE_DATE = stringPreferencesKey("fortune_date")
+        val FORTUNE_IMAGE_ID = intPreferencesKey("fortune_image_id")
     }
 
     val userIdFlow: Flow<Long?> = dataStore.data
@@ -47,6 +49,11 @@ class UserPreferences @Inject constructor(
         .map { it[Keys.FORTUNE_DATE] }
         .distinctUntilChanged()
 
+    val fortuneImageIdFlow: Flow<Int?> = dataStore.data
+        .catch { emit(emptyPreferences()) }
+        .map { it[Keys.FORTUNE_IMAGE_ID] }
+        .distinctUntilChanged()
+
     suspend fun saveUserId(userId: Long) {
         dataStore.edit { preferences ->
             preferences[Keys.USER_ID] = userId
@@ -58,6 +65,12 @@ class UserPreferences @Inject constructor(
         dataStore.edit { preferences ->
             preferences[Keys.FORTUNE_ID] = fortuneId
             preferences[Keys.FORTUNE_DATE] = currentDate
+        }
+    }
+
+    suspend fun saveFortuneImageId(imageResId: Int) {
+        dataStore.edit { preferences ->
+            preferences[Keys.FORTUNE_IMAGE_ID] = imageResId
         }
     }
 
@@ -77,6 +90,7 @@ class UserPreferences @Inject constructor(
         dataStore.edit { preferences ->
             preferences.remove(Keys.FORTUNE_ID)
             preferences.remove(Keys.FORTUNE_DATE)
+            preferences.remove(Keys.FORTUNE_IMAGE_ID)
         }
     }
 }
