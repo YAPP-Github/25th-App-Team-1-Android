@@ -142,7 +142,7 @@ private fun TextFieldContainer(
                 width = 3.dp,
                 color = when {
                     isValid -> Color.Transparent
-                    !isValid -> OrbitTheme.colors.alert.copy(alpha = 0.2f) // ✅ isValid가 false이면 항상 alert
+                    isFocused && showWarning -> OrbitTheme.colors.alert.copy(alpha = 0.2f)
                     isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
                     else -> Color.Transparent
                 },
@@ -153,7 +153,7 @@ private fun TextFieldContainer(
                 width = 1.dp,
                 color = when {
                     isValid -> OrbitTheme.colors.gray_700
-                    !isValid -> OrbitTheme.colors.alert // ✅ isValid가 false이면 항상 alert
+                    isFocused && showWarning -> OrbitTheme.colors.alert
                     isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
                     else -> OrbitTheme.colors.gray_700
                 },
@@ -208,7 +208,7 @@ private fun TextFieldContainer(
                             text = hint,
                             style = OrbitTheme.typography.headline2SemiBold,
                             color = OrbitTheme.colors.gray_500,
-                            textAlign = textAlign, // ✅ hint에도 동일한 정렬 적용
+                            textAlign = textAlign,
                         )
                     }
                     innerTextField()
