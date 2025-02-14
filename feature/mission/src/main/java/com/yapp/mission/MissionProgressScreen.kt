@@ -1,5 +1,6 @@
 package com.yapp.mission
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -17,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -60,23 +60,27 @@ fun MissionProgressRoute(viewModel: MissionViewModel = hiltViewModel()) {
     }
 
     MissionProgressScreen(
-        state = state,
-        onShowExitDialog = { viewModel.processAction(MissionContract.Action.ShowExitDialog) },
-        onDismissExitDialog = { viewModel.processAction(MissionContract.Action.HideExitDialog) },
-        onRetryPostFortune = { viewModel.processAction(MissionContract.Action.RetryPostFortune) },
-        eventDispatcher = { viewModel.processAction(MissionContract.Action.ClickCard) },
+        stateProvider = { state },
+        eventDispatcher = viewModel::processAction,
     )
 }
 
 @Composable
 fun MissionProgressScreen(
-    state: MissionContract.State,
-    onShowExitDialog: () -> Unit,
-    onDismissExitDialog: () -> Unit,
-    onRetryPostFortune: () -> Unit,
+    stateProvider: () -> MissionContract.State,
     eventDispatcher: (MissionContract.Action) -> Unit,
-
 ) {
+    val state = stateProvider()
+    val context = LocalContext.current
+
+    BackHandler {
+        if (state.showExitDialog) {
+            eventDispatcher(MissionContract.Action.HideExitDialog)
+        } else {
+            eventDispatcher(MissionContract.Action.ShowExitDialog)
+        }
+    }
+
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -103,8 +107,9 @@ fun MissionProgressScreen(
                 ) {
                     Row(
                         modifier = Modifier
-                            .wrapContentWidth()
-                            .clickable(onClick = { onShowExitDialog() }),
+                            .clickable {
+                                eventDispatcher(MissionContract.Action.ShowExitDialog)
+                            },
                     ) {
                         Icon(
                             painter = painterResource(id = core.designsystem.R.drawable.ic_cancel),
@@ -193,8 +198,12 @@ fun MissionProgressScreen(
                 message = "미션을 수행하지 않고 나가시겠어요?",
                 confirmText = "나가기",
                 cancelText = "취소",
-                onConfirm = onDismissExitDialog,
-                onCancel = onDismissExitDialog,
+                onConfirm = {
+                    (context as? androidx.activity.ComponentActivity)?.finish()
+                },
+                onCancel = {
+                    eventDispatcher(MissionContract.Action.HideExitDialog)
+                },
             )
         }
 
@@ -240,7 +249,9 @@ fun MissionProgressScreen(
                 title = "오류",
                 message = state.errorMessage,
                 confirmText = "확인",
-                onConfirm = { onRetryPostFortune() },
+                onConfirm = {
+                    eventDispatcher(MissionContract.Action.RetryPostFortune)
+                },
             )
         }
     }
@@ -250,10 +261,7 @@ fun MissionProgressScreen(
 @Preview
 fun MissionProgressRoutePreview() {
     MissionProgressScreen(
-        state = MissionContract.State(),
-        onShowExitDialog = {},
-        onDismissExitDialog = {},
+        stateProvider = { MissionContract.State() },
         eventDispatcher = {},
-        onRetryPostFortune = {},
     )
 }
