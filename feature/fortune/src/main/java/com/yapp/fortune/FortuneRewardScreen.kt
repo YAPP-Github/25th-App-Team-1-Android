@@ -45,7 +45,7 @@ fun FortuneRewardRoute(
 fun FortuneRewardScreen(
     state: State<FortuneContract.State>,
 ) {
-    val parts = state.value.dailyFortune.split(" ")
+    val parts = state.value.dailyFortuneTitle.split(" ")
     val nickName = parts.getOrNull(0)?.trim() ?: ""
 
     val randomImageRes = remember {
@@ -137,7 +137,7 @@ fun PreviewFortuneRewardScreen() {
     val fakeState = remember {
         mutableStateOf(
             FortuneContract.State(
-                dailyFortune = "오르비, 오늘은 기회가 많으니 적극적으로 움직여봐!",
+                dailyFortuneTitle = "오르비, 오늘은 기회가 많으니 적극적으로 움직여봐!",
                 hasReward = true,
             ),
         )

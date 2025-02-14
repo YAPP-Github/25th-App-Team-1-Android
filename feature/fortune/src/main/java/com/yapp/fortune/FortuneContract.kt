@@ -7,7 +7,8 @@ sealed class FortuneContract {
         val isLoading: Boolean = true,
         val currentStep: Int = 0,
         val hasReward: Boolean = true,
-        val dailyFortune: String = "",
+        val dailyFortuneTitle: String = "",
+        val dailyFortuneDescription: String = "",
         val avgFortuneScore: Int = 0,
         val fortunePages: List<FortunePageData> = emptyList(),
     ) : com.yapp.ui.base.UiState

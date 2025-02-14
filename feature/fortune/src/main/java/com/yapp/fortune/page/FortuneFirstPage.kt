@@ -4,11 +4,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,7 +28,11 @@ import com.yapp.ui.utils.paddingForScreenPercentage
 import core.designsystem.R
 
 @Composable
-fun FortuneFirstPage(dailyFortune: String, avgFortuneScore: Int) {
+fun FortuneFirstPage(
+    dailyFortuneTitle: String,
+    dailyFortuneDescription: String,
+    avgFortuneScore: Int,
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -54,32 +61,70 @@ fun FortuneFirstPage(dailyFortune: String, avgFortuneScore: Int) {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Box(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .align(Alignment.CenterHorizontally),
                 contentAlignment = Alignment.Center,
-                modifier = Modifier.wrapContentSize(),
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_letter),
                     contentDescription = null,
                 )
-                Text(
-                    text = dailyFortune,
-                    style = OrbitTheme.typography.H3,
-                    color = OrbitTheme.colors.gray_600,
+
+                Box(
                     modifier = Modifier
-                        .width(IntrinsicSize.Max)
-                        .align(Alignment.Center)
-                        .padding(horizontal = 60.dp),
-                    maxLines = Int.MAX_VALUE,
-                    softWrap = true,
-                )
-                Text(
-                    text = "From. 오르비",
-                    style = OrbitTheme.typography.H4,
-                    color = OrbitTheme.colors.gray_600,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 20.dp),
-                )
+                        .matchParentSize()
+                        .padding(horizontal = 40.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp)
+                            .padding(top = 30.dp)
+                            .align(Alignment.Center),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        item {
+                            Text(
+                                text = dailyFortuneTitle,
+                                style = OrbitTheme.typography.H2,
+                                color = OrbitTheme.colors.gray_600,
+                                modifier = Modifier.width(IntrinsicSize.Max),
+                                maxLines = Int.MAX_VALUE,
+                                softWrap = true,
+                            )
+                        }
+
+                        item {
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+
+                        item {
+                            Text(
+                                text = dailyFortuneDescription,
+                                style = OrbitTheme.typography.H3,
+                                color = OrbitTheme.colors.gray_600,
+                                modifier = Modifier.width(IntrinsicSize.Max),
+                                maxLines = Int.MAX_VALUE,
+                                softWrap = true,
+                            )
+                        }
+
+                        item {
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+
+                        item {
+                            Text(
+                                text = "From. 오르비",
+                                style = OrbitTheme.typography.H5,
+                                color = OrbitTheme.colors.gray_600,
+                                modifier = Modifier.padding(bottom = 20.dp),
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -89,7 +134,8 @@ fun FortuneFirstPage(dailyFortune: String, avgFortuneScore: Int) {
 @Preview
 fun FortuneFirstPagePreview() {
     FortuneFirstPage(
-        dailyFortune = "",
+        dailyFortuneTitle = "",
         avgFortuneScore = 0,
+        dailyFortuneDescription = "",
     )
 }

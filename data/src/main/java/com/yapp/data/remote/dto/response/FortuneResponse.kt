@@ -8,7 +8,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class FortuneResponse(
     @SerialName("id") val id: Long,
-    @SerialName("dailyFortune") val dailyFortune: String,
+    @SerialName("dailyFortuneTitle") val dailyFortune: String,
+    @SerialName("dailyFortuneDescription") val dailyFortuneDescription: String,
     @SerialName("avgFortuneScore") val avgFortuneScore: Int,
     @SerialName("studyCareerFortune") val studyCareerFortune: FortuneDetail,
     @SerialName("wealthFortune") val wealthFortune: FortuneDetail,
@@ -33,7 +34,8 @@ data class FortuneDetail(
 fun FortuneResponse.toDomain(): Fortune {
     return Fortune(
         id = this.id,
-        dailyFortune = dailyFortune,
+        dailyFortuneTitle = dailyFortune,
+        dailyFortuneDescription = dailyFortuneDescription,
         avgFortuneScore = avgFortuneScore,
         studyCareerFortune = studyCareerFortune.toDomain(),
         wealthFortune = wealthFortune.toDomain(),

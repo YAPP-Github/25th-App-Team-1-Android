@@ -36,7 +36,8 @@ fun FortunePager(
     ) { page ->
         when (page) {
             0 -> FortuneFirstPage(
-                dailyFortune = state.dailyFortune,
+                dailyFortuneTitle = state.dailyFortuneTitle,
+                dailyFortuneDescription = state.dailyFortuneDescription,
                 avgFortuneScore = state.avgFortuneScore,
             )
 

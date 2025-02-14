@@ -26,7 +26,7 @@ data class Contents(
 )
 
 fun Fortune.toFortunePages(): List<FortunePageData> {
-    val parts = dailyFortune.split(",", limit = 2)
+    val parts = dailyFortuneTitle.split(",", limit = 2)
     val nickName = parts.getOrNull(0)?.trim() ?: ""
     return listOf(
         FortunePageData(

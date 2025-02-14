@@ -37,7 +37,8 @@ class FortuneViewModel @Inject constructor(
             updateState {
                 copy(
                     isLoading = false,
-                    dailyFortune = fortune.dailyFortune,
+                    dailyFortuneTitle = fortune.dailyFortuneTitle,
+                    dailyFortuneDescription = fortune.dailyFortuneDescription,
                     avgFortuneScore = fortune.avgFortuneScore,
                     fortunePages = fortune.toFortunePages(),
                 )
