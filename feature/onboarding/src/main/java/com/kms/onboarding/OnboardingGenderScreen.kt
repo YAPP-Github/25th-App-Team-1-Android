@@ -33,18 +33,25 @@ fun OnboardingGenderRoute(
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     BackHandler {
-        viewModel.processAction(OnboardingContract.Action.PreviousStep) // ✅ ViewModel에서 처리
+        viewModel.processAction(OnboardingContract.Action.PreviousStep)
     }
     OnboardingGenderScreen(
         state = state,
         currentStep = 5,
         totalSteps = 6,
-        onNextClick = { viewModel.processAction(OnboardingContract.Action.Submit) },
+        onNextClick = { viewModel.processAction(OnboardingContract.Action.ToggleBottomSheet) },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
         onGenderSelect = { gender ->
             viewModel.processAction(OnboardingContract.Action.UpdateGender(gender))
         },
-        toggleBottomSheet = { viewModel.processAction(OnboardingContract.Action.ToggleBottomSheet) },
+        onDismissRequest = {
+            viewModel.processAction(OnboardingContract.Action.ToggleBottomSheet)
+            viewModel.processAction(OnboardingContract.Action.PreviousStep)
+        },
+        onConfirmRequest = {
+            viewModel.processAction(OnboardingContract.Action.ToggleBottomSheet)
+            viewModel.processAction(OnboardingContract.Action.Submit)
+        },
     )
 }
 
@@ -57,15 +64,14 @@ fun OnboardingGenderScreen(
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
     onGenderSelect: (String) -> Unit,
-    toggleBottomSheet: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onConfirmRequest: () -> Unit,
 ) {
     OnboardingScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
         isButtonEnabled = state.selectedGender != null,
-        onNextClick = {
-            toggleBottomSheet()
-        },
+        onNextClick = onNextClick,
         onBackClick = onBackClick,
         buttonLabel = "다음",
     ) {
@@ -109,8 +115,8 @@ fun OnboardingGenderScreen(
 
     UserInfoBottomSheet(
         isSheetOpen = state.isBottomSheetOpen,
-        onDismissRequest = { toggleBottomSheet() },
-        onNextClick = onNextClick,
+        onDismissRequest = onDismissRequest,
+        onConfirmRequest = onConfirmRequest,
         name = state.userName,
         gender = state.selectedGender ?: "무지개",
         birthDate = state.birthDateFormatted,
@@ -130,6 +136,7 @@ fun OnboardingGenderScreenPreview() {
         onNextClick = {},
         onBackClick = {},
         onGenderSelect = {},
-        toggleBottomSheet = {},
+        onDismissRequest = {},
+        onConfirmRequest = {},
     )
 }
