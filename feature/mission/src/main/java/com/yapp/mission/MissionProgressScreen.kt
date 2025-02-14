@@ -184,7 +184,7 @@ fun MissionProgressScreen(
                     ) + fadeIn(animationSpec = tween(durationMillis = 300)),
                 ) {
                     Text(
-                        text = "흔들기 시작",
+                        text = "흔들기 시작!",
                         color = OrbitTheme.colors.white,
                         style = OrbitTheme.typography.title1Bold,
                     )
