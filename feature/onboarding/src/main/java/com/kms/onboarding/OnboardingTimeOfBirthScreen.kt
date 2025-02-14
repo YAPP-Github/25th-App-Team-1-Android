@@ -18,10 +18,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -73,7 +71,6 @@ fun OnboardingTimeOfBirthRoute(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun OnboardingTimeOfBirthScreen(
     state: OnboardingContract.State,
@@ -140,9 +137,9 @@ fun OnboardingTimeOfBirthScreen(
                     ),
                     showWarning = state.showWarning,
                     warningMessage = stringResource(id = R.string.onboarding_step4_textfield_warning),
+                    focusRequester = focusRequester,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .focusRequester(focusRequester)
                         .paddingForScreenPercentage(horizontalPercentage = 0.192f, topPercentage = 0.086f),
                 )
             }
