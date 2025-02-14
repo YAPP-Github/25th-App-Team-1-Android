@@ -1,11 +1,13 @@
 package com.kms.onboarding
 
+import android.net.Uri
 import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.OnboardingDestination
+import com.yapp.common.navigation.destination.WebViewDestination
 import com.yapp.common.navigation.extensions.sharedHiltViewModel
 
 fun NavGraphBuilder.onboardingNavGraph(
@@ -72,11 +74,15 @@ private fun handleSideEffect(
             popUpTo = sideEffect.popUpTo,
             inclusive = sideEffect.inclusive,
         )
-
-        OnboardingContract.SideEffect.NavigateBack -> navigator.navigateBack()
+        OnboardingContract.SideEffect.NavigateBack -> {
+            viewModel.processAction(OnboardingContract.Action.Reset)
+            navigator.navigateBack()
+        }
         OnboardingContract.SideEffect.OnboardingCompleted -> onFinishOnboarding()
-        OnboardingContract.SideEffect.ResetField -> viewModel.processAction(
-            OnboardingContract.Action.Reset,
-        )
+        OnboardingContract.SideEffect.ResetField -> viewModel.processAction(OnboardingContract.Action.Reset)
+
+        is OnboardingContract.SideEffect.OpenWebView -> {
+            navigator.navigateTo("${WebViewDestination.WebView.route}/${Uri.encode(sideEffect.url)}")
+        }
     }
 }
