@@ -1,6 +1,5 @@
 package com.yapp.home
 
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.domain.model.Alarm
@@ -63,7 +62,7 @@ sealed class HomeContract {
             val label: String = "",
             val iconRes: Int,
             val bottomPadding: Dp = 12.dp,
-            val duration: SnackbarDuration = SnackbarDuration.Short,
+            val durationMillis: Long = 2000,
             val onDismiss: () -> Unit,
             val onAction: () -> Unit,
         ) : SideEffect()

@@ -73,6 +73,8 @@ fun AlarmAddEditRoute(
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
 
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(sideEffect) {
         sideEffect.collect { effect ->
             when (effect) {
@@ -106,12 +108,13 @@ fun AlarmAddEditRoute(
                 }
                 is AlarmAddEditContract.SideEffect.ShowSnackBar -> {
                     val result = showCustomSnackBar(
+                        scope = coroutineScope,
                         snackBarHostState = snackBarHostState,
                         message = effect.message,
                         actionLabel = effect.label,
                         iconRes = effect.iconRes,
                         bottomPadding = effect.bottomPadding,
-                        duration = effect.duration,
+                        durationMillis = effect.durationMillis,
                     )
 
                     when (result) {

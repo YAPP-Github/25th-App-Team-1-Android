@@ -85,7 +85,9 @@ private fun OrbitSnackBarHost(
     AnimatedVisibility(
         visible = snackBarHostState.currentSnackbarData != null,
         enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-        exit = slideOutVertically(targetOffsetY = { it }) + fadeOut(),
+        exit = slideOutVertically(
+            targetOffsetY = { it },
+        ) + fadeOut(),
     ) {
         SnackbarHost(
             hostState = snackBarHostState,

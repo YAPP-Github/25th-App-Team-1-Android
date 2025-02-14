@@ -1,7 +1,6 @@
 package com.yapp.alarm.addedit
 
 import android.util.Log
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
@@ -225,7 +224,6 @@ class AlarmAddEditViewModel @Inject constructor(
                 message = resourceProvider.getString(R.string.alarm_already_set),
                 iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_alert),
                 bottomPadding = 78.dp,
-                duration = SnackbarDuration.Short,
                 onDismiss = { },
                 onAction = { },
             ),
@@ -374,7 +372,6 @@ class AlarmAddEditViewModel @Inject constructor(
                     label = resourceProvider.getString(R.string.alarm_delete_dialog_btn_cancel),
                     iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
                     bottomPadding = 78.dp,
-                    duration = SnackbarDuration.Short,
                     onDismiss = { },
                     onAction = {
                         updateState {
