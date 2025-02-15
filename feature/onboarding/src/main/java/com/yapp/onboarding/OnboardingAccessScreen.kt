@@ -1,4 +1,4 @@
-package com.kms.onboarding
+package com.yapp.onboarding
 
 import android.app.AlarmManager
 import android.content.Context
@@ -49,9 +49,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.shouldShowRationale
-import com.kms.onboarding.component.OnBoardingTopAppBar
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.onboarding.component.OnBoardingTopAppBar
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.utils.heightForScreenPercentage
 import feature.onboarding.R

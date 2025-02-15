@@ -1,4 +1,4 @@
-package com.kms.onboarding
+package com.yapp.onboarding
 
 import com.yapp.ui.base.UiState
 

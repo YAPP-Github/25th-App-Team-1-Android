@@ -1,4 +1,4 @@
-package com.kms.onboarding
+package com.yapp.onboarding
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
@@ -20,8 +20,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.kms.onboarding.component.UserInfoBottomSheet
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.onboarding.component.UserInfoBottomSheet
 import com.yapp.ui.toggle.OrbitGenderToggle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.paddingForScreenPercentage

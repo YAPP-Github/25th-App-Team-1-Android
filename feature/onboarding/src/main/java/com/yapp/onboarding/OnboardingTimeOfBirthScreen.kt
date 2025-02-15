@@ -1,4 +1,4 @@
-package com.kms.onboarding
+package com.yapp.onboarding
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
