@@ -133,6 +133,11 @@ class AlarmService : Service() {
     ): Notification {
         Log.d("AlarmForegroundService", "createNotification()")
 
+        val closeIntent = Intent(AlarmConstants.ACTION_ALARM_INTERACTION_ACTIVITY_CLOSE).apply {
+            putExtra(AlarmConstants.EXTRA_IS_SNOOZED, true)
+        }
+        applicationContext.sendBroadcast(closeIntent)
+
         val alarmAlertPendingIntent =
             createAlarmAlertPendingIntent(applicationContext, alarm)
         val alarmDismissPendingIntent =

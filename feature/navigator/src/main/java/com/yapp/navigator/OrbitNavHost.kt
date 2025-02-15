@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.kms.onboarding.onboardingNavGraph
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.SplashDestination
 import com.yapp.common.navigation.destination.TopLevelDestination
@@ -26,6 +25,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.fortuneNavGraph
 import com.yapp.home.homeNavGraph
 import com.yapp.mission.missionNavGraph
+import com.yapp.onboarding.onboardingNavGraph
 import com.yapp.setting.settingNavGraph
 import com.yapp.splash.SplashRoute
 import com.yapp.ui.component.snackbar.CustomSnackBarVisuals
@@ -73,7 +73,10 @@ internal fun OrbitNavHost(
                 snackBarHostState = snackBarHostState,
             )
             missionNavGraph(navigator = navigator)
-            fortuneNavGraph(navigator = navigator)
+            fortuneNavGraph(
+                navigator = navigator,
+                snackBarHostState = snackBarHostState,
+            )
             settingNavGraph(navigator = navigator)
             webViewNavGraph(navigator = navigator)
         }

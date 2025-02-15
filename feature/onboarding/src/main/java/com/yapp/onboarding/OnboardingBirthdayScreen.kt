@@ -1,4 +1,4 @@
-package com.kms.onboarding
+package com.yapp.onboarding
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -31,8 +31,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.kms.onboarding.component.OnBoardingTopAppBar
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.onboarding.component.OnBoardingTopAppBar
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.timepicker.OrbitYearMonthPicker
 import com.yapp.ui.utils.heightForScreenPercentage

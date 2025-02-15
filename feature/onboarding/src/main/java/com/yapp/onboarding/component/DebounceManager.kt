@@ -1,4 +1,4 @@
-package com.kms.onboarding.component
+package com.yapp.onboarding.component
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect

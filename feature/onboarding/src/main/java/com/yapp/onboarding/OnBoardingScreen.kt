@@ -1,4 +1,4 @@
-package com.kms.onboarding
+package com.yapp.onboarding
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -7,9 +7,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.kms.onboarding.component.OnBoardingTopAppBar
-import com.kms.onboarding.component.OnboardingBottomBar
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.onboarding.component.OnBoardingTopAppBar
+import com.yapp.onboarding.component.OnboardingBottomBar
 
 @Composable
 fun OnboardingScreen(

@@ -112,7 +112,14 @@ class FortuneViewModel @Inject constructor(
         val isSuccess = imageRepository.saveImage(byteArray)
 
         if (isSuccess) {
-            Log.d("FortuneViewModel", "이미지 저장 성공")
+            emitSideEffect(
+                FortuneContract.SideEffect.ShowSnackBar(
+                    message = "앨범에 저장되었습니다.",
+                    iconRes = core.designsystem.R.drawable.ic_check_green,
+                    onDismiss = {},
+                    onAction = {},
+                ),
+            )
         } else {
             Log.e("FortuneViewModel", "이미지 저장 실패")
         }

@@ -1,4 +1,4 @@
-package com.kms.onboarding.component
+package com.yapp.onboarding.component
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween

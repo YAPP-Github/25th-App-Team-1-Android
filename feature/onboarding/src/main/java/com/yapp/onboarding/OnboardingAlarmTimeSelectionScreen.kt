@@ -1,4 +1,4 @@
-package com.kms.onboarding
+package com.yapp.onboarding
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column

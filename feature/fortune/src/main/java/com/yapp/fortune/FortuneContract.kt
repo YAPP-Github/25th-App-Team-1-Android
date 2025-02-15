@@ -1,6 +1,8 @@
 package com.yapp.fortune
 
 import androidx.annotation.DrawableRes
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.yapp.fortune.page.FortunePageData
 
 sealed class FortuneContract {
@@ -30,5 +32,15 @@ sealed class FortuneContract {
         ) : SideEffect()
 
         data object NavigateBack : SideEffect()
+
+        data class ShowSnackBar(
+            val message: String,
+            val label: String = "",
+            val iconRes: Int,
+            val bottomPadding: Dp = 12.dp,
+            val durationMillis: Long = 2000,
+            val onDismiss: () -> Unit,
+            val onAction: () -> Unit,
+        ) : SideEffect()
     }
 }
