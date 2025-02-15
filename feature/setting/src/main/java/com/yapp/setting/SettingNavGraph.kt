@@ -11,6 +11,7 @@ import androidx.navigation.navigation
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.SettingDestination
 import com.yapp.common.navigation.extensions.sharedHiltViewModel
+import com.yapp.ui.base.BaseViewModel
 
 fun NavGraphBuilder.settingNavGraph(
     navigator: OrbitNavigator,
@@ -20,69 +21,100 @@ fun NavGraphBuilder.settingNavGraph(
         startDestination = SettingDestination.Setting.route,
     ) {
         SettingDestination.routes.forEach { destination ->
-            if (destination == SettingDestination.EditBirthday) {
-                composable(
-                    route = destination.route,
-                    enterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { it },
-                            animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing),
-                        )
-                    },
-                    exitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { -it },
-                            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
-                        )
-                    },
-                    popEnterTransition = {
-                        slideInVertically(
-                            initialOffsetY = { -it },
-                            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-                        )
-                    },
-                    popExitTransition = {
-                        slideOutVertically(
-                            targetOffsetY = { it },
-                            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
-                        )
-                    },
-                ) { backStackEntry ->
-                    val viewModel = backStackEntry.sharedHiltViewModel<SettingViewModel>(navigator.navController)
+            when (destination) {
+                SettingDestination.Setting -> {
+                    composable(route = destination.route) { backStackEntry ->
+                        val viewModel =
+                            backStackEntry.sharedHiltViewModel<SettingViewModel>(navigator.navController)
 
-                    LaunchedEffect(viewModel) {
-                        viewModel.container.sideEffectFlow.collect { sideEffect ->
-                            handleFortuneSideEffect(sideEffect, navigator, viewModel)
+                        LaunchedEffect(viewModel) {
+                            viewModel.container.sideEffectFlow.collect { sideEffect ->
+                                handleSettingSideEffect(sideEffect, navigator, viewModel)
+                            }
                         }
-                    }
 
-                    EditBirthdayRoute(viewModel)
-                }
-            } else {
-                composable(route = destination.route) { backStackEntry ->
-                    val viewModel = backStackEntry.sharedHiltViewModel<SettingViewModel>(navigator.navController)
-
-                    LaunchedEffect(viewModel) {
-                        viewModel.container.sideEffectFlow.collect { sideEffect ->
-                            handleFortuneSideEffect(sideEffect, navigator, viewModel)
-                        }
-                    }
-
-                    when (destination) {
-                        SettingDestination.Setting -> SettingRoute(viewModel)
-                        SettingDestination.EditProfile -> EditProfileRoute(viewModel)
-                        else -> {}
+                        SettingRoute(viewModel)
                     }
                 }
+
+                SettingDestination.EditProfile -> {
+                    composable(route = destination.route) { backStackEntry ->
+                        val viewModel =
+                            backStackEntry.sharedHiltViewModel<EditProfileViewModel>(navigator.navController)
+
+                        LaunchedEffect(viewModel) {
+                            viewModel.container.sideEffectFlow.collect { sideEffect ->
+                                handleSettingSideEffect(sideEffect, navigator, viewModel)
+                            }
+                        }
+
+                        EditProfileRoute(viewModel)
+                    }
+                }
+
+                SettingDestination.EditBirthday -> {
+                    composable(
+                        route = destination.route,
+                        enterTransition = {
+                            slideInVertically(
+                                initialOffsetY = { it },
+                                animationSpec = tween(
+                                    durationMillis = 350,
+                                    easing = FastOutSlowInEasing,
+                                ),
+                            )
+                        },
+                        exitTransition = {
+                            slideOutVertically(
+                                targetOffsetY = { -it },
+                                animationSpec = tween(
+                                    durationMillis = 250,
+                                    easing = FastOutSlowInEasing,
+                                ),
+                            )
+                        },
+                        popEnterTransition = {
+                            slideInVertically(
+                                initialOffsetY = { -it },
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = FastOutSlowInEasing,
+                                ),
+                            )
+                        },
+                        popExitTransition = {
+                            slideOutVertically(
+                                targetOffsetY = { it },
+                                animationSpec = tween(
+                                    durationMillis = 300,
+                                    easing = FastOutSlowInEasing,
+                                ),
+                            )
+                        },
+                    ) { backStackEntry ->
+                        val viewModel =
+                            backStackEntry.sharedHiltViewModel<EditProfileViewModel>(navigator.navController)
+
+                        LaunchedEffect(viewModel) {
+                            viewModel.container.sideEffectFlow.collect { sideEffect ->
+                                handleSettingSideEffect(sideEffect, navigator, viewModel)
+                            }
+                        }
+
+                        EditBirthdayRoute(viewModel)
+                    }
+                }
+
+                else -> {}
             }
         }
     }
 }
 
-private fun handleFortuneSideEffect(
+private fun handleSettingSideEffect(
     sideEffect: SettingContract.SideEffect,
     navigator: OrbitNavigator,
-    viewModel: SettingViewModel,
+    viewModel: BaseViewModel<*, *>,
 ) {
     when (sideEffect) {
         is SettingContract.SideEffect.Navigate -> navigator.navigateTo(
@@ -90,6 +122,7 @@ private fun handleFortuneSideEffect(
             popUpTo = sideEffect.popUpTo,
             inclusive = sideEffect.inclusive,
         )
+
         SettingContract.SideEffect.NavigateBack -> navigator.navigateBack()
     }
 }

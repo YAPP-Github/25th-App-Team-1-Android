@@ -41,7 +41,7 @@ import com.yapp.ui.toggle.OrbitGenderToggle
 
 @Composable
 fun EditProfileRoute(
-    viewModel: SettingViewModel = hiltViewModel(),
+    viewModel: EditProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
@@ -50,11 +50,7 @@ fun EditProfileRoute(
         onBack = { viewModel.onAction(SettingContract.Action.ShowDialog) },
         onUpdateName = { name -> viewModel.onAction(SettingContract.Action.UpdateName(name)) },
         onUpdateBirthDate = { birthDate ->
-            viewModel.onAction(
-                SettingContract.Action.UpdateBirthDate(
-                    birthDate,
-                ),
-            )
+            viewModel.onAction(SettingContract.Action.UpdateBirthDate(birthDate))
         },
         onToggleGender = { isMale -> viewModel.onAction(SettingContract.Action.ToggleGender(isMale)) },
         onToggleTimeUnknown = { isChecked ->
@@ -71,16 +67,13 @@ fun EditProfileRoute(
                 ),
             )
         },
-        onNavigateToEditBirthday = {
-            viewModel.onAction(
-                SettingContract.Action.NavigateToEditBirthday,
-            )
-        },
+        onNavigateToEditBirthday = { viewModel.onAction(SettingContract.Action.NavigateToEditBirthday) },
         onConfirmExit = {
             viewModel.onAction(SettingContract.Action.HideDialog)
             viewModel.onAction(SettingContract.Action.PreviousStep)
         },
         onCancelDialog = { viewModel.onAction(SettingContract.Action.HideDialog) },
+        onSaveUserInfo = { viewModel.onAction(SettingContract.Action.SubmitUserInfo) },
     )
 }
 
@@ -96,6 +89,7 @@ fun EditProfileScreen(
     onNavigateToEditBirthday: () -> Unit,
     onConfirmExit: () -> Unit,
     onCancelDialog: () -> Unit,
+    onSaveUserInfo: () -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -129,6 +123,7 @@ fun EditProfileScreen(
             showTopAppBarActions = true,
             title = "프로필 수정",
             actionTitle = "저장",
+            onActionClick = onSaveUserInfo,
         )
         ContentsTitle(
             contentsTitle = "이름",
@@ -214,7 +209,7 @@ fun EditProfileScreen(
                         val formattedTime = formatTimeInput(newValue.text, state.timeOfBirth)
                         onUpdateTimeOfBirth(formattedTime)
                     },
-                    hint = "시간 입력",
+                    hint = "시간모름",
                     isValid = state.isTimeValid,
                     showWarning = false,
                     warningMessage = "",
@@ -346,5 +341,6 @@ fun EditProfileScreenPreview() {
         onNavigateToEditBirthday = {},
         onConfirmExit = {},
         onCancelDialog = {},
+        onSaveUserInfo = {},
     )
 }

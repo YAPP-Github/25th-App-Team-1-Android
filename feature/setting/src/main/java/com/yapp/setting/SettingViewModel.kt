@@ -63,7 +63,7 @@ class SettingViewModel @Inject constructor(
             SettingContract.Action.HideDialog -> updateState { copy(isDialogVisible = false) }
             SettingContract.Action.PreviousStep -> emitSideEffect(SettingContract.SideEffect.NavigateBack)
             SettingContract.Action.NavigateToEditProfile -> navigateToEditProfile()
-            SettingContract.Action.NavigateToEditBirthday -> navigateToEditBirthday()
+            else -> {}
         }
     }
 
@@ -74,7 +74,7 @@ class SettingViewModel @Inject constructor(
                     updateState {
                         copy(
                             name = user.name,
-                            birthDate = "${user.calendarType} ${user.birthDate}",
+                            birthDate = user.birthDate,
                             selectedGender = user.gender,
                         )
                     }
@@ -87,8 +87,5 @@ class SettingViewModel @Inject constructor(
 
     private fun navigateToEditProfile() = intent {
         emitSideEffect(SettingContract.SideEffect.Navigate(SettingDestination.EditProfile.route))
-    }
-    private fun navigateToEditBirthday() = intent {
-        emitSideEffect(SettingContract.SideEffect.Navigate(SettingDestination.EditBirthday.route))
     }
 }

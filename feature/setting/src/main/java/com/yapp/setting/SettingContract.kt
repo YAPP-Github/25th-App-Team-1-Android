@@ -6,6 +6,7 @@ sealed class SettingContract {
     data class State(
         val name: String = "",
         val birthDate: String = "",
+        val calendarType: String = "양력",
         val selectedGender: String? = null,
         val checkBoxState: Boolean = false,
         val isMaleSelected: Boolean = true,
@@ -25,13 +26,14 @@ sealed class SettingContract {
         data class ToggleGender(val isMale: Boolean) : Action()
         data class ToggleTimeUnknown(val isChecked: Boolean) : Action()
         data class UpdateTimeOfBirth(val time: String) : Action()
+        data class UpdateCalendarType(val calendarType: String) : Action()
+        data object ConfirmAndNavigateBack : Action()
         data object Reset : Action()
-
-//        data object Submit : Action()
         data object NavigateToEditProfile : Action()
         data object NavigateToEditBirthday : Action()
         data object ShowDialog : Action()
         data object HideDialog : Action()
+        data object SubmitUserInfo : Action()
     }
 
     enum class FieldType(val validationRegex: Regex) {
