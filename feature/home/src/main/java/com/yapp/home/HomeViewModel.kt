@@ -3,10 +3,11 @@ package com.yapp.home
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.yapp.alarm.AlarmHelper
-import com.yapp.common.navigation.destination.AlarmInteractionDestination
+import com.yapp.common.navigation.destination.FortuneDestination
 import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.navigation.destination.SettingDestination
 import com.yapp.common.util.ResourceProvider
+import com.yapp.datastore.UserPreferences
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.toAlarmDays
 import com.yapp.domain.model.toDayOfWeek
@@ -14,7 +15,9 @@ import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import feature.home.R
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -25,6 +28,7 @@ class HomeViewModel @Inject constructor(
     private val alarmUseCase: AlarmUseCase,
     private val resourceProvider: ResourceProvider,
     private val alarmHelper: AlarmHelper,
+    private val userPreferences: UserPreferences,
 ) : BaseViewModel<HomeContract.State, HomeContract.SideEffect>(
     initialState = HomeContract.State(),
 ) {
@@ -44,26 +48,16 @@ class HomeViewModel @Inject constructor(
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
             HomeContract.Action.ShowNoActivatedAlarmDialog -> showNoActivatedAlarmDialog()
             HomeContract.Action.HideNoActivatedAlarmDialog -> hideNoActivatedAlarmDialog()
+            HomeContract.Action.ShowNoDailyFortuneDialog -> showNoDailyFortuneDialog()
+            HomeContract.Action.HideNoDailyFortuneDialog -> hideNoDailyFortuneDialog()
             HomeContract.Action.RollbackPendingAlarmToggle -> rollbackAlarmActivation()
             HomeContract.Action.ConfirmDeletion -> confirmDeletion()
             is HomeContract.Action.DeleteSingleAlarm -> deleteSingleAlarm(action.alarmId)
             HomeContract.Action.LoadMoreAlarms -> loadAllAlarms()
             HomeContract.Action.ResetLastAddedAlarmIndex -> restLastAddedAlarmIndex()
             is HomeContract.Action.EditAlarm -> editAlarm(action.alarmId)
-            HomeContract.Action.FakeAction -> {
-                emitSideEffect(
-                    HomeContract.SideEffect.Navigate(
-                        route = AlarmInteractionDestination.AlarmAction.route,
-                    ),
-                )
-            }
-            HomeContract.Action.NavigateToSetting -> {
-                emitSideEffect(
-                    HomeContract.SideEffect.Navigate(
-                        route = SettingDestination.Route.route,
-                    ),
-                )
-            }
+            HomeContract.Action.ShowDailyFortune -> loadDailyFortune()
+            HomeContract.Action.NavigateToSetting -> navigateToSetting()
         }
     }
 
@@ -371,6 +365,39 @@ class HomeViewModel @Inject constructor(
         } catch (e: Exception) {
             resourceProvider.getString(R.string.home_fortune_no_alarm)
         }
+    }
+
+    private fun loadDailyFortune() {
+        viewModelScope.launch {
+            val fortuneDate = userPreferences.fortuneDateFlow.firstOrNull()
+            val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+
+            Log.d("HomeViewModel", "fortuneDate: $fortuneDate, todayDate: $todayDate")
+
+            if (fortuneDate != todayDate) {
+                processAction(HomeContract.Action.ShowNoDailyFortuneDialog)
+            } else {
+                emitSideEffect(
+                    HomeContract.SideEffect.Navigate(FortuneDestination.Fortune.route),
+                )
+            }
+        }
+    }
+
+    private fun showNoDailyFortuneDialog() {
+        updateState { copy(isNoDailyFortuneDialogVisible = true) }
+    }
+
+    private fun hideNoDailyFortuneDialog() {
+        updateState { copy(isNoDailyFortuneDialogVisible = false) }
+    }
+
+    private fun navigateToSetting() {
+        emitSideEffect(
+            HomeContract.SideEffect.Navigate(
+                route = SettingDestination.Route.route,
+            ),
+        )
     }
 
     /*

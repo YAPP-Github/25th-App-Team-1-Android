@@ -1,5 +1,6 @@
 package com.yapp.home
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -158,8 +159,13 @@ fun HomeScreen(
         HomeLoadingScreen()
     } else if (state.alarms.isEmpty()) {
         HomeAlarmEmptyScreen(
-            onSettingClick = { },
-            onMailClick = { },
+            onSettingClick = {
+                eventDispatcher(HomeContract.Action.NavigateToSetting)
+            },
+            onMailClick = {
+                Log.d("HomeScreen", "ShowDailyFortune")
+                eventDispatcher(HomeContract.Action.ShowDailyFortune)
+            },
             onAddClick = {
                 eventDispatcher(HomeContract.Action.NavigateToAlarmCreation)
             },
@@ -168,6 +174,47 @@ fun HomeScreen(
         HomeContent(
             state = state,
             eventDispatcher = eventDispatcher,
+        )
+    }
+
+    if (state.isDeleteDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.alarm_delete_dialog_title),
+            message = stringResource(id = R.string.alarm_delete_dialog_message),
+            confirmText = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
+            cancelText = stringResource(id = R.string.alarm_delete_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(HomeContract.Action.ConfirmDeletion)
+            },
+            onCancel = {
+                eventDispatcher(HomeContract.Action.HideDeleteDialog)
+            },
+        )
+    }
+
+    if (state.isNoActivatedAlarmDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.no_active_alarm_dialog_title),
+            message = stringResource(id = R.string.no_active_alarm_dialog_message),
+            confirmText = stringResource(id = R.string.no_active_alarm_dialog_btn_confirm),
+            cancelText = stringResource(id = R.string.no_active_alarm_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(HomeContract.Action.HideNoActivatedAlarmDialog)
+            },
+            onCancel = {
+                eventDispatcher(HomeContract.Action.RollbackPendingAlarmToggle)
+            },
+        )
+    }
+
+    if (state.isNoDailyFortuneDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.no_daily_fortune_dialog_title),
+            message = stringResource(id = R.string.no_daily_fortune_dialog_message),
+            confirmText = stringResource(id = R.string.no_daily_fortune_dialog_btn_confirm),
+            onConfirm = {
+                eventDispatcher(HomeContract.Action.HideNoDailyFortuneDialog)
+            },
         )
     }
 }
@@ -300,7 +347,7 @@ private fun HomeContent(
 
                 HomeTopBar(
                     onSettingClick = { eventDispatcher(HomeContract.Action.NavigateToSetting) },
-                    onMailClick = { },
+                    onMailClick = { eventDispatcher(HomeContract.Action.ShowDailyFortune) },
                 )
             }
         }
@@ -319,36 +366,6 @@ private fun HomeContent(
                 },
             )
         }
-    }
-
-    if (state.isDeleteDialogVisible) {
-        OrbitDialog(
-            title = stringResource(id = R.string.alarm_delete_dialog_title),
-            message = stringResource(id = R.string.alarm_delete_dialog_message),
-            confirmText = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
-            cancelText = stringResource(id = R.string.alarm_delete_dialog_btn_cancel),
-            onConfirm = {
-                eventDispatcher(HomeContract.Action.ConfirmDeletion)
-            },
-            onCancel = {
-                eventDispatcher(HomeContract.Action.HideDeleteDialog)
-            },
-        )
-    }
-
-    if (state.isNoActivatedAlarmDialogVisible) {
-        OrbitDialog(
-            title = stringResource(id = R.string.no_active_alarm_dialog_title),
-            message = stringResource(id = R.string.no_active_alarm_dialog_message),
-            confirmText = stringResource(id = R.string.no_active_alarm_dialog_btn_confirm),
-            cancelText = stringResource(id = R.string.no_active_alarm_dialog_btn_cancel),
-            onConfirm = {
-                eventDispatcher(HomeContract.Action.HideNoActivatedAlarmDialog)
-            },
-            onCancel = {
-                eventDispatcher(HomeContract.Action.RollbackPendingAlarmToggle)
-            },
-        )
     }
 }
 
@@ -507,11 +524,7 @@ private fun HomeCharacterAnimation(
             Spacer(modifier = Modifier.height(16.dp))
         } ?: Spacer(modifier = Modifier.height(62.dp))
         LottieAnimation(
-            modifier = Modifier
-                .size(110.dp)
-                .clickable {
-                    eventDispatcher(HomeContract.Action.FakeAction)
-                },
+            modifier = Modifier.size(110.dp),
             resId = starRes,
         )
     }

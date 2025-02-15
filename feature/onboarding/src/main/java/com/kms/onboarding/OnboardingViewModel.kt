@@ -122,6 +122,9 @@ class OnboardingViewModel @Inject constructor(
                     hour = currentState.timeState.selectedHour,
                     minute = currentState.timeState.selectedMinute,
                     repeatDays = setOf(AlarmDay.MON, AlarmDay.TUE, AlarmDay.WED, AlarmDay.THU, AlarmDay.FRI).toRepeatDays(),
+                    isSnoozeEnabled = true,
+                    snoozeInterval = 5,
+                    snoozeCount = 5,
                     soundUri = "${defaultSoundUri.uri}",
                 )
 
