@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,6 +38,12 @@ fun FortuneRewardRoute(
     viewModel: FortuneViewModel = hiltViewModel(),
 ) {
     val state = viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    LaunchedEffect(state.value.fortuneImageId) {
+        val imageId = state.value.fortuneImageId ?: viewModel.getRandomImage()
+        viewModel.saveFortuneImageIdIfNeeded(imageId)
+    }
+
     FortuneRewardScreen(
         state = state,
         onCloseClick = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
@@ -55,7 +63,7 @@ fun FortuneRewardScreen(
     val nickName = parts.getOrNull(0)?.trim() ?: ""
 
     val imageRes = state.value.fortuneImageId
-        ?: core.designsystem.R.drawable.ic_fortune_reward1 // ✅ 저장된 이미지 사용
+        ?: core.designsystem.R.drawable.ic_fortune_reward1
 
     Box(
         modifier = Modifier
@@ -78,29 +86,40 @@ fun FortuneRewardScreen(
                 titleLabel = "행운 부적",
                 onCloseClick = onCloseClick,
             )
-            Text(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 30.dp)
-                    .align(Alignment.Start),
-                text = "$nickName\n부적에 소원을 적으면\n이루어질거야!",
-                style = OrbitTheme.typography.H1,
-                color = OrbitTheme.colors.white,
-            )
-            Spacer(modifier = Modifier.heightForScreenPercentage(0.0467f))
-
-            Icon(
-                painter = painterResource(id = imageRes),
-                contentDescription = null,
-                tint = Color.Unspecified,
-            )
-            Spacer(modifier = Modifier.height(30.dp))
-            Icon(
-                painter = painterResource(id = core.designsystem.R.drawable.ic_shadow),
-                contentDescription = null,
-                tint = Color.Unspecified,
-            )
-            Spacer(modifier = Modifier.weight(1f))
+                    .fillMaxSize()
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 30.dp)
+                        .align(Alignment.Start),
+                    text = "$nickName\n부적에 소원을 적으면\n이루어질거야!",
+                    style = OrbitTheme.typography.H1,
+                    color = OrbitTheme.colors.white,
+                )
+                Spacer(modifier = Modifier.heightForScreenPercentage(0.0467f))
+                Icon(
+                    painter = painterResource(id = imageRes),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f),
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+                Icon(
+                    painter = painterResource(id = core.designsystem.R.drawable.ic_shadow),
+                    contentDescription = null,
+                    tint = Color.Unspecified,
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .aspectRatio(4f / 1f),
+                )
+            }
 
             Row(
                 modifier = Modifier

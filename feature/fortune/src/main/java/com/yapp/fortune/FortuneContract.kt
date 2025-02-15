@@ -12,7 +12,7 @@ sealed class FortuneContract {
         val dailyFortuneDescription: String = "",
         val avgFortuneScore: Int = 0,
         val fortunePages: List<FortunePageData> = emptyList(),
-        val fortuneImageId: Int = 0,
+        val fortuneImageId: Int? = null,
     ) : com.yapp.ui.base.UiState
 
     sealed class Action {

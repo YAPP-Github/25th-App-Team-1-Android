@@ -218,6 +218,13 @@ data class OrbitTypography(
         lineHeight = 23.sp,
         letterSpacing = (-0.18).sp,
     ),
+    val H4_150: TextStyle = TextStyle(
+        fontFamily = Ownglyph,
+        fontWeight = FontWeight.Normal,
+        fontSize = 18.sp,
+        lineHeight = 27.sp,
+        letterSpacing = (-0.18).sp,
+    ),
     val H5: TextStyle = TextStyle(
         fontFamily = Ownglyph,
         fontWeight = FontWeight.Normal,

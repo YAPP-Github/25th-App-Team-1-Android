@@ -44,10 +44,11 @@ class FortuneViewModel @Inject constructor(
             val savedImageId = userPreferences.fortuneImageIdFlow.firstOrNull()
             val imageId = savedImageId ?: getRandomImage()
 
+            val formattedTitle = fortune.dailyFortuneTitle.replace(",", ",\n").trim()
             updateState {
                 copy(
                     isLoading = false,
-                    dailyFortuneTitle = fortune.dailyFortuneTitle,
+                    dailyFortuneTitle = formattedTitle,
                     dailyFortuneDescription = fortune.dailyFortuneDescription,
                     avgFortuneScore = fortune.avgFortuneScore,
                     fortunePages = fortune.toFortunePages(),
@@ -57,6 +58,13 @@ class FortuneViewModel @Inject constructor(
         }.onFailure { error ->
             Log.e("FortuneViewModel", "운세 데이터 요청 실패: ${error.message}")
             updateState { copy(isLoading = false) }
+        }
+    }
+
+    fun saveFortuneImageIdIfNeeded(imageId: Int) = viewModelScope.launch {
+        val savedImageId = userPreferences.fortuneImageIdFlow.firstOrNull()
+        if (savedImageId == null || savedImageId != imageId) {
+            userPreferences.saveFortuneImageId(imageId)
         }
     }
 
@@ -105,14 +113,12 @@ class FortuneViewModel @Inject constructor(
 
         if (isSuccess) {
             Log.d("FortuneViewModel", "이미지 저장 성공")
-            userPreferences.saveFortuneImageId(resId)
-            updateState { copy(fortuneImageId = resId) }
         } else {
             Log.e("FortuneViewModel", "이미지 저장 실패")
         }
     }
 
-    private fun getRandomImage(): Int {
+    fun getRandomImage(): Int {
         return listOf(
             core.designsystem.R.drawable.ic_fortune_reward1,
             core.designsystem.R.drawable.ic_fortune_reward2,
