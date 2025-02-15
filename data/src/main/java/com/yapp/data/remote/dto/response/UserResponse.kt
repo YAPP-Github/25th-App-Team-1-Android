@@ -24,20 +24,25 @@ fun UserResponse.toDomain(): User {
             "SOLAR" -> "양력"
             else -> "알 수 없음"
         },
-        birthDate = birthDate.toFormattedDate(),
+        birthDate = formatFullBirthDate(calendarType, birthDate), // ✅ 변환된 값으로 수정
         birthTime = birthTime ?: "시간모름",
         gender = when (gender) {
-            "MALE" -> "남"
-            "FEMALE" -> "여"
+            "MALE" -> "남성"
+            "FEMALE" -> "여성"
             else -> "알 수 없음"
         },
     )
 }
 
-private fun String.toFormattedDate(): String {
-    val parts = this.split("-") // "2000-01-01" → ["2000", "01", "01"]
-    val year = parts[0] + "년"
-    val month = parts[1].toInt().toString() + "월"
-    val day = parts[2].toInt().toString() + "일"
-    return "$year $month $day"
+/**
+ * ✅ `SOLAR 2000-01-01` → `양력 2000년 1월 1일` 변환 함수
+ */
+private fun formatFullBirthDate(calendarType: String, birthDate: String): String {
+    val type = when (calendarType) {
+        "SOLAR" -> "양력"
+        "LUNAR" -> "음력"
+        else -> "알 수 없음"
+    }
+    val (year, month, day) = birthDate.split("-").map { it.toInt() }
+    return "$type ${year}년 ${month}월 ${day}일"
 }
