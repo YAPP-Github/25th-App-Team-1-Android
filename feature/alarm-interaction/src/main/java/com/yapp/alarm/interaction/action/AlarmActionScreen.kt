@@ -146,7 +146,7 @@ private fun AlarmActionContent(
 
         Icon(
             painter = painterResource(id = core.designsystem.R.drawable.ic_alarm_action_character),
-            tint = Color(0xFF265894),
+            tint = Color(0xFF07203E),
             contentDescription = "Alarm Action Character",
         )
 
@@ -288,6 +288,7 @@ internal fun AlarmActionScreenPreview() {
         AlarmActionScreen(
             stateProvider = {
                 AlarmActionContract.State(
+                    initialLoading = false,
                     isAm = true,
                     hour = 10,
                     minute = 30,
