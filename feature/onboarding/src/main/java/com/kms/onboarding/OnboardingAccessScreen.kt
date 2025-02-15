@@ -6,6 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
@@ -16,6 +19,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -27,6 +31,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -51,6 +56,7 @@ import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.utils.heightForScreenPercentage
 import feature.onboarding.R
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -60,12 +66,29 @@ fun OnboardingAccessRoute(
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
     var hasRequestedPermission by rememberSaveable { mutableStateOf(false) }
     var isAlarmPermissionGranted by rememberSaveable { mutableStateOf(false) }
     var isNotificationPermissionGranted by rememberSaveable { mutableStateOf(false) }
+
+    var backPressedOnce by remember { mutableStateOf(false) }
+
+    BackHandler(enabled = hasRequestedPermission) {
+        if (backPressedOnce) {
+            (context as? ComponentActivity)?.finish()
+        } else {
+            backPressedOnce = true
+            Toast.makeText(context, "뒤로 버튼을 한번 더 누르시면 종료됩니다.", Toast.LENGTH_SHORT).show()
+
+            coroutineScope.launch {
+                delay(2000) // 2초 내에 두 번 누르지 않으면 초기화
+                backPressedOnce = false
+            }
+        }
+    }
 
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -198,12 +221,16 @@ fun OnboardingAccessScreen(
             .navigationBarsPadding()
             .imePadding(),
     ) {
-        OnBoardingTopAppBar(
-            currentStep = currentStep,
-            totalSteps = totalSteps,
-            onBackClick = onBackClick,
-            showTopAppBarActions = true,
-        )
+        if (!hasRequestedPermission) {
+            OnBoardingTopAppBar(
+                currentStep = currentStep,
+                totalSteps = totalSteps,
+                onBackClick = onBackClick,
+                showTopAppBarActions = true,
+            )
+        } else {
+            Spacer(modifier = Modifier.height(64.dp))
+        }
 
         Column(
             modifier = Modifier
