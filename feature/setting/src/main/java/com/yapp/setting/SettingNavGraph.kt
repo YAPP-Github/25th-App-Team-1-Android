@@ -1,5 +1,6 @@
 package com.yapp.setting
 
+import android.net.Uri
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInVertically
@@ -10,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.SettingDestination
+import com.yapp.common.navigation.destination.WebViewDestination
 import com.yapp.common.navigation.extensions.sharedHiltViewModel
 import com.yapp.ui.base.BaseViewModel
 
@@ -124,5 +126,9 @@ private fun handleSettingSideEffect(
         )
 
         SettingContract.SideEffect.NavigateBack -> navigator.navigateBack()
+
+        is SettingContract.SideEffect.OpenWebView -> {
+            navigator.navigateTo("${WebViewDestination.WebView.route}/${Uri.encode(sideEffect.url)}")
+        }
     }
 }

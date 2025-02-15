@@ -39,6 +39,21 @@ fun SettingRoute(
             )
         },
         onBackClick = { viewModel.onAction(SettingContract.Action.PreviousStep) },
+        onInquiryClick = {
+            viewModel.onAction(
+                SettingContract.Action.OpenWebView("http://pf.kakao.com/_YxiPsn/chat"),
+            )
+        },
+        onTermsClick = {
+            viewModel.onAction(
+                SettingContract.Action.OpenWebView("https://www.orbitalarm.net/terms.html"),
+            )
+        },
+        onPrivacyPolicyClick = {
+            viewModel.onAction(
+                SettingContract.Action.OpenWebView("https://www.orbitalarm.net/privacy.html"),
+            )
+        },
     )
 }
 
@@ -47,6 +62,9 @@ fun SettingScreen(
     state: SettingContract.State,
     onNavigateToEditProfile: () -> Unit,
     onBackClick: () -> Unit = {},
+    onInquiryClick: () -> Unit = {},
+    onTermsClick: () -> Unit = {},
+    onPrivacyPolicyClick: () -> Unit = {},
 ) {
     Column(
         modifier = Modifier
@@ -71,7 +89,9 @@ fun SettingScreen(
         )
         Spacer(modifier = Modifier.height(24.dp))
         InquiryCard(
-            modifier = Modifier.padding(horizontal = 24.dp),
+            modifier = Modifier
+                .padding(horizontal = 24.dp),
+            onInquiryClick = onInquiryClick,
         )
         HorizontalDivider(
             modifier = Modifier.padding(top = 16.dp),
@@ -86,12 +106,20 @@ fun SettingScreen(
         Spacer(modifier = Modifier.height(12.dp))
         SettingItem(
             itemTitle = "이용약관",
-            modifier = Modifier.padding(horizontal = 24.dp),
+            modifier = Modifier
+                .clickable {
+                    onTermsClick()
+                }
+                .padding(horizontal = 24.dp),
         )
         Spacer(modifier = Modifier.height(24.dp))
         SettingItem(
             itemTitle = "개인정보 처리방침",
-            modifier = Modifier.padding(horizontal = 24.dp),
+            modifier = Modifier
+                .clickable {
+                    onPrivacyPolicyClick()
+                }
+                .padding(horizontal = 24.dp),
         )
         Spacer(modifier = Modifier.weight(1f))
         VersionCodeText(versionCode = "v1.0.0")

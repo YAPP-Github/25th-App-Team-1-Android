@@ -66,6 +66,7 @@ class SettingViewModel @Inject constructor(
             SettingContract.Action.HideDialog -> updateState { copy(isDialogVisible = false) }
             SettingContract.Action.PreviousStep -> emitSideEffect(SettingContract.SideEffect.NavigateBack)
             SettingContract.Action.NavigateToEditProfile -> navigateToEditProfile()
+            is SettingContract.Action.OpenWebView -> openWebView(action.url)
             else -> {}
         }
     }
@@ -90,5 +91,9 @@ class SettingViewModel @Inject constructor(
 
     private fun navigateToEditProfile() = intent {
         emitSideEffect(SettingContract.SideEffect.Navigate(SettingDestination.EditProfile.route))
+    }
+
+    private fun openWebView(url: String) {
+        emitSideEffect(SettingContract.SideEffect.OpenWebView(url))
     }
 }
