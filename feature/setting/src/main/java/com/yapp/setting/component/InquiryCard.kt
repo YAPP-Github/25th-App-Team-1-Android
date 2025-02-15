@@ -25,6 +25,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 @Composable
 fun InquiryCard(
     modifier: Modifier = Modifier,
+    onInquiryClick: () -> Unit = {},
 ) {
     Box(
         modifier = modifier
@@ -40,7 +41,10 @@ fun InquiryCard(
         ) {
             InquiryCardTitle(title = "오르비는 여러분과 함께\n" + "성장해요!")
             Spacer(modifier = Modifier.height(12.dp))
-            InquirySendRow(sendTitle = "의견 보내기")
+            InquirySendRow(
+                sendTitle = "의견 보내기",
+                onInquiryClick = onInquiryClick,
+            )
         }
         Image(
             painter = painterResource(id = core.designsystem.R.drawable.ic_orbit_write_fortune),
@@ -65,11 +69,14 @@ fun InquiryCardTitle(title: String) {
 }
 
 @Composable
-fun InquirySendRow(sendTitle: String) {
+fun InquirySendRow(
+    sendTitle: String,
+    onInquiryClick: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .wrapContentWidth()
-            .clickable(onClick = { /* TODO */ })
+            .clickable(onClick = onInquiryClick)
             .padding(horizontal = 4.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

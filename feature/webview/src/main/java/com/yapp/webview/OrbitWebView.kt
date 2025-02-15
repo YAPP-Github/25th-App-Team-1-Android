@@ -1,5 +1,6 @@
 package com.yapp.webview
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.view.ViewGroup
 import android.webkit.WebResourceError
@@ -35,6 +36,30 @@ fun OrbitWebView(
                 }
 
                 webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                        val url = request?.url.toString()
+
+                        return if (url.startsWith("intent://")) {
+                            try {
+                                val intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+                                if (intent != null) {
+                                    view?.context?.startActivity(intent)
+                                    true
+                                } else {
+                                    false
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                                false
+                            }
+                        } else if (url.startsWith("https://")) {
+                            view?.loadUrl(url)
+                            true
+                        } else {
+                            false
+                        }
+                    }
+
                     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                         super.onPageStarted(view, url, favicon)
                         onPageStarted()
@@ -51,7 +76,7 @@ fun OrbitWebView(
                         error: WebResourceError?,
                     ) {
                         super.onReceivedError(view, request, error)
-                        val errorMsg = error?.description.toString()
+                        val errorMsg = error?.description?.toString() ?: "Unknown error"
                         onError(errorMsg)
                     }
                 }

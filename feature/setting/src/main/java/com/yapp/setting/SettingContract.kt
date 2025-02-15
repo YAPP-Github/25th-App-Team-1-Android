@@ -46,6 +46,7 @@ sealed class SettingContract {
         data object ShowDialog : Action()
         data object HideDialog : Action()
         data object SubmitUserInfo : Action()
+        data class OpenWebView(val url: String) : Action()
     }
 
     enum class FieldType(val validationRegex: Regex) {
@@ -61,5 +62,6 @@ sealed class SettingContract {
         ) : SideEffect()
 
         data object NavigateBack : SideEffect()
+        data class OpenWebView(val url: String) : SideEffect()
     }
 }
