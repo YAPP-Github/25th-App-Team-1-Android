@@ -5,10 +5,12 @@ import com.yapp.ui.base.UiState
 sealed class SettingContract {
     data class State(
         val name: String = "",
-        val birthDate: String = "",
-        val calendarType: String = "양력",
+        val initialYear: String = "2000",
+        val initialMonth: String = "01",
+        val initialDay: String = "01",
+        val birthType: String = "양력",
+        val birthDate: String = "2000-01-01",
         val selectedGender: String? = null,
-        val checkBoxState: Boolean = false,
         val isMaleSelected: Boolean = true,
         val isFemaleSelected: Boolean = false,
         val isTimeUnknown: Boolean = false,
@@ -16,12 +18,22 @@ sealed class SettingContract {
         val isDialogVisible: Boolean = false,
         val isNameValid: Boolean = true,
         val isTimeValid: Boolean = true,
-    ) : UiState
+    ) : UiState {
+        val birthDateFormatted: String
+            get() {
+                val parts = birthDate.split("-")
+                val year = parts[0] + "년"
+                val month = parts[1].toInt().toString() + "월"
+                val day = parts[2].toInt().toString() + "일"
+
+                return "$birthType $year $month $day"
+            }
+    }
 
     sealed class Action {
         data object PreviousStep : Action()
         data class UpdateName(val name: String) : Action()
-        data class UpdateBirthDate(val birthDate: String) : Action()
+        data class UpdateBirthDate(val birthType: String, val year: Int, val month: Int, val day: Int) : Action()
         data class UpdateGender(val gender: String) : Action()
         data class ToggleGender(val isMale: Boolean) : Action()
         data class ToggleTimeUnknown(val isChecked: Boolean) : Action()

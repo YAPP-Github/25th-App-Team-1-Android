@@ -36,7 +36,10 @@ class SettingViewModel @Inject constructor(
                 val isValid = SettingContract.FieldType.NAME.validationRegex.matches(action.name)
                 copy(name = action.name, isNameValid = isValid)
             }
-            is SettingContract.Action.UpdateBirthDate -> updateState { copy(birthDate = action.birthDate) }
+            is SettingContract.Action.UpdateBirthDate -> {
+                val formattedDate = "${action.year}-${action.month.toString().padStart(2, '0')}-${action.day.toString().padStart(2, '0')}"
+                updateState { state.copy(birthDate = formattedDate) }
+            }
             is SettingContract.Action.UpdateGender -> updateState { copy(selectedGender = action.gender) }
             is SettingContract.Action.ToggleGender -> updateState {
                 copy(

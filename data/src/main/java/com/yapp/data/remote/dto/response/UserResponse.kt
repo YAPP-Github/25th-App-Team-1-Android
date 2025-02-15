@@ -24,7 +24,7 @@ fun UserResponse.toDomain(): User {
             "SOLAR" -> "양력"
             else -> "알 수 없음"
         },
-        birthDate = formatFullBirthDate(calendarType, birthDate), // ✅ 변환된 값으로 수정
+        birthDate = birthDate,
         birthTime = birthTime ?: "시간모름",
         gender = when (gender) {
             "MALE" -> "남성"

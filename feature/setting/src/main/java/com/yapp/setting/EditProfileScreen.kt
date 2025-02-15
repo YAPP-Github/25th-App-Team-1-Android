@@ -1,5 +1,6 @@
 package com.yapp.setting
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,6 +20,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -45,13 +47,12 @@ fun EditProfileRoute(
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
+    Log.d("EditProfileRoute", "State: $state")
+
     EditProfileScreen(
         state = state,
         onBack = { viewModel.onAction(SettingContract.Action.ShowDialog) },
         onUpdateName = { name -> viewModel.onAction(SettingContract.Action.UpdateName(name)) },
-        onUpdateBirthDate = { birthDate ->
-            viewModel.onAction(SettingContract.Action.UpdateBirthDate(birthDate))
-        },
         onToggleGender = { isMale -> viewModel.onAction(SettingContract.Action.ToggleGender(isMale)) },
         onToggleTimeUnknown = { isChecked ->
             viewModel.onAction(
@@ -82,7 +83,6 @@ fun EditProfileScreen(
     state: SettingContract.State,
     onBack: () -> Unit,
     onUpdateName: (String) -> Unit,
-    onUpdateBirthDate: (String) -> Unit,
     onToggleGender: (Boolean) -> Unit,
     onToggleTimeUnknown: (Boolean) -> Unit,
     onUpdateTimeOfBirth: (String) -> Unit,
@@ -104,6 +104,11 @@ fun EditProfileScreen(
             text = state.timeOfBirth,
             selection = TextRange(state.timeOfBirth.length),
         )
+    }
+
+    LaunchedEffect(state.birthDateFormatted) {
+        Log.d("EditProfileScreen", "BirthDate: ${state.birthDate}")
+        Log.d("EditProfileScreen", "BirthDateFormatted: ${state.birthDateFormatted}")
     }
 
     Column(
@@ -151,8 +156,7 @@ fun EditProfileScreen(
         )
         Spacer(modifier = Modifier.height(8.dp))
         BirthCard(
-            birthDate = state.birthDate,
-            onUpdateBirthDate = onUpdateBirthDate,
+            birthDate = state.birthDateFormatted,
             onNavigateToEditBirthday = onNavigateToEditBirthday,
             modifier = Modifier
                 .fillMaxWidth()
@@ -299,7 +303,6 @@ private fun ContentsTitle(
 private fun BirthCard(
     modifier: Modifier = Modifier,
     birthDate: String,
-    onUpdateBirthDate: (String) -> Unit,
     onNavigateToEditBirthday: () -> Unit,
 ) {
     Row(
@@ -316,7 +319,7 @@ private fun BirthCard(
                 shape = RoundedCornerShape(12.dp),
             )
             .clickable { onNavigateToEditBirthday() },
-        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
             text = birthDate,
@@ -337,7 +340,6 @@ fun EditProfileScreenPreview() {
         onToggleTimeUnknown = {},
         onUpdateTimeOfBirth = {},
         onUpdateName = {},
-        onUpdateBirthDate = {},
         onNavigateToEditBirthday = {},
         onConfirmExit = {},
         onCancelDialog = {},

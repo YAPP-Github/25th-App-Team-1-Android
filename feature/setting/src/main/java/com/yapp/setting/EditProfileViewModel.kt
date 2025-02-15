@@ -11,7 +11,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.syntax.simple.intent
-import org.orbitmvi.orbit.syntax.simple.reduce
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,14 +39,13 @@ class EditProfileViewModel @Inject constructor(
             }
 
             is SettingContract.Action.UpdateBirthDate -> {
-                val formattedBirthDate = formatBirthDate(state.calendarType, action.birthDate)
-                Log.d("EditProfileViewModel", "Received new birthDate: ${action.birthDate}")
-                reduce { state.copy(birthDate = formattedBirthDate) }
+                val formattedDate = "${action.year}-${action.month.toString().padStart(2, '0')}-${action.day.toString().padStart(2, '0')}"
+                updateState { state.copy(birthDate = formattedDate) }
             }
 
             is SettingContract.Action.UpdateCalendarType -> {
                 Log.d("EditProfileViewModel", "Received new calendarType: ${action.calendarType}")
-                reduce { state.copy(calendarType = action.calendarType) }
+                updateState { state.copy(birthType = action.calendarType) }
             }
 
             is SettingContract.Action.UpdateGender -> updateState { copy(selectedGender = action.gender) }
@@ -92,17 +90,21 @@ class EditProfileViewModel @Inject constructor(
         viewModelScope.launch {
             userInfoRepository.getUserInfo(userId)
                 .onSuccess { user ->
-                    val formattedBirthDate = formatBirthDate(user.calendarType, user.birthDate)
+                    val (initialYear, initialMonth, initialDay) = user.birthDate.split("-")
 
                     Log.d(
                         "EditProfileViewModel",
-                        "Fetched user data -> birthDate: ${user.birthDate}, formattedBirthDate: $formattedBirthDate",
+                        "Fetched user data -> birthDate: ${user.birthDate}",
                     )
 
                     updateState {
                         copy(
                             name = user.name,
-                            birthDate = formattedBirthDate,
+                            initialYear = initialYear,
+                            initialMonth = initialMonth,
+                            initialDay = initialDay,
+                            birthType = user.calendarType,
+                            birthDate = user.birthDate,
                             selectedGender = user.gender,
                             timeOfBirth = user.birthTime ?: "99:99",
                             isTimeUnknown = user.birthTime == "시간모름",
@@ -123,7 +125,7 @@ class EditProfileViewModel @Inject constructor(
 
         val updatedUser = EditUser(
             name = state.name,
-            calendarType = state.calendarType,
+            calendarType = state.birthType,
             birthDate = extractBirthDate(state.birthDate),
             birthTime = if (state.isTimeUnknown) null else state.timeOfBirth,
             gender = state.selectedGender ?: "남성",
@@ -139,26 +141,10 @@ class EditProfileViewModel @Inject constructor(
         }
     }
 
-    private fun formatBirthDate(calendarType: String, birthDate: String): String {
-        if (birthDate.contains("년") && birthDate.contains("월") && birthDate.contains("일")) {
-            return birthDate
-        }
-        return try {
-            val (year, month, day) = birthDate.split("-").map { it.toInt() }
-            val type = when (calendarType.uppercase()) {
-                "SOLAR" -> "양력"
-                "LUNAR" -> "음력"
-                else -> "양력"
-            }
-            "$type ${year}년 ${month}월 ${day}일"
-        } catch (e: Exception) {
-            "양력 2000년 1월 1일"
-        }
-    }
-
     private fun extractBirthDate(formattedDate: String): String {
         return formattedDate.replace(Regex("[^0-9-]"), "")
     }
+    // YYYY-MM-DD 형식으로 서버에 전송
 
     private fun navigateToEditBirthday() = intent {
         emitSideEffect(SettingContract.SideEffect.Navigate(SettingDestination.EditBirthday.route))
