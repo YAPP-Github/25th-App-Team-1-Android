@@ -69,9 +69,11 @@ fun OrbitYearMonthPicker(
         ) {
             val lunarItems = listOf("양력", "음력")
             val yearItems = (1900..2024).map { it.toString() }
-            val startIndex = yearItems.indexOf("2000").takeIf { it >= 0 } ?: 0
+            val startIndex = yearItems.indexOf(initialYear).takeIf { it >= 0 } ?: 0
             val yearPickerState = rememberPickerState(startIndex = startIndex)
             val monthItems = (1..12).map { it.toString() }
+            val dayStartIndex = remember { dayItems.indexOf(initialDay).takeIf { it >= 0 } ?: 0 }
+            val monthStartIndex = remember { monthItems.indexOf(initialMonth).takeIf { it >= 0 } ?: 0 }
             Box(
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -117,7 +119,7 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
-                        startIndex = monthItems.indexOf(initialMonth),
+                        startIndex = monthStartIndex,
                         onValueChange = { monthState.value = it.toInt() },
                     )
                     OrbitPickerItem(
@@ -128,7 +130,7 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
-                        startIndex = dayItems.indexOf(initialDay),
+                        startIndex = dayStartIndex,
                         onValueChange = { dayState.value = it.toInt() },
                     )
                 }
