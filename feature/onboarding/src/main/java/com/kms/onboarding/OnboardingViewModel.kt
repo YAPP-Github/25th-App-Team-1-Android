@@ -44,6 +44,7 @@ class OnboardingViewModel @Inject constructor(
             is OnboardingContract.Action.UpdateGender -> updateGender(action.gender)
             is OnboardingContract.Action.ToggleBottomSheet -> toggleBottomSheet()
             is OnboardingContract.Action.CompleteOnboarding -> completeOnboarding()
+            is OnboardingContract.Action.OpenWebView -> openWebView(action.url)
         }
     }
 
@@ -196,6 +197,7 @@ class OnboardingViewModel @Inject constructor(
                 textFieldValue = "",
                 showWarning = false,
                 isButtonEnabled = false,
+                isValid = false,
             )
         }
     }
@@ -214,5 +216,9 @@ class OnboardingViewModel @Inject constructor(
             userPreferences.setOnboardingCompleted()
             emitSideEffect(OnboardingContract.SideEffect.OnboardingCompleted)
         }
+    }
+
+    private fun openWebView(url: String) {
+        emitSideEffect(OnboardingContract.SideEffect.OpenWebView(url))
     }
 }

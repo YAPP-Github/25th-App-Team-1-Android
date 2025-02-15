@@ -1,11 +1,16 @@
 package com.yapp.fortune
 
+import android.app.Application
 import android.util.Log
+import androidx.annotation.DrawableRes
 import androidx.lifecycle.viewModelScope
 import com.yapp.common.navigation.destination.FortuneDestination
+import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.datastore.UserPreferences
 import com.yapp.domain.repository.FortuneRepository
+import com.yapp.domain.repository.ImageRepository
 import com.yapp.fortune.page.toFortunePages
+import com.yapp.media.decoder.ImageUtils
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
@@ -17,7 +22,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FortuneViewModel @Inject constructor(
+    private val application: Application,
     private val fortuneRepository: FortuneRepository,
+    private val imageRepository: ImageRepository,
     private val userPreferences: UserPreferences,
 ) : BaseViewModel<FortuneContract.State, FortuneContract.SideEffect>(
     FortuneContract.State(),
@@ -34,12 +41,17 @@ class FortuneViewModel @Inject constructor(
         updateState { copy(isLoading = true) }
 
         fortuneRepository.getFortune(fortuneId).onSuccess { fortune ->
+            val savedImageId = userPreferences.fortuneImageIdFlow.firstOrNull()
+            val imageId = savedImageId ?: getRandomImage()
+
             updateState {
                 copy(
                     isLoading = false,
-                    dailyFortune = fortune.dailyFortune,
+                    dailyFortuneTitle = fortune.dailyFortuneTitle,
+                    dailyFortuneDescription = fortune.dailyFortuneDescription,
                     avgFortuneScore = fortune.avgFortuneScore,
                     fortunePages = fortune.toFortunePages(),
+                    fortuneImageId = imageId,
                 )
             }
         }.onFailure { error ->
@@ -63,10 +75,50 @@ class FortuneViewModel @Inject constructor(
                     reduce { state.copy(currentStep = (state.currentStep + 1).coerceAtMost(5)) }
                 }
             }
+            is FortuneContract.Action.UpdateStep -> {
+                reduce { state.copy(currentStep = action.step) }
+            }
+            is FortuneContract.Action.NavigateToHome -> {
+                navigateToHome()
+            }
+            is FortuneContract.Action.SaveImage -> {
+                saveImage(action.resId)
+            }
         }
     }
 
-    fun setHasReward(hasReward: Boolean) = updateState {
-        copy(hasReward = hasReward)
+    private fun navigateToHome() {
+        emitSideEffect(
+            FortuneContract.SideEffect.Navigate(
+                route = HomeDestination.Route.route,
+                popUpTo = FortuneDestination.Route.route,
+                inclusive = true,
+            ),
+        )
+    }
+
+    private fun saveImage(@DrawableRes resId: Int) = viewModelScope.launch {
+        val bitmap = ImageUtils.getBitmapFromResource(application, resId)
+        val byteArray = ImageUtils.bitmapToByteArray(bitmap)
+
+        val isSuccess = imageRepository.saveImage(byteArray)
+
+        if (isSuccess) {
+            Log.d("FortuneViewModel", "이미지 저장 성공")
+            userPreferences.saveFortuneImageId(resId)
+            updateState { copy(fortuneImageId = resId) }
+        } else {
+            Log.e("FortuneViewModel", "이미지 저장 실패")
+        }
+    }
+
+    private fun getRandomImage(): Int {
+        return listOf(
+            core.designsystem.R.drawable.ic_fortune_reward1,
+            core.designsystem.R.drawable.ic_fortune_reward2,
+            core.designsystem.R.drawable.ic_fortune_reward3,
+            core.designsystem.R.drawable.ic_fortune_reward4,
+            core.designsystem.R.drawable.ic_fortune_reward5,
+        ).random()
     }
 }

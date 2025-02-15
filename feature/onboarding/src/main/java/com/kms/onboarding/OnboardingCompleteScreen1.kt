@@ -1,5 +1,6 @@
 package com.kms.onboarding
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -27,7 +28,9 @@ fun OnboardingCompleteRoute(
     viewModel: OnboardingViewModel,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
-
+    BackHandler {
+        viewModel.processAction(OnboardingContract.Action.PreviousStep) // ✅ ViewModel에서 처리
+    }
     OnboardingCompleteScreen1(
         state = state,
         onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },

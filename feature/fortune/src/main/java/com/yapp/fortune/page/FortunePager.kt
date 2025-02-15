@@ -24,11 +24,16 @@ fun FortunePager(
             .fillMaxSize()
             .pointerInput(Unit) {
                 detectTapGestures(
-                    onTap = {
-                        if (pagerState.currentPage < pagerState.pageCount - 1) {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                            }
+                    onTap = { offset ->
+                        val nextPage = if (offset.x < size.width / 2) {
+                            pagerState.currentPage - 1
+                        } else {
+                            pagerState.currentPage + 1
+                        }
+                        coroutineScope.launch {
+                            pagerState.animateScrollToPage(
+                                nextPage.coerceIn(0, pagerState.pageCount - 1),
+                            )
                         }
                     },
                 )
@@ -36,7 +41,8 @@ fun FortunePager(
     ) { page ->
         when (page) {
             0 -> FortuneFirstPage(
-                dailyFortune = state.dailyFortune,
+                dailyFortuneTitle = state.dailyFortuneTitle,
+                dailyFortuneDescription = state.dailyFortuneDescription,
                 avgFortuneScore = state.avgFortuneScore,
             )
 

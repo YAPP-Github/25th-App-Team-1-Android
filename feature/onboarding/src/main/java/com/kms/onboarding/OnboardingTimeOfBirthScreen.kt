@@ -17,10 +17,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -32,6 +30,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.textfield.OrbitTextField
@@ -42,7 +41,7 @@ import feature.onboarding.R
 
 @Composable
 fun OnboardingTimeOfBirthRoute(
-    viewModel: OnboardingViewModel,
+    viewModel: OnboardingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
@@ -72,7 +71,6 @@ fun OnboardingTimeOfBirthRoute(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun OnboardingTimeOfBirthScreen(
     state: OnboardingContract.State,
@@ -84,7 +82,6 @@ fun OnboardingTimeOfBirthScreen(
     onTextChange: (String) -> Unit,
 ) {
     val focusManager = LocalFocusManager.current
-    var isChecked by remember { mutableStateOf(false) }
     var textFieldValue by remember {
         mutableStateOf(
             TextFieldValue(
@@ -93,12 +90,12 @@ fun OnboardingTimeOfBirthScreen(
             ),
         )
     }
-    val isButtonEnabled = isChecked || state.isButtonEnabled
+    var isPressed by remember { mutableStateOf(false) }
 
     OnboardingScreen(
         currentStep = currentStep,
         totalSteps = totalSteps,
-        isButtonEnabled = isButtonEnabled,
+        isButtonEnabled = state.isButtonEnabled,
         onNextClick = onNextClick,
         onBackClick = onBackClick,
         buttonLabel = "다음",
@@ -140,9 +137,9 @@ fun OnboardingTimeOfBirthScreen(
                     ),
                     showWarning = state.showWarning,
                     warningMessage = stringResource(id = R.string.onboarding_step4_textfield_warning),
+                    focusRequester = focusRequester,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .focusRequester(focusRequester)
                         .paddingForScreenPercentage(horizontalPercentage = 0.192f, topPercentage = 0.086f),
                 )
             }
@@ -154,7 +151,13 @@ fun OnboardingTimeOfBirthScreen(
                     .align(Alignment.CenterHorizontally)
                     .customClickable(
                         rippleEnabled = false,
-                        onClick = { isChecked = !isChecked },
+                        onClick = {
+                            textFieldValue = TextFieldValue("시간모름")
+                            onTextChange("시간모름")
+                            onNextClick()
+                        },
+                        onPress = { isPressed = true },
+                        onRelease = { isPressed = false },
                     ),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
@@ -162,12 +165,12 @@ fun OnboardingTimeOfBirthScreen(
                 Icon(
                     painter = painterResource(id = core.designsystem.R.drawable.ic_check),
                     contentDescription = "Check",
-                    tint = if (isChecked) OrbitTheme.colors.main else OrbitTheme.colors.white,
+                    tint = if (isPressed) OrbitTheme.colors.main else OrbitTheme.colors.white, // ✅ 클릭 여부에 따라 색상 변경
                 )
                 Text(
                     text = stringResource(id = R.string.onboarding_step4_text_check),
                     style = OrbitTheme.typography.body1Medium,
-                    color = if (isChecked) OrbitTheme.colors.main else OrbitTheme.colors.white,
+                    color = if (isPressed) OrbitTheme.colors.main else OrbitTheme.colors.white, // ✅ 클릭 여부에 따라 색상 변경
                     modifier = Modifier.padding(start = 4.dp),
                     textAlign = TextAlign.Center,
                 )

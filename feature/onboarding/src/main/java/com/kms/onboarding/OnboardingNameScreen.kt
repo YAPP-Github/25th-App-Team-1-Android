@@ -1,5 +1,6 @@
 package com.kms.onboarding
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,13 +14,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.textfield.OrbitTextField
@@ -30,13 +31,16 @@ import feature.onboarding.R
 
 @Composable
 fun OnboardingNameRoute(
-    viewModel: OnboardingViewModel,
+    viewModel: OnboardingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
+    }
+    BackHandler {
+        viewModel.processAction(OnboardingContract.Action.PreviousStep) // ✅ ViewModel에서 처리
     }
 
     OnboardingNameScreen(
@@ -110,9 +114,9 @@ fun OnboardingNameScreen(
                 isValid = state.isValid,
                 showWarning = state.showWarning,
                 warningMessage = stringResource(id = R.string.onboarding_step5_textfield_warning),
+                focusRequester = focusRequester,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusRequester(focusRequester) // ✅ 자동 포커스 적용
                     .paddingForScreenPercentage(horizontalPercentage = 0.192f, topPercentage = 0.086f),
             )
         }

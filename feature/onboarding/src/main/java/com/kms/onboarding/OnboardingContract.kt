@@ -60,6 +60,7 @@ sealed class OnboardingContract {
         data class UpdateBirthDate(val lunar: String, val year: Int, val month: Int, val day: Int) : Action()
         data object ToggleBottomSheet : Action()
         data object CompleteOnboarding : Action()
+        data class OpenWebView(val url: String) : Action()
     }
 
     enum class FieldType(val validationRegex: Regex) {
@@ -76,6 +77,6 @@ sealed class OnboardingContract {
 
         data object NavigateBack : SideEffect()
         data object OnboardingCompleted : SideEffect()
-        data object ResetField : SideEffect()
+        data class OpenWebView(val url: String) : SideEffect()
     }
 }

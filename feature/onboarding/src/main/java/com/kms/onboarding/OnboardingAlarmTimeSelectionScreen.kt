@@ -1,5 +1,6 @@
 package com.kms.onboarding
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,7 +25,9 @@ fun OnboardingAlarmTimeSelectionRoute(
     viewModel: OnboardingViewModel,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
-
+    BackHandler {
+        viewModel.processAction(OnboardingContract.Action.PreviousStep) // ✅ ViewModel에서 처리
+    }
     OnboardingAlarmTimeSelectionScreen(
         state = state,
         currentStep = 1,

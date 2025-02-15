@@ -2,7 +2,8 @@ package com.yapp.domain.model.fortune
 
 data class Fortune(
     val id: Long,
-    val dailyFortune: String,
+    val dailyFortuneTitle: String,
+    val dailyFortuneDescription: String,
     val avgFortuneScore: Int,
     val studyCareerFortune: FortuneDetailModel,
     val wealthFortune: FortuneDetailModel,

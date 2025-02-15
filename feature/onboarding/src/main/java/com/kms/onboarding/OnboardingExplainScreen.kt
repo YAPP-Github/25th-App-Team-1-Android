@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,6 +56,7 @@ fun OnboardingExplainScreen(
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )
+            Spacer(modifier = Modifier.height(12.dp))
             Text(
                 text = stringResource(id = R.string.onboarding_step1_text_subtitle),
                 style = OrbitTheme.typography.heading1SemiBold,
@@ -62,7 +64,7 @@ fun OnboardingExplainScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp)
-                    .paddingForScreenPercentage(topPercentage = 0.014f, bottomPercentage = 0.037f),
+                    .paddingForScreenPercentage(bottomPercentage = 0.037f),
                 textAlign = TextAlign.Center,
             )
             GifImage(

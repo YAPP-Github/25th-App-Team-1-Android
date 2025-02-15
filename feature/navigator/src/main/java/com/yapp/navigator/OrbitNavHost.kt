@@ -30,6 +30,7 @@ import com.yapp.setting.settingNavGraph
 import com.yapp.splash.SplashRoute
 import com.yapp.ui.component.snackbar.CustomSnackBarVisuals
 import com.yapp.ui.component.snackbar.OrbitSnackBar
+import com.yapp.webview.webViewNavGraph
 import kotlinx.collections.immutable.toImmutableList
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -74,6 +75,7 @@ internal fun OrbitNavHost(
             missionNavGraph(navigator = navigator)
             fortuneNavGraph(navigator = navigator)
             settingNavGraph(navigator = navigator)
+            webViewNavGraph(navigator = navigator)
         }
     }
 }

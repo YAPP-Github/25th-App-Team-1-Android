@@ -20,4 +20,5 @@ dependencies {
     implementation(projects.feature.fortune)
     implementation(projects.feature.setting)
     implementation(projects.feature.splash)
+    implementation(projects.feature.webview)
 }
