@@ -8,7 +8,7 @@ data class UpdateUserInfoRequest(
     val name: String,
     val calendarType: String,
     val birthDate: String,
-    val birthTime: String,
+    val birthTime: String?,
     val gender: String,
 ) {
     companion object {
@@ -21,7 +21,7 @@ data class UpdateUserInfoRequest(
                     else -> "UNKNOWN"
                 },
                 birthDate = this.birthDate,
-                birthTime = this.birthTime ?: "00:00:00",
+                birthTime = this.birthTime,
                 gender = when (this.gender) {
                     "남성" -> "MALE"
                     "여성" -> "FEMALE"
