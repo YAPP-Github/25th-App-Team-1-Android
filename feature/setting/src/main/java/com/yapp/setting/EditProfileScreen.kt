@@ -10,17 +10,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -106,17 +108,10 @@ fun EditProfileScreen(
         )
     }
 
-    LaunchedEffect(state.birthDateFormatted) {
-        Log.d("EditProfileScreen", "BirthDate: ${state.birthDate}")
-        Log.d("EditProfileScreen", "BirthDateFormatted: ${state.birthDateFormatted}")
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(OrbitTheme.colors.gray_900)
-            .imePadding()
-            .navigationBarsPadding()
             .clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
@@ -130,126 +125,130 @@ fun EditProfileScreen(
             actionTitle = "저장",
             onActionClick = onSaveUserInfo,
         )
-        ContentsTitle(
-            contentsTitle = "이름",
-            modifier = Modifier.padding(horizontal = 20.dp),
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        OrbitTextField(
-            text = nameTextFieldValue,
-            onTextChange = { newValue ->
-                onUpdateName(newValue.text)
-            },
-            hint = "이름 입력",
-            isValid = state.isNameValid,
-            showWarning = !state.isNameValid,
-            warningMessage = "올바른 이름을 입력해주세요.",
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 18.dp),
-            textAlign = TextAlign.Start,
-        )
-        Spacer(modifier = Modifier.height(18.dp))
-        ContentsTitle(
-            contentsTitle = "생년월일",
-            modifier = Modifier.padding(horizontal = 20.dp),
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        BirthCard(
-            birthDate = state.birthDateFormatted,
-            onNavigateToEditBirthday = onNavigateToEditBirthday,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-        )
-        Spacer(modifier = Modifier.height(24.dp))
-        ContentsTitle(
-            contentsTitle = "성별",
-            modifier = Modifier.padding(horizontal = 20.dp),
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Box(modifier = Modifier.weight(1f)) {
-                OrbitGenderToggle(
-                    label = "남성",
-                    isSelected = state.isMaleSelected,
-                    onToggle = { onToggleGender(true) },
-                    height = 52.dp,
-                    textStyle = OrbitTheme.typography.body1Regular,
-                )
-            }
-            Box(modifier = Modifier.weight(1f)) {
-                OrbitGenderToggle(
-                    label = "여성",
-                    isSelected = state.isFemaleSelected,
-                    onToggle = { onToggleGender(false) },
-                    height = 52.dp,
-                    textStyle = OrbitTheme.typography.body1Regular,
-                )
-            }
-        }
-        Spacer(modifier = Modifier.height(24.dp))
-        ContentsTitle(
-            contentsTitle = "태어난 시간",
-            modifier = Modifier.padding(horizontal = 20.dp),
-        )
-        Spacer(modifier = Modifier.height(8.dp))
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 18.dp),
+                .windowInsetsPadding(WindowInsets.ime)
+                .verticalScroll(rememberScrollState()),
         ) {
+            ContentsTitle(
+                contentsTitle = "이름",
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            OrbitTextField(
+                text = nameTextFieldValue,
+                onTextChange = { newValue ->
+                    onUpdateName(newValue.text)
+                },
+                hint = "이름 입력",
+                isValid = state.isNameValid,
+                showWarning = !state.isNameValid,
+                warningMessage = "올바른 이름을 입력해주세요.",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp),
+                textAlign = TextAlign.Start,
+            )
+            Spacer(modifier = Modifier.height(18.dp))
+            ContentsTitle(
+                contentsTitle = "생년월일",
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            BirthCard(
+                birthDate = state.birthDateFormatted,
+                onNavigateToEditBirthday = onNavigateToEditBirthday,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            ContentsTitle(
+                contentsTitle = "성별",
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
             Row(
-                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                OrbitTextField(
-                    text = birthTimeTextFieldValue,
-                    onTextChange = { newValue ->
-                        val formattedTime = formatTimeInput(newValue.text, state.timeOfBirth)
-                        onUpdateTimeOfBirth(formattedTime)
-                    },
-                    hint = "시간모름",
-                    isValid = state.isTimeValid,
-                    showWarning = false,
-                    warningMessage = "",
-                    enabled = !state.isTimeUnknown,
-                    modifier = Modifier
-                        .weight(1f),
-                    textAlign = TextAlign.Start,
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-
-                OrbitCheckBox(
-                    checked = state.isTimeUnknown,
-                    onCheckedChange = {
-                        onToggleTimeUnknown(!state.isTimeUnknown)
-                        if (!state.isTimeUnknown) {
-                            onUpdateTimeOfBirth("시간모름")
-                        } else {
-                            onUpdateTimeOfBirth("")
-                        }
-                    },
-                )
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = "시간모름",
-                    style = OrbitTheme.typography.body1Medium,
-                    color = if (state.isTimeUnknown) OrbitTheme.colors.main else OrbitTheme.colors.white,
-                )
+                Box(modifier = Modifier.weight(1f)) {
+                    OrbitGenderToggle(
+                        label = "남성",
+                        isSelected = state.isMaleSelected,
+                        onToggle = { onToggleGender(true) },
+                        height = 52.dp,
+                        textStyle = OrbitTheme.typography.body1Regular,
+                    )
+                }
+                Box(modifier = Modifier.weight(1f)) {
+                    OrbitGenderToggle(
+                        label = "여성",
+                        isSelected = state.isFemaleSelected,
+                        onToggle = { onToggleGender(false) },
+                        height = 52.dp,
+                        textStyle = OrbitTheme.typography.body1Regular,
+                    )
+                }
             }
-            if (!state.isTimeValid) {
-                WarningMessage(
-                    message = "올바른 시간을 입력해주세요.",
-                    textAlign = TextAlign.Start,
-                )
+            Spacer(modifier = Modifier.height(24.dp))
+            ContentsTitle(
+                contentsTitle = "태어난 시간",
+                modifier = Modifier.padding(horizontal = 20.dp),
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 18.dp),
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    OrbitTextField(
+                        text = birthTimeTextFieldValue,
+                        onTextChange = { newValue ->
+                            val formattedTime = formatTimeInput(newValue.text, state.timeOfBirth)
+                            onUpdateTimeOfBirth(formattedTime)
+                        },
+                        hint = "시간모름",
+                        isValid = state.isTimeValid,
+                        showWarning = !state.isTimeValid,
+                        warningMessage = "올바른 시간을 입력해주세요.",
+                        enabled = !state.isTimeUnknown,
+                        modifier = Modifier
+                            .weight(1f),
+                        textAlign = TextAlign.Start,
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    OrbitCheckBox(
+                        checked = state.isTimeUnknown,
+                        onCheckedChange = {
+                            onToggleTimeUnknown(!state.isTimeUnknown)
+                        },
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "시간모름",
+                        style = OrbitTheme.typography.body1Medium,
+                        color = if (state.isTimeUnknown) OrbitTheme.colors.main else OrbitTheme.colors.white,
+                    )
+                }
+                if (!state.isTimeValid) {
+                    WarningMessage(
+                        message = "올바른 시간을 입력해주세요.",
+                        textAlign = TextAlign.Start,
+                    )
+                }
             }
         }
     }
+
     if (state.isDialogVisible) {
         OrbitDialog(
             title = "변경 사항 삭제",

@@ -218,7 +218,7 @@ private fun TextFieldContainer(
             modifier = Modifier
                 .fillMaxWidth()
                 .onFocusChanged { focusState ->
-                    if (isFocused != focusState.isFocused) { // ✅ 상태 변경이 있을 때만 실행
+                    if (isFocused != focusState.isFocused) {
                         onFocusChanged(focusState.isFocused)
                     }
                 },
