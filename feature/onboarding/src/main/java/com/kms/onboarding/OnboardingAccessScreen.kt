@@ -1,11 +1,13 @@
 package com.kms.onboarding
 
+import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -41,8 +43,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.kms.onboarding.component.OnBoardingTopAppBar
 import com.yapp.common.navigation.OrbitNavigator
@@ -50,9 +50,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.utils.heightForScreenPercentage
 import feature.onboarding.R
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -65,24 +63,30 @@ fun OnboardingAccessRoute(
 
     val lifecycleOwner = LocalLifecycleOwner.current
 
-    val permissionState =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            rememberPermissionState(permission = android.Manifest.permission.POST_NOTIFICATIONS)
-        } else {
-            null
-        }
-
     var hasRequestedPermission by rememberSaveable { mutableStateOf(false) }
-    var hasCheckedNotification by rememberSaveable { mutableStateOf(false) }
-    var hasCheckedAlarm by rememberSaveable { mutableStateOf(false) }
-
     var isAlarmPermissionGranted by rememberSaveable { mutableStateOf(false) }
+    var isNotificationPermissionGranted by rememberSaveable { mutableStateOf(false) }
 
-    var hasDelayed by rememberSaveable { mutableStateOf(false) }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { granted ->
+            isNotificationPermissionGranted = granted
+            if (!granted) hasRequestedPermission = true
+        },
+    )
 
-    BackHandler {
-        viewModel.processAction(OnboardingContract.Action.PreviousStep) // ✅ ViewModel에서 처리
-    }
+    val alarmPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult(),
+        onResult = {
+            val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            isAlarmPermissionGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                alarmManager.canScheduleExactAlarms()
+            } else {
+                true
+            }
+            if (!isAlarmPermissionGranted) hasRequestedPermission = true
+        },
+    )
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -99,34 +103,30 @@ fun OnboardingAccessRoute(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(permissionState?.status, isAlarmPermissionGranted) {
-        if (!hasDelayed) {
-            delay(1000)
-            hasDelayed = true
+    LaunchedEffect(Unit) {
+        delay(1000)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            isNotificationPermissionGranted = true
         }
+    }
 
-        val isNotificationGranted = permissionState?.status?.isGranted ?: true
-
-        if (!isNotificationGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !hasCheckedNotification) {
-            hasCheckedNotification = true
-            permissionState?.launchPermissionRequest()
-        } else if (!isAlarmPermissionGranted && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && !hasCheckedAlarm) {
-            hasCheckedAlarm = true
-            withContext(Dispatchers.Main) {
-                val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                    data = Uri.fromParts("package", context.packageName, null)
-                }
-                context.startActivity(intent)
-            }
-        }
-
-        if ((hasCheckedNotification || Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) &&
-            (hasCheckedAlarm || Build.VERSION.SDK_INT < Build.VERSION_CODES.S)
+    LaunchedEffect(isNotificationPermissionGranted) {
+        if (
+            isNotificationPermissionGranted &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            !isAlarmPermissionGranted
         ) {
-            hasRequestedPermission = true
+            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+                data = Uri.fromParts("package", context.packageName, null)
+            }
+            alarmPermissionLauncher.launch(intent)
         }
+    }
 
-        if (isNotificationGranted && isAlarmPermissionGranted) {
+    LaunchedEffect(isNotificationPermissionGranted && isAlarmPermissionGranted) {
+        if (isNotificationPermissionGranted && isAlarmPermissionGranted) {
             viewModel.processAction(OnboardingContract.Action.NextStep)
         }
     }
@@ -135,12 +135,10 @@ fun OnboardingAccessRoute(
         state = state,
         currentStep = 6,
         totalSteps = 6,
-        notificationPermissionStatus = permissionState?.status ?: PermissionStatus.Granted,
+        notificationPermissionStatus = PermissionStatus.Granted,
         isAlarmPermissionGranted = isAlarmPermissionGranted,
         hasRequestedPermission = hasRequestedPermission,
-        onNavigateToNext = {
-            viewModel.processAction(OnboardingContract.Action.NextStep)
-        },
+        onNavigateToNext = { viewModel.processAction(OnboardingContract.Action.NextStep) },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
         onNavigateToSettings = {
             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
