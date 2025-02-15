@@ -16,6 +16,7 @@ sealed class HomeContract {
         val isSelectionMode: Boolean = false,
         val isDeleteDialogVisible: Boolean = false,
         val isNoActivatedAlarmDialogVisible: Boolean = false,
+        val isNoDailyFortuneDialogVisible: Boolean = false,
         val pendingAlarmToggle: Pair<Long, Boolean>? = null,
         val lastFortuneScore: Int = -1,
         val deliveryTime: String = "받을 수 있는 운세가 없어요",
@@ -38,13 +39,15 @@ sealed class HomeContract {
         data object HideDeleteDialog : Action()
         data object ShowNoActivatedAlarmDialog : Action()
         data object HideNoActivatedAlarmDialog : Action()
+        data object ShowNoDailyFortuneDialog : Action()
+        data object HideNoDailyFortuneDialog : Action()
         data object RollbackPendingAlarmToggle : Action()
         data object ConfirmDeletion : Action()
         data class DeleteSingleAlarm(val alarmId: Long) : Action()
         data object LoadMoreAlarms : Action()
         data object ResetLastAddedAlarmIndex : Action()
         data class EditAlarm(val alarmId: Long) : Action()
-        data object FakeAction : Action()
+        data object ShowDailyFortune : Action()
         data object NavigateToSetting : Action()
     }
 
