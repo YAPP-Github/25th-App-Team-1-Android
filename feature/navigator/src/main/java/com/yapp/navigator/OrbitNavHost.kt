@@ -73,7 +73,10 @@ internal fun OrbitNavHost(
                 snackBarHostState = snackBarHostState,
             )
             missionNavGraph(navigator = navigator)
-            fortuneNavGraph(navigator = navigator)
+            fortuneNavGraph(
+                navigator = navigator,
+                snackBarHostState = snackBarHostState,
+            )
             settingNavGraph(navigator = navigator)
             webViewNavGraph(navigator = navigator)
         }
