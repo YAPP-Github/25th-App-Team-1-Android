@@ -29,8 +29,20 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideLoggingInterceptor(buildConfigFieldProvider: BuildConfigFieldProvider): HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
-        level = if (buildConfigFieldProvider.get().isDebug) HttpLoggingInterceptor.Level.BODY else HttpLoggingInterceptor.Level.NONE
+    fun provideLoggingInterceptor(
+        buildConfigFieldProvider: BuildConfigFieldProvider,
+    ): HttpLoggingInterceptor = HttpLoggingInterceptor().apply {
+        if (buildConfigFieldProvider.get().isDebug) {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
+    }
+
+    @Provides
+    @Singleton
+    fun provideJson(): Json = Json {
+        ignoreUnknownKeys = true
+        prettyPrint = true
+        isLenient = true
     }
 
     @Provides
@@ -74,9 +86,13 @@ object NetworkModule {
     @Provides
     @Singleton
     @NoneAuth
-    fun provideNoneAuthRetrofit(@NoneAuth okHttpClient: OkHttpClient, buildConfigFieldProvider: BuildConfigFieldProvider): Retrofit =
+    fun provideNoneAuthRetrofit(
+        @NoneAuth okHttpClient: OkHttpClient,
+        buildConfigFieldProvider: BuildConfigFieldProvider,
+        json: Json,
+    ): Retrofit =
         Retrofit.Builder()
-            .addConverterFactory(Json.asConverterFactory("application/json".toMediaType()))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .baseUrl(buildConfigFieldProvider.get().baseUrl)
             .client(okHttpClient)
             .build()

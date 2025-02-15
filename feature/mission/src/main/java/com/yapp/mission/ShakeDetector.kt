@@ -15,7 +15,7 @@ class ShakeDetector(
     private var accelerometer: Sensor? = null
     private var shakeTimestamp: Long = 0
     private val shakeThresholdGravity = 2.7f
-    private val shakeInterval = 500
+    private val shakeInterval = 200
 
     fun start() {
         sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -34,12 +34,11 @@ class ShakeDetector(
         val gForce = sqrt(x * x + y * y + z * z) / SensorManager.GRAVITY_EARTH
 
         if (gForce > shakeThresholdGravity) {
-            onShake()
-//            val currentTime = System.currentTimeMillis()
-//            if (currentTime - shakeTimestamp > shakeInterval) {
-//                shakeTimestamp = currentTime
-//                onShake()
-//            }
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - shakeTimestamp > shakeInterval) {
+                shakeTimestamp = currentTime
+                onShake()
+            }
         }
     }
 

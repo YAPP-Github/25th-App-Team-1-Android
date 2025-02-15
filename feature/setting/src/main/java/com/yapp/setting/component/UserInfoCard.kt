@@ -22,9 +22,14 @@ import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 
 @Composable
-fun UserInfoCard() {
+fun UserInfoCard(
+    name: String,
+    gender: String,
+    birth: String,
+    modifier: Modifier = Modifier,
+) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .background(
                 color = OrbitTheme.colors.gray_700,
                 shape = RoundedCornerShape(20.dp),
@@ -32,10 +37,10 @@ fun UserInfoCard() {
             .fillMaxWidth()
             .padding(24.dp),
     ) {
-        Column() {
-            UserNameAndGenderText(name = "강문수", gender = "남성")
+        Column {
+            UserNameAndGenderText(name = name, gender = gender)
             Spacer(modifier = Modifier.height(4.dp))
-            UserBirthDayText(birth = "양력 1999년 7월 8일")
+            UserBirthDayText(birth = birth)
         }
         Icon(
             painter = painterResource(id = core.designsystem.R.drawable.ic_arrow_right),
@@ -84,5 +89,9 @@ fun UserBirthDayText(birth: String) {
 @Composable
 @Preview
 fun UserInfoCardPreview() {
-    UserInfoCard()
+    UserInfoCard(
+        name = "강문수",
+        gender = "남",
+        birth = "1999.01.01",
+    )
 }

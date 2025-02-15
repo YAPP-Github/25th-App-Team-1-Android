@@ -28,6 +28,7 @@ fun DetailHoroScopeText(
     color: Color,
     @DrawableRes iconRes: Int,
     fortuneTitleText: String,
+    fortuneSubTitleText: String,
     fortuneContentText: String,
 ) {
     Column(
@@ -50,12 +51,20 @@ fun DetailHoroScopeText(
             )
             Text(
                 text = fortuneTitleText,
-                style = OrbitTheme.typography.headline1SemiBold,
+                style = OrbitTheme.typography.label1SemiBold,
                 color = color,
                 textAlign = TextAlign.Start,
             )
         }
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = fortuneSubTitleText,
+            style = OrbitTheme.typography.body1Bold,
+            color = OrbitTheme.colors.gray_600,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Spacer(modifier = Modifier.height(5.dp))
         Text(
             text = fortuneContentText,
             style = OrbitTheme.typography.body2Regular,
@@ -67,13 +76,13 @@ fun DetailHoroScopeText(
 }
 
 @Composable
-@Preview(showBackground = true)
-private fun DetailHoroScopeTextPreview() {
+@Preview
+fun DetailHoroScopeTextPreview() {
     DetailHoroScopeText(
-        modifier = Modifier,
-        fortuneTitleText = "학업/직장운 88점",
-        color = OrbitTheme.colors.gray_600,
-        iconRes = core.designsystem.R.drawable.ic__graduationcap,
-        fortuneContentText = "오늘은 학업이나 직장에서 좋은 결과를 얻을 수 있는 날입니다. 무엇이든 도전해보세요!",
+        color = Color.Red,
+        iconRes = 0,
+        fortuneTitleText = "학업",
+        fortuneSubTitleText = "오늘의 운세",
+        fortuneContentText = "오늘은 학업에 대한 운세가 좋습니다.",
     )
 }

@@ -7,10 +7,13 @@ import androidx.compose.ui.Modifier
 import com.yapp.designsystem.theme.OrbitTheme
 
 @Composable
-fun TableOfContentsText(contentsTitle: String) {
+fun TableOfContentsText(
+    contentsTitle: String,
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = contentsTitle,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         style = OrbitTheme.typography.body1Regular,
         color = OrbitTheme.colors.gray_300,
     )

@@ -11,7 +11,9 @@ android {
 dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.common)
+    implementation(projects.core.alarm)
     implementation(projects.core.media)
+    implementation(projects.core.datastore)
     implementation(projects.domain)
     implementation(libs.orbit.core)
     implementation(libs.orbit.compose)

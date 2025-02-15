@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
@@ -79,6 +80,10 @@ fun OrbitSwitch(
                 .background(
                     color = thumbColor,
                     shape = CircleShape,
+                )
+                .shadow(
+                    elevation = if (isChecked && isEnabled) 12.dp else 0.dp,
+                    shape = CircleShape,
                 ),
         )
     }
@@ -88,8 +93,7 @@ fun OrbitSwitch(
 @Composable
 fun OrbitTogglePreview() {
     OrbitTheme {
-        var isSelected by remember { mutableStateOf(false) }
-
+        var isSelected by remember { mutableStateOf(true) }
         var isEnabled by remember { mutableStateOf(true) }
 
         Column {

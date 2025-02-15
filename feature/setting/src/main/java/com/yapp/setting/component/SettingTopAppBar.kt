@@ -26,6 +26,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 @Composable
 fun SettingTopAppBar(
     onBackClick: (() -> Unit)? = null,
+    onActionClick: () -> Unit = {},
     showTopAppBarActions: Boolean = true,
     title: String,
     actionTitle: String? = null,
@@ -70,7 +71,7 @@ fun SettingTopAppBar(
                             .clickable(
                                 interactionSource = interactionSource,
                                 indication = null,
-                                onClick = { /* TODO: 클릭 이벤트 */ },
+                                onClick = onActionClick,
                             ),
                     )
                 }

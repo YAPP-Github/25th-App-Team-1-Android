@@ -6,9 +6,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.navArgument
-import com.yapp.alarm.action.AlarmActionRoute
 import com.yapp.alarm.addedit.AlarmAddEditRoute
-import com.yapp.alarm.snooze.AlarmSnoozeTimerRoute
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.HomeDestination
 
@@ -43,22 +41,6 @@ fun NavGraphBuilder.homeNavGraph(
             AlarmAddEditRoute(
                 navigator = navigator,
                 snackBarHostState = snackBarHostState,
-            )
-        }
-
-        composable(
-            route = HomeDestination.AlarmAction.route,
-        ) {
-            AlarmActionRoute(
-                navigator = navigator,
-            )
-        }
-
-        composable(
-            route = HomeDestination.AlarmSnoozeTimer.route,
-        ) {
-            AlarmSnoozeTimerRoute(
-                navigator = navigator,
             )
         }
     }

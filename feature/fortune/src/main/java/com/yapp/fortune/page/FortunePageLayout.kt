@@ -12,12 +12,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.Bubble
-import com.yapp.fortune.getCodyList
 import com.yapp.fortune.page.content.CodyContent
 import com.yapp.fortune.page.content.HoroscopeContent
 import com.yapp.fortune.page.content.LuckyColorContent
@@ -68,9 +68,30 @@ fun FortunePageLayout(data: FortunePageData) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     when {
-                        data.details != null -> HoroscopeContent(data.details)
-                        data.isCodyPage -> CodyContent(getCodyList())
-                        data.isLuckyColorPage -> LuckyColorContent()
+                        data.isHoroscopePage -> {
+                            if (data.details.isEmpty()) {
+                                Text(
+                                    text = "운세 데이터를 불러올 수 없습니다.",
+                                    style = OrbitTheme.typography.H2,
+                                    color = Color.Red,
+                                )
+                            } else {
+                                HoroscopeContent(details = data.details) // ✅ 운세 점수 및 설명
+                            }
+                        }
+
+                        data.isCodyPage -> CodyContent(
+                            luckyOutfitTop = data.luckyOutfitTop,
+                            luckyOutfitBottom = data.luckyOutfitBottom,
+                            luckyOutfitShoes = data.luckyOutfitShoes,
+                            luckyOutfitAccessory = data.luckyOutfitAccessory,
+                        )
+
+                        data.isLuckyColorPage -> LuckyColorContent(
+                            luckyColor = data.luckyColor,
+                            unluckyColor = data.unluckyColor,
+                            luckyFood = data.luckyFood,
+                        )
                     }
                 }
             }

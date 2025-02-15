@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="home_top_bar_title">Orbit</string>
-    <string name="home_empty_title">기상 알림이 없어요</string>
-    <string name="home_empty_description">알림을 추가하고\n운세 편지를 받아보세요</string>
+    <string name="home_empty_title">기상 알람이 없어요</string>
+    <string name="home_empty_description">알람을 추가하고\n운세 편지를 받아보세요</string>
 
     <string name="home_fortune_no_alarm_description">운세 편지를 받고 싶다면\n기상 알람을 켜줘</string>
     <string name="home_fortune_preload_description">미래에서 운세 편지를\n작성 중이야!</string>
@@ -71,6 +71,10 @@
     <string name="no_active_alarm_dialog_message">알람을 설정하지 않으면\n운세 편지를 받을 수 없어요.</string>
     <string name="no_active_alarm_dialog_btn_cancel">취소</string>
     <string name="no_active_alarm_dialog_btn_confirm">확인</string>
+
+    <string name="no_daily_fortune_dialog_title">받은 운세가 없어요</string>
+    <string name="no_daily_fortune_dialog_message">알람이 울린 후 미션을 수행하면\n오늘의 운세를 받을 수 있어요.</string>
+    <string name="no_daily_fortune_dialog_btn_confirm">닫기</string>
 
     <string name="alarm_disabled_warning">알람을 끄면 운세가 도착하지 않아요.</string>
     <string name="alarm_already_set">선택한 시간에 이미 설정된 알람이 있어요.</string>

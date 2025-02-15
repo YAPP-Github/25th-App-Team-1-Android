@@ -1,10 +1,10 @@
 package com.yapp.alarm.addedit
 
 import android.util.Log
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.yapp.alarm.AlarmHelper
 import com.yapp.common.util.ResourceProvider
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
@@ -18,6 +18,7 @@ import com.yapp.media.haptic.HapticType
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import feature.home.R
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,6 +27,7 @@ class AlarmAddEditViewModel @Inject constructor(
     private val alarmUseCase: AlarmUseCase,
     private val resourceProvider: ResourceProvider,
     private val hapticFeedbackManager: HapticFeedbackManager,
+    private val alarmHelper: AlarmHelper,
     savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<AlarmAddEditContract.State, AlarmAddEditContract.SideEffect>(
     initialState = AlarmAddEditContract.State(),
@@ -66,8 +68,8 @@ class AlarmAddEditViewModel @Inject constructor(
     private suspend fun loadExistingAlarm(sounds: List<AlarmSound>) {
         alarmUseCase.getAlarm(alarmId).onSuccess { alarm ->
             val repeatDays = alarm.repeatDays.toAlarmDays()
-            val isAM = alarm.hour < 12
-            val hour = if (isAM) alarm.hour else alarm.hour - 12
+            val isAM = alarm.isAm
+            val hour = alarm.hour
             val selectedSoundIndex = sounds.indexOfFirst { it.uri.toString() == alarm.soundUri }
             val selectedSound = sounds.getOrNull(selectedSoundIndex) ?: sounds.first()
 
@@ -86,7 +88,10 @@ class AlarmAddEditViewModel @Inject constructor(
                         alarmMessage = getAlarmMessage(if (isAM) "오전" else "오후", hour, alarm.minute, repeatDays),
                     ),
                     daySelectionState = setupDaySelectionState(repeatDays),
-                    holidayState = holidayState.copy(isDisableHolidayChecked = alarm.isHolidayAlarmOff),
+                    holidayState = holidayState.copy(
+                        isDisableHolidayEnabled = repeatDays.isNotEmpty(),
+                        isDisableHolidayChecked = alarm.isHolidayAlarmOff,
+                    ),
                     snoozeState = setupSnoozeState(alarm),
                     soundState = soundState.copy(
                         isVibrationEnabled = alarm.isVibrationEnabled,
@@ -184,8 +189,13 @@ class AlarmAddEditViewModel @Inject constructor(
     private suspend fun updateExistingAlarm(alarm: Alarm) {
         val updatedAlarm = alarm.copy(id = alarmId)
 
+        alarmUseCase.getAlarm(alarmId).onSuccess { oldAlarm ->
+            alarmHelper.unScheduleAlarm(oldAlarm)
+        }
+
         alarmUseCase.updateAlarm(updatedAlarm)
             .onSuccess {
+                alarmHelper.scheduleAlarm(updatedAlarm)
                 emitSideEffect(AlarmAddEditContract.SideEffect.UpdateAlarm(it.id))
             }
             .onFailure {
@@ -194,22 +204,24 @@ class AlarmAddEditViewModel @Inject constructor(
     }
 
     private suspend fun checkAndCreateAlarm(newAlarm: Alarm) {
-        alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute, newAlarm.isAm)
-            .collect { timeMatchedAlarms ->
-                when {
-                    timeMatchedAlarms.any { it.copy(id = 0) == newAlarm.copy(id = 0) } -> {
-                        showAlarmAlreadySetWarning()
-                    }
+        val timeMatchedAlarms = alarmUseCase.getAlarmsByTime(newAlarm.hour, newAlarm.minute, newAlarm.isAm)
+            .first()
 
-                    timeMatchedAlarms.isNotEmpty() -> {
-                        val existingAlarm = timeMatchedAlarms.first()
-                        val updatedAlarm = existingAlarm.copyFrom(newAlarm).copy(id = existingAlarm.id)
-                        updateExistingAlarm(updatedAlarm)
-                    }
-
-                    else -> createNewAlarm(newAlarm)
-                }
+        when {
+            timeMatchedAlarms.any { it.copy(id = 0) == newAlarm.copy(id = 0) } -> {
+                showAlarmAlreadySetWarning()
             }
+
+            timeMatchedAlarms.isNotEmpty() -> {
+                val existingAlarm = timeMatchedAlarms.first()
+                val updatedAlarm = existingAlarm.copyFrom(newAlarm).copy(id = existingAlarm.id)
+                updateExistingAlarm(updatedAlarm)
+            }
+
+            else -> {
+                createNewAlarm(newAlarm)
+            }
+        }
     }
 
     private fun showAlarmAlreadySetWarning() {
@@ -218,7 +230,6 @@ class AlarmAddEditViewModel @Inject constructor(
                 message = resourceProvider.getString(R.string.alarm_already_set),
                 iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_alert),
                 bottomPadding = 78.dp,
-                duration = SnackbarDuration.Short,
                 onDismiss = { },
                 onAction = { },
             ),
@@ -228,6 +239,7 @@ class AlarmAddEditViewModel @Inject constructor(
     private suspend fun createNewAlarm(alarm: Alarm) {
         alarmUseCase.insertAlarm(alarm)
             .onSuccess {
+                alarmHelper.scheduleAlarm(it)
                 emitSideEffect(AlarmAddEditContract.SideEffect.SaveAlarm(it.id))
             }
             .onFailure {
@@ -366,7 +378,6 @@ class AlarmAddEditViewModel @Inject constructor(
                     label = resourceProvider.getString(R.string.alarm_delete_dialog_btn_cancel),
                     iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
                     bottomPadding = 78.dp,
-                    duration = SnackbarDuration.Short,
                     onDismiss = { },
                     onAction = {
                         updateState {

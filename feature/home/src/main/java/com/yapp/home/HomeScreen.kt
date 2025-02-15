@@ -1,5 +1,6 @@
 package com.yapp.home
 
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -35,6 +36,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,7 +52,6 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -63,7 +64,6 @@ import com.yapp.home.component.bottomsheet.AlarmListBottomSheet
 import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.component.snackbar.showCustomSnackBar
-import com.yapp.ui.lifecycle.LaunchedEffectWithLifecycle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
 import feature.home.R
@@ -76,6 +76,8 @@ fun HomeRoute(
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
+
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(navigator.navController.currentBackStackEntry?.savedStateHandle?.get<Long>(ADD_ALARM_RESULT_KEY)) {
         navigator.navController.currentBackStackEntry
@@ -107,7 +109,7 @@ fun HomeRoute(
             }
     }
 
-    LaunchedEffectWithLifecycle(sideEffect) {
+    LaunchedEffect(sideEffect) {
         sideEffect.collect { effect ->
             when (effect) {
                 is HomeContract.SideEffect.NavigateBack -> {
@@ -122,12 +124,13 @@ fun HomeRoute(
                 }
                 is HomeContract.SideEffect.ShowSnackBar -> {
                     val result = showCustomSnackBar(
+                        scope = coroutineScope,
                         snackBarHostState = snackBarHostState,
                         message = effect.message,
                         actionLabel = effect.label,
                         iconRes = effect.iconRes,
                         bottomPadding = effect.bottomPadding,
-                        duration = effect.duration,
+                        durationMillis = effect.durationMillis,
                     )
 
                     when (result) {
@@ -156,14 +159,62 @@ fun HomeScreen(
         HomeLoadingScreen()
     } else if (state.alarms.isEmpty()) {
         HomeAlarmEmptyScreen(
-            onSettingClick = { },
-            onMailClick = { },
-            onAddClick = { },
+            onSettingClick = {
+                eventDispatcher(HomeContract.Action.NavigateToSetting)
+            },
+            onMailClick = {
+                Log.d("HomeScreen", "ShowDailyFortune")
+                eventDispatcher(HomeContract.Action.ShowDailyFortune)
+            },
+            onAddClick = {
+                eventDispatcher(HomeContract.Action.NavigateToAlarmCreation)
+            },
         )
     } else {
         HomeContent(
             state = state,
             eventDispatcher = eventDispatcher,
+        )
+    }
+
+    if (state.isDeleteDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.alarm_delete_dialog_title),
+            message = stringResource(id = R.string.alarm_delete_dialog_message),
+            confirmText = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
+            cancelText = stringResource(id = R.string.alarm_delete_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(HomeContract.Action.ConfirmDeletion)
+            },
+            onCancel = {
+                eventDispatcher(HomeContract.Action.HideDeleteDialog)
+            },
+        )
+    }
+
+    if (state.isNoActivatedAlarmDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.no_active_alarm_dialog_title),
+            message = stringResource(id = R.string.no_active_alarm_dialog_message),
+            confirmText = stringResource(id = R.string.no_active_alarm_dialog_btn_confirm),
+            cancelText = stringResource(id = R.string.no_active_alarm_dialog_btn_cancel),
+            onConfirm = {
+                eventDispatcher(HomeContract.Action.HideNoActivatedAlarmDialog)
+            },
+            onCancel = {
+                eventDispatcher(HomeContract.Action.RollbackPendingAlarmToggle)
+            },
+        )
+    }
+
+    if (state.isNoDailyFortuneDialogVisible) {
+        OrbitDialog(
+            title = stringResource(id = R.string.no_daily_fortune_dialog_title),
+            message = stringResource(id = R.string.no_daily_fortune_dialog_message),
+            confirmText = stringResource(id = R.string.no_daily_fortune_dialog_btn_confirm),
+            onConfirm = {
+                eventDispatcher(HomeContract.Action.HideNoDailyFortuneDialog)
+            },
         )
     }
 }
@@ -295,12 +346,13 @@ private fun HomeContent(
                 }
 
                 HomeTopBar(
-                    isTitleVisible = false,
-                    onSettingClick = { },
-                    onMailClick = { },
+                    onSettingClick = { eventDispatcher(HomeContract.Action.NavigateToSetting) },
+                    onMailClick = { eventDispatcher(HomeContract.Action.ShowDailyFortune) },
                 )
             }
         }
+
+        BottomGradient(modifier = Modifier.align(Alignment.BottomCenter))
 
         if (state.isSelectionMode && state.selectedAlarmIds.isNotEmpty()) {
             DeleteAlarmButton(
@@ -314,44 +366,11 @@ private fun HomeContent(
                 },
             )
         }
-
-        BottomGradient(modifier = Modifier.align(Alignment.BottomCenter))
-    }
-
-    if (state.isDeleteDialogVisible) {
-        OrbitDialog(
-            title = stringResource(id = R.string.alarm_delete_dialog_title),
-            message = stringResource(id = R.string.alarm_delete_dialog_message),
-            confirmText = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
-            cancelText = stringResource(id = R.string.alarm_delete_dialog_btn_cancel),
-            onConfirm = {
-                eventDispatcher(HomeContract.Action.ConfirmDeletion)
-            },
-            onCancel = {
-                eventDispatcher(HomeContract.Action.HideDeleteDialog)
-            },
-        )
-    }
-
-    if (state.isNoActivatedAlarmDialogVisible) {
-        OrbitDialog(
-            title = stringResource(id = R.string.no_active_alarm_dialog_title),
-            message = stringResource(id = R.string.no_active_alarm_dialog_message),
-            confirmText = stringResource(id = R.string.no_active_alarm_dialog_btn_confirm),
-            cancelText = stringResource(id = R.string.no_active_alarm_dialog_btn_cancel),
-            onConfirm = {
-                eventDispatcher(HomeContract.Action.HideNoActivatedAlarmDialog)
-            },
-            onCancel = {
-                eventDispatcher(HomeContract.Action.RollbackPendingAlarmToggle)
-            },
-        )
     }
 }
 
 @Composable
 private fun HomeTopBar(
-    isTitleVisible: Boolean = true,
     onSettingClick: () -> Unit,
     onMailClick: () -> Unit,
 ) {
@@ -365,16 +384,6 @@ private fun HomeTopBar(
                 .padding(horizontal = 20.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (isTitleVisible) {
-                Text(
-                    text = stringResource(id = R.string.home_top_bar_title),
-                    style = OrbitTheme.typography.heading1SemiBold.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
-                    color = OrbitTheme.colors.main,
-                )
-            }
-
             Spacer(modifier = Modifier.weight(1f))
 
             Box(
@@ -515,11 +524,7 @@ private fun HomeCharacterAnimation(
             Spacer(modifier = Modifier.height(16.dp))
         } ?: Spacer(modifier = Modifier.height(62.dp))
         LottieAnimation(
-            modifier = Modifier
-                .size(110.dp)
-                .clickable {
-                    eventDispatcher(HomeContract.Action.FakeAction)
-                },
+            modifier = Modifier.size(110.dp),
             resId = starRes,
         )
     }
@@ -673,7 +678,7 @@ private fun AddAlarmButton(
 
         Text(
             text = stringResource(id = R.string.home_btn_add_alarm),
-            style = OrbitTheme.typography.heading1SemiBold,
+            style = OrbitTheme.typography.headline1SemiBold,
         )
     }
 }

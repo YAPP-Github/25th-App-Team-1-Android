@@ -36,14 +36,17 @@ fun FortuneRoute(
         pageCount = { state.fortunePages.size + 2 },
     )
 
-    LaunchedEffect(state.currentStep) {
-        pagerState.animateScrollToPage(state.currentStep)
+    LaunchedEffect(pagerState.currentPage) {
+        if (state.currentStep != pagerState.currentPage) {
+            viewModel.onAction(FortuneContract.Action.UpdateStep(pagerState.currentPage))
+        }
     }
 
     FortuneScreen(
         state = state,
         pagerState = pagerState,
         onNextStep = { viewModel.onAction(FortuneContract.Action.NextStep) },
+        onCloseClick = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
     )
 }
 
@@ -52,6 +55,7 @@ fun FortuneScreen(
     state: FortuneContract.State,
     pagerState: PagerState,
     onNextStep: () -> Unit,
+    onCloseClick: () -> Unit,
 ) {
     val backgroundRes = when (state.currentStep) {
         0 -> core.designsystem.R.drawable.ic_fortune_letter_background
@@ -77,7 +81,7 @@ fun FortuneScreen(
         ) {
             FortuneTopAppBar(
                 titleLabel = "미래에서 온 편지",
-                onCloseClick = {},
+                onCloseClick = onCloseClick,
             )
 
             SlidingIndicator(

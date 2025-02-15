@@ -56,7 +56,12 @@ internal fun AlarmListItem(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(if (isPressed) OrbitTheme.colors.gray_800 else OrbitTheme.colors.gray_900)
+            .background(
+                when {
+                    isPressed || selected -> OrbitTheme.colors.gray_800
+                    else -> OrbitTheme.colors.gray_900
+                },
+            )
             .padding(horizontal = 24.dp, vertical = 20.dp)
             .clickable(
                 interactionSource = interactionSource,
@@ -131,11 +136,39 @@ private fun AlarmListItemContent(
             }
         }
 
-        Text(
-            text = formatAlarmTime(isAm, hour, minute),
-            style = OrbitTheme.typography.title2Medium,
-            color = if (isActive) OrbitTheme.colors.white else OrbitTheme.colors.gray_500,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = if (isAm) "오전" else "오후",
+                style = OrbitTheme.typography.title2Medium,
+                color = if (isActive) OrbitTheme.colors.white else OrbitTheme.colors.gray_500,
+            )
+
+            Spacer(modifier = Modifier.width(6.dp))
+
+            Text(
+                text = "$hour",
+                style = OrbitTheme.typography.title2Medium,
+                color = if (isActive) OrbitTheme.colors.white else OrbitTheme.colors.gray_500,
+            )
+
+            Spacer(modifier = Modifier.width(3.dp))
+
+            Text(
+                text = ":",
+                style = OrbitTheme.typography.title2Medium,
+                color = if (isActive) OrbitTheme.colors.white else OrbitTheme.colors.gray_500,
+            )
+
+            Spacer(modifier = Modifier.width(3.dp))
+
+            Text(
+                text = minute.toString().padStart(2, '0'),
+                style = OrbitTheme.typography.title2Medium,
+                color = if (isActive) OrbitTheme.colors.white else OrbitTheme.colors.gray_500,
+            )
+        }
     }
 }
 
@@ -163,10 +196,6 @@ private fun AlarmDay.toKoreanString(): String {
         AlarmDay.FRI -> "금"
         AlarmDay.SAT -> "토"
     }
-}
-
-private fun formatAlarmTime(isAm: Boolean, hour: Int, minute: Int): String {
-    return "${if (isAm) "오전" else "오후"} $hour:${minute.toString().padStart(2, '0')}"
 }
 
 private fun getNextAlarmDateWithTime(isAm: Boolean, hour: Int, minute: Int): String {

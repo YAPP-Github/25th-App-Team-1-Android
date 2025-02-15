@@ -5,6 +5,11 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
     <application
         android:name=".OrbitApplication"
@@ -18,5 +23,56 @@
         android:theme="@style/Theme.Orbit"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
+
+        <activity
+            android:name="com.yapp.navigator.MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.Orbit">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="orbitapp"
+                    android:host="mission"/>
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name="com.yapp.alarm.interaction.AlarmInteractionActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:showOnLockScreen="true"
+            android:turnScreenOn="true"
+            android:theme="@style/Theme.Orbit">
+            <intent-filter>
+                <action android:name="com.yapp.alarm.interaction.ACTION_ALARM_INTERACTION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name="com.yapp.alarm.receivers.AlarmReceiver"
+            android:exported="true" />
+
+        <receiver
+            android:name="com.yapp.alarm.receivers.RescheduleAlarmReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="com.yapp.alarm.services.AlarmService"
+            android:foregroundServiceType="mediaPlayback" />
     </application>
 </manifest>

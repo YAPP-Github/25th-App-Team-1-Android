@@ -1,6 +1,5 @@
 package com.yapp.home
 
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.domain.model.Alarm
@@ -17,6 +16,7 @@ sealed class HomeContract {
         val isSelectionMode: Boolean = false,
         val isDeleteDialogVisible: Boolean = false,
         val isNoActivatedAlarmDialogVisible: Boolean = false,
+        val isNoDailyFortuneDialogVisible: Boolean = false,
         val pendingAlarmToggle: Pair<Long, Boolean>? = null,
         val lastFortuneScore: Int = -1,
         val deliveryTime: String = "받을 수 있는 운세가 없어요",
@@ -39,13 +39,16 @@ sealed class HomeContract {
         data object HideDeleteDialog : Action()
         data object ShowNoActivatedAlarmDialog : Action()
         data object HideNoActivatedAlarmDialog : Action()
+        data object ShowNoDailyFortuneDialog : Action()
+        data object HideNoDailyFortuneDialog : Action()
         data object RollbackPendingAlarmToggle : Action()
         data object ConfirmDeletion : Action()
         data class DeleteSingleAlarm(val alarmId: Long) : Action()
         data object LoadMoreAlarms : Action()
         data object ResetLastAddedAlarmIndex : Action()
         data class EditAlarm(val alarmId: Long) : Action()
-        data object FakeAction : Action()
+        data object ShowDailyFortune : Action()
+        data object NavigateToSetting : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {
@@ -62,7 +65,7 @@ sealed class HomeContract {
             val label: String = "",
             val iconRes: Int,
             val bottomPadding: Dp = 12.dp,
-            val duration: SnackbarDuration = SnackbarDuration.Short,
+            val durationMillis: Long = 2000,
             val onDismiss: () -> Unit,
             val onAction: () -> Unit,
         ) : SideEffect()

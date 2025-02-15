@@ -1,5 +1,6 @@
 package com.yapp.mission
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -17,7 +18,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,11 +48,11 @@ import com.yapp.ui.utils.paddingForScreenPercentage
 fun MissionProgressRoute(viewModel: MissionViewModel = hiltViewModel()) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val shakeDetector = remember { ShakeDetector(context) { viewModel.onAction(MissionContract.Action.ShakeCard) } }
+    val shakeDetector = remember { ShakeDetector(context) { viewModel.processAction(MissionContract.Action.ShakeCard) } }
 
     LaunchedEffect(Unit) {
         shakeDetector.start()
-        viewModel.onAction(MissionContract.Action.StartOverlayTimer)
+        viewModel.processAction(MissionContract.Action.StartOverlayTimer)
     }
 
     DisposableEffect(Unit) {
@@ -60,21 +60,27 @@ fun MissionProgressRoute(viewModel: MissionViewModel = hiltViewModel()) {
     }
 
     MissionProgressScreen(
-        state = state,
-        onShowExitDialog = { viewModel.onAction(MissionContract.Action.ShowExitDialog) },
-        onDismissExitDialog = { viewModel.onAction(MissionContract.Action.HideExitDialog) },
-        onMissionCompleted = { viewModel.onAction(MissionContract.Action.CompleteMission) },
+        stateProvider = { state },
+        eventDispatcher = viewModel::processAction,
     )
 }
 
 @Composable
 fun MissionProgressScreen(
-    state: MissionContract.State,
-    onShowExitDialog: () -> Unit,
-    onDismissExitDialog: () -> Unit,
-    onMissionCompleted: () -> Unit,
-
+    stateProvider: () -> MissionContract.State,
+    eventDispatcher: (MissionContract.Action) -> Unit,
 ) {
+    val state = stateProvider()
+    val context = LocalContext.current
+
+    BackHandler {
+        if (state.showExitDialog) {
+            eventDispatcher(MissionContract.Action.HideExitDialog)
+        } else {
+            eventDispatcher(MissionContract.Action.ShowExitDialog)
+        }
+    }
+
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -101,8 +107,9 @@ fun MissionProgressScreen(
                 ) {
                     Row(
                         modifier = Modifier
-                            .wrapContentWidth()
-                            .clickable(onClick = { onShowExitDialog() }),
+                            .clickable {
+                                eventDispatcher(MissionContract.Action.ShowExitDialog)
+                            },
                     ) {
                         Icon(
                             painter = painterResource(id = core.designsystem.R.drawable.ic_cancel),
@@ -148,6 +155,7 @@ fun MissionProgressScreen(
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.0665f))
                 FlipCard(
                     state = state,
+                    eventDispatcher = eventDispatcher,
                 )
             }
         }
@@ -176,7 +184,7 @@ fun MissionProgressScreen(
                     ) + fadeIn(animationSpec = tween(durationMillis = 300)),
                 ) {
                     Text(
-                        text = "흔들기 시작",
+                        text = "흔들기 시작!",
                         color = OrbitTheme.colors.white,
                         style = OrbitTheme.typography.title1Bold,
                     )
@@ -190,8 +198,12 @@ fun MissionProgressScreen(
                 message = "미션을 수행하지 않고 나가시겠어요?",
                 confirmText = "나가기",
                 cancelText = "취소",
-                onConfirm = onDismissExitDialog,
-                onCancel = onDismissExitDialog,
+                onConfirm = {
+                    (context as? androidx.activity.ComponentActivity)?.finish()
+                },
+                onCancel = {
+                    eventDispatcher(MissionContract.Action.HideExitDialog)
+                },
             )
         }
 
@@ -219,7 +231,6 @@ fun MissionProgressScreen(
                         scaleYAdjustment = 1.3f,
                         resId = core.designsystem.R.raw.mission_success,
                         iterations = 1,
-                        onAnimationEnd = onMissionCompleted,
                     )
                     Text(
                         text = "미션 성공!",
@@ -232,6 +243,17 @@ fun MissionProgressScreen(
                 }
             }
         }
+
+        if (state.errorMessage != null) {
+            OrbitDialog(
+                title = "오류",
+                message = state.errorMessage,
+                confirmText = "확인",
+                onConfirm = {
+                    eventDispatcher(MissionContract.Action.RetryPostFortune)
+                },
+            )
+        }
     }
 }
 
@@ -239,9 +261,7 @@ fun MissionProgressScreen(
 @Preview
 fun MissionProgressRoutePreview() {
     MissionProgressScreen(
-        state = MissionContract.State(),
-        onShowExitDialog = {},
-        onDismissExitDialog = {},
-        onMissionCompleted = {},
+        stateProvider = { MissionContract.State() },
+        eventDispatcher = {},
     )
 }

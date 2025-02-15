@@ -19,6 +19,8 @@ fun Modifier.customClickable(
     enabled: Boolean = true,
     onClick: (() -> Unit)?,
     onLongClick: (() -> Unit)? = null,
+    onPress: (() -> Unit)? = null,
+    onRelease: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ): Modifier {
     return composed {
@@ -32,6 +34,11 @@ fun Modifier.customClickable(
             Modifier
                 .pointerInput(Unit) {
                     detectTapGestures(
+                        onPress = {
+                            onPress?.invoke()
+                            tryAwaitRelease()
+                            onRelease?.invoke()
+                        },
                         onTap = { onClick?.invoke() },
                         onLongPress = { onLongClick?.invoke() },
                     )
