@@ -10,19 +10,6 @@ object AlarmConstants {
 
     const val EXTRA_ALARM = "com.yapp.orbit.EXTRA_ALARM"
 
-    const val EXTRA_SNOOZE_ENABLED = "com.yapp.orbit.EXTRA_SNOOZE_ENABLED"
-    const val EXTRA_SNOOZE_INTERVAL = "com.yapp.orbit.EXTRA_SNOOZE_INTERVAL"
-    const val EXTRA_SNOOZE_COUNT = "com.yapp.orbit.EXTRA_SNOOZE_COUNT"
-    const val EXTRA_SOUND_ENABLED = "com.yapp.orbit.EXTRA_SOUND_ENABLED"
-    const val EXTRA_SOUND_URI = "com.yapp.orbit.EXTRA_SOUND_URI"
-    const val EXTRA_SOUND_VOLUME = "com.yapp.orbit.EXTRA_SOUND_VOLUME"
-    const val EXTRA_VIBRATION_ENABLED = "com.yapp.orbit.EXTRA_VIBRATION_ENABLED"
-
-    const val EXTRA_LAST_ALARM_TIME = "com.yapp.orbit.EXTRA_LAST_ALARM_TIME"
-
-    const val EXTRA_IS_ONE_TIME_ALARM = "com.yapp.orbit.EXTRA_IS_ONE_TIME_ALARM"
+    const val EXTRA_IS_SNOOZED = "com.yapp.orbit.EXTRA_IS_SNOOZED"
     const val EXTRA_IS_DISMISS = "com.yapp.orbit.EXTRA_IS_DISMISS"
-
-    const val WEEK_INTERVAL_MILLIS: Long = 7 * 24 * 60 * 60 * 1000
-    const val DAY_INTERVAL_MILLIS: Long = 24 * 60 * 60 * 1000
 }

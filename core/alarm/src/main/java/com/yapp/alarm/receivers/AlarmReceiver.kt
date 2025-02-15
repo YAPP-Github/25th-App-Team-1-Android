@@ -91,7 +91,9 @@ class AlarmReceiver : BroadcastReceiver() {
     private fun sendBroadCastToCloseAlarmInteractionActivity(context: Context) {
         Log.d("AlarmReceiver", "Send Broadcast to close Alarm Interaction Activity")
         val alarmAlertActivityCloseIntent =
-            Intent(AlarmConstants.ACTION_ALARM_INTERACTION_ACTIVITY_CLOSE)
+            Intent(AlarmConstants.ACTION_ALARM_INTERACTION_ACTIVITY_CLOSE).apply {
+                putExtra(AlarmConstants.EXTRA_IS_SNOOZED, false)
+            }
         context.sendBroadcast(alarmAlertActivityCloseIntent)
     }
 }
