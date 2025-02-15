@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -87,7 +88,8 @@ fun FortuneFirstPage(
                                 text = dailyFortuneTitle,
                                 style = OrbitTheme.typography.H2,
                                 color = OrbitTheme.colors.gray_600,
-                                modifier = Modifier.width(IntrinsicSize.Max),
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
                                 maxLines = Int.MAX_VALUE,
                                 softWrap = true,
                             )
@@ -100,11 +102,12 @@ fun FortuneFirstPage(
                         item {
                             Text(
                                 text = dailyFortuneDescription,
-                                style = OrbitTheme.typography.H3,
+                                style = OrbitTheme.typography.H4_150,
                                 color = OrbitTheme.colors.gray_600,
                                 modifier = Modifier.width(IntrinsicSize.Max),
                                 maxLines = Int.MAX_VALUE,
                                 softWrap = true,
+                                textAlign = TextAlign.Center,
                             )
                         }
 

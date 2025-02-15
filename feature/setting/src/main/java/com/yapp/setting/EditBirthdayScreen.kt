@@ -1,6 +1,5 @@
 package com.yapp.setting
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,18 +23,29 @@ import com.yapp.ui.utils.heightForScreenPercentage
 
 @Composable
 fun EditBirthdayRoute(
-    viewModel: SettingViewModel = hiltViewModel(),
+    viewModel: EditProfileViewModel = hiltViewModel(),
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
     EditBirthdayScreen(
         state = state,
-        onBack = { viewModel.onAction(SettingContract.Action.ShowDialog) },
+        onBack = { viewModel.onAction(SettingContract.Action.PreviousStep) },
         onConfirmExit = {
             viewModel.onAction(SettingContract.Action.HideDialog)
             viewModel.onAction(SettingContract.Action.PreviousStep)
         },
         onCancelDialog = { viewModel.onAction(SettingContract.Action.HideDialog) },
+        onUpdateBirthDate = { lunar, year, month, day ->
+            viewModel.onAction(
+                SettingContract.Action.UpdateBirthDate(
+                    lunar,
+                    year,
+                    month,
+                    day,
+                ),
+            )
+        },
+        onConfirm = { viewModel.onAction(SettingContract.Action.ConfirmAndNavigateBack) },
     )
 }
 
@@ -43,9 +53,13 @@ fun EditBirthdayRoute(
 fun EditBirthdayScreen(
     state: SettingContract.State,
     onBack: () -> Unit,
+    onConfirm: () -> Unit,
     onConfirmExit: () -> Unit,
     onCancelDialog: () -> Unit,
+    onUpdateBirthDate: (String, Int, Int, Int) -> Unit,
 ) {
+    val (year, month, day) = state.birthDate.split("-")
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -56,8 +70,11 @@ fun EditBirthdayScreen(
         SettingTopAppBar(
             onBackClick = onBack,
             showTopAppBarActions = true,
-            title = "프로필 수정",
+            title = "생년월일 수정",
             actionTitle = "확인",
+            onActionClick = {
+                onConfirm()
+            },
         )
         Spacer(modifier = Modifier.height(40.dp))
         Text(
@@ -66,8 +83,14 @@ fun EditBirthdayScreen(
             color = OrbitTheme.colors.white,
         )
         Spacer(modifier = Modifier.heightForScreenPercentage(0.16f))
-        OrbitYearMonthPicker() { lunar, year, month, day ->
-            Log.d("BirthdayScreen", "lunar: $lunar, year: $year, month: $month, day: $day")
+
+        OrbitYearMonthPicker(
+            initialLunar = state.birthType,
+            initialYear = year,
+            initialMonth = month,
+            initialDay = day,
+        ) { lunar, year, month, day ->
+            onUpdateBirthDate(lunar, year, month, day)
         }
     }
 
@@ -89,7 +112,9 @@ fun PreviewEditBirthdayScreen() {
     EditBirthdayScreen(
         state = SettingContract.State(),
         onBack = {},
+        onConfirm = {},
         onConfirmExit = {},
         onCancelDialog = {},
+        onUpdateBirthDate = { _, _, _, _ -> },
     )
 }
