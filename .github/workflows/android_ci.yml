@@ -58,6 +58,10 @@ jobs:
           BASE_URL: ${{ secrets.BASE_URL }}
         run: echo "baseUrl=$BASE_URL" >> local.properties
 
+      # Debug Local Properties Check
+      - name: Debug Local Properties
+        run: cat local.properties
+
       # Run Lint and Build
       - name: Run lint and build
         run: ./gradlew ktlintCheck assembleDebug
