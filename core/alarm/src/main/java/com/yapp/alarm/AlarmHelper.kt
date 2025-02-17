@@ -17,6 +17,14 @@ class AlarmHelper @Inject constructor(
     private val app: Application,
     private val alarmManager: AlarmManager,
 ) {
+    fun scheduleAlarm(alarm: Alarm, day: AlarmDay?) {
+        if (day != null) {
+            setRepeatingAlarm(day, alarm)
+        } else {
+            setNonRepeatingAlarm(alarm)
+        }
+    }
+
     fun scheduleAlarm(alarm: Alarm) {
         val selectedDays = alarm.repeatDays.toAlarmDays()
 
