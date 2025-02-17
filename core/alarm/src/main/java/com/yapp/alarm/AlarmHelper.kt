@@ -2,11 +2,9 @@ package com.yapp.alarm
 
 import android.app.AlarmManager
 import android.app.Application
-import android.content.Intent
 import android.util.Log
 import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForSchedule
 import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForUnSchedule
-import com.yapp.alarm.services.AlarmService
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toAlarmDays
@@ -51,10 +49,6 @@ class AlarmHelper @Inject constructor(
                 alarmManager.cancel(pendingIntent)
             }
         }
-    }
-
-    fun stopAlarm() {
-        app.stopService(Intent(app, AlarmService::class.java))
     }
 
     private fun setRepeatingAlarm(day: AlarmDay, alarm: Alarm) {
