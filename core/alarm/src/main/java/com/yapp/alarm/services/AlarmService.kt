@@ -28,15 +28,12 @@ import com.yapp.alarm.pendingIntent.interaction.createAlarmDismissPendingIntent
 import com.yapp.alarm.pendingIntent.interaction.createAlarmSnoozePendingIntent
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
-import com.yapp.domain.model.toAlarmDays
-import com.yapp.domain.model.toDayOfWeek
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.media.sound.SoundPlayer
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -83,10 +80,8 @@ class AlarmService : Service() {
             if (!isOneTimeAlarm) {
                 bundle.getString(AlarmConstants.EXTRA_ALARM_DAY)
                     ?.let { AlarmDay.valueOf(it) }
-                    ?.let {
-                        findNextRepeatDay(alarm)?.let { nextRepeatDay ->
-                            alarmHelper.scheduleAlarm(alarm, nextRepeatDay)
-                        }
+                    ?.let { alarmDay ->
+                        alarmHelper.scheduleWeeklyAlarm(alarm, alarmDay)
                     }
             }
 
@@ -195,19 +190,6 @@ class AlarmService : Service() {
         val notificationManager =
             getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.createNotificationChannel(channel)
-    }
-
-    private fun findNextRepeatDay(alarm: Alarm): AlarmDay? {
-        val selectedDays = alarm.repeatDays.toAlarmDays()
-        val now = LocalDateTime.now()
-
-        // 다음 주 포함 이후 가장 가까운 반복 요일 찾기
-        return selectedDays.minByOrNull { day ->
-            val targetDayOfWeek = day.toDayOfWeek()
-            val daysUntil = ((targetDayOfWeek.value - now.dayOfWeek.value) + 7) % 7
-
-            if (daysUntil == 0) 7 else daysUntil
-        }
     }
 
     private fun turnOffAlarm(alarmId: Long) {

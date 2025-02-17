@@ -17,14 +17,6 @@ class AlarmHelper @Inject constructor(
     private val app: Application,
     private val alarmManager: AlarmManager,
 ) {
-    fun scheduleAlarm(alarm: Alarm, day: AlarmDay?) {
-        if (day != null) {
-            setRepeatingAlarm(day, alarm)
-        } else {
-            setNonRepeatingAlarm(alarm)
-        }
-    }
-
     fun scheduleAlarm(alarm: Alarm) {
         val selectedDays = alarm.repeatDays.toAlarmDays()
 
@@ -35,6 +27,18 @@ class AlarmHelper @Inject constructor(
                 setRepeatingAlarm(day, alarm)
             }
         }
+    }
+
+    fun scheduleWeeklyAlarm(alarm: Alarm, day: AlarmDay) {
+        val triggerMillis = getNextAlarmTimeMillis(alarm, day) + AlarmConstants.WEEK_INTERVAL_MILLIS
+        val pendingIntent = createAlarmReceiverPendingIntentForSchedule(app, alarm, day)
+
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            triggerMillis,
+            pendingIntent,
+        )
+        Log.d("AlarmHelper", "Scheduled weekly alarm for $day next week at: $triggerMillis")
     }
 
     fun unScheduleAlarm(alarm: Alarm) {
@@ -56,6 +60,15 @@ class AlarmHelper @Inject constructor(
                 )
                 alarmManager.cancel(pendingIntent)
             }
+
+            /*selectedDays.forEach { day ->
+                val weeklyPendingIntent = createAlarmReceiverPendingIntentForSchedule(
+                    app,
+                    alarm,
+                    day,
+                )
+                alarmManager.cancel(weeklyPendingIntent)
+            }*/
         }
     }
 
@@ -115,5 +128,18 @@ class AlarmHelper @Inject constructor(
         Log.d("AlarmHelper", "Alarm scheduled at: $alarmDateTime (epochMillis=$epochMillis)")
 
         return epochMillis
+    }
+
+    fun findNextRepeatDay(alarm: Alarm): AlarmDay? {
+        val selectedDays = alarm.repeatDays.toAlarmDays()
+        val now = LocalDateTime.now()
+
+        // 다음 주 포함 이후 가장 가까운 반복 요일 찾기
+        return selectedDays.minByOrNull { day ->
+            val targetDayOfWeek = day.toDayOfWeek()
+            val daysUntil = ((targetDayOfWeek.value - now.dayOfWeek.value) + 7) % 7
+
+            if (daysUntil == 0) 7 else daysUntil
+        }
     }
 }
