@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -159,6 +160,7 @@ private fun AlarmListItemContent(
                 text = ":",
                 style = OrbitTheme.typography.title2Medium,
                 color = if (isActive) OrbitTheme.colors.white else OrbitTheme.colors.gray_500,
+                modifier = Modifier.offset(y = (-2).dp),
             )
 
             Spacer(modifier = Modifier.width(3.dp))
@@ -270,6 +272,68 @@ private fun AlarmListItemPreview() {
                 },
                 onToggleSelect = { },
             )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun AlarmListItemContentPreview() {
+    OrbitTheme {
+        Column {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "오전",
+                    style = OrbitTheme.typography.title2Medium,
+                    color = OrbitTheme.colors.white,
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                Text(
+                    text = "6:00",
+                    style = OrbitTheme.typography.title2Medium,
+                    color = OrbitTheme.colors.white,
+                )
+            }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "오전",
+                    style = OrbitTheme.typography.title2Medium,
+                    color = OrbitTheme.colors.white,
+                )
+
+                Spacer(modifier = Modifier.width(6.dp))
+
+                Text(
+                    text = "6",
+                    style = OrbitTheme.typography.title2Medium,
+                    color = OrbitTheme.colors.white,
+                )
+
+                Spacer(modifier = Modifier.width(3.dp))
+
+                Text(
+                    modifier = Modifier.offset(
+                        y = (-2).dp,
+                    ),
+                    text = ":",
+                    style = OrbitTheme.typography.title2Medium,
+                    color = OrbitTheme.colors.white,
+                )
+
+                Spacer(modifier = Modifier.width(3.dp))
+
+                Text(
+                    text = "00",
+                    style = OrbitTheme.typography.title2Medium,
+                    color = OrbitTheme.colors.white,
+                )
+            }
         }
     }
 }
