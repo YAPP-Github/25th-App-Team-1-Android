@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
@@ -50,6 +51,7 @@ fun OrbitTextField(
     warningMessage: String,
     focusRequester: FocusRequester? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
     textAlign: TextAlign = TextAlign.Center,
     enabled: Boolean = true,
 ) {
@@ -87,6 +89,7 @@ fun OrbitTextField(
                     onFocusChanged = { isFocused = it },
                     focusRequester = actualFocusRequester,
                     keyboardOptions = keyboardOptions,
+                    keyboardActions = keyboardActions,
                     isValid = isValid,
                     isFocused = isFocused,
                     textAlign = textAlign,
@@ -134,6 +137,7 @@ private fun TextFieldContainer(
     focusRequester: FocusRequester,
     onFocusChanged: (Boolean) -> Unit,
     keyboardOptions: KeyboardOptions,
+    keyboardActions: KeyboardActions,
     textAlign: TextAlign,
     enabled: Boolean,
 ) {
@@ -185,7 +189,9 @@ private fun TextFieldContainer(
                 },
                 textAlign = textAlign,
             ),
+            singleLine = true,
             keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
             cursorBrush = SolidColor(OrbitTheme.colors.white),
             enabled = enabled,
             decorationBox = { innerTextField ->
