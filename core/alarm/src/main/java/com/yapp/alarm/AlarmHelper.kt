@@ -2,11 +2,9 @@ package com.yapp.alarm
 
 import android.app.AlarmManager
 import android.app.Application
-import android.content.Intent
 import android.util.Log
 import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForSchedule
 import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForUnSchedule
-import com.yapp.alarm.services.AlarmService
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toAlarmDays
@@ -31,6 +29,18 @@ class AlarmHelper @Inject constructor(
         }
     }
 
+    fun scheduleWeeklyAlarm(alarm: Alarm, day: AlarmDay) {
+        val triggerMillis = getNextAlarmTimeMillis(alarm, day) + AlarmConstants.WEEK_INTERVAL_MILLIS
+        val pendingIntent = createAlarmReceiverPendingIntentForSchedule(app, alarm, day)
+
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            triggerMillis,
+            pendingIntent,
+        )
+        Log.d("AlarmHelper", "Scheduled weekly alarm for $day next week at: $triggerMillis")
+    }
+
     fun unScheduleAlarm(alarm: Alarm) {
         val selectedDays = alarm.repeatDays.toAlarmDays()
 
@@ -51,10 +61,6 @@ class AlarmHelper @Inject constructor(
                 alarmManager.cancel(pendingIntent)
             }
         }
-    }
-
-    fun stopAlarm() {
-        app.stopService(Intent(app, AlarmService::class.java))
     }
 
     private fun setRepeatingAlarm(day: AlarmDay, alarm: Alarm) {

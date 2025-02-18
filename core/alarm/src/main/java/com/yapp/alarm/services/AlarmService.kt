@@ -29,6 +29,7 @@ import com.yapp.alarm.pendingIntent.interaction.createAlarmSnoozePendingIntent
 import com.yapp.alarm.pendingIntent.interaction.createNavigateToMissionPendingIntent
 import com.yapp.datastore.UserPreferences
 import com.yapp.domain.model.Alarm
+import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.media.sound.SoundPlayer
 import dagger.hilt.android.AndroidEntryPoint
@@ -82,6 +83,18 @@ class AlarmService : Service() {
             val isDismiss = bundle.getBoolean(AlarmConstants.EXTRA_IS_DISMISS, false)
             val isOneTimeAlarm = alarm.repeatDays == 0
 
+            Log.d("AlarmService", "AlarmService started for alarm: $alarm")
+
+            // 반복 요일 알람 시, 다음 주 동일 요일 알람 예약
+            if (!isOneTimeAlarm && bundle.containsKey(AlarmConstants.EXTRA_ALARM_DAY)) {
+                bundle.getString(AlarmConstants.EXTRA_ALARM_DAY)
+                    ?.let { AlarmDay.valueOf(it) }
+                    ?.let { alarmDay ->
+                        alarmHelper.scheduleWeeklyAlarm(alarm, alarmDay)
+                    }
+            }
+
+            // 미션 이동 여부 확인
             val shouldNavigateToMission = runBlocking {
                 val fortuneDate = userPreferences.fortuneDateFlow.firstOrNull()
                 val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
@@ -89,6 +102,7 @@ class AlarmService : Service() {
             }
             Log.d("AlarmService", "shouldNavigateToMission: $shouldNavigateToMission")
 
+            // 알람 해제 여부에 따른 처리
             when (isDismiss) {
                 true -> stopSelf()
                 false -> {

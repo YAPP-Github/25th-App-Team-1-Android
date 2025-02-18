@@ -12,7 +12,7 @@ enum class AlarmDay(val bitValue: Int) {
 }
 
 fun AlarmDay.toDayOfWeek(): java.time.DayOfWeek {
-    return java.time.DayOfWeek.of(this.ordinal + 1)
+    return java.time.DayOfWeek.of(((this.ordinal + 6) % 7) + 1)
 }
 
 fun Set<AlarmDay>.toRepeatDays(): Int {
