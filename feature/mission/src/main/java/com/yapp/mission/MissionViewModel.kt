@@ -92,12 +92,7 @@ class MissionViewModel @Inject constructor(
             fortuneResult.onSuccess { fortune ->
                 val fortuneData = fortune.getOrThrow()
                 userPreferences.saveFortuneId(fortuneData.id)
-
-                fortuneRepository.getFortune(fortuneData.id).onSuccess {
-                    userPreferences.saveFortuneScore(it.avgFortuneScore)
-                }.onFailure {
-                    Log.e("MissionViewModel", "운세 데이터 요청 실패: ${it.message}")
-                }
+                userPreferences.saveFortuneScore(fortuneData.avgFortuneScore)
 
                 emitSideEffect(
                     MissionContract.SideEffect.Navigate(
@@ -125,6 +120,7 @@ class MissionViewModel @Inject constructor(
             fortuneResult.onSuccess { fortune ->
                 val fortuneData = fortune.getOrThrow()
                 userPreferences.saveFortuneId(fortuneData.id)
+                userPreferences.saveFortuneScore(fortuneData.avgFortuneScore)
 
                 emitSideEffect(
                     MissionContract.SideEffect.Navigate(
