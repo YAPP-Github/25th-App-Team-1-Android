@@ -12,6 +12,7 @@ dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.common)
     implementation(projects.core.media)
+    implementation(projects.core.alarm)
     implementation(projects.domain)
     implementation(projects.core.datastore)
     implementation(libs.orbit.core)
