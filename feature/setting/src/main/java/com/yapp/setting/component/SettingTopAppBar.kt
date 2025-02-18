@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.ui.extensions.customClickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +52,12 @@ fun SettingTopAppBar(
                     contentDescription = "Back",
                     tint = OrbitTheme.colors.white,
                     modifier = Modifier
-                        .clickable(onClick = onBackClick)
+                        .customClickable(
+                            rippleEnabled = false,
+                            fadeOnPress = true,
+                            pressedAlpha = 0.5f,
+                            onClick = onBackClick,
+                        )
                         .padding(start = 20.dp),
                 )
             }

@@ -1,7 +1,6 @@
 package com.yapp.setting
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +23,7 @@ import com.yapp.setting.component.SettingTopAppBar
 import com.yapp.setting.component.TableOfContentsText
 import com.yapp.setting.component.UserInfoCard
 import com.yapp.setting.component.VersionCodeText
+import com.yapp.ui.extensions.customClickable
 
 @Composable
 fun SettingRoute(
@@ -85,7 +85,12 @@ fun SettingScreen(
             birth = state.birthDate,
             modifier = Modifier
                 .padding(horizontal = 24.dp)
-                .clickable { onNavigateToEditProfile() },
+                .customClickable(
+                    rippleEnabled = true,
+                    fadeOnPress = true,
+                    pressedAlpha = 0.5f,
+                    onClick = { onNavigateToEditProfile() },
+                ),
         )
         Spacer(modifier = Modifier.height(24.dp))
         InquiryCard(
@@ -107,18 +112,24 @@ fun SettingScreen(
         SettingItem(
             itemTitle = "이용약관",
             modifier = Modifier
-                .clickable {
-                    onTermsClick()
-                }
+                .customClickable(
+                    rippleEnabled = true,
+                    fadeOnPress = true,
+                    pressedAlpha = 0.5f,
+                    onClick = onTermsClick,
+                )
                 .padding(horizontal = 24.dp),
         )
         Spacer(modifier = Modifier.height(24.dp))
         SettingItem(
             itemTitle = "개인정보 처리방침",
             modifier = Modifier
-                .clickable {
-                    onPrivacyPolicyClick()
-                }
+                .customClickable(
+                    rippleEnabled = true,
+                    fadeOnPress = true,
+                    pressedAlpha = 0.5f,
+                    onClick = onPrivacyPolicyClick,
+                )
                 .padding(horizontal = 24.dp),
         )
         Spacer(modifier = Modifier.weight(1f))
