@@ -27,6 +27,7 @@ class UserPreferences @Inject constructor(
         val FORTUNE_ID = longPreferencesKey("fortune_id")
         val FORTUNE_DATE = stringPreferencesKey("fortune_date")
         val FORTUNE_IMAGE_ID = intPreferencesKey("fortune_image_id")
+        val FORTUNE_SCORE = intPreferencesKey("fortune_score")
     }
 
     val userIdFlow: Flow<Long?> = dataStore.data
@@ -54,6 +55,11 @@ class UserPreferences @Inject constructor(
         .map { it[Keys.FORTUNE_IMAGE_ID] }
         .distinctUntilChanged()
 
+    val fortuneScoreFlow: Flow<Int?> = dataStore.data
+        .catch { emit(emptyPreferences()) }
+        .map { it[Keys.FORTUNE_SCORE] }
+        .distinctUntilChanged()
+
     suspend fun saveUserId(userId: Long) {
         dataStore.edit { preferences ->
             preferences[Keys.USER_ID] = userId
@@ -74,6 +80,12 @@ class UserPreferences @Inject constructor(
         }
     }
 
+    suspend fun saveFortuneScore(score: Int) {
+        dataStore.edit { preferences ->
+            preferences[Keys.FORTUNE_SCORE] = score
+        }
+    }
+
     suspend fun setOnboardingCompleted() {
         dataStore.edit { preferences ->
             preferences[Keys.ONBOARDING_COMPLETED] = true
@@ -91,6 +103,7 @@ class UserPreferences @Inject constructor(
             preferences.remove(Keys.FORTUNE_ID)
             preferences.remove(Keys.FORTUNE_DATE)
             preferences.remove(Keys.FORTUNE_IMAGE_ID)
+            preferences.remove(Keys.FORTUNE_SCORE)
         }
     }
 }

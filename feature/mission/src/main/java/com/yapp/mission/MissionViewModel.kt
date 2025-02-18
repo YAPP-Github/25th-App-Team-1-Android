@@ -92,6 +92,7 @@ class MissionViewModel @Inject constructor(
             fortuneResult.onSuccess { fortune ->
                 val fortuneData = fortune.getOrThrow()
                 userPreferences.saveFortuneId(fortuneData.id)
+                userPreferences.saveFortuneScore(fortuneData.avgFortuneScore)
 
                 emitSideEffect(
                     MissionContract.SideEffect.Navigate(
@@ -119,6 +120,7 @@ class MissionViewModel @Inject constructor(
             fortuneResult.onSuccess { fortune ->
                 val fortuneData = fortune.getOrThrow()
                 userPreferences.saveFortuneId(fortuneData.id)
+                userPreferences.saveFortuneScore(fortuneData.avgFortuneScore)
 
                 emitSideEffect(
                     MissionContract.SideEffect.Navigate(

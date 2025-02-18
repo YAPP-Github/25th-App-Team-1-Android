@@ -34,6 +34,7 @@ class HomeViewModel @Inject constructor(
 ) {
     init {
         loadAllAlarms()
+        loadDailyFortuneScore()
     }
 
     fun processAction(action: HomeContract.Action) {
@@ -380,6 +381,25 @@ class HomeViewModel @Inject constructor(
                 emitSideEffect(
                     HomeContract.SideEffect.Navigate(FortuneDestination.Fortune.route),
                 )
+            }
+        }
+    }
+
+    private fun loadDailyFortuneScore() {
+        viewModelScope.launch {
+            val fortuneDate = userPreferences.fortuneDateFlow.firstOrNull()
+            val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+
+            if (fortuneDate != todayDate) {
+                updateState {
+                    currentState.copy(lastFortuneScore = -1)
+                }
+            } else {
+                userPreferences.fortuneScoreFlow.firstOrNull()?.let {
+                    updateState {
+                        currentState.copy(lastFortuneScore = it)
+                    }
+                }
             }
         }
     }
