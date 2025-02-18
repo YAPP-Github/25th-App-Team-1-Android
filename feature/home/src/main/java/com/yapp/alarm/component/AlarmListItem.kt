@@ -72,7 +72,9 @@ internal fun AlarmListItem(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .background(OrbitTheme.colors.gray_900)
+                .background(
+                    if (selected) OrbitTheme.colors.gray_800 else OrbitTheme.colors.gray_900,
+                )
                 .clickable(
                     interactionSource = interactionSource,
                     indication = ripple(
