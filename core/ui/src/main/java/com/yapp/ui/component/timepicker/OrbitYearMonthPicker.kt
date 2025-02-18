@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,7 +43,7 @@ fun OrbitYearMonthPicker(
     val lunarState = remember { mutableStateOf(initialLunar) }
     val yearState = remember { mutableStateOf(initialYear.toInt()) }
     val monthState = remember { mutableStateOf(initialMonth.toInt()) }
-    val dayState = remember { mutableStateOf(initialDay.toInt()) }
+    val dayState = remember { mutableIntStateOf(initialDay.toInt()) }
     val dayItems = remember { mutableStateListOf<String>() }
     LaunchedEffect(yearState.value, monthState.value) {
         val maxDay = getMaxDaysInMonth(yearState.value, monthState.value)
@@ -72,8 +73,7 @@ fun OrbitYearMonthPicker(
             val startIndex = yearItems.indexOf(initialYear).takeIf { it >= 0 } ?: 0
             val yearPickerState = rememberPickerState(startIndex = startIndex)
             val monthItems = (1..12).map { it.toString() }
-            val dayStartIndex = remember { dayItems.indexOf(initialDay).takeIf { it >= 0 } ?: 0 }
-            val monthStartIndex = remember { monthItems.indexOf(initialMonth).takeIf { it >= 0 } ?: 0 }
+
             Box(
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -119,7 +119,6 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
-                        startIndex = monthStartIndex,
                         onValueChange = { monthState.value = it.toInt() },
                     )
                     OrbitPickerItem(
@@ -130,7 +129,6 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
-                        startIndex = dayStartIndex,
                         onValueChange = { dayState.value = it.toInt() },
                     )
                 }

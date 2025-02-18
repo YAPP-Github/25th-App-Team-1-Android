@@ -350,6 +350,8 @@ class HomeViewModel @Inject constructor(
             val tomorrow = today.plusDays(1)
 
             return when {
+                inputDateTime.toLocalDate() == today ->
+                    resourceProvider.getString(R.string.home_fortune_delivery_today, inputDateTime.format(DateTimeFormatter.ofPattern("a h:mm")))
                 inputDateTime.toLocalDate() == tomorrow ->
                     resourceProvider.getString(R.string.home_fortune_delivery_tomorrow, inputDateTime.format(DateTimeFormatter.ofPattern("a h:mm")))
                 inputDateTime.year == now.year ->
