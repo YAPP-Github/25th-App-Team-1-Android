@@ -1,6 +1,5 @@
 package com.yapp.home
 
-import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
@@ -163,7 +162,6 @@ fun HomeScreen(
                 eventDispatcher(HomeContract.Action.NavigateToSetting)
             },
             onMailClick = {
-                Log.d("HomeScreen", "ShowDailyFortune")
                 eventDispatcher(HomeContract.Action.ShowDailyFortune)
             },
             onAddClick = {
@@ -334,7 +332,6 @@ private fun HomeContent(
                     HomeCharacterAnimation(
                         fortuneScore = state.lastFortuneScore,
                         hasActivatedAlarm = state.hasActivatedAlarm,
-                        eventDispatcher = eventDispatcher,
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     HomeFortuneDescription(
@@ -479,11 +476,10 @@ private fun HomeCharacterAnimation(
     modifier: Modifier = Modifier,
     fortuneScore: Int,
     hasActivatedAlarm: Boolean,
-    eventDispatcher: (HomeContract.Action) -> Unit,
 ) {
     val (bubbleRes, starRes) = when {
         !hasActivatedAlarm -> {
-            Pair(null, core.designsystem.R.raw.fortune_preload)
+            Pair(null, core.designsystem.R.drawable.ic_charcter_no_alarm)
         }
         fortuneScore in 0..49 -> {
             Pair(
@@ -523,10 +519,23 @@ private fun HomeCharacterAnimation(
             )
             Spacer(modifier = Modifier.height(16.dp))
         } ?: Spacer(modifier = Modifier.height(62.dp))
-        LottieAnimation(
-            modifier = Modifier.size(110.dp),
-            resId = starRes,
-        )
+        if (hasActivatedAlarm) {
+            LottieAnimation(
+                modifier = Modifier.size(110.dp),
+                resId = starRes,
+            )
+        } else {
+            Image(
+                painter = painterResource(id = starRes),
+                contentDescription = "IMG_MAIN_STAR_GRAY",
+                modifier = Modifier
+                    .size(110.dp)
+                    .graphicsLayer {
+                        scaleX = 1.25f
+                        scaleY = 1.25f
+                    },
+            )
+        }
     }
 }
 
