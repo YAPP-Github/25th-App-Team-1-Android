@@ -93,6 +93,12 @@ class MissionViewModel @Inject constructor(
                 val fortuneData = fortune.getOrThrow()
                 userPreferences.saveFortuneId(fortuneData.id)
 
+                fortuneRepository.getFortune(fortuneData.id).onSuccess {
+                    userPreferences.saveFortuneScore(it.avgFortuneScore)
+                }.onFailure {
+                    Log.e("MissionViewModel", "운세 데이터 요청 실패: ${it.message}")
+                }
+
                 emitSideEffect(
                     MissionContract.SideEffect.Navigate(
                         route = FortuneDestination.Route.route,
