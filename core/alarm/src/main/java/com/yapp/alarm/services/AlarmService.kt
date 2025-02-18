@@ -101,18 +101,6 @@ class AlarmService : Service() {
                 }
             }
 
-            when (isDismiss) {
-                true -> stopSelf()
-                false -> {
-                    startForeground(
-                        notificationId.toInt(),
-                        createNotification(alarm, shouldNavigateToMission),
-                    )
-                    if (alarm.isVibrationEnabled) startVibration()
-                    if (alarm.isSoundEnabled) startSound(alarm.soundUri, alarm.soundVolume)
-                }
-            }
-
             if (isOneTimeAlarm) {
                 turnOffAlarm(alarmId = notificationId)
             }
