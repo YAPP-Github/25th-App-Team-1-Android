@@ -20,7 +20,7 @@ sealed class HomeContract {
         val pendingAlarmToggle: Pair<Long, Boolean>? = null,
         val lastFortuneScore: Int = -1,
         val deliveryTime: String = "받을 수 있는 운세가 없어요",
-        val name: String = "동현",
+        val name: String = "",
     ) : UiState {
         val isAllSelected: Boolean
             get() = alarms.isNotEmpty() && selectedAlarmIds.size == alarms.size
