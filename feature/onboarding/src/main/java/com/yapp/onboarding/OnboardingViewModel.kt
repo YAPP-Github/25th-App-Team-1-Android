@@ -62,7 +62,9 @@ class OnboardingViewModel @Inject constructor(
 
             if (result.isSuccess) {
                 val userId = result.getOrNull() ?: return@launch
+                val userName = state.userName
                 userPreferences.saveUserId(userId)
+                userPreferences.saveUserName(userName)
 
                 updateState { copy(isBottomSheetOpen = false) }
                 moveToNextStep()
