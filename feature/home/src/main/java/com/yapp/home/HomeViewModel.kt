@@ -35,6 +35,7 @@ class HomeViewModel @Inject constructor(
     init {
         loadAllAlarms()
         loadDailyFortuneScore()
+        loadUserName()
     }
 
     fun processAction(action: HomeContract.Action) {
@@ -389,19 +390,28 @@ class HomeViewModel @Inject constructor(
 
     private fun loadDailyFortuneScore() {
         viewModelScope.launch {
-            val fortuneDate = userPreferences.fortuneDateFlow.firstOrNull()
-            val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+            userPreferences.fortuneDateFlow.collect { fortuneDate ->
+                val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
 
-            if (fortuneDate != todayDate) {
-                updateState {
-                    currentState.copy(lastFortuneScore = -1)
-                }
-            } else {
-                userPreferences.fortuneScoreFlow.firstOrNull()?.let {
+                if (fortuneDate != todayDate) {
                     updateState {
-                        currentState.copy(lastFortuneScore = it)
+                        currentState.copy(lastFortuneScore = -1)
+                    }
+                } else {
+                    userPreferences.fortuneScoreFlow.collect { score ->
+                        updateState {
+                            currentState.copy(lastFortuneScore = score ?: -1)
+                        }
                     }
                 }
+            }
+        }
+    }
+
+    private fun loadUserName() {
+        viewModelScope.launch {
+            userPreferences.userNameFlow.collect { userName ->
+                updateState { copy(name = userName ?: "") }
             }
         }
     }
