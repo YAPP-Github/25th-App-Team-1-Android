@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +32,10 @@ fun SettingRoute(
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.refreshUserInfo() // 이걸 어찌 할까요
+    }
+
     SettingScreen(
         state = state,
         onNavigateToEditProfile = {
@@ -41,7 +46,7 @@ fun SettingRoute(
         onBackClick = { viewModel.onAction(SettingContract.Action.PreviousStep) },
         onInquiryClick = {
             viewModel.onAction(
-                SettingContract.Action.OpenWebView("http://pf.kakao.com/_YxiPsn/chat"),
+                SettingContract.Action.OpenWebView("https://forms.gle/Q6wpKj3YAyS2jxq57"),
             )
         },
         onTermsClick = {
