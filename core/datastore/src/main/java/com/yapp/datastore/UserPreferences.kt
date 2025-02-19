@@ -23,6 +23,7 @@ class UserPreferences @Inject constructor(
 ) {
     private object Keys {
         val USER_ID = longPreferencesKey("user_id")
+        val USER_NAME = stringPreferencesKey("user_name")
         val ONBOARDING_COMPLETED = booleanPreferencesKey("onboarding_completed")
         val FORTUNE_ID = longPreferencesKey("fortune_id")
         val FORTUNE_DATE = stringPreferencesKey("fortune_date")
@@ -33,6 +34,11 @@ class UserPreferences @Inject constructor(
     val userIdFlow: Flow<Long?> = dataStore.data
         .catch { emit(emptyPreferences()) }
         .map { it[Keys.USER_ID] }
+        .distinctUntilChanged()
+
+    val userNameFlow: Flow<String?> = dataStore.data
+        .catch { emit(emptyPreferences()) }
+        .map { it[Keys.USER_NAME] }
         .distinctUntilChanged()
 
     val onboardingCompletedFlow: Flow<Boolean> = dataStore.data
@@ -63,6 +69,12 @@ class UserPreferences @Inject constructor(
     suspend fun saveUserId(userId: Long) {
         dataStore.edit { preferences ->
             preferences[Keys.USER_ID] = userId
+        }
+    }
+
+    suspend fun saveUserName(userName: String) {
+        dataStore.edit { preferences ->
+            preferences[Keys.USER_NAME] = userName
         }
     }
 
