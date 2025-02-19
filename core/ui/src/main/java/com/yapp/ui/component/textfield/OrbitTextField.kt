@@ -48,7 +48,7 @@ fun OrbitTextField(
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
     isValid: Boolean = false,
-    warningMessage: String,
+    warningMessage: String? = null,
     focusRequester: FocusRequester? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
@@ -96,9 +96,11 @@ fun OrbitTextField(
                     enabled = enabled,
                 )
 
-                Box {
-                    if (showWarning) {
-                        WarningMessage(warningMessage, textAlign)
+                when (showWarning) {
+                    true -> warningMessage?.let {
+                        WarningMessage(it, textAlign)
+                    }
+                    false -> {
                     }
                 }
             }
