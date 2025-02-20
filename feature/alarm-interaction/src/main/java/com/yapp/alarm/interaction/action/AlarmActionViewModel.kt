@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.yapp.alarm.pendingIntent.interaction.createAlarmDismissIntent
 import com.yapp.alarm.pendingIntent.interaction.createAlarmSnoozeIntent
 import com.yapp.common.navigation.Routes
+import com.yapp.datastore.UserPreferences
 import com.yapp.domain.model.Alarm
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class AlarmActionViewModel @Inject constructor(
     private val app: Application,
     savedStateHandle: SavedStateHandle,
+    private val userPreferences: UserPreferences,
 ) : BaseViewModel<AlarmActionContract.State, AlarmActionContract.SideEffect>(
     AlarmActionContract.State(),
 ) {
@@ -41,7 +43,10 @@ class AlarmActionViewModel @Inject constructor(
             while (isActive) {
                 val now = java.time.LocalTime.now()
                 val today = java.time.LocalDate.now()
-                val dayOfWeek = today.dayOfWeek.getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.KOREAN)
+                val dayOfWeek = today.dayOfWeek.getDisplayName(
+                    java.time.format.TextStyle.FULL,
+                    java.util.Locale.KOREAN,
+                )
 
                 updateState {
                     copy(
@@ -87,6 +92,11 @@ class AlarmActionViewModel @Inject constructor(
 
     private fun dismiss() {
         sendAlarmDismissEventToAlarmReceiver()
+        alarm?.id?.let { alarmId ->
+            viewModelScope.launch {
+                userPreferences.saveFirstDismissedAlarmId(alarmId)
+            }
+        }
     }
 
     private fun sendAlarmSnoozeEventToAlarmReceiver() {
