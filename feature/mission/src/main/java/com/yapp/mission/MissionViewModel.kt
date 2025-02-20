@@ -1,7 +1,10 @@
 package com.yapp.mission
 
+import android.app.Application
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.yapp.alarm.pendingIntent.interaction.createAlarmDismissIntent
 import com.yapp.common.navigation.destination.FortuneDestination
 import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.navigation.destination.MissionDestination
@@ -22,9 +25,17 @@ class MissionViewModel @Inject constructor(
     private val hapticFeedbackManager: HapticFeedbackManager,
     private val fortuneRepository: FortuneRepository,
     private val userPreferences: UserPreferences,
+    private val app: Application,
+    savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<MissionContract.State, MissionContract.SideEffect>(
     MissionContract.State(),
 ) {
+    init {
+        val notificationId = savedStateHandle.get<String>("notificationId")?.toLong()
+        if (notificationId != null) {
+            sendAlarmDismissIntent(notificationId)
+        }
+    }
 
     fun processAction(action: MissionContract.Action) {
         when (action) {
@@ -81,6 +92,7 @@ class MissionViewModel @Inject constructor(
             fortuneResult.onSuccess { fortune ->
                 val fortuneData = fortune.getOrThrow()
                 userPreferences.saveFortuneId(fortuneData.id)
+                userPreferences.saveFortuneScore(fortuneData.avgFortuneScore)
 
                 emitSideEffect(
                     MissionContract.SideEffect.Navigate(
@@ -108,6 +120,7 @@ class MissionViewModel @Inject constructor(
             fortuneResult.onSuccess { fortune ->
                 val fortuneData = fortune.getOrThrow()
                 userPreferences.saveFortuneId(fortuneData.id)
+                userPreferences.saveFortuneScore(fortuneData.avgFortuneScore)
 
                 emitSideEffect(
                     MissionContract.SideEffect.Navigate(
@@ -139,5 +152,13 @@ class MissionViewModel @Inject constructor(
         updateState { copy(showOverlayText = true) }
         kotlinx.coroutines.delay(2000)
         updateState { copy(showOverlay = false, showOverlayText = false) }
+    }
+
+    private fun sendAlarmDismissIntent(id: Long) {
+        val alarmDismissIntent = createAlarmDismissIntent(
+            context = app,
+            notificationId = id,
+        )
+        app.sendBroadcast(alarmDismissIntent)
     }
 }

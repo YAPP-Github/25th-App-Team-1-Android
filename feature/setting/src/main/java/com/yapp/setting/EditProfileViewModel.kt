@@ -136,7 +136,7 @@ class EditProfileViewModel @Inject constructor(
 
         if (result.isSuccess) {
             Log.d("EditProfileViewModel", "사용자 정보 수정 성공")
-
+            userPreferences.saveUserName(state.name)
             emitSideEffect(SettingContract.SideEffect.UserInfoUpdated)
 
             emitSideEffect(
@@ -146,6 +146,7 @@ class EditProfileViewModel @Inject constructor(
                     inclusive = true,
                 ),
             )
+
         } else {
             Log.e("EditProfileViewModel", "사용자 정보 수정 실패")
         }
