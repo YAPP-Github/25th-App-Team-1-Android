@@ -1,7 +1,6 @@
 package com.yapp.setting
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,12 +24,17 @@ import com.yapp.setting.component.SettingTopAppBar
 import com.yapp.setting.component.TableOfContentsText
 import com.yapp.setting.component.UserInfoCard
 import com.yapp.setting.component.VersionCodeText
+import com.yapp.ui.extensions.customClickable
 
 @Composable
 fun SettingRoute(
     viewModel: SettingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.refreshUserInfo() // 이걸 어찌 할까요
+    }
 
     SettingScreen(
         state = state,
@@ -41,7 +46,7 @@ fun SettingRoute(
         onBackClick = { viewModel.onAction(SettingContract.Action.PreviousStep) },
         onInquiryClick = {
             viewModel.onAction(
-                SettingContract.Action.OpenWebView("http://pf.kakao.com/_YxiPsn/chat"),
+                SettingContract.Action.OpenWebView("https://forms.gle/Q6wpKj3YAyS2jxq57"),
             )
         },
         onTermsClick = {
@@ -85,7 +90,12 @@ fun SettingScreen(
             birth = state.birthDate,
             modifier = Modifier
                 .padding(horizontal = 24.dp)
-                .clickable { onNavigateToEditProfile() },
+                .customClickable(
+                    rippleEnabled = true,
+                    fadeOnPress = true,
+                    pressedAlpha = 0.5f,
+                    onClick = { onNavigateToEditProfile() },
+                ),
         )
         Spacer(modifier = Modifier.height(24.dp))
         InquiryCard(
@@ -107,18 +117,24 @@ fun SettingScreen(
         SettingItem(
             itemTitle = "이용약관",
             modifier = Modifier
-                .clickable {
-                    onTermsClick()
-                }
+                .customClickable(
+                    rippleEnabled = true,
+                    fadeOnPress = true,
+                    pressedAlpha = 0.5f,
+                    onClick = onTermsClick,
+                )
                 .padding(horizontal = 24.dp),
         )
         Spacer(modifier = Modifier.height(24.dp))
         SettingItem(
             itemTitle = "개인정보 처리방침",
             modifier = Modifier
-                .clickable {
-                    onPrivacyPolicyClick()
-                }
+                .customClickable(
+                    rippleEnabled = true,
+                    fadeOnPress = true,
+                    pressedAlpha = 0.5f,
+                    onClick = onPrivacyPolicyClick,
+                )
                 .padding(horizontal = 24.dp),
         )
         Spacer(modifier = Modifier.weight(1f))

@@ -53,6 +53,7 @@ class EditProfileViewModel @Inject constructor(
                 copy(
                     isMaleSelected = action.isMale,
                     isFemaleSelected = !action.isMale,
+                    selectedGender = if (action.isMale) "남성" else "여성",
                 )
             }
 
@@ -136,7 +137,15 @@ class EditProfileViewModel @Inject constructor(
         if (result.isSuccess) {
             Log.d("EditProfileViewModel", "사용자 정보 수정 성공")
             userPreferences.saveUserName(state.name)
-            emitSideEffect(SettingContract.SideEffect.NavigateBack)
+            emitSideEffect(SettingContract.SideEffect.UserInfoUpdated)
+
+            emitSideEffect(
+                SettingContract.SideEffect.Navigate(
+                    route = SettingDestination.Setting.route,
+                    popUpTo = SettingDestination.Setting.route,
+                    inclusive = true,
+                ),
+            )
         } else {
             Log.e("EditProfileViewModel", "사용자 정보 수정 실패")
         }

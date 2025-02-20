@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -118,6 +119,11 @@ fun OnboardingNameScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .paddingForScreenPercentage(horizontalPercentage = 0.192f, topPercentage = 0.086f),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    },
+                ),
             )
         }
     }

@@ -28,6 +28,8 @@ sealed class SettingContract {
 
                 return "$birthType $year $month $day"
             }
+        val isActionEnabled: Boolean
+            get() = isNameValid && isTimeValid && selectedGender != null
     }
 
     sealed class Action {
@@ -47,6 +49,7 @@ sealed class SettingContract {
         data object HideDialog : Action()
         data object SubmitUserInfo : Action()
         data class OpenWebView(val url: String) : Action()
+        data object RefreshUserInfo : Action()
     }
 
     enum class FieldType(val validationRegex: Regex) {
@@ -63,5 +66,6 @@ sealed class SettingContract {
 
         data object NavigateBack : SideEffect()
         data class OpenWebView(val url: String) : SideEffect()
+        data object UserInfoUpdated : SideEffect()
     }
 }

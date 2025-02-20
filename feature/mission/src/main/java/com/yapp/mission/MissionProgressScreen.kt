@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -41,6 +40,7 @@ import com.yapp.mission.component.FlipCard
 import com.yapp.mission.component.MissionProgressBar
 import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
+import com.yapp.ui.extensions.customClickable
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.paddingForScreenPercentage
 
@@ -107,9 +107,12 @@ fun MissionProgressScreen(
                 ) {
                     Row(
                         modifier = Modifier
-                            .clickable {
-                                eventDispatcher(MissionContract.Action.ShowExitDialog)
-                            },
+                            .customClickable(
+                                rippleEnabled = false,
+                                fadeOnPress = true,
+                                pressedAlpha = 0.5f,
+                                onClick = { eventDispatcher(MissionContract.Action.ShowExitDialog) },
+                            ),
                     ) {
                         Icon(
                             painter = painterResource(id = core.designsystem.R.drawable.ic_cancel),

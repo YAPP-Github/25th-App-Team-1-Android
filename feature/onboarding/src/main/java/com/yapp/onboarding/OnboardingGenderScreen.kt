@@ -46,7 +46,6 @@ fun OnboardingGenderRoute(
         },
         onDismissRequest = {
             viewModel.processAction(OnboardingContract.Action.ToggleBottomSheet)
-            viewModel.processAction(OnboardingContract.Action.PreviousStep)
         },
         onConfirmRequest = {
             viewModel.processAction(OnboardingContract.Action.ToggleBottomSheet)
