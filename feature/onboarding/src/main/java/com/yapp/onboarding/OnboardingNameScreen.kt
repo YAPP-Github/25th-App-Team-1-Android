@@ -41,7 +41,7 @@ fun OnboardingNameRoute(
         focusRequester.requestFocus()
     }
     BackHandler {
-        viewModel.processAction(OnboardingContract.Action.PreviousStep) // ✅ ViewModel에서 처리
+        viewModel.processAction(OnboardingContract.Action.PreviousStep)
     }
 
     OnboardingNameScreen(
@@ -52,7 +52,12 @@ fun OnboardingNameRoute(
         onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
         onTextChange = { value ->
-            viewModel.processAction(OnboardingContract.Action.UpdateField(value, OnboardingContract.FieldType.NAME))
+            viewModel.processAction(
+                OnboardingContract.Action.UpdateField(
+                    value,
+                    OnboardingContract.FieldType.NAME,
+                ),
+            )
         },
     )
 }
@@ -106,10 +111,13 @@ fun OnboardingNameScreen(
             OrbitTextField(
                 text = textFieldValue,
                 onTextChange = { newValue ->
+                    val truncatedText = OnboardingContract.truncateTextToLimit(newValue.text)
+
                     textFieldValue = newValue.copy(
-                        selection = TextRange(newValue.text.length),
+                        text = truncatedText,
+                        selection = TextRange(truncatedText.length),
                     )
-                    onTextChange(newValue.text)
+                    onTextChange(truncatedText)
                 },
                 hint = "이름 입력",
                 isValid = state.isValid,
@@ -118,7 +126,10 @@ fun OnboardingNameScreen(
                 focusRequester = focusRequester,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .paddingForScreenPercentage(horizontalPercentage = 0.192f, topPercentage = 0.086f),
+                    .paddingForScreenPercentage(
+                        horizontalPercentage = 0.192f,
+                        topPercentage = 0.086f,
+                    ),
                 keyboardActions = KeyboardActions(
                     onDone = {
                         focusManager.clearFocus()
