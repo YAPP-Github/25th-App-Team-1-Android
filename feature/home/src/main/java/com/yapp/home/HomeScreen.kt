@@ -54,6 +54,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,6 +64,7 @@ import com.yapp.home.component.bottomsheet.AlarmListBottomSheet
 import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.component.snackbar.showCustomSnackBar
+import com.yapp.ui.component.tooltip.OrbitToolTip
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
 import feature.home.R
@@ -167,6 +169,8 @@ fun HomeScreen(
             onAddClick = {
                 eventDispatcher(HomeContract.Action.NavigateToAlarmCreation)
             },
+            hasNewFortune = state.hasNewFortune,
+            isTooltipVisible = state.isToolTipVisible,
         )
     } else {
         HomeContent(
@@ -262,7 +266,14 @@ private fun HomeContent(
         }
     }
 
-    Box {
+    Box(
+        modifier = Modifier.clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+        ) {
+            eventDispatcher(HomeContract.Action.HideToolTip)
+        },
+    ) {
         AlarmListBottomSheet(
             alarms = state.alarms,
             menuExpanded = state.dropdownMenuExpanded,
@@ -345,6 +356,8 @@ private fun HomeContent(
                 HomeTopBar(
                     onSettingClick = { eventDispatcher(HomeContract.Action.NavigateToSetting) },
                     onMailClick = { eventDispatcher(HomeContract.Action.ShowDailyFortune) },
+                    hasNewFortune = state.hasNewFortune,
+                    isShowTooltip = state.isToolTipVisible,
                 )
             }
         }
@@ -370,6 +383,8 @@ private fun HomeContent(
 private fun HomeTopBar(
     onSettingClick: () -> Unit,
     onMailClick: () -> Unit,
+    hasNewFortune: Boolean,
+    isShowTooltip: Boolean,
 ) {
     Box(
         modifier = Modifier.statusBarsPadding(),
@@ -383,20 +398,48 @@ private fun HomeTopBar(
         ) {
             Spacer(modifier = Modifier.weight(1f))
 
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .clip(CircleShape)
-                    .clickable {
-                        onMailClick()
-                    },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    painter = painterResource(id = core.designsystem.R.drawable.ic_mail),
-                    contentDescription = "Mail",
-                    tint = OrbitTheme.colors.white,
-                )
+            Box {
+                Box(
+                    contentAlignment = Alignment.BottomEnd,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .clickable {
+                                onMailClick()
+                            },
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(id = core.designsystem.R.drawable.ic_mail),
+                            contentDescription = "Mail",
+                            tint = OrbitTheme.colors.white,
+                        )
+                    }
+
+                    if (hasNewFortune) {
+                        Spacer(
+                            modifier = Modifier
+                                .size(7.dp)
+                                .background(
+                                    color = OrbitTheme.colors.alert,
+                                    shape = CircleShape,
+                                )
+                                .padding(
+                                    end = 4.dp,
+                                    bottom = 6.dp,
+                                ),
+                        )
+                    }
+                }
+
+                if (isShowTooltip) {
+                    OrbitToolTip(
+                        text = stringResource(id = R.string.home_tool_tip_fortune_arrived),
+                        offset = IntOffset(x = 0, y = 32.dp.toPx().toInt()),
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -583,6 +626,8 @@ private fun HomeAlarmEmptyScreen(
     onSettingClick: () -> Unit,
     onMailClick: () -> Unit,
     onAddClick: () -> Unit,
+    hasNewFortune: Boolean,
+    isTooltipVisible: Boolean,
 ) {
     Column(
         modifier = Modifier
@@ -593,6 +638,8 @@ private fun HomeAlarmEmptyScreen(
         HomeTopBar(
             onSettingClick = onSettingClick,
             onMailClick = onMailClick,
+            hasNewFortune = hasNewFortune,
+            isShowTooltip = isTooltipVisible,
         )
 
         Spacer(modifier = Modifier.heightForScreenPercentage(0.13f))
