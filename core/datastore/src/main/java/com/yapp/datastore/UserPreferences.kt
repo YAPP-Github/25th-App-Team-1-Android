@@ -30,6 +30,8 @@ class UserPreferences @Inject constructor(
         val FORTUNE_IMAGE_ID = intPreferencesKey("fortune_image_id")
         val FORTUNE_SCORE = intPreferencesKey("fortune_score")
         val FORTUNE_CHECKED = booleanPreferencesKey("fortune_checked")
+        val FIRST_DISMISSED_ALARM_ID = longPreferencesKey("first_dismissed_alarm_id")
+        val DISMISSED_DATE = stringPreferencesKey("dismissed_date")
     }
 
     val userIdFlow: Flow<Long?> = dataStore.data
@@ -77,6 +79,20 @@ class UserPreferences @Inject constructor(
         }
         .distinctUntilChanged()
 
+    val firstDismissedAlarmIdFlow: Flow<Long?> = dataStore.data
+        .catch { emit(emptyPreferences()) }
+        .map { preferences ->
+            val savedDate = preferences[Keys.DISMISSED_DATE]
+            val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+
+            if (savedDate == todayDate) {
+                preferences[Keys.FIRST_DISMISSED_ALARM_ID]
+            } else {
+                null
+            }
+        }
+        .distinctUntilChanged()
+
     suspend fun saveUserId(userId: Long) {
         dataStore.edit { preferences ->
             preferences[Keys.USER_ID] = userId
@@ -116,9 +132,26 @@ class UserPreferences @Inject constructor(
         }
     }
 
+    suspend fun saveFirstDismissedAlarmId(alarmId: Long) {
+        dataStore.edit { preferences ->
+            val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+            if (preferences[Keys.FIRST_DISMISSED_ALARM_ID] == null) {
+                preferences[Keys.FIRST_DISMISSED_ALARM_ID] = alarmId
+                preferences[Keys.DISMISSED_DATE] = todayDate
+            }
+        }
+    }
+
     suspend fun setOnboardingCompleted() {
         dataStore.edit { preferences ->
             preferences[Keys.ONBOARDING_COMPLETED] = true
+        }
+    }
+
+    suspend fun clearDismissedAlarmId() {
+        dataStore.edit { preferences ->
+            preferences.remove(Keys.FIRST_DISMISSED_ALARM_ID)
+            preferences.remove(Keys.DISMISSED_DATE)
         }
     }
 
