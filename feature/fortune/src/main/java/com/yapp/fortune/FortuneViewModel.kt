@@ -33,11 +33,11 @@ class FortuneViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val fortuneId = userPreferences.fortuneIdFlow.firstOrNull()
-            fortuneId?.let { getFortune(it) }
+            val firstDismissedAlarmId = userPreferences.firstDismissedAlarmIdFlow.firstOrNull()
+            fortuneId?.let { getFortune(it, firstDismissedAlarmId) }
         }
     }
-
-    private fun getFortune(fortuneId: Long) = intent {
+    private fun getFortune(fortuneId: Long, firstDismissedAlarmId: Long?) = intent {
         updateState { copy(isLoading = true) }
 
         fortuneRepository.getFortune(fortuneId).onSuccess { fortune ->
@@ -45,6 +45,7 @@ class FortuneViewModel @Inject constructor(
             val imageId = savedImageId ?: getRandomImage()
 
             val formattedTitle = fortune.dailyFortuneTitle.replace(",", ",\n").trim()
+            val hasReward = firstDismissedAlarmId != null
             updateState {
                 copy(
                     isLoading = false,
@@ -53,6 +54,7 @@ class FortuneViewModel @Inject constructor(
                     avgFortuneScore = fortune.avgFortuneScore,
                     fortunePages = fortune.toFortunePages(),
                     fortuneImageId = imageId,
+                    hasReward = hasReward,
                 )
             }
         }.onFailure { error ->
