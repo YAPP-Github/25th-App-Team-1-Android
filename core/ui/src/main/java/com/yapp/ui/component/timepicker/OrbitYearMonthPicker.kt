@@ -27,7 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
-import kotlinx.coroutines.delay
 
 @Composable
 fun OrbitYearMonthPicker(
@@ -56,8 +55,14 @@ fun OrbitYearMonthPicker(
     }
 
     LaunchedEffect(lunarState.value, yearState.value, monthState.value, dayState.value) {
-        delay(300)
-        onValueChange(lunarState.value, yearState.value, monthState.value, dayState.value)
+        val formattedDate = "${yearState.value}-${monthState.value.toString().padStart(2, '0')}-${dayState.value.toString().padStart(2, '0')}"
+        val initialFormattedDate = "$initialYear-$initialMonth-$initialDay"
+        if (formattedDate != initialFormattedDate || lunarState.value != initialLunar) {
+            Log.d("OrbitYearMonthPicker", "onValueChange 트리거를 왜 자꾸 하는건데: $formattedDate")
+            onValueChange(lunarState.value, yearState.value, monthState.value, dayState.value)
+        } else {
+            Log.d("OrbitYearMonthPicker", "값이 동일하므로 onValueChange 안해야되는데;")
+        }
     }
 
     Surface(
