@@ -65,7 +65,7 @@ fun SettingTopAppBar(
                     Text(
                         text = actionTitle ?: "",
                         style = OrbitTheme.typography.body1Medium,
-                        color = if (isActionEnabled) OrbitTheme.colors.white else OrbitTheme.colors.gray_300,
+                        color = if (isActionEnabled) OrbitTheme.colors.main else OrbitTheme.colors.gray_300,
                         modifier = Modifier
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                             .clickable(

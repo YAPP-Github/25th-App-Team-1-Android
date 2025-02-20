@@ -72,6 +72,7 @@ fun EditBirthdayScreen(
             showTopAppBarActions = true,
             title = "생년월일 수정",
             actionTitle = "확인",
+            isActionEnabled = true,
             onActionClick = {
                 onConfirm()
             },
