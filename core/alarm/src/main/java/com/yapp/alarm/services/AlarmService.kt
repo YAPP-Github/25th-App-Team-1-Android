@@ -184,6 +184,9 @@ class AlarmService : Service() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setFullScreenIntent(alarmAlertPendingIntent, true)
+            .setDeleteIntent(
+                snoozePendingIntent ?: alarmDismissPendingIntent,
+            )
             .addAction(core.designsystem.R.drawable.ic_cancel, "알람 해제", alarmDismissPendingIntent)
 
         snoozePendingIntent?.let {

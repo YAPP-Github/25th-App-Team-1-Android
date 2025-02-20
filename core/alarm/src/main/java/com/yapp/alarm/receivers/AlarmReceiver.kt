@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import android.widget.Toast
 import com.yapp.alarm.AlarmConstants
 import com.yapp.alarm.AlarmHelper
 import com.yapp.alarm.services.AlarmService
@@ -38,14 +39,17 @@ class AlarmReceiver : BroadcastReceiver() {
                     @Suppress("DEPRECATION")
                     intent.getParcelableExtra(AlarmConstants.EXTRA_ALARM)
                 }
-
                 alarm?.let { handleSnooze(context, it) }
+
+                Toast.makeText(context, "알람이 ${alarm?.snoozeInterval}분 후 다시 울려요", Toast.LENGTH_SHORT).show()
             }
 
             AlarmConstants.ACTION_ALARM_DISMISSED -> {
                 Log.d("AlarmReceiver", "Alarm Dismissed")
                 context.stopService(alarmServiceIntent)
                 sendBroadCastToCloseAlarmInteractionActivity(context)
+
+                Toast.makeText(context, "알람이 해제되었어요", Toast.LENGTH_SHORT).show()
             }
         }
     }
