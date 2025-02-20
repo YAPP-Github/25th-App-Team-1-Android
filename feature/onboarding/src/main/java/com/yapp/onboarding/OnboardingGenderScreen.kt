@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.onboarding.component.UserInfoBottomSheet
+import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.toggle.OrbitGenderToggle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.paddingForScreenPercentage
@@ -110,6 +111,17 @@ fun OnboardingGenderScreen(
                 }
             }
         }
+    }
+
+    if (state.isShowWarningDialog) {
+        OrbitDialog(
+            title = stringResource(id = R.string.onboarding_warning_dialog_title),
+            message = stringResource(id = R.string.onboarding_warning_dialog_message),
+            confirmText = stringResource(id = R.string.onboarding_warning_dialog_btn_confirm),
+            onConfirm = {
+                onConfirmRequest()
+            },
+        )
     }
 
     UserInfoBottomSheet(
