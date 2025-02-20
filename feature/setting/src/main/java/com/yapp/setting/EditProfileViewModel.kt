@@ -146,7 +146,6 @@ class EditProfileViewModel @Inject constructor(
                     inclusive = true,
                 ),
             )
-
         } else {
             Log.e("EditProfileViewModel", "사용자 정보 수정 실패")
         }
