@@ -398,18 +398,18 @@ class HomeViewModel @Inject constructor(
             combine(
                 userPreferences.fortuneDateFlow,
                 userPreferences.fortuneScoreFlow,
-                userPreferences.hasNewFortuneFlow
+                userPreferences.hasNewFortuneFlow,
             ) { fortuneDate, fortuneScore, hasNewFortune ->
                 val isTodayFortuneAvailable = fortuneDate == todayDate
                 val finalFortuneScore = if (isTodayFortuneAvailable) fortuneScore ?: -1 else -1
 
-                Triple(finalFortuneScore, hasNewFortune, isTodayFortuneAvailable)
-            }.collect { (finalFortuneScore, hasNewFortune, isTodayFortuneAvailable) -> // ✅ 수집 후 상태 업데이트
+                Pair(finalFortuneScore, hasNewFortune)
+            }.collect { (finalFortuneScore, hasNewFortune) ->
                 updateState {
                     copy(
                         lastFortuneScore = finalFortuneScore,
                         hasNewFortune = hasNewFortune,
-                        isToolTipVisible = hasNewFortune
+                        isToolTipVisible = hasNewFortune,
                     )
                 }
             }
