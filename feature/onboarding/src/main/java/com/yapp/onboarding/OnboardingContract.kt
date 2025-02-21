@@ -19,6 +19,7 @@ sealed class OnboardingContract {
         val isBirthTimeValid: Boolean = false,
         val isValid: Boolean = false,
         val isBottomSheetOpen: Boolean = false,
+        val isShowWarningDialog: Boolean = false,
     ) : UiState {
         val birthDateFormatted: String
             get() {
@@ -61,11 +62,13 @@ sealed class OnboardingContract {
         data object ToggleBottomSheet : Action()
         data object CompleteOnboarding : Action()
         data class OpenWebView(val url: String) : Action()
+        data object ShowWarningDialog : Action()
+        data object HideWarningDialog : Action()
     }
 
     enum class FieldType(val validationRegex: Regex) {
         TIME(Regex("^(24:00|([0-1]\\d|2[0-3]):[0-5]\\d)\$")),
-        NAME(Regex("^(?=.{1,13}\$)(?=.{1,6}(?:[가-힣]|[a-zA-Z]{2})\$)[가-힣a-zA-Z]*\$")),
+        NAME(Regex("^(?!.*[0-9@#\$%^&*!\\s])[가-힣a-zA-Z]*$")),
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {
@@ -78,5 +81,23 @@ sealed class OnboardingContract {
         data object NavigateBack : SideEffect()
         data object OnboardingCompleted : SideEffect()
         data class OpenWebView(val url: String) : SideEffect()
+    }
+
+    companion object {
+        fun truncateTextToLimit(text: String, maxLength: Int = 12): String {
+            var totalLength = 0
+            val result = StringBuilder()
+
+            for (char in text) {
+                val charWeight = if (char in '가'..'힣') 2 else 1
+
+                if (totalLength + charWeight > maxLength) break
+
+                totalLength += charWeight
+                result.append(char)
+            }
+
+            return result.toString()
+        }
     }
 }
