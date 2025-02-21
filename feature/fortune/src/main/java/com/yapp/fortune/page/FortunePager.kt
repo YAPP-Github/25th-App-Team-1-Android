@@ -16,6 +16,7 @@ fun FortunePager(
     state: FortuneContract.State,
     pagerState: PagerState,
     onNextStep: () -> Unit,
+    onNavigateToHome: () -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     HorizontalPager(
@@ -53,6 +54,7 @@ fun FortunePager(
             5 -> FortuneCompletePage(
                 hasReward = state.hasReward,
                 onCompleteClick = onNextStep,
+                onNavigateToHome = onNavigateToHome,
             )
             else -> {}
         }
