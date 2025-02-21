@@ -63,17 +63,17 @@ class MissionViewModel @Inject constructor(
         if (currentState.showOverlay) updateState { copy(showOverlay = false) }
         if (currentState.showOverlayText) updateState { copy(showOverlayText = false) }
 
-        val currentCount = currentState.clickCount
+        val currentCount = currentState.shakeCount
         if (currentCount < 9) {
             hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
-            updateState { copy(clickCount = currentCount + 1) }
+            updateState { copy(shakeCount = currentCount + 1) }
         } else if (currentCount == 9 && !currentState.isFlipped) {
             hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
             postFortune()
             updateState {
                 copy(
                     isMissionCompleted = true,
-                    clickCount = 10,
+                    shakeCount = 10,
                     isFlipped = true,
                 )
             }
