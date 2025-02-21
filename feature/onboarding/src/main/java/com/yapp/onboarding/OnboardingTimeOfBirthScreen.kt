@@ -1,5 +1,6 @@
 package com.yapp.onboarding
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,6 +51,9 @@ fun OnboardingTimeOfBirthRoute(
 
     LaunchedEffect(key1 = Unit) {
         focusRequester.requestFocus()
+    }
+    BackHandler {
+        viewModel.processAction(OnboardingContract.Action.PreviousStep)
     }
 
     OnboardingTimeOfBirthScreen(

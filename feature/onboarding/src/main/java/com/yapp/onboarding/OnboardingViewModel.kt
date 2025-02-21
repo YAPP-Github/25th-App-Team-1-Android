@@ -31,6 +31,9 @@ class OnboardingViewModel @Inject constructor(
         birthType = savedStateHandle["birthType"] ?: "양력",
     ),
 ) {
+    private val currentRoute: String?
+        get() = OnboardingDestination.routes.getOrNull(currentState.currentStep - 1)?.route
+
     fun processAction(action: OnboardingContract.Action) {
         when (action) {
             is OnboardingContract.Action.NextStep -> moveToNextStep()
@@ -81,8 +84,6 @@ class OnboardingViewModel @Inject constructor(
         val nextStep = currentStep + 1
         val nextRoute = OnboardingDestination.nextRoute(currentStep)
 
-        Log.d("OnboardingViewModel", "🔥 moveToNextStep 호출 - CurrentStep: $currentStep, NextStep: $nextStep")
-        Log.d("OnboardingViewModel", "🔥 현재 birthDate: ${currentState.birthDate}, birthType: ${currentState.birthType}")
         savedStateHandle["birthDate"] = currentState.birthDate
         savedStateHandle["birthType"] = currentState.birthType
 
@@ -186,26 +187,20 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun updateBirthDate(lunar: String, year: Int, month: Int, day: Int) {
+        if (currentRoute != OnboardingDestination.Birthday.route) return
+
         val formattedDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
 
-        Log.d("OnboardingViewModel", "updateBirthDate 호출 - New: $formattedDate, Old: ${currentState.birthDate}")
+        hapticFeedbackManager.performHapticFeedback(HapticType.LIGHT_TICK)
+        savedStateHandle["birthDate"] = formattedDate
+        savedStateHandle["birthType"] = lunar
 
-        if (currentState.birthDate != formattedDate || currentState.birthType != lunar) {
-            Log.d("OnboardingViewModel", "BirthDate 변경 감지 - 업데이트 수행")
-
-            hapticFeedbackManager.performHapticFeedback(HapticType.LIGHT_TICK)
-            savedStateHandle["birthDate"] = formattedDate
-            savedStateHandle["birthType"] = lunar
-
-            updateState {
-                copy(
-                    birthDate = formattedDate,
-                    birthType = lunar,
-                    isBirthDateValid = true,
-                )
-            }
-        } else {
-            Log.d("OnboardingViewModel", "BirthDate 변경 없음 - 업데이트 생략")
+        updateState {
+            copy(
+                birthDate = formattedDate,
+                birthType = lunar,
+                isBirthDateValid = true,
+            )
         }
     }
 

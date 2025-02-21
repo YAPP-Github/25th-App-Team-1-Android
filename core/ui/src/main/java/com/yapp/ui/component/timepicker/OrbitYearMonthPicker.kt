@@ -10,8 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -39,39 +37,34 @@ fun OrbitYearMonthPicker(
     onValueChange: (String, Int, Int, Int) -> Unit,
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
+
     val lunarState = remember { mutableStateOf(initialLunar) }
-    val yearState = remember { mutableStateOf(initialYear.toInt()) }
-    val monthState = remember { mutableStateOf(initialMonth.toInt()) }
+    val yearState = remember { mutableIntStateOf(initialYear.toInt()) }
+    val monthState = remember { mutableIntStateOf(initialMonth.toInt()) }
     val dayState = remember { mutableIntStateOf(initialDay.toInt()) }
     val dayItems = remember { mutableStateListOf<String>() }
-    LaunchedEffect(yearState.value, monthState.value) {
-        val maxDay = getMaxDaysInMonth(yearState.value, monthState.value)
+
+    LaunchedEffect(yearState.intValue, monthState.intValue) {
+        val maxDay = getMaxDaysInMonth(yearState.intValue, monthState.intValue)
         dayItems.clear()
         dayItems.addAll((1..maxDay).map { it.toString().padStart(2, '0') })
 
-        if (dayState.value > maxDay) {
-            dayState.value = maxDay
+        if (dayState.intValue > maxDay) {
+            dayState.intValue = maxDay
         }
     }
 
-    LaunchedEffect(lunarState.value, yearState.value, monthState.value, dayState.value) {
-        val formattedDate = "${yearState.value}-${monthState.value.toString().padStart(2, '0')}-${dayState.value.toString().padStart(2, '0')}"
-        val initialFormattedDate = "$initialYear-$initialMonth-$initialDay"
-        if (formattedDate != initialFormattedDate || lunarState.value != initialLunar) {
-            Log.d("OrbitYearMonthPicker", "onValueChange 트리거를 왜 자꾸 하는건데: $formattedDate")
-            onValueChange(lunarState.value, yearState.value, monthState.value, dayState.value)
-        } else {
-            Log.d("OrbitYearMonthPicker", "값이 동일하므로 onValueChange 안해야되는데;")
-        }
+    LaunchedEffect(lunarState.value, yearState.intValue, monthState.intValue, dayState.intValue) {
+        onValueChange(lunarState.value, yearState.intValue, monthState.intValue, dayState.intValue)
     }
 
     Surface(
-        modifier = modifier.fillMaxWidth().wrapContentHeight(),
+        modifier = modifier.fillMaxWidth(),
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier.wrapContentSize().background(OrbitTheme.colors.gray_900),
+            modifier = Modifier.background(OrbitTheme.colors.gray_900),
         ) {
             val lunarItems = listOf("양력", "음력")
             val yearItems = (1900..2024).map { it.toString() }
@@ -114,7 +107,7 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.28f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
-                        onValueChange = { yearState.value = it.toInt() },
+                        onValueChange = { yearState.intValue = it.toInt() },
                     )
                     OrbitPickerItem(
                         items = monthItems,
@@ -124,7 +117,7 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
-                        onValueChange = { monthState.value = it.toInt() },
+                        onValueChange = { monthState.intValue = it.toInt() },
                     )
                     OrbitPickerItem(
                         items = dayItems,
@@ -134,7 +127,7 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
-                        onValueChange = { dayState.value = it.toInt() },
+                        onValueChange = { dayState.intValue = it.toInt() },
                     )
                 }
             }
