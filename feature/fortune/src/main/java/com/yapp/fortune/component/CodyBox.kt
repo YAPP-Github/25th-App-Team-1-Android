@@ -23,7 +23,7 @@ fun CodyBox(
     clothsNameLabel: String,
 ) {
     Column(
-        modifier = Modifier.width(120.dp),
+        modifier = Modifier.width(110.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(
