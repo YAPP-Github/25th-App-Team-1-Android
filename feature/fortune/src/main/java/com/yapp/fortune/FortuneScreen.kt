@@ -46,6 +46,7 @@ fun FortuneRoute(
         state = state,
         pagerState = pagerState,
         onNextStep = { viewModel.onAction(FortuneContract.Action.NextStep) },
+        onNavigateToHome = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
         onCloseClick = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
     )
 }
@@ -55,6 +56,7 @@ fun FortuneScreen(
     state: FortuneContract.State,
     pagerState: PagerState,
     onNextStep: () -> Unit,
+    onNavigateToHome: () -> Unit,
     onCloseClick: () -> Unit,
 ) {
     val backgroundRes = when (state.currentStep) {
@@ -93,7 +95,7 @@ fun FortuneScreen(
                 activeColor = OrbitTheme.colors.white,
             )
 
-            FortunePager(state, pagerState, onNextStep)
+            FortunePager(state, pagerState, onNextStep, onNavigateToHome)
         }
     }
 }
