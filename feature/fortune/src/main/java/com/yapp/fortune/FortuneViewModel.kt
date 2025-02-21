@@ -18,6 +18,8 @@ import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.syntax.simple.intent
 import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,11 +35,12 @@ class FortuneViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val fortuneId = userPreferences.fortuneIdFlow.firstOrNull()
-            fortuneId?.let { getFortune(it) }
+            val firstDismissedAlarmId = userPreferences.firstDismissedAlarmIdFlow.firstOrNull()
+            val fortuneDate = userPreferences.fortuneDateFlow.firstOrNull()
+            fortuneId?.let { getFortune(it, firstDismissedAlarmId, fortuneDate) }
         }
     }
-
-    private fun getFortune(fortuneId: Long) = intent {
+    private fun getFortune(fortuneId: Long, firstDismissedAlarmId: Long?, fortuneDate: String?) = intent {
         updateState { copy(isLoading = true) }
 
         fortuneRepository.getFortune(fortuneId).onSuccess { fortune ->
@@ -45,6 +48,8 @@ class FortuneViewModel @Inject constructor(
             val imageId = savedImageId ?: getRandomImage()
 
             val formattedTitle = fortune.dailyFortuneTitle.replace(",", ",\n").trim()
+            val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+            val hasReward = (fortuneDate == todayDate) && (firstDismissedAlarmId != null)
             updateState {
                 copy(
                     isLoading = false,
@@ -53,6 +58,7 @@ class FortuneViewModel @Inject constructor(
                     avgFortuneScore = fortune.avgFortuneScore,
                     fortunePages = fortune.toFortunePages(),
                     fortuneImageId = imageId,
+                    hasReward = hasReward,
                 )
             }
         }.onFailure { error ->
