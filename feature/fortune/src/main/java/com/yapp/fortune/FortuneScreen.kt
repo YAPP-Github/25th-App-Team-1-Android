@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
@@ -24,6 +25,7 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.FortuneTopAppBar
 import com.yapp.fortune.component.SlidingIndicator
 import com.yapp.fortune.page.FortunePager
+import com.yapp.ui.component.lottie.LottieAnimation
 
 @Composable
 fun FortuneRoute(
@@ -71,32 +73,53 @@ fun FortuneScreen(
             .background(Color(0xFF4891F0))
             .navigationBarsPadding(),
     ) {
-        Image(
-            painter = painterResource(id = backgroundRes),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier.matchParentSize(),
-        )
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            FortuneTopAppBar(
-                titleLabel = "미래에서 온 편지",
-                onCloseClick = onCloseClick,
+        if (state.isLoading) {
+            FortuneLoadingScreen()
+        } else {
+            Image(
+                painter = painterResource(id = backgroundRes),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.matchParentSize(),
             )
 
-            SlidingIndicator(
-                currentIndex = pagerState.currentPage,
-                count = 6,
-                dotHeight = 5.dp,
-                spacing = 4.dp,
-                inactiveColor = OrbitTheme.colors.white.copy(0.2f),
-                activeColor = OrbitTheme.colors.white,
-            )
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                FortuneTopAppBar(
+                    titleLabel = "미래에서 온 편지",
+                    onCloseClick = onCloseClick,
+                )
 
-            FortunePager(state, pagerState, onNextStep, onNavigateToHome)
+                SlidingIndicator(
+                    currentIndex = pagerState.currentPage,
+                    count = 6,
+                    dotHeight = 5.dp,
+                    spacing = 4.dp,
+                    inactiveColor = OrbitTheme.colors.white.copy(0.2f),
+                    activeColor = OrbitTheme.colors.white,
+                )
+
+                FortunePager(state, pagerState, onNextStep, onNavigateToHome)
+            }
         }
+    }
+}
+
+@Composable
+fun FortuneLoadingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(OrbitTheme.colors.gray_900.copy(alpha = 0.7f)),
+        contentAlignment = Alignment.Center,
+    ) {
+        LottieAnimation(
+            modifier = Modifier
+                .size(70.dp),
+            resId = core.designsystem.R.raw.star_loading,
+        )
     }
 }
 
