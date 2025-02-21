@@ -3,6 +3,7 @@ package com.yapp.onboarding
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.navigation.destination.OnboardingDestination
 import com.yapp.datastore.UserPreferences
 import com.yapp.domain.model.Alarm
@@ -227,7 +228,13 @@ class OnboardingViewModel @Inject constructor(
     private fun completeOnboarding() {
         viewModelScope.launch {
             userPreferences.setOnboardingCompleted()
-            emitSideEffect(OnboardingContract.SideEffect.OnboardingCompleted)
+            emitSideEffect(
+                OnboardingContract.SideEffect.Navigate(
+                    route = HomeDestination.Route.route,
+                    popUpTo = OnboardingDestination.Route.route,
+                    inclusive = true,
+                ),
+            )
         }
     }
 
