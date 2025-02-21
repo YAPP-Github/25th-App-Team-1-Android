@@ -133,7 +133,7 @@ fun MissionProgressScreen(
 
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.0246f))
                 MissionProgressBar(
-                    currentProgress = state.clickCount,
+                    currentProgress = state.shakeCount,
                     totalProgress = 10,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -150,7 +150,7 @@ fun MissionProgressScreen(
                 )
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.005f))
                 Text(
-                    text = state.clickCount.toString(),
+                    text = state.shakeCount.toString(),
                     color = OrbitTheme.colors.white,
                     style = OrbitTheme.typography.displaySemiBold,
                     modifier = Modifier.alpha(if (state.showOverlay) 0f else 1f),
