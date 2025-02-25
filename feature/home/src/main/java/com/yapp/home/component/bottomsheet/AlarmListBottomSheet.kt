@@ -51,6 +51,7 @@ import com.yapp.alarm.component.AlarmListItem
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.Alarm
 import com.yapp.home.component.AlarmListDropDownMenu
+import com.yapp.ui.component.BottomSheetTopRoundedStroke
 import com.yapp.ui.component.checkbox.OrbitCheckBox
 import com.yapp.ui.utils.OnLoadMore
 import feature.home.R
@@ -195,65 +196,75 @@ internal fun AlarmBottomSheetContent(
         onLoadMore()
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                color = OrbitTheme.colors.gray_900,
-                shape = RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius),
-            ),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Spacer(modifier = Modifier.height(topPadding))
-
-        if (isSelectionMode) {
-            AlarmSelectionTopBar(
-                checked = isAllSelected,
-                onClickCheckAll = onClickCheckAll,
-                onClickClose = onClickClose,
-            )
-        } else {
-            AlarmListTopBar(
-                menuExpanded = menuExpanded,
-                onClickAdd = onClickAdd,
-                onClickMore = onClickMore,
-                onDismissRequest = onDismissRequest,
-                onClickEdit = onClickEdit,
-            )
-        }
-
-        LazyColumn(
-            state = listState,
+    Box {
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .background(
+                    color = OrbitTheme.colors.gray_900,
+                    shape = RoundedCornerShape(topStart = cornerRadius, topEnd = cornerRadius),
+                ),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            itemsIndexed(alarms) { index, alarm ->
-                AlarmListItem(
-                    id = alarm.id,
-                    repeatDays = alarm.repeatDays,
-                    isHolidayAlarmOff = alarm.isHolidayAlarmOff,
-                    selectable = isSelectionMode,
-                    selected = selectedAlarmIds.contains(alarm.id),
-                    onClick = onClickAlarm,
-                    onToggleSelect = onToggleSelect,
-                    isAm = alarm.isAm,
-                    hour = alarm.hour,
-                    minute = alarm.minute,
-                    isActive = alarm.isAlarmActive,
-                    onToggleActive = onToggleActive,
+            Spacer(modifier = Modifier.height(topPadding))
+
+            if (isSelectionMode) {
+                AlarmSelectionTopBar(
+                    checked = isAllSelected,
+                    onClickCheckAll = onClickCheckAll,
+                    onClickClose = onClickClose,
                 )
-                if (index != alarms.size - 1) {
-                    Spacer(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(OrbitTheme.colors.gray_800)
-                            .padding(horizontal = 24.dp),
+            } else {
+                AlarmListTopBar(
+                    menuExpanded = menuExpanded,
+                    onClickAdd = onClickAdd,
+                    onClickMore = onClickMore,
+                    onDismissRequest = onDismissRequest,
+                    onClickEdit = onClickEdit,
+                )
+            }
+
+            LazyColumn(
+                state = listState,
+            ) {
+                itemsIndexed(alarms) { index, alarm ->
+                    AlarmListItem(
+                        id = alarm.id,
+                        repeatDays = alarm.repeatDays,
+                        isHolidayAlarmOff = alarm.isHolidayAlarmOff,
+                        selectable = isSelectionMode,
+                        selected = selectedAlarmIds.contains(alarm.id),
+                        onClick = onClickAlarm,
+                        onToggleSelect = onToggleSelect,
+                        isAm = alarm.isAm,
+                        hour = alarm.hour,
+                        minute = alarm.minute,
+                        isActive = alarm.isAlarmActive,
+                        onToggleActive = onToggleActive,
                     )
+                    if (index != alarms.size - 1) {
+                        Spacer(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(OrbitTheme.colors.gray_800)
+                                .padding(horizontal = 24.dp),
+                        )
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(104.dp))
                 }
             }
+        }
 
-            item {
-                Spacer(modifier = Modifier.height(104.dp))
-            }
+        if (cornerRadius > 0.dp) {
+            BottomSheetTopRoundedStroke(
+                strokeColor = OrbitTheme.colors.gray_600,
+                strokeThickness = 1.dp,
+                radius = cornerRadius,
+            )
         }
     }
 }
