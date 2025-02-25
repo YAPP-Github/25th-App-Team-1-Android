@@ -522,7 +522,7 @@ private fun HomeCharacterAnimation(
 ) {
     val (bubbleRes, starRes) = when {
         !hasActivatedAlarm -> {
-            Pair(null, core.designsystem.R.drawable.ic_charcter_no_alarm)
+            Pair(null, core.designsystem.R.drawable.ic_character_no_alarm)
         }
         fortuneScore in 0..49 -> {
             Pair(
