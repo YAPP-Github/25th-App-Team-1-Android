@@ -480,6 +480,7 @@ class AlarmAddEditViewModel @Inject constructor(
         return when {
             days > 0 -> "${days}일 ${hours}시간 후에 울려요"
             hours > 0 -> "${hours}시간 ${minutes}분 후에 울려요"
+            minutes == 0L -> "곧 울려요"
             else -> "${minutes}분 후에 울려요"
         }
     }
