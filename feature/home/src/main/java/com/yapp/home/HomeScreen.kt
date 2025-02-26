@@ -399,9 +399,7 @@ private fun HomeTopBar(
             Spacer(modifier = Modifier.weight(1f))
 
             Box {
-                Box(
-                    contentAlignment = Alignment.BottomEnd,
-                ) {
+                Box(contentAlignment = Alignment.BottomEnd) {
                     Box(
                         modifier = Modifier
                             .size(32.dp)
@@ -421,14 +419,14 @@ private fun HomeTopBar(
                     if (hasNewFortune) {
                         Spacer(
                             modifier = Modifier
+                                .padding(
+                                    end = 4.dp,
+                                    bottom = 6.dp,
+                                )
                                 .size(7.dp)
                                 .background(
                                     color = OrbitTheme.colors.alert,
                                     shape = CircleShape,
-                                )
-                                .padding(
-                                    end = 4.dp,
-                                    bottom = 6.dp,
                                 ),
                         )
                     }
@@ -811,6 +809,19 @@ fun HomeScreenPreview() {
         HomeScreen(
             stateProvider = { HomeContract.State() },
             eventDispatcher = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+fun HomeTopBarPreview() {
+    OrbitTheme {
+        HomeTopBar(
+            onSettingClick = {},
+            onMailClick = {},
+            hasNewFortune = true,
+            isShowTooltip = true,
         )
     }
 }
