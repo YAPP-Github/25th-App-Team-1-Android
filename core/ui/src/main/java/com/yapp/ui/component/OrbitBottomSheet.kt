@@ -42,8 +42,8 @@ fun OrbitBottomSheet(
     onDismissRequest: () -> Unit = {},
     shape: Shape = RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp),
     containerColor: Color = OrbitTheme.colors.gray_800,
-    strokeColor: Color = OrbitTheme.colors.gray_600,
-    strokeThickness: Dp = 2.dp,
+    strokeColor: Color = OrbitTheme.colors.gray_700,
+    strokeThickness: Dp = 1.dp,
     content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
