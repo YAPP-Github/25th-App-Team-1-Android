@@ -68,6 +68,7 @@ import com.yapp.ui.component.tooltip.OrbitToolTip
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.toPx
 import feature.home.R
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun HomeRoute(
@@ -111,7 +112,7 @@ fun HomeRoute(
     }
 
     LaunchedEffect(sideEffect) {
-        sideEffect.collect { effect ->
+        sideEffect.collectLatest { effect ->
             when (effect) {
                 is HomeContract.SideEffect.NavigateBack -> {
                     navigator.navigateBack()
