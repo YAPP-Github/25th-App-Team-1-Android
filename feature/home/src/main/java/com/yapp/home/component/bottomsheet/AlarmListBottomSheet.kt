@@ -243,10 +243,10 @@ internal fun AlarmBottomSheetContent(
                 if (index != alarms.size - 1) {
                     Spacer(
                         modifier = Modifier
+                            .padding(horizontal = 24.dp)
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(OrbitTheme.colors.gray_800)
-                            .padding(horizontal = 24.dp),
+                            .background(OrbitTheme.colors.gray_800),
                     )
                 }
             }

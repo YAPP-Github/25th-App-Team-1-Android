@@ -130,5 +130,6 @@ private fun handleSettingSideEffect(
         is SettingContract.SideEffect.OpenWebView -> {
             navigator.navigateTo("${WebViewDestination.WebView.route}/${Uri.encode(sideEffect.url)}")
         }
+        else -> {}
     }
 }

@@ -8,3 +8,8 @@ import androidx.compose.ui.unit.Dp
 fun Dp.toPx(): Float {
     return with(LocalDensity.current) { this@toPx.toPx() }
 }
+
+@Composable
+fun Dp.toRoundPx(): Int {
+    return with(LocalDensity.current) { this@toRoundPx.roundToPx() }
+}

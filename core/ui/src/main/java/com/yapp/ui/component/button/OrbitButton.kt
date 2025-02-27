@@ -13,7 +13,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -21,6 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun OrbitButton(
@@ -28,6 +33,7 @@ fun OrbitButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     enabled: Boolean = false,
+    debounceTime: Long = 500L,
     height: Dp = 54.dp,
     containerColor: Color = OrbitTheme.colors.main,
     contentColor: Color = OrbitTheme.colors.gray_900,
@@ -39,6 +45,8 @@ fun OrbitButton(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed = interactionSource.collectIsPressedAsState().value
+    val coroutineScope = rememberCoroutineScope()
+    var isClickable by remember { mutableStateOf(true) }
 
     val padding by animateDpAsState(
         targetValue = if (isPressed) 2.dp else 0.dp,
@@ -46,8 +54,19 @@ fun OrbitButton(
         label = "PaddingAnimation",
     )
 
+    fun handleClick() {
+        if (isClickable) {
+            isClickable = false
+            onClick()
+            coroutineScope.launch {
+                delay(debounceTime)
+                isClickable = true
+            }
+        }
+    }
+
     Button(
-        onClick = onClick,
+        onClick = ::handleClick,
         enabled = enabled,
         shape = shape,
         colors = ButtonDefaults.buttonColors(

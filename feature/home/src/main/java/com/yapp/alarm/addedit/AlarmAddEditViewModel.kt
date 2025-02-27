@@ -20,6 +20,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import feature.home.R
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -57,9 +58,23 @@ class AlarmAddEditViewModel @Inject constructor(
 
         alarmUseCase.initializeSoundPlayer(defaultSound.uri)
 
+        val now = LocalTime.now()
+        val initialAmPm = if (now.hour < 12) "오전" else "오후"
+        val initialHour = if (now.hour == 0 || now.hour == 12) 12 else now.hour % 12
+        val initialMinute = now.minute
+
         updateState {
             copy(
                 initialLoading = false,
+                timeState = timeState.copy(
+                    initialAmPm = initialAmPm,
+                    initialHour = "$initialHour",
+                    initialMinute = initialMinute.toString().padStart(2, '0'),
+                    currentAmPm = initialAmPm,
+                    currentHour = initialHour,
+                    currentMinute = initialMinute,
+                    alarmMessage = getAlarmMessage(initialAmPm, initialHour, initialMinute, emptySet()),
+                ),
                 soundState = soundState.copy(sounds = sounds, soundIndex = defaultSoundIndex),
             )
         }
@@ -480,6 +495,7 @@ class AlarmAddEditViewModel @Inject constructor(
         return when {
             days > 0 -> "${days}일 ${hours}시간 후에 울려요"
             hours > 0 -> "${hours}시간 ${minutes}분 후에 울려요"
+            minutes == 0L -> "곧 울려요"
             else -> "${minutes}분 후에 울려요"
         }
     }

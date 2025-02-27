@@ -15,6 +15,7 @@ import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import feature.home.R
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -34,6 +35,8 @@ class HomeViewModel @Inject constructor(
 ) {
     init {
         loadAllAlarms()
+        loadDailyFortuneState()
+        loadUserName()
     }
 
     fun processAction(action: HomeContract.Action) {
@@ -50,6 +53,7 @@ class HomeViewModel @Inject constructor(
             HomeContract.Action.HideNoActivatedAlarmDialog -> hideNoActivatedAlarmDialog()
             HomeContract.Action.ShowNoDailyFortuneDialog -> showNoDailyFortuneDialog()
             HomeContract.Action.HideNoDailyFortuneDialog -> hideNoDailyFortuneDialog()
+            HomeContract.Action.HideToolTip -> hideToolTip()
             HomeContract.Action.RollbackPendingAlarmToggle -> rollbackAlarmActivation()
             HomeContract.Action.ConfirmDeletion -> confirmDeletion()
             is HomeContract.Action.DeleteSingleAlarm -> deleteSingleAlarm(action.alarmId)
@@ -349,6 +353,8 @@ class HomeViewModel @Inject constructor(
             val tomorrow = today.plusDays(1)
 
             return when {
+                inputDateTime.toLocalDate() == today ->
+                    resourceProvider.getString(R.string.home_fortune_delivery_today, inputDateTime.format(DateTimeFormatter.ofPattern("a h:mm")))
                 inputDateTime.toLocalDate() == tomorrow ->
                     resourceProvider.getString(R.string.home_fortune_delivery_tomorrow, inputDateTime.format(DateTimeFormatter.ofPattern("a h:mm")))
                 inputDateTime.year == now.year ->
@@ -377,9 +383,43 @@ class HomeViewModel @Inject constructor(
             if (fortuneDate != todayDate) {
                 processAction(HomeContract.Action.ShowNoDailyFortuneDialog)
             } else {
+                userPreferences.markFortuneAsChecked()
                 emitSideEffect(
                     HomeContract.SideEffect.Navigate(FortuneDestination.Fortune.route),
                 )
+            }
+        }
+    }
+
+    private fun loadDailyFortuneState() {
+        viewModelScope.launch {
+            val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+
+            combine(
+                userPreferences.fortuneDateFlow,
+                userPreferences.fortuneScoreFlow,
+                userPreferences.hasNewFortuneFlow,
+            ) { fortuneDate, fortuneScore, hasNewFortune ->
+                val isTodayFortuneAvailable = fortuneDate == todayDate
+                val finalFortuneScore = if (isTodayFortuneAvailable) fortuneScore ?: -1 else -1
+
+                Pair(finalFortuneScore, hasNewFortune)
+            }.collect { (finalFortuneScore, hasNewFortune) ->
+                updateState {
+                    copy(
+                        lastFortuneScore = finalFortuneScore,
+                        hasNewFortune = hasNewFortune,
+                        isToolTipVisible = hasNewFortune,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun loadUserName() {
+        viewModelScope.launch {
+            userPreferences.userNameFlow.collect { userName ->
+                updateState { copy(name = userName ?: "") }
             }
         }
     }
@@ -392,6 +432,10 @@ class HomeViewModel @Inject constructor(
         updateState { copy(isNoDailyFortuneDialogVisible = false) }
     }
 
+    private fun hideToolTip() {
+        updateState { copy(isToolTipVisible = false) }
+    }
+
     private fun navigateToSetting() {
         emitSideEffect(
             HomeContract.SideEffect.Navigate(
@@ -399,45 +443,4 @@ class HomeViewModel @Inject constructor(
             ),
         )
     }
-
-    /*
-    private fun loadMoreAlarms() {
-        val currentPage = currentState.paginationState.currentPage
-        if (currentState.paginationState.isLoading || !currentState.paginationState.hasMoreData) return
-
-        val pageSize = 10
-        val offset = currentPage * pageSize
-
-        updateState {
-            copy(
-                paginationState = currentState.paginationState.copy(isLoading = true),
-            )
-        }
-
-        viewModelScope.launch {
-            alarmUseCase.getPagedAlarms(limit = pageSize, offset = offset)
-                .onSuccess {
-                    updateState {
-                        copy(
-                            alarms = currentState.alarms + it,
-                            paginationState = currentState.paginationState.copy(
-                                currentPage = currentPage + 1,
-                                isLoading = false,
-                                hasMoreData = it.size == pageSize,
-                            ),
-                            initialLoading = false,
-                        )
-                    }
-                }
-                .onFailure {
-                    Log.e("HomeViewModel", "Failed to get paged alarms", it)
-                    updateState {
-                        copy(
-                            paginationState = currentState.paginationState.copy(isLoading = false),
-                            initialLoading = false,
-                        )
-                    }
-                }
-        }
-    }*/
 }

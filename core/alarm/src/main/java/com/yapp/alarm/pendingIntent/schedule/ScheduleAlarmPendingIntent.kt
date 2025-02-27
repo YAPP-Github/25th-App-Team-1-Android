@@ -13,10 +13,7 @@ fun createAlarmReceiverPendingIntentForSchedule(
     alarm: Alarm,
     day: AlarmDay? = null,
 ): PendingIntent {
-    val alarmReceiverIntent = createAlarmReceiverIntent(
-        app,
-        alarm,
-    )
+    val alarmReceiverIntent = createAlarmReceiverIntent(app, alarm, day)
     return PendingIntent.getBroadcast(
         app,
         generateAlarmIntentId(alarm.id.toInt(), day),
@@ -28,15 +25,17 @@ fun createAlarmReceiverPendingIntentForSchedule(
 private fun createAlarmReceiverIntent(
     app: Application,
     alarm: Alarm,
+    day: AlarmDay? = null,
 ): Intent {
     return Intent(AlarmConstants.ACTION_ALARM_TRIGGERED).apply {
         setClass(app, AlarmReceiver::class.java)
         putExtra(AlarmConstants.EXTRA_ALARM, alarm)
+        day?.let { putExtra(AlarmConstants.EXTRA_ALARM_DAY, it.name) }
     }
 }
 
 fun generateAlarmIntentId(id: Int, day: AlarmDay?): Int {
     return day?.let {
-        (id * 10) + it.ordinal + 1
+        (id * 10) + ((day.ordinal + 6) % 7) + 1
     } ?: id
 }
