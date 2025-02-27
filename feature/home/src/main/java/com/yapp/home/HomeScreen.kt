@@ -114,9 +114,6 @@ fun HomeRoute(
     LaunchedEffect(sideEffect) {
         sideEffect.collectLatest { effect ->
             when (effect) {
-                is HomeContract.SideEffect.NavigateBack -> {
-                    navigator.navigateBack()
-                }
                 is HomeContract.SideEffect.Navigate -> {
                     navigator.navigateTo(
                         route = effect.route,
@@ -282,8 +279,6 @@ private fun HomeContent(
             isSelectionMode = state.isSelectionMode,
             selectedAlarmIds = state.selectedAlarmIds,
             halfExpandedHeight = sheetHalfExpandHeight,
-            isLoading = false,
-            hasMoreData = false,
             listState = listState,
             onClickAlarm = { alarmId ->
                 eventDispatcher(HomeContract.Action.EditAlarm(alarmId))
@@ -312,8 +307,8 @@ private fun HomeContent(
             onToggleActive = { alarmId ->
                 eventDispatcher(HomeContract.Action.ToggleAlarmActivation(alarmId))
             },
-            onLoadMore = {
-                eventDispatcher(HomeContract.Action.LoadMoreAlarms)
+            onSwipe = { alarmId ->
+                eventDispatcher(HomeContract.Action.SwipeToDeleteAlarm(alarmId))
             },
         ) {
             Box(

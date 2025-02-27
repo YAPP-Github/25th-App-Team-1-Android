@@ -36,6 +36,7 @@ sealed class HomeContract {
         data object ToggleDropdownMenuVisibility : Action()
         data class ToggleAlarmSelection(val alarmId: Long) : Action()
         data class ToggleAlarmActivation(val alarmId: Long) : Action()
+        data class SwipeToDeleteAlarm(val id: Long) : Action()
         data object ToggleAllAlarmSelection : Action()
         data object ShowDeleteDialog : Action()
         data object HideDeleteDialog : Action()
@@ -60,8 +61,6 @@ sealed class HomeContract {
             val popUpTo: String? = null,
             val inclusive: Boolean = false,
         ) : SideEffect()
-
-        data object NavigateBack : SideEffect()
 
         data class ShowSnackBar(
             val message: String,

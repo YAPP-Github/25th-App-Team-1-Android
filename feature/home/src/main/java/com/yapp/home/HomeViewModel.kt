@@ -47,6 +47,7 @@ class HomeViewModel @Inject constructor(
             is HomeContract.Action.ToggleAlarmSelection -> toggleAlarmSelection(action.alarmId)
             HomeContract.Action.ToggleAllAlarmSelection -> toggleAllAlarmSelection()
             is HomeContract.Action.ToggleAlarmActivation -> toggleAlarmActivation(action.alarmId)
+            is HomeContract.Action.SwipeToDeleteAlarm -> deleteSingleAlarm(action.id)
             HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
             HomeContract.Action.ShowNoActivatedAlarmDialog -> showNoActivatedAlarmDialog()
@@ -244,7 +245,6 @@ class HomeViewModel @Inject constructor(
             )
         }
 
-        Log.d("HomeViewModel", "Deleting alarms: $alarmsToDelete")
         emitSideEffect(
             HomeContract.SideEffect.ShowSnackBar(
                 message = resourceProvider.getString(R.string.alarm_deleted),
@@ -253,6 +253,7 @@ class HomeViewModel @Inject constructor(
                 onDismiss = {
                     viewModelScope.launch {
                         alarmsToDelete.forEach { alarm ->
+                            Log.d("HomeViewModel", "Deleting alarm: ${alarm.id}")
                             alarmUseCase.deleteAlarm(alarm.id)
                             alarmHelper.unScheduleAlarm(alarm)
                         }
