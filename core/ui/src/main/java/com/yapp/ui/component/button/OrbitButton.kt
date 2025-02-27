@@ -67,7 +67,7 @@ fun OrbitButton(
 
     Button(
         onClick = ::handleClick,
-        enabled = enabled,
+        enabled = enabled && isClickable,
         shape = shape,
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isPressed) pressedContainerColor else containerColor,
