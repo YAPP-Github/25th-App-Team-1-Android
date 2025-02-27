@@ -4,9 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -18,18 +20,26 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.RippleConfiguration
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.AlarmDay
@@ -47,10 +57,12 @@ internal fun AlarmListItem(
     id: Long,
     repeatDays: Int,
     isHolidayAlarmOff: Boolean,
+    swipeable: Boolean = true,
     selectable: Boolean = false,
     selected: Boolean = false,
     onClick: (Long) -> Unit,
     onToggleSelect: (Long) -> Unit,
+    onSwipe: (Long) -> Unit,
     isAm: Boolean,
     hour: Int,
     minute: Int,
@@ -58,6 +70,25 @@ internal fun AlarmListItem(
     onToggleActive: (Long) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+
+    var width by remember { mutableIntStateOf(0) }
+
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = {
+            return@rememberSwipeToDismissBoxState it == SwipeToDismissBoxValue.EndToStart
+        },
+        positionalThreshold = {
+            width * 0.6f
+        },
+    )
+
+    if (dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
+        LaunchedEffect(dismissState.currentValue) {
+            if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
+                onSwipe(id)
+            }
+        }
+    }
 
     CompositionLocalProvider(
         LocalRippleConfiguration provides RippleConfiguration(
@@ -69,50 +100,82 @@ internal fun AlarmListItem(
             ),
         ),
     ) {
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .background(
-                    if (selected) OrbitTheme.colors.gray_800 else OrbitTheme.colors.gray_900,
-                )
-                .clickable(
-                    interactionSource = interactionSource,
-                    indication = ripple(
-                        color = OrbitTheme.colors.gray_800,
-                    ),
+        SwipeToDismissBox(
+            state = dismissState,
+            enableDismissFromStartToEnd = false,
+            enableDismissFromEndToStart = swipeable,
+            gesturesEnabled = swipeable,
+            backgroundContent = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(OrbitTheme.colors.gray_500)
+                        .onGloballyPositioned { width = it.size.width },
+                    contentAlignment = Alignment.CenterStart,
                 ) {
-                    if (selectable) {
-                        onToggleSelect(id)
-                    } else {
-                        onClick(id)
-                    }
+                    Icon(
+                        painter = painterResource(id = core.designsystem.R.drawable.ic_trash),
+                        contentDescription = "Delete",
+                        tint = Color.White,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .offset {
+                                val offsetX = width * (1 - dismissState.progress * 0.5f) - 12.dp.toPx()
+
+                                IntOffset(
+                                    x = offsetX.toInt(),
+                                    y = 0,
+                                )
+                            },
+                    )
                 }
-                .padding(horizontal = 24.dp, vertical = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            },
         ) {
-            if (selectable) {
-                OrbitCheckBox(
-                    checked = selected,
-                    onCheckedChange = { onToggleSelect(id) },
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .background(
+                        if (selected) OrbitTheme.colors.gray_800 else OrbitTheme.colors.gray_900,
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = ripple(
+                            color = OrbitTheme.colors.gray_800,
+                        ),
+                    ) {
+                        if (selectable) {
+                            onToggleSelect(id)
+                        } else {
+                            onClick(id)
+                        }
+                    }
+                    .padding(horizontal = 24.dp, vertical = 20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                if (selectable) {
+                    OrbitCheckBox(
+                        checked = selected,
+                        onCheckedChange = { onToggleSelect(id) },
+                    )
+                    Spacer(modifier = Modifier.width(26.dp))
+                }
+
+                AlarmListItemContent(
+                    repeatDays = repeatDays,
+                    isActive = isActive,
+                    isHolidayAlarmOff = isHolidayAlarmOff,
+                    isAm = isAm,
+                    hour = hour,
+                    minute = minute,
                 )
-                Spacer(modifier = Modifier.width(26.dp))
-            }
 
-            AlarmListItemContent(
-                repeatDays = repeatDays,
-                isActive = isActive,
-                isHolidayAlarmOff = isHolidayAlarmOff,
-                isAm = isAm,
-                hour = hour,
-                minute = minute,
-            )
-
-            if (!selectable) {
-                Spacer(modifier = Modifier.weight(1f))
-                OrbitSwitch(
-                    isChecked = isActive,
-                ) {
-                    onToggleActive(id)
+                if (!selectable) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    OrbitSwitch(
+                        isChecked = isActive,
+                    ) {
+                        onToggleActive(id)
+                    }
                 }
             }
         }
@@ -251,6 +314,7 @@ private fun AlarmListItemPreview() {
                 repeatDays = selectedDays,
                 isHolidayAlarmOff = true,
                 selectable = true,
+                swipeable = false,
                 selected = selected,
                 isAm = true,
                 hour = 6,
@@ -263,6 +327,7 @@ private fun AlarmListItemPreview() {
                 onToggleSelect = {
                     selected = !selected
                 },
+                onSwipe = { },
             )
             Spacer(
                 modifier = Modifier
@@ -277,6 +342,7 @@ private fun AlarmListItemPreview() {
                 isHolidayAlarmOff = false,
                 selectable = false,
                 selected = false,
+                swipeable = true,
                 isAm = true,
                 hour = 6,
                 minute = 0,
@@ -286,69 +352,8 @@ private fun AlarmListItemPreview() {
                     isActive = !isActive
                 },
                 onToggleSelect = { },
+                onSwipe = { },
             )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun AlarmListItemContentPreview() {
-    OrbitTheme {
-        Column {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "오전",
-                    style = OrbitTheme.typography.title2Medium,
-                    color = OrbitTheme.colors.white,
-                )
-
-                Spacer(modifier = Modifier.width(6.dp))
-
-                Text(
-                    text = "6:00",
-                    style = OrbitTheme.typography.title2Medium,
-                    color = OrbitTheme.colors.white,
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "오전",
-                    style = OrbitTheme.typography.title2Medium,
-                    color = OrbitTheme.colors.white,
-                )
-
-                Spacer(modifier = Modifier.width(6.dp))
-
-                Text(
-                    text = "6",
-                    style = OrbitTheme.typography.title2Medium,
-                    color = OrbitTheme.colors.white,
-                )
-
-                Spacer(modifier = Modifier.width(3.dp))
-
-                Text(
-                    modifier = Modifier.offset(
-                        y = (-2).dp,
-                    ),
-                    text = ":",
-                    style = OrbitTheme.typography.title2Medium,
-                    color = OrbitTheme.colors.white,
-                )
-
-                Spacer(modifier = Modifier.width(3.dp))
-
-                Text(
-                    text = "00",
-                    style = OrbitTheme.typography.title2Medium,
-                    color = OrbitTheme.colors.white,
-                )
-            }
         }
     }
 }
