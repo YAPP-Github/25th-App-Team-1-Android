@@ -1,5 +1,7 @@
 package com.yapp.alarm.component
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -27,7 +29,6 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -75,20 +76,15 @@ internal fun AlarmListItem(
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
+            Handler(Looper.getMainLooper()).postDelayed({
+                onSwipe(id)
+            }, 200,)
             return@rememberSwipeToDismissBoxState it == SwipeToDismissBoxValue.EndToStart
         },
         positionalThreshold = {
             width * 0.6f
         },
     )
-
-    if (dismissState.currentValue != SwipeToDismissBoxValue.Settled) {
-        LaunchedEffect(dismissState.currentValue) {
-            if (dismissState.currentValue == SwipeToDismissBoxValue.EndToStart) {
-                onSwipe(id)
-            }
-        }
-    }
 
     CompositionLocalProvider(
         LocalRippleConfiguration provides RippleConfiguration(
