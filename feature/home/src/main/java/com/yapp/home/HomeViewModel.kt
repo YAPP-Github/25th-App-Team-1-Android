@@ -230,19 +230,14 @@ class HomeViewModel @Inject constructor(
     private fun deleteAlarms(alarmIds: Set<Long>) {
         if (alarmIds.isEmpty()) return
 
-        val alarmsWithIndex = currentState.alarms.withIndex()
-            .filter { it.value.id in alarmIds }
-            .map { it.index to it.value }
+        val alarmsToDelete = currentState.alarms
+            .filter { it.id in alarmIds }
 
-        val alarmsToDelete = alarmsWithIndex.map { it.second }
-
-        updateState {
-            copy(
-                alarms = currentState.alarms - alarmsToDelete.toSet(),
-                selectedAlarmIds = emptySet(),
-                isDeleteDialogVisible = false,
-                isSelectionMode = false,
-            )
+        viewModelScope.launch {
+            alarmsToDelete.forEach { alarm ->
+                alarmUseCase.deleteAlarm(alarm.id)
+                alarmHelper.unScheduleAlarm(alarm)
+            }
         }
 
         emitSideEffect(
@@ -250,29 +245,20 @@ class HomeViewModel @Inject constructor(
                 message = resourceProvider.getString(R.string.alarm_deleted),
                 label = resourceProvider.getString(R.string.alarm_delete_dialog_btn_cancel),
                 iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
-                onDismiss = {
-                    viewModelScope.launch {
-                        alarmsToDelete.forEach { alarm ->
-                            Log.d("HomeViewModel", "Deleting alarm: ${alarm.id}")
-                            alarmUseCase.deleteAlarm(alarm.id)
-                            alarmHelper.unScheduleAlarm(alarm)
-                        }
-                    }
-                },
+                onDismiss = { },
                 onAction = {
-                    restoreDeletedAlarms(alarmsWithIndex)
+                    restoreDeletedAlarms(alarmsToDelete)
                 },
             ),
         )
     }
 
-    private fun restoreDeletedAlarms(alarmsWithIndex: List<Pair<Int, Alarm>>) {
-        updateState {
-            val restoredAlarms = currentState.alarms.toMutableList()
-            alarmsWithIndex.forEach { (index, alarm) ->
-                restoredAlarms.add(index, alarm)
+    private fun restoreDeletedAlarms(alarmsWithIndex: List<Alarm>) {
+        viewModelScope.launch {
+            alarmsWithIndex.forEach { alarm ->
+                alarmUseCase.insertAlarm(alarm)
+                alarmHelper.scheduleAlarm(alarm)
             }
-            copy(alarms = restoredAlarms)
         }
     }
 
