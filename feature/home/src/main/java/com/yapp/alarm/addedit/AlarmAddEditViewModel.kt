@@ -521,6 +521,11 @@ class AlarmAddEditViewModel @Inject constructor(
 
         val currentDayOfWeek = now.dayOfWeek.value
         val selectedDaysOfWeek = selectedDays.map { it.toDayOfWeek().value }.sorted()
+
+        if (selectedDaysOfWeek.contains(currentDayOfWeek) && now.toLocalTime().isBefore(alarmTimeToday.toLocalTime())) {
+            return alarmTimeToday
+        }
+
         val nextDay = selectedDaysOfWeek.firstOrNull { it > currentDayOfWeek }
             ?: selectedDaysOfWeek.first()
         val daysToAdd = if (nextDay > currentDayOfWeek) {
@@ -528,6 +533,7 @@ class AlarmAddEditViewModel @Inject constructor(
         } else {
             7 - (currentDayOfWeek - nextDay)
         }
+
         val nextAlarmDate = now.toLocalDate().plusDays(daysToAdd.toLong())
         return nextAlarmDate.atTime(alarmTimeToday.toLocalTime())
     }
