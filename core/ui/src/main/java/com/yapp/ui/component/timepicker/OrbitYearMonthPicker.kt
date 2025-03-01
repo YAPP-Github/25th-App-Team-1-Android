@@ -33,7 +33,7 @@ fun OrbitYearMonthPicker(
     initialLunar: String = "양력",
     initialYear: String = "2000",
     initialMonth: String = "1",
-    initialDay: String = "01",
+    initialDay: String = "1",
     onValueChange: (String, Int, Int, Int) -> Unit,
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -47,7 +47,7 @@ fun OrbitYearMonthPicker(
     LaunchedEffect(yearState.intValue, monthState.intValue) {
         val maxDay = getMaxDaysInMonth(yearState.intValue, monthState.intValue)
         dayItems.clear()
-        dayItems.addAll((1..maxDay).map { it.toString().padStart(2, '0') })
+        dayItems.addAll((1..maxDay).map { it.toString() })
 
         if (dayState.intValue > maxDay) {
             dayState.intValue = maxDay
