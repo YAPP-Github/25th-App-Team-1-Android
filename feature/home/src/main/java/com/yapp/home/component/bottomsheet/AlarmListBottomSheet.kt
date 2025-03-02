@@ -52,7 +52,6 @@ import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.Alarm
 import com.yapp.home.component.AlarmListDropDownMenu
 import com.yapp.ui.component.checkbox.OrbitCheckBox
-import com.yapp.ui.utils.OnLoadMore
 import feature.home.R
 import kotlinx.coroutines.launch
 
@@ -69,10 +68,9 @@ internal fun AlarmListBottomSheet(
     isSelectionMode: Boolean,
     selectedAlarmIds: Set<Long>,
     halfExpandedHeight: Dp = 0.dp,
-    isLoading: Boolean,
-    hasMoreData: Boolean,
     listState: LazyListState,
     onClickAlarm: (Long) -> Unit,
+    onLongPressAlarm: (Long, Float, Float) -> Unit,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     onClickCheckAll: () -> Unit,
@@ -81,7 +79,7 @@ internal fun AlarmListBottomSheet(
     onDismissRequest: () -> Unit,
     onToggleSelect: (Long) -> Unit,
     onToggleActive: (Long) -> Unit,
-    onLoadMore: () -> Unit,
+    onSwipe: (Long) -> Unit,
     content: @Composable () -> Unit,
 ) {
     var expandedType by remember { mutableStateOf(BottomSheetExpandState.HALF_EXPANDED) }
@@ -102,9 +100,9 @@ internal fun AlarmListBottomSheet(
     val nestedScrollConnection = remember {
         object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
             override fun onPreScroll(
-                available: Offset, // 변경된 부분
+                available: Offset,
                 source: androidx.compose.ui.input.nestedscroll.NestedScrollSource,
-            ): Offset { // 변경된 부분
+            ): Offset {
                 if (available.y < 0 && sheetState.currentValue == SheetValue.PartiallyExpanded) {
                     coroutineScope.launch { sheetState.expand() }
                 }
@@ -132,6 +130,7 @@ internal fun AlarmListBottomSheet(
                 selectedAlarmIds = selectedAlarmIds,
                 listState = listState,
                 onClickAlarm = onClickAlarm,
+                onLongPressAlarm = onLongPressAlarm,
                 onClickAdd = onClickAdd,
                 onClickMore = onClickMore,
                 onClickCheckAll = onClickCheckAll,
@@ -141,9 +140,7 @@ internal fun AlarmListBottomSheet(
                 onDismissRequest = onDismissRequest,
                 onToggleSelect = onToggleSelect,
                 onToggleActive = onToggleActive,
-                isLoading = isLoading,
-                hasMoreData = hasMoreData,
-                onLoadMore = onLoadMore,
+                onSwipe = onSwipe,
             )
         },
         sheetShadowElevation = 0.dp,
@@ -170,6 +167,7 @@ internal fun AlarmBottomSheetContent(
     selectedAlarmIds: Set<Long>,
     listState: LazyListState,
     onClickAlarm: (Long) -> Unit,
+    onLongPressAlarm: (Long, Float, Float) -> Unit,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     onClickCheckAll: () -> Unit,
@@ -178,22 +176,13 @@ internal fun AlarmBottomSheetContent(
     onDismissRequest: () -> Unit,
     onToggleSelect: (Long) -> Unit,
     onToggleActive: (Long) -> Unit,
+    onSwipe: (Long) -> Unit,
     expandedType: BottomSheetExpandState,
-    isLoading: Boolean,
-    hasMoreData: Boolean,
-    onLoadMore: () -> Unit,
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
     val cornerRadius = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 16.dp else 0.dp
     val topPadding = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 14.dp else 14.dp + statusBarHeight
-
-    listState.OnLoadMore(
-        hasMoreData = hasMoreData,
-        isLoading = isLoading,
-    ) {
-        onLoadMore()
-    }
 
     Column(
         modifier = modifier
@@ -225,20 +214,26 @@ internal fun AlarmBottomSheetContent(
         LazyColumn(
             state = listState,
         ) {
-            itemsIndexed(alarms) { index, alarm ->
+            itemsIndexed(
+                items = alarms,
+                key = { _, alarm -> alarm.id },
+            ) { index, alarm ->
                 AlarmListItem(
                     id = alarm.id,
                     repeatDays = alarm.repeatDays,
                     isHolidayAlarmOff = alarm.isHolidayAlarmOff,
+                    swipeable = !isSelectionMode,
                     selectable = isSelectionMode,
                     selected = selectedAlarmIds.contains(alarm.id),
                     onClick = onClickAlarm,
+                    onLongPress = onLongPressAlarm,
                     onToggleSelect = onToggleSelect,
                     isAm = alarm.isAm,
                     hour = alarm.hour,
                     minute = alarm.minute,
                     isActive = alarm.isAlarmActive,
                     onToggleActive = onToggleActive,
+                    onSwipe = onSwipe,
                 )
                 if (index != alarms.size - 1) {
                     Spacer(

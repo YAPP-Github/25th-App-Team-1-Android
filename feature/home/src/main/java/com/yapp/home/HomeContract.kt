@@ -23,6 +23,8 @@ sealed class HomeContract {
         val lastFortuneScore: Int = -1,
         val deliveryTime: String = "받을 수 있는 운세가 없어요",
         val name: String = "",
+        val activeItemMenu: Long? = null,
+        val activeItemMenuPosition: Pair<Float, Float>? = null,
     ) : UiState {
         val isAllSelected: Boolean
             get() = alarms.isNotEmpty() && selectedAlarmIds.size == alarms.size
@@ -36,6 +38,7 @@ sealed class HomeContract {
         data object ToggleDropdownMenuVisibility : Action()
         data class ToggleAlarmSelection(val alarmId: Long) : Action()
         data class ToggleAlarmActivation(val alarmId: Long) : Action()
+        data class SwipeToDeleteAlarm(val id: Long) : Action()
         data object ToggleAllAlarmSelection : Action()
         data object ShowDeleteDialog : Action()
         data object HideDeleteDialog : Action()
@@ -52,6 +55,8 @@ sealed class HomeContract {
         data class EditAlarm(val alarmId: Long) : Action()
         data object ShowDailyFortune : Action()
         data object NavigateToSetting : Action()
+        data class ShowItemMenu(val alarmId: Long, val x: Float, val y: Float) : Action()
+        data object HideItemMenu : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {
@@ -60,8 +65,6 @@ sealed class HomeContract {
             val popUpTo: String? = null,
             val inclusive: Boolean = false,
         ) : SideEffect()
-
-        data object NavigateBack : SideEffect()
 
         data class ShowSnackBar(
             val message: String,

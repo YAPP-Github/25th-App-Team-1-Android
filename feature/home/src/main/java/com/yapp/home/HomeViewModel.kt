@@ -47,6 +47,7 @@ class HomeViewModel @Inject constructor(
             is HomeContract.Action.ToggleAlarmSelection -> toggleAlarmSelection(action.alarmId)
             HomeContract.Action.ToggleAllAlarmSelection -> toggleAllAlarmSelection()
             is HomeContract.Action.ToggleAlarmActivation -> toggleAlarmActivation(action.alarmId)
+            is HomeContract.Action.SwipeToDeleteAlarm -> deleteSingleAlarm(action.id)
             HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
             HomeContract.Action.ShowNoActivatedAlarmDialog -> showNoActivatedAlarmDialog()
@@ -62,6 +63,8 @@ class HomeViewModel @Inject constructor(
             is HomeContract.Action.EditAlarm -> editAlarm(action.alarmId)
             HomeContract.Action.ShowDailyFortune -> loadDailyFortune()
             HomeContract.Action.NavigateToSetting -> navigateToSetting()
+            is HomeContract.Action.ShowItemMenu -> showItemMenu(action.alarmId, action.x, action.y)
+            HomeContract.Action.HideItemMenu -> hideItemMenu()
         }
     }
 
@@ -229,49 +232,39 @@ class HomeViewModel @Inject constructor(
     private fun deleteAlarms(alarmIds: Set<Long>) {
         if (alarmIds.isEmpty()) return
 
-        val alarmsWithIndex = currentState.alarms.withIndex()
-            .filter { it.value.id in alarmIds }
-            .map { it.index to it.value }
+        val alarmsToDelete = currentState.alarms
+            .filter { it.id in alarmIds }
 
-        val alarmsToDelete = alarmsWithIndex.map { it.second }
-
-        updateState {
-            copy(
-                alarms = currentState.alarms - alarmsToDelete.toSet(),
-                selectedAlarmIds = emptySet(),
-                isDeleteDialogVisible = false,
-                isSelectionMode = false,
-            )
+        viewModelScope.launch {
+            alarmsToDelete.forEach { alarm ->
+                alarmUseCase.deleteAlarm(alarm.id)
+                alarmHelper.unScheduleAlarm(alarm)
+            }
         }
 
-        Log.d("HomeViewModel", "Deleting alarms: $alarmsToDelete")
+        if (currentState.activeItemMenu != null) {
+            hideItemMenu()
+        }
+
         emitSideEffect(
             HomeContract.SideEffect.ShowSnackBar(
                 message = resourceProvider.getString(R.string.alarm_deleted),
                 label = resourceProvider.getString(R.string.alarm_delete_dialog_btn_cancel),
                 iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
-                onDismiss = {
-                    viewModelScope.launch {
-                        alarmsToDelete.forEach { alarm ->
-                            alarmUseCase.deleteAlarm(alarm.id)
-                            alarmHelper.unScheduleAlarm(alarm)
-                        }
-                    }
-                },
+                onDismiss = { },
                 onAction = {
-                    restoreDeletedAlarms(alarmsWithIndex)
+                    restoreDeletedAlarms(alarmsToDelete)
                 },
             ),
         )
     }
 
-    private fun restoreDeletedAlarms(alarmsWithIndex: List<Pair<Int, Alarm>>) {
-        updateState {
-            val restoredAlarms = currentState.alarms.toMutableList()
-            alarmsWithIndex.forEach { (index, alarm) ->
-                restoredAlarms.add(index, alarm)
+    private fun restoreDeletedAlarms(alarmsWithIndex: List<Alarm>) {
+        viewModelScope.launch {
+            alarmsWithIndex.forEach { alarm ->
+                alarmUseCase.insertAlarm(alarm)
+                alarmHelper.scheduleAlarm(alarm)
             }
-            copy(alarms = restoredAlarms)
         }
     }
 
@@ -442,5 +435,23 @@ class HomeViewModel @Inject constructor(
                 route = SettingDestination.Route.route,
             ),
         )
+    }
+
+    private fun showItemMenu(alarmId: Long, x: Float, y: Float) {
+        updateState {
+            copy(
+                activeItemMenu = alarmId,
+                activeItemMenuPosition = x to y,
+            )
+        }
+    }
+
+    private fun hideItemMenu() {
+        updateState {
+            copy(
+                activeItemMenu = null,
+                activeItemMenuPosition = null,
+            )
+        }
     }
 }

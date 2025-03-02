@@ -68,6 +68,7 @@ import com.yapp.ui.component.snackbar.showCustomSnackBar
 import com.yapp.ui.component.switch.OrbitSwitch
 import com.yapp.ui.component.timepicker.OrbitPicker
 import feature.home.R
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
@@ -82,7 +83,7 @@ fun AlarmAddEditRoute(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(sideEffect) {
-        sideEffect.collect { effect ->
+        sideEffect.collectLatest { effect ->
             when (effect) {
                 is AlarmAddEditContract.SideEffect.NavigateBack -> {
                     navigator.navigateBack()
