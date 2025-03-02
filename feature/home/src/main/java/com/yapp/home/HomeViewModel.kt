@@ -63,6 +63,8 @@ class HomeViewModel @Inject constructor(
             is HomeContract.Action.EditAlarm -> editAlarm(action.alarmId)
             HomeContract.Action.ShowDailyFortune -> loadDailyFortune()
             HomeContract.Action.NavigateToSetting -> navigateToSetting()
+            is HomeContract.Action.ShowItemMenu -> showItemMenu(action.alarmId, action.x, action.y)
+            HomeContract.Action.HideItemMenu -> hideItemMenu()
         }
     }
 
@@ -238,6 +240,10 @@ class HomeViewModel @Inject constructor(
                 alarmUseCase.deleteAlarm(alarm.id)
                 alarmHelper.unScheduleAlarm(alarm)
             }
+        }
+
+        if (currentState.activeItemMenu != null) {
+            hideItemMenu()
         }
 
         emitSideEffect(
@@ -429,5 +435,23 @@ class HomeViewModel @Inject constructor(
                 route = SettingDestination.Route.route,
             ),
         )
+    }
+
+    private fun showItemMenu(alarmId: Long, x: Float, y: Float) {
+        updateState {
+            copy(
+                activeItemMenu = alarmId,
+                activeItemMenuPosition = x to y,
+            )
+        }
+    }
+
+    private fun hideItemMenu() {
+        updateState {
+            copy(
+                activeItemMenu = null,
+                activeItemMenuPosition = null,
+            )
+        }
     }
 }

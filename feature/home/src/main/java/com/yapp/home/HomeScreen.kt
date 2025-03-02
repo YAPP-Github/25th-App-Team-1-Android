@@ -5,9 +5,11 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -39,6 +42,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -49,6 +53,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -56,10 +61,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.alarm.component.AlarmListItem
+import com.yapp.alarm.component.AlarmListItemMenu
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.domain.model.Alarm
 import com.yapp.home.component.bottomsheet.AlarmListBottomSheet
 import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
@@ -265,112 +274,153 @@ private fun HomeContent(
     }
 
     Box(
-        modifier = Modifier.clickable(
-            interactionSource = remember { MutableInteractionSource() },
-            indication = null,
-        ) {
-            eventDispatcher(HomeContract.Action.HideToolTip)
-        },
+        modifier = Modifier
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) {
+                eventDispatcher(HomeContract.Action.HideToolTip)
+            },
     ) {
-        AlarmListBottomSheet(
-            alarms = state.alarms,
-            menuExpanded = state.dropdownMenuExpanded,
-            isAllSelected = state.isAllSelected,
-            isSelectionMode = state.isSelectionMode,
-            selectedAlarmIds = state.selectedAlarmIds,
-            halfExpandedHeight = sheetHalfExpandHeight,
-            listState = listState,
-            onClickAlarm = { alarmId ->
-                eventDispatcher(HomeContract.Action.EditAlarm(alarmId))
-            },
-            onClickAdd = {
-                eventDispatcher(HomeContract.Action.NavigateToAlarmCreation)
-            },
-            onClickMore = {
-                eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
-            },
-            onClickCheckAll = {
-                eventDispatcher(HomeContract.Action.ToggleAllAlarmSelection)
-            },
-            onClickClose = {
-                eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
-            },
-            onClickEdit = {
-                eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
-            },
-            onDismissRequest = {
-                eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
-            },
-            onToggleSelect = { alarmId ->
-                eventDispatcher(HomeContract.Action.ToggleAlarmSelection(alarmId))
-            },
-            onToggleActive = { alarmId ->
-                eventDispatcher(HomeContract.Action.ToggleAlarmActivation(alarmId))
-            },
-            onSwipe = { alarmId ->
-                eventDispatcher(HomeContract.Action.SwipeToDeleteAlarm(alarmId))
-            },
-        ) {
+        if (state.activeItemMenu != null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color(0xFF1F3B64)),
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                    ) {
+                        eventDispatcher(HomeContract.Action.HideItemMenu)
+                    }
+                    .zIndex(1f),
+            )
+        }
+
+        Box(
+            modifier = if (state.activeItemMenu != null) {
+                Modifier
+                    .background(color = Color(0xFF1F3B64))
+                    .blur(10.dp)
+            } else {
+                Modifier
+            },
+        ) {
+            AlarmListBottomSheet(
+                alarms = state.alarms,
+                menuExpanded = state.dropdownMenuExpanded,
+                isAllSelected = state.isAllSelected,
+                isSelectionMode = state.isSelectionMode,
+                selectedAlarmIds = state.selectedAlarmIds,
+                halfExpandedHeight = sheetHalfExpandHeight,
+                listState = listState,
+                onClickAlarm = { alarmId ->
+                    eventDispatcher(HomeContract.Action.EditAlarm(alarmId))
+                },
+                onLongPressAlarm = { alarmId, x, y ->
+                    eventDispatcher(HomeContract.Action.ShowItemMenu(alarmId, x, y))
+                },
+                onClickAdd = {
+                    eventDispatcher(HomeContract.Action.NavigateToAlarmCreation)
+                },
+                onClickMore = {
+                    eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
+                },
+                onClickCheckAll = {
+                    eventDispatcher(HomeContract.Action.ToggleAllAlarmSelection)
+                },
+                onClickClose = {
+                    eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
+                },
+                onClickEdit = {
+                    eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
+                },
+                onDismissRequest = {
+                    eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
+                },
+                onToggleSelect = { alarmId ->
+                    eventDispatcher(HomeContract.Action.ToggleAlarmSelection(alarmId))
+                },
+                onToggleActive = { alarmId ->
+                    eventDispatcher(HomeContract.Action.ToggleAlarmActivation(alarmId))
+                },
+                onSwipe = { alarmId ->
+                    eventDispatcher(HomeContract.Action.SwipeToDeleteAlarm(alarmId))
+                },
             ) {
-                HillWithGradient()
-
-                SkyImage()
-
-                val characterY = (screenHeight * 0.28f) - 130.dp
-
-                Column(
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .layout { measurable, constraints ->
-                            val placeable = measurable.measure(constraints)
-                            sheetHalfExpandHeight = screenHeight - placeable.height.toDp()
-                            layout(placeable.width, placeable.height) {
-                                placeable.placeRelative(0, 0)
-                            }
-                        },
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                        .fillMaxSize()
+                        .background(Color(0xFF1F3B64)),
                 ) {
-                    Spacer(modifier = Modifier.height(characterY))
+                    HillWithGradient()
 
-                    HomeCharacterAnimation(
-                        fortuneScore = state.lastFortuneScore,
-                        hasActivatedAlarm = state.hasActivatedAlarm,
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    HomeFortuneDescription(
-                        fortuneScore = state.lastFortuneScore,
-                        hasActivatedAlarm = state.hasActivatedAlarm,
-                        name = state.name,
-                        deliveryTime = state.deliveryTime,
+                    SkyImage()
+
+                    val characterY = (screenHeight * 0.28f) - 130.dp
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .layout { measurable, constraints ->
+                                val placeable = measurable.measure(constraints)
+                                sheetHalfExpandHeight = screenHeight - placeable.height.toDp()
+                                layout(placeable.width, placeable.height) {
+                                    placeable.placeRelative(0, 0)
+                                }
+                            },
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Spacer(modifier = Modifier.height(characterY))
+
+                        HomeCharacterAnimation(
+                            fortuneScore = state.lastFortuneScore,
+                            hasActivatedAlarm = state.hasActivatedAlarm,
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        HomeFortuneDescription(
+                            fortuneScore = state.lastFortuneScore,
+                            hasActivatedAlarm = state.hasActivatedAlarm,
+                            name = state.name,
+                            deliveryTime = state.deliveryTime,
+                        )
+                    }
+
+                    HomeTopBar(
+                        onSettingClick = { eventDispatcher(HomeContract.Action.NavigateToSetting) },
+                        onMailClick = { eventDispatcher(HomeContract.Action.ShowDailyFortune) },
+                        hasNewFortune = state.hasNewFortune,
+                        isShowTooltip = state.isToolTipVisible,
                     )
                 }
+            }
 
-                HomeTopBar(
-                    onSettingClick = { eventDispatcher(HomeContract.Action.NavigateToSetting) },
-                    onMailClick = { eventDispatcher(HomeContract.Action.ShowDailyFortune) },
-                    hasNewFortune = state.hasNewFortune,
-                    isShowTooltip = state.isToolTipVisible,
+            BottomGradient(modifier = Modifier.align(Alignment.BottomCenter))
+
+            if (state.isSelectionMode && state.selectedAlarmIds.isNotEmpty()) {
+                DeleteAlarmButton(
+                    modifier = Modifier
+                        .widthIn(min = 130.dp)
+                        .align(Alignment.BottomCenter)
+                        .padding(bottom = 26.dp),
+                    selectedAlarmCount = state.selectedAlarmIds.size,
+                    onClick = {
+                        eventDispatcher(HomeContract.Action.ShowDeleteDialog)
+                    },
                 )
             }
         }
 
-        BottomGradient(modifier = Modifier.align(Alignment.BottomCenter))
-
-        if (state.isSelectionMode && state.selectedAlarmIds.isNotEmpty()) {
-            DeleteAlarmButton(
-                modifier = Modifier
-                    .widthIn(min = 130.dp)
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 26.dp),
-                selectedAlarmCount = state.selectedAlarmIds.size,
-                onClick = {
-                    eventDispatcher(HomeContract.Action.ShowDeleteDialog)
-                },
-            )
+        if (state.activeItemMenu != null) {
+            state.alarms.find { it.id == state.activeItemMenu }?.let {
+                AlarmWithMenu(
+                    activeItemMenu = it,
+                    activeItemMenuPosition = state.activeItemMenuPosition,
+                    selectedAlarmIds = state.selectedAlarmIds,
+                    onDelete = { alarmId ->
+                        eventDispatcher(HomeContract.Action.DeleteSingleAlarm(alarmId))
+                    },
+                )
+            }
         }
     }
 }
@@ -795,6 +845,58 @@ private fun BottomGradient(
     )
 }
 
+@Composable
+private fun AlarmWithMenu(
+    activeItemMenu: Alarm,
+    activeItemMenuPosition: Pair<Float, Float>?,
+    selectedAlarmIds: Set<Long>,
+    onDelete: (Long) -> Unit = {},
+) {
+    val density = LocalDensity.current
+
+    Column(
+        modifier = Modifier.offset(
+            x = with(density) { (activeItemMenuPosition?.first ?: 0f).toDp() },
+            y = with(density) { (activeItemMenuPosition?.second ?: 0f).toDp() },
+        ).zIndex(2f),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        AlarmListItem(
+            modifier = Modifier
+                .padding(horizontal = 20.dp)
+                .clip(RoundedCornerShape(24.dp))
+                .border(
+                    width = 1.dp,
+                    shape = RoundedCornerShape(24.dp),
+                    color = OrbitTheme.colors.gray_700,
+                ),
+            id = activeItemMenu.id,
+            repeatDays = activeItemMenu.repeatDays,
+            isHolidayAlarmOff = activeItemMenu.isHolidayAlarmOff,
+            swipeable = false,
+            selectable = false,
+            selected = selectedAlarmIds.contains(activeItemMenu.id),
+            isAm = activeItemMenu.isAm,
+            hour = activeItemMenu.hour,
+            minute = activeItemMenu.minute,
+            isActive = activeItemMenu.isAlarmActive,
+            onClick = { },
+            onLongPress = { _, _, _ -> },
+            onToggleActive = { },
+            onToggleSelect = { },
+            onSwipe = { },
+        )
+
+        AlarmListItemMenu(
+            text = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
+            iconRes = core.designsystem.R.drawable.ic_trash,
+        ) {
+            onDelete(activeItemMenu.id)
+        }
+    }
+}
+
 @Preview(
     showBackground = true,
     backgroundColor = 0xFF000000,
@@ -803,21 +905,16 @@ private fun BottomGradient(
 fun HomeScreenPreview() {
     OrbitTheme {
         HomeScreen(
-            stateProvider = { HomeContract.State() },
+            stateProvider = {
+                HomeContract.State().copy(
+                    initialLoading = false,
+                    alarms = listOf(
+                        Alarm(),
+                    ),
+                    activeItemMenu = 1,
+                )
+            },
             eventDispatcher = {},
-        )
-    }
-}
-
-@Preview
-@Composable
-fun HomeTopBarPreview() {
-    OrbitTheme {
-        HomeTopBar(
-            onSettingClick = {},
-            onMailClick = {},
-            hasNewFortune = true,
-            isShowTooltip = true,
         )
     }
 }
