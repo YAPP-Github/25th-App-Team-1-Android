@@ -76,13 +76,15 @@ internal fun AlarmListItem(
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
-            Handler(Looper.getMainLooper()).postDelayed({
-                onSwipe(id)
-            }, 200,)
+            if (it == SwipeToDismissBoxValue.EndToStart) {
+                Handler(Looper.getMainLooper()).postDelayed({
+                    onSwipe(id)
+                }, 200,)
+            }
             return@rememberSwipeToDismissBoxState it == SwipeToDismissBoxValue.EndToStart
         },
         positionalThreshold = {
-            width * 0.6f
+            width * 0.8f
         },
     )
 
@@ -103,7 +105,7 @@ internal fun AlarmListItem(
             gesturesEnabled = swipeable,
             backgroundContent = {
                 Box(
-                    modifier = Modifier
+                    modifier = modifier
                         .fillMaxSize()
                         .background(OrbitTheme.colors.gray_500)
                         .onGloballyPositioned { width = it.size.width },
