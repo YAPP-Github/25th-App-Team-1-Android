@@ -2,8 +2,11 @@ package com.yapp.alarm.component
 
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -17,11 +20,13 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalRippleConfiguration
 import androidx.compose.material3.RippleConfiguration
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -30,28 +35,34 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toRepeatDays
 import com.yapp.ui.component.checkbox.OrbitCheckBox
 import com.yapp.ui.component.switch.OrbitSwitch
+import feature.home.R
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 internal fun AlarmListItem(
     modifier: Modifier = Modifier,
@@ -62,6 +73,7 @@ internal fun AlarmListItem(
     selectable: Boolean = false,
     selected: Boolean = false,
     onClick: (Long) -> Unit,
+    onLongPress: (Long, Float, Float) -> Unit,
     onToggleSelect: (Long) -> Unit,
     onSwipe: (Long) -> Unit,
     isAm: Boolean,
@@ -71,8 +83,12 @@ internal fun AlarmListItem(
     onToggleActive: (Long) -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val density = LocalDensity.current
+    val configuration = LocalConfiguration.current
+    val screenHeightPx = with(density) { configuration.screenHeightDp.dp.toPx() }
 
-    var width by remember { mutableIntStateOf(0) }
+    var itemPosition by remember { mutableStateOf(Pair(0f, 0f)) }
+    var itemSize by remember { mutableStateOf(IntSize(0, 0)) }
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
@@ -84,7 +100,7 @@ internal fun AlarmListItem(
             return@rememberSwipeToDismissBoxState it == SwipeToDismissBoxValue.EndToStart
         },
         positionalThreshold = {
-            width * 0.8f
+            itemSize.width * 0.8f
         },
     )
 
@@ -108,7 +124,13 @@ internal fun AlarmListItem(
                     modifier = modifier
                         .fillMaxSize()
                         .background(OrbitTheme.colors.gray_500)
-                        .onGloballyPositioned { width = it.size.width },
+                        .onGloballyPositioned {
+                            itemSize = it.size
+                            itemPosition = Pair(
+                                it.positionInRoot().x,
+                                it.positionInRoot().y,
+                            )
+                        },
                     contentAlignment = Alignment.CenterStart,
                 ) {
                     Icon(
@@ -118,7 +140,7 @@ internal fun AlarmListItem(
                         modifier = Modifier
                             .size(24.dp)
                             .offset {
-                                val offsetX = width * (1 - dismissState.progress * 0.5f) - 12.dp.toPx()
+                                val offsetX = itemSize.width * (1 - dismissState.progress * 0.5f) - 12.dp.toPx()
 
                                 IntOffset(
                                     x = offsetX.toInt(),
@@ -135,11 +157,21 @@ internal fun AlarmListItem(
                     .background(
                         if (selected) OrbitTheme.colors.gray_800 else OrbitTheme.colors.gray_900,
                     )
-                    .clickable(
+                    .combinedClickable(
                         interactionSource = interactionSource,
                         indication = ripple(
                             color = OrbitTheme.colors.gray_800,
                         ),
+                        onLongClick = {
+                            val minRequiredSpace = itemSize.height + with(density) { 42.dp.toPx() }
+                            val adjustedY = if (itemPosition.second + minRequiredSpace > screenHeightPx) {
+                                screenHeightPx - minRequiredSpace
+                            } else {
+                                itemPosition.second
+                            }
+
+                            onLongPress(id, itemPosition.first, adjustedY)
+                        },
                     ) {
                         if (selectable) {
                             onToggleSelect(id)
@@ -298,6 +330,65 @@ private fun getNextAlarmDateWithTime(isAm: Boolean, hour: Int, minute: Int): Str
     return nextAlarmDate.format(DateTimeFormatter.ofPattern("M월 d일"))
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+internal fun AlarmListItemMenu(
+    text: String,
+    @DrawableRes iconRes: Int,
+    onClick: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    CompositionLocalProvider(
+        LocalRippleConfiguration provides RippleConfiguration(
+            rippleAlpha = RippleAlpha(
+                pressedAlpha = 1f,
+                focusedAlpha = 1f,
+                hoveredAlpha = 1f,
+                draggedAlpha = 1f,
+            ),
+        ),
+    ) {
+        Surface(
+            modifier = Modifier
+                .width(120.dp)
+                .height(42.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = ripple(
+                        bounded = false,
+                        color = OrbitTheme.colors.gray_600,
+                    ),
+                    onClick = onClick,
+                ),
+            color = OrbitTheme.colors.gray_700,
+            shape = RoundedCornerShape(12.dp),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = text,
+                    style = OrbitTheme.typography.body1SemiBold,
+                    color = OrbitTheme.colors.alert,
+                )
+
+                Icon(
+                    modifier = Modifier.size(20.dp),
+                    painter = painterResource(id = iconRes),
+                    contentDescription = "Icon",
+                    tint = OrbitTheme.colors.alert,
+                )
+            }
+        }
+    }
+}
+
 @Preview
 @Composable
 private fun AlarmListItemPreview() {
@@ -319,6 +410,7 @@ private fun AlarmListItemPreview() {
                 minute = 0,
                 isActive = isActive,
                 onClick = { },
+                onLongPress = { _, _, _ -> },
                 onToggleActive = {
                     isActive = !isActive
                 },
@@ -346,12 +438,48 @@ private fun AlarmListItemPreview() {
                 minute = 0,
                 isActive = isActive,
                 onClick = { },
+                onLongPress = { _, _, _ -> },
                 onToggleActive = {
                     isActive = !isActive
                 },
                 onToggleSelect = { },
                 onSwipe = { },
             )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun AlarmListItemMenuPreview() {
+    OrbitTheme {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            AlarmListItem(
+                id = 0,
+                repeatDays = 0,
+                isHolidayAlarmOff = false,
+                selectable = false,
+                swipeable = false,
+                selected = false,
+                isAm = true,
+                hour = 6,
+                minute = 0,
+                isActive = true,
+                onClick = { },
+                onLongPress = { _, _, _ -> },
+                onToggleActive = { },
+                onToggleSelect = { },
+                onSwipe = { },
+            )
+
+            AlarmListItemMenu(
+                text = stringResource(id = R.string.alarm_delete_dialog_btn_delete),
+                iconRes = core.designsystem.R.drawable.ic_trash,
+            ) {
+            }
         }
     }
 }
