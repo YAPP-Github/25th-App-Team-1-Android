@@ -1,6 +1,5 @@
 package com.yapp.setting
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -52,7 +51,11 @@ fun EditProfileRoute(
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
-    Log.d("EditProfileRoute", "State: $state")
+    LaunchedEffect(state.shouldFetchUserInfo) {
+        if (state.shouldFetchUserInfo) {
+            viewModel.onAction(SettingContract.Action.RefreshUserInfo)
+        }
+    }
 
     EditProfileScreen(
         state = state,
@@ -152,7 +155,7 @@ fun EditProfileScreen(
                 hint = "이름 입력",
                 isValid = state.isNameValid,
                 showWarning = !state.isNameValid,
-                warningMessage = "올바른 이름을 입력해주세요.",
+                warningMessage = "입력한 내용을 확인해 주세요.",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp),
@@ -193,6 +196,7 @@ fun EditProfileScreen(
                         onToggle = { onToggleGender(true) },
                         height = 52.dp,
                         textStyle = OrbitTheme.typography.body1Regular,
+                        shape = RoundedCornerShape(12.dp),
                     )
                 }
                 Box(modifier = Modifier.weight(1f)) {
@@ -202,6 +206,7 @@ fun EditProfileScreen(
                         onToggle = { onToggleGender(false) },
                         height = 52.dp,
                         textStyle = OrbitTheme.typography.body1Regular,
+                        shape = RoundedCornerShape(12.dp),
                     )
                 }
             }
@@ -226,7 +231,7 @@ fun EditProfileScreen(
                             birthTimeTextFieldValue.value = formattedValue
                             onUpdateTimeOfBirth(formattedValue.text)
                         },
-                        hint = "시간모름",
+                        hint = "23:59",
                         isValid = state.isTimeValid,
                         showWarning = !state.isTimeValid,
                         enabled = !state.isTimeUnknown,

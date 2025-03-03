@@ -35,6 +35,7 @@ fun OrbitGenderToggle(
     modifier: Modifier = Modifier,
     height: Dp = 148.dp,
     textStyle: TextStyle = OrbitTheme.typography.heading2SemiBold,
+    shape: RoundedCornerShape = RoundedCornerShape(16.dp),
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -69,9 +70,9 @@ fun OrbitGenderToggle(
             .border(
                 width = if (isPressed) 0.dp else 1.dp,
                 color = borderColor,
-                shape = RoundedCornerShape(16.dp),
+                shape = shape,
             )
-            .background(backgroundColor, shape = RoundedCornerShape(16.dp))
+            .background(backgroundColor, shape = shape)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
