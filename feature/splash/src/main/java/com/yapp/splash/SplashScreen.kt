@@ -22,6 +22,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.SplashDestination
 import com.yapp.designsystem.theme.OrbitTheme
+import kotlinx.coroutines.flow.collectLatest
 
 @Composable
 fun SplashRoute(
@@ -32,7 +33,7 @@ fun SplashRoute(
     val sideEffect = viewModel.container.sideEffectFlow
 
     LaunchedEffect(sideEffect) {
-        sideEffect.collect { effect ->
+        sideEffect.collectLatest { effect ->
             when (effect) {
                 is SplashContract.SideEffect.Navigate -> {
                     navigator.navigateTo(
