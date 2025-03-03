@@ -55,6 +55,10 @@
 
     <string name="alarm_list_bottom_sheet_title">알람</string>
     <string name="alarm_list_bottom_sheet_menu_edit">편집</string>
+    <string name="alarm_list_bottom_sheet_menu_sort">정렬</string>
+
+    <string name="alarm_list_bottom_sheet_menu_sort_default">기본</string>
+    <string name="alarm_list_bottom_sheet_menu_sort_activation">켜진 알람 우선</string>
 
     <string name="alarm_list_bottom_sheet_selection_title">전체 선택</string>
     <string name="alarm_list_bottom_sheet_selection_btn_delete">%d개 삭제</string>
