@@ -163,6 +163,8 @@ internal fun AlarmListItem(
                             color = OrbitTheme.colors.gray_800,
                         ),
                         onLongClick = {
+                            if (selectable) return@combinedClickable
+
                             val minRequiredSpace = itemSize.height + with(density) { 42.dp.toPx() }
                             val adjustedY = if (itemPosition.second + minRequiredSpace > screenHeightPx) {
                                 screenHeightPx - minRequiredSpace
