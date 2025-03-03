@@ -46,6 +46,7 @@ internal fun AlarmListDropDownMenu(
     expanded: Boolean,
     onDismissRequest: () -> Unit,
     onClickEdit: () -> Unit,
+    onClickSort: () -> Unit,
 ) {
     DropdownMenu(
         modifier = modifier.padding(horizontal = 8.dp),
@@ -60,6 +61,12 @@ internal fun AlarmListDropDownMenu(
             iconRes = core.designsystem.R.drawable.ic_edit,
         ) {
             onClickEdit()
+        }
+        AlarmListDropDownMenuItem(
+            text = stringResource(id = R.string.alarm_list_bottom_sheet_menu_sort),
+            iconRes = core.designsystem.R.drawable.ic_filter,
+        ) {
+            onClickSort()
         }
     }
 }
@@ -142,6 +149,9 @@ private fun AlarmListDropDownMenuPreview() {
                     onDismissRequest = { expanded = false },
                     onClickEdit = {
                         Log.d("AlarmListDropDownMenu", "Edit Clicked")
+                    },
+                    onClickSort = {
+                        Log.d("AlarmListDropDownMenu", "Sort Clicked")
                     },
                 )
             }

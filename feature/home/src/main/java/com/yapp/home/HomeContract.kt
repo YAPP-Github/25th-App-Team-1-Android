@@ -12,6 +12,7 @@ sealed class HomeContract {
         val alarms: List<Alarm> = emptyList(),
         val lastAddedAlarmIndex: Int? = null,
         val dropdownMenuExpanded: Boolean = false,
+        val sortDropDownMenuExpanded: Boolean = false,
         val selectedAlarmIds: Set<Long> = emptySet(),
         val isSelectionMode: Boolean = false,
         val isDeleteDialogVisible: Boolean = false,
@@ -25,17 +26,27 @@ sealed class HomeContract {
         val name: String = "",
         val activeItemMenu: Long? = null,
         val activeItemMenuPosition: Pair<Float, Float>? = null,
+        val sortOrder: AlarmSortOrder = AlarmSortOrder.DEFAULT,
     ) : UiState {
         val isAllSelected: Boolean
             get() = alarms.isNotEmpty() && selectedAlarmIds.size == alarms.size
+
         val hasActivatedAlarm: Boolean
             get() = alarms.any { it.isAlarmActive }
+
+        val sortedAlarms: List<Alarm>
+            get() = when (sortOrder) {
+                AlarmSortOrder.DEFAULT -> alarms
+                AlarmSortOrder.ACTIVATION -> alarms.sortedByDescending { it.isAlarmActive }
+            }
     }
 
     sealed class Action {
         data object NavigateToAlarmCreation : Action()
         data object ToggleMultiSelectionMode : Action()
-        data object ToggleDropdownMenuVisibility : Action()
+        data object ShowDropDownMenu : Action()
+        data object ShowSortDropDownMenu : Action()
+        data object HideDropDownMenu : Action()
         data class ToggleAlarmSelection(val alarmId: Long) : Action()
         data class ToggleAlarmActivation(val alarmId: Long) : Action()
         data class SwipeToDeleteAlarm(val id: Long) : Action()
@@ -57,6 +68,7 @@ sealed class HomeContract {
         data object NavigateToSetting : Action()
         data class ShowItemMenu(val alarmId: Long, val x: Float, val y: Float) : Action()
         data object HideItemMenu : Action()
+        data class SetSortOrder(val sortOrder: AlarmSortOrder) : Action()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {
@@ -75,5 +87,10 @@ sealed class HomeContract {
             val onDismiss: () -> Unit,
             val onAction: () -> Unit,
         ) : SideEffect()
+    }
+
+    enum class AlarmSortOrder {
+        DEFAULT,
+        ACTIVATION,
     }
 }

@@ -57,7 +57,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -306,8 +305,10 @@ private fun HomeContent(
             },
         ) {
             AlarmListBottomSheet(
-                alarms = state.alarms,
+                alarms = state.sortedAlarms,
                 menuExpanded = state.dropdownMenuExpanded,
+                sortDropDownMenuExpanded = state.sortDropDownMenuExpanded,
+                sortOrder = state.sortOrder,
                 isAllSelected = state.isAllSelected,
                 isSelectionMode = state.isSelectionMode,
                 selectedAlarmIds = state.selectedAlarmIds,
@@ -323,7 +324,11 @@ private fun HomeContent(
                     eventDispatcher(HomeContract.Action.NavigateToAlarmCreation)
                 },
                 onClickMore = {
-                    eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
+                    if (state.dropdownMenuExpanded || state.sortDropDownMenuExpanded) {
+                        eventDispatcher(HomeContract.Action.HideDropDownMenu)
+                    } else {
+                        eventDispatcher(HomeContract.Action.ShowDropDownMenu)
+                    }
                 },
                 onClickCheckAll = {
                     eventDispatcher(HomeContract.Action.ToggleAllAlarmSelection)
@@ -334,8 +339,14 @@ private fun HomeContent(
                 onClickEdit = {
                     eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
                 },
+                onClickSort = {
+                    eventDispatcher(HomeContract.Action.ShowSortDropDownMenu)
+                },
+                onSetSortOrder = { sortOrder ->
+                    eventDispatcher(HomeContract.Action.SetSortOrder(sortOrder))
+                },
                 onDismissRequest = {
-                    eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
+                    eventDispatcher(HomeContract.Action.HideDropDownMenu)
                 },
                 onToggleSelect = { alarmId ->
                     eventDispatcher(HomeContract.Action.ToggleAlarmSelection(alarmId))
@@ -894,27 +905,5 @@ private fun AlarmWithMenu(
         ) {
             onDelete(activeItemMenu.id)
         }
-    }
-}
-
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFF000000,
-)
-@Composable
-fun HomeScreenPreview() {
-    OrbitTheme {
-        HomeScreen(
-            stateProvider = {
-                HomeContract.State().copy(
-                    initialLoading = false,
-                    alarms = listOf(
-                        Alarm(),
-                    ),
-                    activeItemMenu = 1,
-                )
-            },
-            eventDispatcher = {},
-        )
     }
 }
