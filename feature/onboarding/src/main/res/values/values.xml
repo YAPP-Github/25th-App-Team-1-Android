@@ -33,4 +33,8 @@
     <string name="onboarding_completed_step1_title">기상 미션을 수행하면\n운세를 확인 할 수 있어요</string>
     <string name="onboarding_completed_step2_title">오르비의 하루 운세로\n아침을 즐겁게 시작해 보세요!</string>
 
+    <string name="onboarding_warning_dialog_title">오류</string>
+    <string name="onboarding_warning_dialog_message">서비스가 일시적으로 사용 불가능합니다.\n잠시 후 다시 시도해주세요.</string>
+    <string name="onboarding_warning_dialog_btn_confirm">확인</string>
+
 </resources>

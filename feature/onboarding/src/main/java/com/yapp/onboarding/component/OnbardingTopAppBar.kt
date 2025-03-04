@@ -1,7 +1,6 @@
 package com.yapp.onboarding.component
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.ui.extensions.customClickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +37,12 @@ fun OnBoardingTopAppBar(
                     contentDescription = "Back",
                     tint = OrbitTheme.colors.white,
                     modifier = Modifier
-                        .clickable(onClick = onBackClick)
+                        .customClickable(
+                            rippleEnabled = false,
+                            fadeOnPress = true,
+                            pressedAlpha = 0.5f,
+                            onClick = onBackClick,
+                        )
                         .padding(start = 20.dp),
                 )
             }
@@ -67,5 +72,10 @@ fun OnBoardingTopAppBar(
 @Composable
 @Preview
 fun OnBoardingTopAppBarPreview() {
-    OnBoardingTopAppBar(currentStep = 1, totalSteps = 3)
+    OnBoardingTopAppBar(
+        currentStep = 1,
+        totalSteps = 3,
+        onBackClick = {},
+        showTopAppBarActions = true,
+    )
 }

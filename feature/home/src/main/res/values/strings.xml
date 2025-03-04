@@ -4,6 +4,8 @@
     <string name="home_empty_title">기상 알람이 없어요</string>
     <string name="home_empty_description">알람을 추가하고\n운세 편지를 받아보세요</string>
 
+    <string name="home_tool_tip_fortune_arrived">운세 도착</string>
+
     <string name="home_fortune_no_alarm_description">운세 편지를 받고 싶다면\n기상 알람을 켜줘</string>
     <string name="home_fortune_preload_description">미래에서 운세 편지를\n작성 중이야!</string>
     <string name="home_fortune_0_to_49_description">오늘 %s의 하루는\n주의가 필요해</string>
@@ -53,6 +55,10 @@
 
     <string name="alarm_list_bottom_sheet_title">알람</string>
     <string name="alarm_list_bottom_sheet_menu_edit">편집</string>
+    <string name="alarm_list_bottom_sheet_menu_sort">정렬</string>
+
+    <string name="alarm_list_bottom_sheet_menu_sort_default">기본</string>
+    <string name="alarm_list_bottom_sheet_menu_sort_activation">켜진 알람 우선</string>
 
     <string name="alarm_list_bottom_sheet_selection_title">전체 선택</string>
     <string name="alarm_list_bottom_sheet_selection_btn_delete">%d개 삭제</string>

@@ -7,6 +7,7 @@ import com.yapp.datastore.UserPreferences
 import com.yapp.domain.repository.UserInfoRepository
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.syntax.simple.intent
 import javax.inject.Inject
@@ -15,20 +16,28 @@ import javax.inject.Inject
 class SettingViewModel @Inject constructor(
     private val userInfoRepository: UserInfoRepository,
     private val userPreferences: UserPreferences,
-) :
-    BaseViewModel<SettingContract.State, SettingContract.SideEffect>(
-        SettingContract.State(),
-    ) {
-
-    init {
+) : BaseViewModel<SettingContract.State, SettingContract.SideEffect>(
+    SettingContract.State(),
+) {
+    fun refreshUserInfo() {
         viewModelScope.launch {
-            userPreferences.userIdFlow.collect { userId ->
-                if (userId != null) {
-                    fetchUserInfo(userId)
-                }
+            val userId = userPreferences.userIdFlow.firstOrNull()
+            if (userId != null) {
+                fetchUserInfo(userId)
             }
         }
     }
+
+//    init {
+//        viewModelScope.launch {
+//            container.sideEffectFlow.collect { sideEffect ->
+//                when (sideEffect) {
+//                    is SettingContract.SideEffect.UserInfoUpdated -> refreshUserInfo()
+//                    else -> {}
+//                }
+//            }
+//        }
+//    }
 
     fun onAction(action: SettingContract.Action) = intent {
         when (action) {

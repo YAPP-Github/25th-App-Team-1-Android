@@ -97,7 +97,7 @@ fun FortuneRewardScreen(
                         .fillMaxWidth()
                         .padding(start = 30.dp)
                         .align(Alignment.Start),
-                    text = "$nickName\n부적에 소원을 적으면\n이루어질거야!",
+                    text = "$nickName\n부적을 가지고 있으면\n행운이 찾아올거야",
                     style = OrbitTheme.typography.H1,
                     color = OrbitTheme.colors.white,
                 )

@@ -6,7 +6,6 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
@@ -50,8 +49,8 @@ fun FlipCard(
         }
     }
 
-    LaunchedEffect(state.clickCount) {
-        if (state.clickCount in 1..9) {
+    LaunchedEffect(state.shakeCount) {
+        if (state.shakeCount in 1..9) {
             rotationZ.animateTo(
                 targetValue = -20f,
                 animationSpec = tween(durationMillis = 66, easing = LinearEasing),
@@ -76,8 +75,7 @@ fun FlipCard(
                 rotationY = rotationY.value,
                 scaleX = scale.value,
                 scaleY = scale.value,
-            )
-            .clickable { eventDispatcher(MissionContract.Action.ClickCard) },
+            ),
         contentAlignment = Alignment.Center,
     ) {
         if (rotationY.value <= 90f) {

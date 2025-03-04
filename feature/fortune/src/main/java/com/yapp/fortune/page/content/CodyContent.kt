@@ -35,7 +35,6 @@ fun CodyContent(
     ) {
         codyList.chunked(2).forEach { rowItems ->
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 rowItems.forEach { item ->

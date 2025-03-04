@@ -20,7 +20,7 @@ fun NavGraphBuilder.missionNavGraph(
             route = MissionDestination.Mission.route,
             deepLinks = listOf(
                 navDeepLink {
-                    uriPattern = "orbitapp://mission"
+                    uriPattern = "orbitapp://mission?notificationId={notificationId}"
                 },
             ),
         ) { backStackEntry ->

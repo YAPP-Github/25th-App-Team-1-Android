@@ -27,6 +27,7 @@ import com.yapp.ui.utils.paddingForScreenPercentage
 fun FortuneCompletePage(
     hasReward: Boolean,
     onCompleteClick: () -> Unit,
+    onNavigateToHome: () -> Unit,
 ) {
     val message = if (hasReward) {
         "첫 알람에 잘 일어났네!\n보상으로 행운 부적을 줄게"
@@ -80,7 +81,13 @@ fun FortuneCompletePage(
             OrbitButton(
                 label = if (hasReward) "부적 보러가기" else "완료",
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-                onClick = onCompleteClick,
+                onClick = {
+                    if (hasReward) {
+                        onCompleteClick()
+                    } else {
+                        onNavigateToHome()
+                    }
+                },
                 enabled = true,
             )
         }
@@ -90,5 +97,5 @@ fun FortuneCompletePage(
 @Composable
 @Preview
 fun FortuneCompletePagePreview() {
-    FortuneCompletePage(hasReward = true, onCompleteClick = {})
+    FortuneCompletePage(hasReward = true, onCompleteClick = {}, onNavigateToHome = {})
 }
