@@ -232,7 +232,10 @@ internal fun AlarmBottomSheetContent(
         LazyColumn(
             state = listState,
         ) {
-            itemsIndexed(alarms) { index, alarm ->
+            itemsIndexed(
+                items = alarms,
+                key = { _, alarm -> alarm.id },
+            ) { index, alarm ->
                 AlarmListItem(
                     id = alarm.id,
                     repeatDays = alarm.repeatDays,
