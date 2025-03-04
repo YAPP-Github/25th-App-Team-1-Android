@@ -153,7 +153,7 @@ internal fun AlarmListItem(
             },
         ) {
             Row(
-                modifier = modifier
+                modifier = Modifier
                     .fillMaxWidth()
                     .background(
                         if (selected) OrbitTheme.colors.gray_800 else OrbitTheme.colors.gray_900,
