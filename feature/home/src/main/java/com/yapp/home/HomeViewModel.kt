@@ -43,7 +43,9 @@ class HomeViewModel @Inject constructor(
         when (action) {
             HomeContract.Action.NavigateToAlarmCreation -> navigateToAlarmCreation()
             HomeContract.Action.ToggleMultiSelectionMode -> toggleMultiSelectionMode()
-            HomeContract.Action.ToggleDropdownMenuVisibility -> toggleDropdownMenuVisibility()
+            HomeContract.Action.ShowDropDownMenu -> showDropDownMenu()
+            HomeContract.Action.ShowSortDropDownMenu -> showSortDropDownMenu()
+            HomeContract.Action.HideDropDownMenu -> hideDropDownMenu()
             is HomeContract.Action.ToggleAlarmSelection -> toggleAlarmSelection(action.alarmId)
             HomeContract.Action.ToggleAllAlarmSelection -> toggleAllAlarmSelection()
             is HomeContract.Action.ToggleAlarmActivation -> toggleAlarmActivation(action.alarmId)
@@ -65,6 +67,7 @@ class HomeViewModel @Inject constructor(
             HomeContract.Action.NavigateToSetting -> navigateToSetting()
             is HomeContract.Action.ShowItemMenu -> showItemMenu(action.alarmId, action.x, action.y)
             HomeContract.Action.HideItemMenu -> hideItemMenu()
+            is HomeContract.Action.SetSortOrder -> setSortOrder(action.sortOrder)
         }
     }
 
@@ -113,8 +116,26 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun toggleDropdownMenuVisibility() {
-        updateState { copy(dropdownMenuExpanded = !currentState.dropdownMenuExpanded) }
+    private fun showDropDownMenu() {
+        updateState { copy(dropdownMenuExpanded = true) }
+    }
+
+    private fun showSortDropDownMenu() {
+        updateState {
+            copy(
+                dropdownMenuExpanded = false,
+                sortDropDownMenuExpanded = true,
+            )
+        }
+    }
+
+    private fun hideDropDownMenu() {
+        updateState {
+            copy(
+                dropdownMenuExpanded = false,
+                sortDropDownMenuExpanded = false,
+            )
+        }
     }
 
     private fun toggleAlarmSelection(alarmId: Long) {
@@ -177,6 +198,12 @@ class HomeViewModel @Inject constructor(
 
     private fun confirmDeletion() {
         deleteAlarms(currentState.selectedAlarmIds)
+        updateState {
+            copy(
+                selectedAlarmIds = emptySet(),
+                isDeleteDialogVisible = false,
+            )
+        }
     }
 
     private fun showNoActivatedAlarmDialog() {
@@ -453,5 +480,10 @@ class HomeViewModel @Inject constructor(
                 activeItemMenuPosition = null,
             )
         }
+    }
+
+    private fun setSortOrder(sortOrder: HomeContract.AlarmSortOrder) {
+        updateState { copy(sortOrder = sortOrder) }
+        hideDropDownMenu()
     }
 }

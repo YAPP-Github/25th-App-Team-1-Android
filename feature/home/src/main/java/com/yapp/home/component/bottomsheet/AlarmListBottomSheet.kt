@@ -1,6 +1,7 @@
 package com.yapp.home.component.bottomsheet
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -50,7 +51,9 @@ import androidx.compose.ui.unit.dp
 import com.yapp.alarm.component.AlarmListItem
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.Alarm
+import com.yapp.home.HomeContract
 import com.yapp.home.component.AlarmListDropDownMenu
+import com.yapp.home.component.AlarmSortDropDownMenu
 import com.yapp.ui.component.checkbox.OrbitCheckBox
 import feature.home.R
 import kotlinx.coroutines.launch
@@ -64,6 +67,8 @@ enum class BottomSheetExpandState {
 internal fun AlarmListBottomSheet(
     alarms: List<Alarm>,
     menuExpanded: Boolean = false,
+    sortDropDownMenuExpanded: Boolean = false,
+    sortOrder: HomeContract.AlarmSortOrder,
     isAllSelected: Boolean,
     isSelectionMode: Boolean,
     selectedAlarmIds: Set<Long>,
@@ -76,6 +81,8 @@ internal fun AlarmListBottomSheet(
     onClickCheckAll: () -> Unit,
     onClickClose: () -> Unit,
     onClickEdit: () -> Unit,
+    onClickSort: () -> Unit,
+    onSetSortOrder: (HomeContract.AlarmSortOrder) -> Unit,
     onDismissRequest: () -> Unit,
     onToggleSelect: (Long) -> Unit,
     onToggleActive: (Long) -> Unit,
@@ -124,7 +131,9 @@ internal fun AlarmListBottomSheet(
             AlarmBottomSheetContent(
                 modifier = Modifier.nestedScroll(nestedScrollConnection),
                 alarms = alarms,
-                menuExpanded = menuExpanded,
+                dropDownMenuExpanded = menuExpanded,
+                sortDropDownMenuExpanded = sortDropDownMenuExpanded,
+                sortOrder = sortOrder,
                 isSelectionMode = isSelectionMode,
                 isAllSelected = isAllSelected,
                 selectedAlarmIds = selectedAlarmIds,
@@ -136,6 +145,8 @@ internal fun AlarmListBottomSheet(
                 onClickCheckAll = onClickCheckAll,
                 onClickClose = onClickClose,
                 onClickEdit = onClickEdit,
+                onClickSort = onClickSort,
+                onSetSortOrder = onSetSortOrder,
                 expandedType = expandedType,
                 onDismissRequest = onDismissRequest,
                 onToggleSelect = onToggleSelect,
@@ -161,7 +172,9 @@ internal fun AlarmListBottomSheet(
 internal fun AlarmBottomSheetContent(
     modifier: Modifier = Modifier,
     alarms: List<Alarm>,
-    menuExpanded: Boolean,
+    dropDownMenuExpanded: Boolean,
+    sortDropDownMenuExpanded: Boolean,
+    sortOrder: HomeContract.AlarmSortOrder,
     isSelectionMode: Boolean,
     isAllSelected: Boolean,
     selectedAlarmIds: Set<Long>,
@@ -173,6 +186,8 @@ internal fun AlarmBottomSheetContent(
     onClickCheckAll: () -> Unit,
     onClickClose: () -> Unit,
     onClickEdit: () -> Unit,
+    onClickSort: () -> Unit,
+    onSetSortOrder: (HomeContract.AlarmSortOrder) -> Unit,
     onDismissRequest: () -> Unit,
     onToggleSelect: (Long) -> Unit,
     onToggleActive: (Long) -> Unit,
@@ -203,11 +218,15 @@ internal fun AlarmBottomSheetContent(
             )
         } else {
             AlarmListTopBar(
-                menuExpanded = menuExpanded,
+                menuExpanded = dropDownMenuExpanded,
+                sortDropDownMenuExpanded = sortDropDownMenuExpanded,
+                sortOrder = sortOrder,
                 onClickAdd = onClickAdd,
                 onClickMore = onClickMore,
                 onDismissRequest = onDismissRequest,
                 onClickEdit = onClickEdit,
+                onClickSort = onClickSort,
+                onSetSortOrder = onSetSortOrder,
             )
         }
 
@@ -219,6 +238,12 @@ internal fun AlarmBottomSheetContent(
                 key = { _, alarm -> alarm.id },
             ) { index, alarm ->
                 AlarmListItem(
+                    modifier = Modifier
+                        .animateItem(
+                            fadeInSpec = null,
+                            placementSpec = tween(durationMillis = 300),
+                            fadeOutSpec = null,
+                        ),
                     id = alarm.id,
                     repeatDays = alarm.repeatDays,
                     isHolidayAlarmOff = alarm.isHolidayAlarmOff,
@@ -241,7 +266,12 @@ internal fun AlarmBottomSheetContent(
                             .padding(horizontal = 24.dp)
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(OrbitTheme.colors.gray_800),
+                            .background(OrbitTheme.colors.gray_800)
+                            .animateItem(
+                                fadeInSpec = null,
+                                placementSpec = tween(durationMillis = 300),
+                                fadeOutSpec = null,
+                            ),
                     )
                 }
             }
@@ -257,10 +287,14 @@ internal fun AlarmBottomSheetContent(
 private fun AlarmListTopBar(
     modifier: Modifier = Modifier,
     menuExpanded: Boolean,
+    sortDropDownMenuExpanded: Boolean,
+    sortOrder: HomeContract.AlarmSortOrder,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     onDismissRequest: () -> Unit,
     onClickEdit: () -> Unit,
+    onClickSort: () -> Unit,
+    onSetSortOrder: (HomeContract.AlarmSortOrder) -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -296,6 +330,16 @@ private fun AlarmListTopBar(
                     expanded = menuExpanded,
                     onDismissRequest = onDismissRequest,
                     onClickEdit = onClickEdit,
+                    onClickSort = onClickSort,
+                )
+            }
+
+            if (sortDropDownMenuExpanded) {
+                AlarmSortDropDownMenu(
+                    expanded = sortDropDownMenuExpanded,
+                    sortOrder = sortOrder,
+                    onDismissRequest = onDismissRequest,
+                    onSetSortOrder = onSetSortOrder,
                 )
             }
         }

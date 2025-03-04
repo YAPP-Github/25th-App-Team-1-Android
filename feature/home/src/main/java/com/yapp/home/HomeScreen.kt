@@ -306,8 +306,10 @@ private fun HomeContent(
             },
         ) {
             AlarmListBottomSheet(
-                alarms = state.alarms,
+                alarms = state.sortedAlarms,
                 menuExpanded = state.dropdownMenuExpanded,
+                sortDropDownMenuExpanded = state.sortDropDownMenuExpanded,
+                sortOrder = state.sortOrder,
                 isAllSelected = state.isAllSelected,
                 isSelectionMode = state.isSelectionMode,
                 selectedAlarmIds = state.selectedAlarmIds,
@@ -323,7 +325,11 @@ private fun HomeContent(
                     eventDispatcher(HomeContract.Action.NavigateToAlarmCreation)
                 },
                 onClickMore = {
-                    eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
+                    if (state.dropdownMenuExpanded || state.sortDropDownMenuExpanded) {
+                        eventDispatcher(HomeContract.Action.HideDropDownMenu)
+                    } else {
+                        eventDispatcher(HomeContract.Action.ShowDropDownMenu)
+                    }
                 },
                 onClickCheckAll = {
                     eventDispatcher(HomeContract.Action.ToggleAllAlarmSelection)
@@ -334,8 +340,14 @@ private fun HomeContent(
                 onClickEdit = {
                     eventDispatcher(HomeContract.Action.ToggleMultiSelectionMode)
                 },
+                onClickSort = {
+                    eventDispatcher(HomeContract.Action.ShowSortDropDownMenu)
+                },
+                onSetSortOrder = { sortOrder ->
+                    eventDispatcher(HomeContract.Action.SetSortOrder(sortOrder))
+                },
                 onDismissRequest = {
-                    eventDispatcher(HomeContract.Action.ToggleDropdownMenuVisibility)
+                    eventDispatcher(HomeContract.Action.HideDropDownMenu)
                 },
                 onToggleSelect = { alarmId ->
                     eventDispatcher(HomeContract.Action.ToggleAlarmSelection(alarmId))
@@ -906,13 +918,15 @@ fun HomeScreenPreview() {
     OrbitTheme {
         HomeScreen(
             stateProvider = {
-                HomeContract.State().copy(
-                    initialLoading = false,
-                    alarms = listOf(
-                        Alarm(),
-                    ),
-                    activeItemMenu = 1,
-                )
+                HomeContract.State()
+                    .copy(
+                        initialLoading = false,
+                        alarms = listOf(
+                            Alarm(),
+                        ),
+                        activeItemMenu = 0L,
+                        activeItemMenuPosition = Pair(0f, 0f),
+                    )
             },
             eventDispatcher = {},
         )
