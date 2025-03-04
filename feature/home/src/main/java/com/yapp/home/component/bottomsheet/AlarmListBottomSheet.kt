@@ -1,6 +1,7 @@
 package com.yapp.home.component.bottomsheet
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -237,6 +238,12 @@ internal fun AlarmBottomSheetContent(
                 key = { _, alarm -> alarm.id },
             ) { index, alarm ->
                 AlarmListItem(
+                    modifier = Modifier
+                        .animateItem(
+                            fadeInSpec = null,
+                            placementSpec = tween(durationMillis = 300),
+                            fadeOutSpec = null,
+                        ),
                     id = alarm.id,
                     repeatDays = alarm.repeatDays,
                     isHolidayAlarmOff = alarm.isHolidayAlarmOff,
@@ -259,7 +266,12 @@ internal fun AlarmBottomSheetContent(
                             .padding(horizontal = 24.dp)
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(OrbitTheme.colors.gray_800),
+                            .background(OrbitTheme.colors.gray_800)
+                            .animateItem(
+                                fadeInSpec = null,
+                                placementSpec = tween(durationMillis = 300),
+                                fadeOutSpec = null,
+                            ),
                     )
                 }
             }

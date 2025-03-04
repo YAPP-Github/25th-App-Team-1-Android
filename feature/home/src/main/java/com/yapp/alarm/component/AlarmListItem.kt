@@ -116,12 +116,13 @@ internal fun AlarmListItem(
     ) {
         SwipeToDismissBox(
             state = dismissState,
+            modifier = modifier,
             enableDismissFromStartToEnd = false,
             enableDismissFromEndToStart = swipeable,
             gesturesEnabled = swipeable,
             backgroundContent = {
                 Box(
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxSize()
                         .background(OrbitTheme.colors.gray_500)
                         .onGloballyPositioned {
