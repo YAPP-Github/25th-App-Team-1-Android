@@ -9,8 +9,10 @@ import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toAlarmDays
 import com.yapp.domain.model.toDayOfWeek
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class AlarmHelper @Inject constructor(
@@ -30,7 +32,9 @@ class AlarmHelper @Inject constructor(
     }
 
     fun scheduleWeeklyAlarm(alarm: Alarm, day: AlarmDay) {
-        val triggerMillis = getNextAlarmTimeMillis(alarm, day) + AlarmConstants.WEEK_INTERVAL_MILLIS
+        val initialTriggerMillis = getNextAlarmTimeMillis(alarm, day) + AlarmConstants.WEEK_INTERVAL_MILLIS
+        val triggerMillis = findNextNonHolidayDate(initialTriggerMillis)
+
         val pendingIntent = createAlarmReceiverPendingIntentForSchedule(app, alarm, day)
 
         alarmManager.setExactAndAllowWhileIdle(
@@ -38,7 +42,8 @@ class AlarmHelper @Inject constructor(
             triggerMillis,
             pendingIntent,
         )
-        Log.d("AlarmHelper", "Scheduled weekly alarm for $day next week at: $triggerMillis")
+
+        Log.d("AlarmHelper", "Scheduled weekly alarm for $day at: $triggerMillis")
     }
 
     fun unScheduleAlarm(alarm: Alarm) {
@@ -119,5 +124,26 @@ class AlarmHelper @Inject constructor(
         Log.d("AlarmHelper", "Alarm scheduled at: $alarmDateTime (epochMillis=$epochMillis)")
 
         return epochMillis
+    }
+
+    private fun findNextNonHolidayDate(initialMillis: Long): Long {
+        val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+        var adjustedMillis = initialMillis
+
+        while (true) {
+            val localDate = Instant.ofEpochMilli(adjustedMillis)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+
+            val dateString = localDate.format(dateFormatter)
+
+            if (!AlarmConstants.HOLIDAYS_2025.contains(dateString)) {
+                return adjustedMillis // 공휴일이 아니라면 해당 날짜 반환
+            }
+
+            // 공휴일이라면 다음 1주 뒤로 이동
+            adjustedMillis += AlarmConstants.WEEK_INTERVAL_MILLIS
+        }
     }
 }
