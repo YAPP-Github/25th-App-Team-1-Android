@@ -68,7 +68,7 @@ sealed class OnboardingContract {
 
     enum class FieldType(val validationRegex: Regex) {
         TIME(Regex("^(24:00|([0-1]\\d|2[0-3]):[0-5]\\d)\$")),
-        NAME(Regex("^(?!.*[0-9@#\$%^&*!\\s])[가-힣a-zA-Z]*$")),
+        NAME(Regex("^(?=.{1,13}\$)(?=.{1,6}(?:[가-힣]|[a-zA-Z]{2})\$)[가-힣a-zA-Z]*\$")),
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {

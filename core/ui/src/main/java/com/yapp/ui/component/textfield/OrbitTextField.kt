@@ -144,6 +144,7 @@ private fun TextFieldContainer(
     enabled: Boolean,
 ) {
     val outerBorderColor = when {
+        isFocused && text.text.isEmpty() -> OrbitTheme.colors.main.copy(alpha = 0.2f)
         isFocused && !isValid -> OrbitTheme.colors.alert.copy(alpha = 0.2f)
         isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
         !isValid -> OrbitTheme.colors.alert.copy(alpha = 0.2f)
@@ -151,6 +152,7 @@ private fun TextFieldContainer(
     }
 
     val innerBorderColor = when {
+        isFocused && text.text.isEmpty() -> OrbitTheme.colors.main.copy(alpha = 0.2f)
         isFocused && !isValid -> OrbitTheme.colors.alert
         isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
         !isValid -> OrbitTheme.colors.alert
