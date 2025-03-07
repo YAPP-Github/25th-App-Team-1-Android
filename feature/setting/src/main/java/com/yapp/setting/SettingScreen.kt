@@ -1,5 +1,7 @@
 package com.yapp.setting
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,6 +34,7 @@ fun SettingRoute(
     viewModel: SettingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         viewModel.refreshUserInfo() // 이걸 어찌 할까요
@@ -45,9 +49,18 @@ fun SettingRoute(
         },
         onBackClick = { viewModel.onAction(SettingContract.Action.PreviousStep) },
         onInquiryClick = {
-            viewModel.onAction(
-                SettingContract.Action.OpenWebView("https://forms.gle/Q6wpKj3YAyS2jxq57"),
-            )
+            val kakaoUrl = "http://pf.kakao.com/_ykqxjn"
+            val kakaoSchemeUrl = "kakaoplus://plusfriend/home/_ykqxjn"
+
+            val kakaoIntent = Intent(Intent.ACTION_VIEW, Uri.parse(kakaoSchemeUrl))
+
+            try {
+                context.startActivity(kakaoIntent) // 카카오톡 앱으로 이동
+            } catch (e: Exception) {
+                viewModel.onAction(
+                    SettingContract.Action.OpenWebView(kakaoUrl), // 앱이 없으면 웹뷰로 열기
+                )
+            }
         },
         onTermsClick = {
             viewModel.onAction(
