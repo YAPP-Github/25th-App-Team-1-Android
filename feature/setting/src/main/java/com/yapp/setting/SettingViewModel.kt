@@ -86,6 +86,7 @@ class SettingViewModel @Inject constructor(
                 .onSuccess { user ->
                     updateState {
                         copy(
+                            initialLoading = false,
                             name = user.name,
                             birthDate = user.birthDate,
                             selectedGender = user.gender,
