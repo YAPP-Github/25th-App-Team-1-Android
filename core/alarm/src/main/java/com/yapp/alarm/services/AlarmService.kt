@@ -10,12 +10,7 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
-import android.os.Handler
-import android.os.HandlerThread
 import android.os.IBinder
-import android.os.Looper
-import android.os.Message
-import android.os.Process.THREAD_PRIORITY_BACKGROUND
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -35,18 +30,16 @@ import com.yapp.media.sound.SoundPlayer
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class AlarmService : Service() {
-
-    private var serviceLooper: Looper? = null
-    private var serviceHandler: ServiceHandler? = null
 
     @Inject
     lateinit var alarmUseCase: AlarmUseCase
@@ -62,84 +55,17 @@ class AlarmService : Service() {
     @Inject
     lateinit var userPreferences: UserPreferences
 
-    private inner class ServiceHandler(looper: Looper) : Handler(looper) {
-        override fun handleMessage(message: Message) {
-            super.handleMessage(message)
-
-            val bundle = message.data
-            val alarm: Alarm? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                bundle?.getParcelable(AlarmConstants.EXTRA_ALARM, Alarm::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                bundle?.getParcelable(AlarmConstants.EXTRA_ALARM)
-            }
-
-            if (alarm == null) {
-                Log.e("AlarmService", "Failed to retrieve Alarm object from intent")
-                return
-            }
-
-            val notificationId = alarm.id
-            val isDismiss = bundle.getBoolean(AlarmConstants.EXTRA_IS_DISMISS, false)
-            val isOneTimeAlarm = alarm.repeatDays == 0
-
-            Log.d("AlarmService", "AlarmService started for alarm: $alarm")
-
-            // 반복 요일 알람 시, 다음 주 동일 요일 알람 예약
-            if (!isOneTimeAlarm && bundle.containsKey(AlarmConstants.EXTRA_ALARM_DAY)) {
-                bundle.getString(AlarmConstants.EXTRA_ALARM_DAY)
-                    ?.let { AlarmDay.valueOf(it) }
-                    ?.let { alarmDay ->
-                        alarmHelper.scheduleWeeklyAlarm(alarm, alarmDay)
-                    }
-            }
-
-            // 미션 이동 여부 확인
-            val shouldNavigateToMission = runBlocking {
-                val fortuneDate = userPreferences.fortuneDateFlow.firstOrNull()
-                val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
-                fortuneDate != todayDate
-            }
-            Log.d("AlarmService", "shouldNavigateToMission: $shouldNavigateToMission")
-
-            // 알람 해제 여부에 따른 처리
-            when (isDismiss) {
-                true -> stopSelf()
-                false -> {
-                    startForeground(
-                        notificationId.toInt(),
-                        createNotification(alarm, shouldNavigateToMission),
-                    )
-                    if (alarm.isVibrationEnabled) startVibration()
-                    if (alarm.isSoundEnabled) startSound(alarm.soundUri, alarm.soundVolume)
-                }
-            }
-
-            if (isOneTimeAlarm) {
-                turnOffAlarm(alarmId = notificationId)
-            }
-        }
-    }
+    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun onCreate() {
         super.onCreate()
-
         createNotificationChannel()
-
         setupVibrator()
-
-        HandlerThread("AlarmServiceThread", THREAD_PRIORITY_BACKGROUND).apply {
-            start()
-            serviceLooper = looper
-            serviceHandler = ServiceHandler(looper)
-        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        serviceHandler?.obtainMessage()?.also { message ->
-            message.arg1 = startId
-            message.data = intent?.extras
-            serviceHandler?.sendMessage(message)
+        serviceScope.launch {
+            handleIntent(intent ?: return@launch)
         }
         return START_NOT_STICKY
     }
@@ -149,9 +75,59 @@ class AlarmService : Service() {
     override fun onDestroy() {
         stopVibration()
         stopSound()
-        // remove notification
         stopForeground(STOP_FOREGROUND_REMOVE)
-        stopSelf()
+        serviceScope.cancel()
+        super.onDestroy()
+    }
+
+    private suspend fun handleIntent(intent: Intent) {
+        val alarm: Alarm? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(AlarmConstants.EXTRA_ALARM, Alarm::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(AlarmConstants.EXTRA_ALARM)
+        }
+
+        if (alarm == null) {
+            Log.e("AlarmService", "Failed to retrieve Alarm object from intent")
+            return
+        }
+
+        val notificationId = alarm.id
+        val isDismiss = intent.getBooleanExtra(AlarmConstants.EXTRA_IS_DISMISS, false)
+        val isOneTimeAlarm = alarm.repeatDays == 0
+
+        Log.d("AlarmService", "AlarmService started for alarm: $alarm")
+
+        // 반복 요일 알람 시, 다음 주 동일 요일 알람 예약
+        if (!isOneTimeAlarm) {
+            intent.getStringExtra(AlarmConstants.EXTRA_ALARM_DAY)?.let {
+                alarmHelper.scheduleWeeklyAlarm(alarm, AlarmDay.valueOf(it))
+            }
+        }
+
+        // 알람 해제 여부에 따른 처리
+        when (isDismiss) {
+            true -> stopSelf()
+            false -> {
+                startForeground(
+                    notificationId.toInt(),
+                    createNotification(alarm, shouldNavigateToMission()),
+                )
+                if (alarm.isVibrationEnabled) startVibration()
+                if (alarm.isSoundEnabled) startSound(alarm.soundUri, alarm.soundVolume)
+            }
+        }
+
+        if (isOneTimeAlarm) {
+            turnOffAlarm(alarmId = notificationId)
+        }
+    }
+
+    private suspend fun shouldNavigateToMission(): Boolean {
+        val fortuneDate = userPreferences.fortuneDateFlow.firstOrNull()
+        val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+        return fortuneDate != todayDate
     }
 
     private fun createNotification(alarm: Alarm, shouldNavigateToMission: Boolean): Notification {
