@@ -15,7 +15,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,7 +32,7 @@ fun OrbitYearMonthPicker(
     initialLunar: String = "양력",
     initialYear: String = "2000",
     initialMonth: String = "1",
-    initialDay: String = "01",
+    initialDay: String = "1",
     onValueChange: (String, Int, Int, Int) -> Unit,
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
@@ -41,16 +40,24 @@ fun OrbitYearMonthPicker(
     val lunarState = remember { mutableStateOf(initialLunar) }
     val yearState = remember { mutableIntStateOf(initialYear.toInt()) }
     val monthState = remember { mutableIntStateOf(initialMonth.toInt()) }
+
+    val maxDay = getMaxDaysInMonth(yearState.intValue, monthState.intValue)
+    val dayItems = (1..maxDay).map { it.toString() }
+
+    val startIndexYear = (1900..2024).map { it.toString() }.indexOf(initialYear).takeIf { it >= 0 } ?: 0
+    val startIndexMonth = (1..12).map { it.toString() }.indexOf(initialMonth).takeIf { it >= 0 } ?: 0
+    val startIndexDay = dayItems.indexOf(initialDay).takeIf { it >= 0 } ?: 0
+
     val dayState = remember { mutableIntStateOf(initialDay.toInt()) }
-    val dayItems = remember { mutableStateListOf<String>() }
+
+    val yearPickerState = rememberPickerState(startIndex = startIndexYear)
+    val monthPickerState = rememberPickerState(startIndex = startIndexMonth)
+    val dayPickerState = rememberPickerState(startIndex = startIndexDay)
 
     LaunchedEffect(yearState.intValue, monthState.intValue) {
-        val maxDay = getMaxDaysInMonth(yearState.intValue, monthState.intValue)
-        dayItems.clear()
-        dayItems.addAll((1..maxDay).map { it.toString().padStart(2, '0') })
-
-        if (dayState.intValue > maxDay) {
-            dayState.intValue = maxDay
+        val newMaxDay = getMaxDaysInMonth(yearState.intValue, monthState.intValue)
+        if (dayState.intValue > newMaxDay) {
+            dayState.intValue = newMaxDay
         }
     }
 
@@ -68,8 +75,6 @@ fun OrbitYearMonthPicker(
         ) {
             val lunarItems = listOf("양력", "음력")
             val yearItems = (1900..2024).map { it.toString() }
-            val startIndex = yearItems.indexOf(initialYear).takeIf { it >= 0 } ?: 0
-            val yearPickerState = rememberPickerState(startIndex = startIndex)
             val monthItems = (1..12).map { it.toString() }
 
             Box(
@@ -111,6 +116,7 @@ fun OrbitYearMonthPicker(
                     )
                     OrbitPickerItem(
                         items = monthItems,
+                        state = monthPickerState,
                         visibleItemsCount = 5,
                         itemSpacing = itemSpacing,
                         textStyle = OrbitTheme.typography.title2SemiBold,
@@ -121,6 +127,7 @@ fun OrbitYearMonthPicker(
                     )
                     OrbitPickerItem(
                         items = dayItems,
+                        state = dayPickerState,
                         visibleItemsCount = 5,
                         itemSpacing = itemSpacing,
                         textStyle = OrbitTheme.typography.title2SemiBold,

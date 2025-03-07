@@ -18,6 +18,7 @@ sealed class SettingContract {
         val isDialogVisible: Boolean = false,
         val isNameValid: Boolean = true,
         val isTimeValid: Boolean = true,
+        val shouldFetchUserInfo: Boolean = true,
     ) : UiState {
         val birthDateFormatted: String
             get() {
@@ -28,8 +29,13 @@ sealed class SettingContract {
 
                 return "$birthType $year $month $day"
             }
+        val timeOfBirthFormatted: String
+            get() = timeOfBirth.takeIf { it.length >= 5 }?.let {
+                "${it.substring(0, 2)}시 ${it.substring(3, 5)}분"
+            } ?: " "
+
         val isActionEnabled: Boolean
-            get() = isNameValid && isTimeValid && selectedGender != null
+            get() = isNameValid && (isTimeUnknown || (timeOfBirth.length == 5 && isTimeValid)) && selectedGender != null
     }
 
     sealed class Action {
