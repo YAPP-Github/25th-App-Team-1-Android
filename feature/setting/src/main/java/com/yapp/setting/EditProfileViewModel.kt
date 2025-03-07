@@ -178,7 +178,6 @@ class EditProfileViewModel @Inject constructor(
             val userId = userPreferences.userIdFlow.firstOrNull()
             if (userId != null) {
                 fetchUserInfo(userId)
-                updateState { copy(shouldFetchUserInfo = true) }
             }
         }
     }
