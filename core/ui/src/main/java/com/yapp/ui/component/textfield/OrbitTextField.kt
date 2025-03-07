@@ -143,27 +143,31 @@ private fun TextFieldContainer(
     textAlign: TextAlign,
     enabled: Boolean,
 ) {
+    val outerBorderColor = when {
+        isFocused && !isValid -> OrbitTheme.colors.alert.copy(alpha = 0.2f)
+        isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
+        !isValid -> OrbitTheme.colors.alert.copy(alpha = 0.2f)
+        else -> Color.Transparent
+    }
+
+    val innerBorderColor = when {
+        isFocused && !isValid -> OrbitTheme.colors.alert
+        isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
+        !isValid -> OrbitTheme.colors.alert
+        else -> OrbitTheme.colors.gray_700
+    }
+
     Box(
         modifier = Modifier
             .border(
                 width = 3.dp,
-                color = when {
-                    isValid -> Color.Transparent
-                    isFocused && showWarning -> OrbitTheme.colors.alert.copy(alpha = 0.2f)
-                    isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
-                    else -> Color.Transparent
-                },
+                color = outerBorderColor,
                 shape = RoundedCornerShape(18.dp),
             )
             .padding(2.dp)
             .border(
                 width = 1.dp,
-                color = when {
-                    isValid -> OrbitTheme.colors.gray_700
-                    isFocused && showWarning -> OrbitTheme.colors.alert
-                    isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
-                    else -> OrbitTheme.colors.gray_700
-                },
+                color = innerBorderColor,
                 shape = RoundedCornerShape(16.dp),
             )
             .background(OrbitTheme.colors.gray_800, shape = RoundedCornerShape(16.dp))
@@ -232,7 +236,7 @@ private fun TextFieldContainer(
                 },
         )
 
-        if (enabled && text.text.isNotEmpty()) {
+        if (enabled && text.text.isNotEmpty() && isFocused) {
             Icon(
                 painter = painterResource(id = core.designsystem.R.drawable.ic_circle_delete),
                 contentDescription = "delete",
