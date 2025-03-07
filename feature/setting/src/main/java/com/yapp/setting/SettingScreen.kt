@@ -3,6 +3,7 @@ package com.yapp.setting
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,10 +11,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
@@ -27,6 +30,7 @@ import com.yapp.setting.component.SettingTopAppBar
 import com.yapp.setting.component.TableOfContentsText
 import com.yapp.setting.component.UserInfoCard
 import com.yapp.setting.component.VersionCodeText
+import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.extensions.customClickable
 
 @Composable
@@ -84,6 +88,33 @@ fun SettingScreen(
     onTermsClick: () -> Unit = {},
     onPrivacyPolicyClick: () -> Unit = {},
 ) {
+    if (state.initialLoading) {
+        SettingLoadingScreen()
+    } else {
+        SettingContent(
+            name = state.name,
+            selectedGender = state.selectedGender ?: "",
+            birthDate = state.birthDateFormatted,
+            onNavigateToEditProfile = onNavigateToEditProfile,
+            onBackClick = onBackClick,
+            onInquiryClick = onInquiryClick,
+            onTermsClick = onTermsClick,
+            onPrivacyPolicyClick = onPrivacyPolicyClick,
+        )
+    }
+}
+
+@Composable
+private fun SettingContent(
+    name: String,
+    selectedGender: String,
+    birthDate: String,
+    onNavigateToEditProfile: () -> Unit,
+    onBackClick: () -> Unit,
+    onInquiryClick: () -> Unit,
+    onTermsClick: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -98,9 +129,9 @@ fun SettingScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         UserInfoCard(
-            name = state.name,
-            gender = state.selectedGender ?: "",
-            birth = state.birthDate,
+            name = name,
+            gender = selectedGender,
+            birth = birthDate,
             modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .customClickable(
@@ -153,6 +184,23 @@ fun SettingScreen(
         Spacer(modifier = Modifier.weight(1f))
         VersionCodeText(versionCode = "v1.0.0")
         Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun SettingLoadingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(OrbitTheme.colors.gray_900),
+        contentAlignment = Alignment.Center,
+    ) {
+        LottieAnimation(
+            modifier = Modifier
+                .size(70.dp)
+                .align(Alignment.Center),
+            resId = core.designsystem.R.raw.star_loading,
+        )
     }
 }
 
