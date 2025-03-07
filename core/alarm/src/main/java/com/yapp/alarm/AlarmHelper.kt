@@ -68,12 +68,19 @@ class AlarmHelper @Inject constructor(
         }
     }
 
+    fun cancelSnoozedAlarm(alarmId: Long) {
+        val snoozedAlarmId = alarmId + AlarmConstants.SNOOZE_ID_OFFSET
+        val pendingIntent = createAlarmReceiverPendingIntentForUnSchedule(app, Alarm(id = snoozedAlarmId))
+        alarmManager.cancel(pendingIntent)
+        Log.d("AlarmHelper", "Canceled snoozed alarm with id: $snoozedAlarmId")
+    }
+
     private fun setRepeatingAlarm(day: AlarmDay, alarm: Alarm) {
         val alarmReceiverPendingIntent =
             createAlarmReceiverPendingIntentForSchedule(app, alarm, day)
         val firstAlarmTriggerMillis = getNextAlarmTimeMillis(alarm, day)
 
-        Log.d("AlarmHelper", "Setting repeating alarm at: $firstAlarmTriggerMillis")
+        Log.d("AlarmHelper", "Setting repeating alarm id: ${alarm.id} at: $firstAlarmTriggerMillis")
 
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,

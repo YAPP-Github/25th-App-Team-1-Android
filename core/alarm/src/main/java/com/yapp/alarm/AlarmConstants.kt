@@ -14,6 +14,8 @@ object AlarmConstants {
     const val EXTRA_IS_SNOOZED = "com.yapp.orbit.EXTRA_IS_SNOOZED"
     const val EXTRA_IS_DISMISS = "com.yapp.orbit.EXTRA_IS_DISMISS"
 
+    const val SNOOZE_ID_OFFSET = 10000
+
     const val WEEK_INTERVAL_MILLIS: Long = 7 * 24 * 60 * 60 * 1000
 
     val HOLIDAYS_2025 = setOf(
