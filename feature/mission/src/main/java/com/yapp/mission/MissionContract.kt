@@ -8,7 +8,7 @@ sealed class MissionContract {
         val missionProgress: Int = 0,
         val isMissionCompleted: Boolean = false,
         val isFlipped: Boolean = false,
-        val clickCount: Int = 0,
+        val shakeCount: Int = 0,
         val rotationY: Float = 0f,
         val rotationZ: Float = 0f,
         val showExitDialog: Boolean = false,

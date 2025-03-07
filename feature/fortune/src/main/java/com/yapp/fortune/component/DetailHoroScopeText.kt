@@ -2,13 +2,10 @@ package com.yapp.fortune.component
 
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,25 +34,18 @@ fun DetailHoroScopeText(
             .paddingForScreenPercentage(horizontalPercentage = 0.055f),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Image(
-                painter = painterResource(id = iconRes),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(end = 4.dp),
-            )
-            Text(
-                text = fortuneTitleText,
-                style = OrbitTheme.typography.label1SemiBold,
-                color = color,
-                textAlign = TextAlign.Start,
-            )
-        }
+        Image(
+            painter = painterResource(id = iconRes),
+            contentDescription = null,
+            modifier = Modifier.size(24.dp),
+        )
+        Spacer(modifier = Modifier.height(3.dp))
+        Text(
+            text = fortuneTitleText,
+            style = OrbitTheme.typography.label1SemiBold,
+            color = color,
+            textAlign = TextAlign.Start,
+        )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = fortuneSubTitleText,

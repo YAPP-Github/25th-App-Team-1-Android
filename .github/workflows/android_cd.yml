@@ -51,12 +51,15 @@ jobs:
                   FIREBASE_SECRET: ${{ secrets.FIREBASE_SECRET }}
               run: echo $FIREBASE_SECRET | base64 --decode > app/google-services.json
 
-            # 7. local.properties
-            - name: Add local.properties
+            # Add Local Properties
+            - name: Add Local Properties
               env:
                   BASE_URL: ${{ secrets.BASE_URL }}
-              run: |
-                  echo "base.url=\"$BASE_URL\"" >> app/local.properties
+              run: echo "baseUrl=$BASE_URL" >> local.properties
+
+            # 7. Debug Local Properties Check
+            -   name: Debug Local Properties
+                run: cat local.properties
 
             # 8. Ktlint
             - name: Run Ktlint Check

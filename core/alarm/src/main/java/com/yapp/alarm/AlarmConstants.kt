@@ -9,7 +9,10 @@ object AlarmConstants {
     const val EXTRA_NOTIFICATION_ID = "com.yapp.orbit.EXTRA_NOTIFICATION_ID"
 
     const val EXTRA_ALARM = "com.yapp.orbit.EXTRA_ALARM"
+    const val EXTRA_ALARM_DAY = "com.yapp.orbit.EXTRA_ALARM_DAY"
 
     const val EXTRA_IS_SNOOZED = "com.yapp.orbit.EXTRA_IS_SNOOZED"
     const val EXTRA_IS_DISMISS = "com.yapp.orbit.EXTRA_IS_DISMISS"
+
+    const val WEEK_INTERVAL_MILLIS: Long = 7 * 24 * 60 * 60 * 1000
 }

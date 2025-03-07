@@ -2,7 +2,6 @@ package com.yapp.setting.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.ui.extensions.customClickable
 
 @Composable
 fun InquiryCard(
@@ -76,7 +76,12 @@ fun InquirySendRow(
     Row(
         modifier = Modifier
             .wrapContentWidth()
-            .clickable(onClick = onInquiryClick)
+            .customClickable(
+                rippleEnabled = true,
+                fadeOnPress = true,
+                pressedAlpha = 0.5f,
+                onClick = onInquiryClick,
+            )
             .padding(horizontal = 4.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

@@ -34,7 +34,6 @@ fun OrbitPickerItem(
     modifier: Modifier = Modifier,
     items: List<String>,
     state: PickerState = rememberPickerState(),
-    startIndex: Int = 0,
     visibleItemsCount: Int,
     textModifier: Modifier = Modifier,
     infiniteScroll: Boolean = true,
@@ -140,7 +139,7 @@ fun OrbitPickerItem(
                     0.2f
                 }
 
-                val scaleY = 1f - (0.4f * (distanceFromCenter / maxDistance)).coerceIn(0f, 0.4f)
+                val scaleY = 1f - (0.2f * (distanceFromCenter / maxDistance)).coerceIn(0f, 0.4f)
 
                 Text(
                     text = getItemForIndex(index, items, infiniteScroll, visibleItemsMiddle),

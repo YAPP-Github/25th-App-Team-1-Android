@@ -14,6 +14,7 @@ import com.yapp.common.navigation.destination.SettingDestination
 import com.yapp.common.navigation.destination.WebViewDestination
 import com.yapp.common.navigation.extensions.sharedHiltViewModel
 import com.yapp.ui.base.BaseViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 fun NavGraphBuilder.settingNavGraph(
     navigator: OrbitNavigator,
@@ -30,7 +31,7 @@ fun NavGraphBuilder.settingNavGraph(
                             backStackEntry.sharedHiltViewModel<SettingViewModel>(navigator.navController)
 
                         LaunchedEffect(viewModel) {
-                            viewModel.container.sideEffectFlow.collect { sideEffect ->
+                            viewModel.container.sideEffectFlow.collectLatest { sideEffect ->
                                 handleSettingSideEffect(sideEffect, navigator, viewModel)
                             }
                         }
@@ -98,7 +99,7 @@ fun NavGraphBuilder.settingNavGraph(
                             backStackEntry.sharedHiltViewModel<EditProfileViewModel>(navigator.navController)
 
                         LaunchedEffect(viewModel) {
-                            viewModel.container.sideEffectFlow.collect { sideEffect ->
+                            viewModel.container.sideEffectFlow.collectLatest { sideEffect ->
                                 handleSettingSideEffect(sideEffect, navigator, viewModel)
                             }
                         }
@@ -130,5 +131,6 @@ private fun handleSettingSideEffect(
         is SettingContract.SideEffect.OpenWebView -> {
             navigator.navigateTo("${WebViewDestination.WebView.route}/${Uri.encode(sideEffect.url)}")
         }
+        else -> {}
     }
 }

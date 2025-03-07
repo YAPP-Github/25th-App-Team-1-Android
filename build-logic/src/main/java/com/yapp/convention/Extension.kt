@@ -27,12 +27,11 @@ internal val ExtensionContainer.libs: VersionCatalog
 
 internal fun CommonExtension<*, *, *, *, *, *>.addBuildConfigFields(project: Project) {
     val baseUrl = project.getLocalProperty("baseUrl", "https://default.example.com")
-    val isDebug = project.providers.gradleProperty("isDebug").orNull?.toBoolean() ?: false
 
     buildTypes {
         getByName("debug") {
             buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
-            buildConfigField("boolean", "DEBUG", isDebug.toString())
+            buildConfigField("boolean", "DEBUG", "true")
         }
         getByName("release") {
             buildConfigField("String", "BASE_URL", "\"$baseUrl\"")
