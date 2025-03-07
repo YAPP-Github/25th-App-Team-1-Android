@@ -26,6 +26,7 @@ fun UserInfoCard(
     name: String,
     gender: String,
     birth: String,
+    timeOfBirth: String,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -40,7 +41,7 @@ fun UserInfoCard(
         Column {
             UserNameAndGenderText(name = name, gender = gender)
             Spacer(modifier = Modifier.height(4.dp))
-            UserBirthDayText(birth = birth)
+            UserBirthDayText(birth = birth, timeOfBirth = timeOfBirth)
         }
         Icon(
             painter = painterResource(id = core.designsystem.R.drawable.ic_arrow_right),
@@ -78,9 +79,9 @@ fun UserNameAndGenderText(name: String, gender: String) {
 }
 
 @Composable
-fun UserBirthDayText(birth: String) {
+fun UserBirthDayText(birth: String, timeOfBirth: String) {
     Text(
-        text = birth,
+        text = "$birth $timeOfBirth",
         style = OrbitTheme.typography.body1Regular,
         color = OrbitTheme.colors.gray_50,
     )
@@ -93,5 +94,6 @@ fun UserInfoCardPreview() {
         name = "강문수",
         gender = "남",
         birth = "1999.01.01",
+        timeOfBirth = "20:00",
     )
 }

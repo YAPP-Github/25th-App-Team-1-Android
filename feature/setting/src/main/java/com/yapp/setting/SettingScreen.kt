@@ -86,7 +86,8 @@ fun SettingScreen(
         UserInfoCard(
             name = state.name,
             gender = state.selectedGender ?: "",
-            birth = state.birthDate,
+            birth = state.birthDateFormatted,
+            timeOfBirth = state.timeOfBirthFormatted,
             modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .customClickable(

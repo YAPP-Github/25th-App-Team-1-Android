@@ -38,6 +38,7 @@ class SettingViewModel @Inject constructor(
                             name = user.name,
                             birthDate = user.birthDate,
                             selectedGender = user.gender,
+                            timeOfBirth = user.birthTime.toString(),
                         )
                     }
                 }

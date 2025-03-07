@@ -29,6 +29,11 @@ sealed class SettingContract {
 
                 return "$birthType $year $month $day"
             }
+        val timeOfBirthFormatted: String
+            get() = timeOfBirth.takeIf { it.length >= 5 }?.let {
+                "${it.substring(0, 2)}시 ${it.substring(3, 5)}분"
+            } ?: " "
+
         val isActionEnabled: Boolean
             get() = isNameValid && (isTimeUnknown || (timeOfBirth.length == 5 && isTimeValid)) && selectedGender != null
     }
