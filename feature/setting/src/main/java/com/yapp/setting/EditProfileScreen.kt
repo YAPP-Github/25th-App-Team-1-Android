@@ -1,6 +1,5 @@
 package com.yapp.setting
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,6 +20,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,7 +53,11 @@ fun EditProfileRoute(
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
-    Log.d("EditProfileRoute", "State: $state")
+    LaunchedEffect(state.shouldFetchUserInfo) {
+        if (state.shouldFetchUserInfo) {
+            viewModel.onAction(SettingContract.Action.RefreshUserInfo)
+        }
+    }
 
     EditProfileScreen(
         state = state,
@@ -152,7 +157,7 @@ fun EditProfileScreen(
                 hint = "이름 입력",
                 isValid = state.isNameValid,
                 showWarning = !state.isNameValid,
-                warningMessage = "올바른 이름을 입력해주세요.",
+                warningMessage = "입력한 내용을 확인해 주세요.",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp),
@@ -193,6 +198,7 @@ fun EditProfileScreen(
                         onToggle = { onToggleGender(true) },
                         height = 52.dp,
                         textStyle = OrbitTheme.typography.body1Regular,
+                        shape = RoundedCornerShape(12.dp),
                     )
                 }
                 Box(modifier = Modifier.weight(1f)) {
@@ -202,6 +208,7 @@ fun EditProfileScreen(
                         onToggle = { onToggleGender(false) },
                         height = 52.dp,
                         textStyle = OrbitTheme.typography.body1Regular,
+                        shape = RoundedCornerShape(12.dp),
                     )
                 }
             }
@@ -226,13 +233,16 @@ fun EditProfileScreen(
                             birthTimeTextFieldValue.value = formattedValue
                             onUpdateTimeOfBirth(formattedValue.text)
                         },
-                        hint = "시간모름",
+                        hint = "23:59",
                         isValid = state.isTimeValid,
                         showWarning = !state.isTimeValid,
                         enabled = !state.isTimeUnknown,
                         modifier = Modifier
                             .weight(1f),
                         textAlign = TextAlign.Start,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number,
+                        ),
                         keyboardActions = KeyboardActions(
                             onDone = {
                                 focusManager.clearFocus()

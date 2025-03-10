@@ -32,10 +32,9 @@ fun SettingRoute(
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
-    LaunchedEffect(Unit) {
-        viewModel.refreshUserInfo() // 이걸 어찌 할까요
+    LaunchedEffect(key1 = Unit) {
+        viewModel.onAction(SettingContract.Action.RefreshUserInfo)
     }
-
     SettingScreen(
         state = state,
         onNavigateToEditProfile = {
@@ -87,7 +86,8 @@ fun SettingScreen(
         UserInfoCard(
             name = state.name,
             gender = state.selectedGender ?: "",
-            birth = state.birthDate,
+            birth = state.birthDateFormatted,
+            timeOfBirth = state.timeOfBirthFormatted,
             modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .customClickable(
