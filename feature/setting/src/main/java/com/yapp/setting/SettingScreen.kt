@@ -94,6 +94,7 @@ fun SettingScreen(
             name = state.name,
             selectedGender = state.selectedGender ?: "",
             birthDate = state.birthDateFormatted,
+            timeOfBirth = state.timeOfBirthFormatted,
             onNavigateToEditProfile = onNavigateToEditProfile,
             onBackClick = onBackClick,
             onInquiryClick = onInquiryClick,
@@ -108,6 +109,7 @@ private fun SettingContent(
     name: String,
     selectedGender: String,
     birthDate: String,
+    timeOfBirth: String,
     onNavigateToEditProfile: () -> Unit,
     onBackClick: () -> Unit,
     onInquiryClick: () -> Unit,
@@ -131,6 +133,7 @@ private fun SettingContent(
             name = name,
             gender = selectedGender,
             birth = birthDate,
+            timeOfBirth = timeOfBirth,
             modifier = Modifier
                 .padding(horizontal = 24.dp)
                 .customClickable(
