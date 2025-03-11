@@ -56,10 +56,12 @@ class AlarmReceiver : BroadcastReceiver() {
                 Log.d("AlarmReceiver", "Alarm Dismissed")
                 val alarmId = intent.getLongExtra(AlarmConstants.EXTRA_NOTIFICATION_ID, -1L)
                 if (alarmId != -1L) {
-                    handleFirstAlarmDismissed(context, alarmId)
+                    handleFirstAlarmDismissed(alarmId)
+                    alarmHelper.cancelSnoozedAlarm(alarmId)
                 } else {
                     Log.e("AlarmReceiver", "알람 ID 수신 실패")
                 }
+                alarmHelper.cancelSnoozedAlarm(alarmId)
                 context.stopService(alarmServiceIntent)
                 sendBroadCastToCloseAlarmInteractionActivity(context)
 
@@ -94,19 +96,21 @@ class AlarmReceiver : BroadcastReceiver() {
             hour = if (snoozeDateTime.hour == 0) 12 else if (snoozeDateTime.hour > 12) snoozeDateTime.hour - 12 else snoozeDateTime.hour,
             minute = snoozeDateTime.minute,
             second = snoozeDateTime.second,
+            repeatDays = 0,
             snoozeCount = newSnoozeCount,
+            id = alarm.id + AlarmConstants.SNOOZE_ID_OFFSET,
         )
 
         Log.d(
             "AlarmReceiver",
-            "Scheduling snooze alarm: alarmId=${alarm.id}, newTime=${updatedAlarm.hour}:${updatedAlarm.minute}, remaining snoozeCount=$newSnoozeCount",
+            "Scheduling snooze alarm: alarmId=${updatedAlarm.id}, newTime=${updatedAlarm.hour}:${updatedAlarm.minute}, remaining snoozeCount=$newSnoozeCount",
         )
 
         context.stopService(Intent(context, AlarmService::class.java))
         alarmHelper.scheduleAlarm(updatedAlarm)
     }
 
-    private fun handleFirstAlarmDismissed(context: Context, alarmId: Long) {
+    private fun handleFirstAlarmDismissed(alarmId: Long) {
         CoroutineScope(Dispatchers.IO).launch {
             val existingId = userPreferences.firstDismissedAlarmIdFlow.firstOrNull()
             if (existingId == null) {

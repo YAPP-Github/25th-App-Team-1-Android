@@ -4,6 +4,7 @@ import com.yapp.ui.base.UiState
 
 sealed class SettingContract {
     data class State(
+        val initialLoading: Boolean = true,
         val name: String = "",
         val initialYear: String = "2000",
         val initialMonth: String = "01",
