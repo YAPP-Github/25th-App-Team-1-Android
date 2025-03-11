@@ -1,8 +1,6 @@
 package com.yapp.setting.component
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,8 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -21,6 +17,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.ui.extensions.customClickable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,10 +27,8 @@ fun SettingTopAppBar(
     showTopAppBarActions: Boolean = true,
     title: String,
     actionTitle: String? = null,
+    isActionEnabled: Boolean = false,
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-
     TopAppBar(
         title = {
             Text(
@@ -51,7 +46,12 @@ fun SettingTopAppBar(
                     contentDescription = "Back",
                     tint = OrbitTheme.colors.white,
                     modifier = Modifier
-                        .clickable(onClick = onBackClick)
+                        .customClickable(
+                            rippleEnabled = false,
+                            fadeOnPress = true,
+                            pressedAlpha = 0.5f,
+                            onClick = onBackClick,
+                        )
                         .padding(start = 20.dp),
                 )
             }
@@ -65,12 +65,11 @@ fun SettingTopAppBar(
                     Text(
                         text = actionTitle ?: "",
                         style = OrbitTheme.typography.body1Medium,
-                        color = if (isPressed) OrbitTheme.colors.main else OrbitTheme.colors.gray_500,
+                        color = if (isActionEnabled) OrbitTheme.colors.main else OrbitTheme.colors.gray_300,
                         modifier = Modifier
                             .padding(horizontal = 8.dp, vertical = 4.dp)
                             .clickable(
-                                interactionSource = interactionSource,
-                                indication = null,
+                                enabled = isActionEnabled,
                                 onClick = onActionClick,
                             ),
                     )

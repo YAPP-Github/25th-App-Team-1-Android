@@ -1,6 +1,7 @@
 package com.yapp.home.component.bottomsheet
 
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -50,9 +51,10 @@ import androidx.compose.ui.unit.dp
 import com.yapp.alarm.component.AlarmListItem
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.domain.model.Alarm
+import com.yapp.home.HomeContract
 import com.yapp.home.component.AlarmListDropDownMenu
+import com.yapp.home.component.AlarmSortDropDownMenu
 import com.yapp.ui.component.checkbox.OrbitCheckBox
-import com.yapp.ui.utils.OnLoadMore
 import feature.home.R
 import kotlinx.coroutines.launch
 
@@ -65,23 +67,26 @@ enum class BottomSheetExpandState {
 internal fun AlarmListBottomSheet(
     alarms: List<Alarm>,
     menuExpanded: Boolean = false,
+    sortDropDownMenuExpanded: Boolean = false,
+    sortOrder: HomeContract.AlarmSortOrder,
     isAllSelected: Boolean,
     isSelectionMode: Boolean,
     selectedAlarmIds: Set<Long>,
     halfExpandedHeight: Dp = 0.dp,
-    isLoading: Boolean,
-    hasMoreData: Boolean,
     listState: LazyListState,
     onClickAlarm: (Long) -> Unit,
+    onLongPressAlarm: (Long, Float, Float) -> Unit,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     onClickCheckAll: () -> Unit,
     onClickClose: () -> Unit,
     onClickEdit: () -> Unit,
+    onClickSort: () -> Unit,
+    onSetSortOrder: (HomeContract.AlarmSortOrder) -> Unit,
     onDismissRequest: () -> Unit,
     onToggleSelect: (Long) -> Unit,
     onToggleActive: (Long) -> Unit,
-    onLoadMore: () -> Unit,
+    onSwipe: (Long) -> Unit,
     content: @Composable () -> Unit,
 ) {
     var expandedType by remember { mutableStateOf(BottomSheetExpandState.HALF_EXPANDED) }
@@ -102,9 +107,9 @@ internal fun AlarmListBottomSheet(
     val nestedScrollConnection = remember {
         object : androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
             override fun onPreScroll(
-                available: Offset, // 변경된 부분
+                available: Offset,
                 source: androidx.compose.ui.input.nestedscroll.NestedScrollSource,
-            ): Offset { // 변경된 부분
+            ): Offset {
                 if (available.y < 0 && sheetState.currentValue == SheetValue.PartiallyExpanded) {
                     coroutineScope.launch { sheetState.expand() }
                 }
@@ -126,24 +131,27 @@ internal fun AlarmListBottomSheet(
             AlarmBottomSheetContent(
                 modifier = Modifier.nestedScroll(nestedScrollConnection),
                 alarms = alarms,
-                menuExpanded = menuExpanded,
+                dropDownMenuExpanded = menuExpanded,
+                sortDropDownMenuExpanded = sortDropDownMenuExpanded,
+                sortOrder = sortOrder,
                 isSelectionMode = isSelectionMode,
                 isAllSelected = isAllSelected,
                 selectedAlarmIds = selectedAlarmIds,
                 listState = listState,
                 onClickAlarm = onClickAlarm,
+                onLongPressAlarm = onLongPressAlarm,
                 onClickAdd = onClickAdd,
                 onClickMore = onClickMore,
                 onClickCheckAll = onClickCheckAll,
                 onClickClose = onClickClose,
                 onClickEdit = onClickEdit,
+                onClickSort = onClickSort,
+                onSetSortOrder = onSetSortOrder,
                 expandedType = expandedType,
                 onDismissRequest = onDismissRequest,
                 onToggleSelect = onToggleSelect,
                 onToggleActive = onToggleActive,
-                isLoading = isLoading,
-                hasMoreData = hasMoreData,
-                onLoadMore = onLoadMore,
+                onSwipe = onSwipe,
             )
         },
         sheetShadowElevation = 0.dp,
@@ -164,36 +172,32 @@ internal fun AlarmListBottomSheet(
 internal fun AlarmBottomSheetContent(
     modifier: Modifier = Modifier,
     alarms: List<Alarm>,
-    menuExpanded: Boolean,
+    dropDownMenuExpanded: Boolean,
+    sortDropDownMenuExpanded: Boolean,
+    sortOrder: HomeContract.AlarmSortOrder,
     isSelectionMode: Boolean,
     isAllSelected: Boolean,
     selectedAlarmIds: Set<Long>,
     listState: LazyListState,
     onClickAlarm: (Long) -> Unit,
+    onLongPressAlarm: (Long, Float, Float) -> Unit,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     onClickCheckAll: () -> Unit,
     onClickClose: () -> Unit,
     onClickEdit: () -> Unit,
+    onClickSort: () -> Unit,
+    onSetSortOrder: (HomeContract.AlarmSortOrder) -> Unit,
     onDismissRequest: () -> Unit,
     onToggleSelect: (Long) -> Unit,
     onToggleActive: (Long) -> Unit,
+    onSwipe: (Long) -> Unit,
     expandedType: BottomSheetExpandState,
-    isLoading: Boolean,
-    hasMoreData: Boolean,
-    onLoadMore: () -> Unit,
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
 
     val cornerRadius = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 16.dp else 0.dp
     val topPadding = if (expandedType == BottomSheetExpandState.HALF_EXPANDED) 14.dp else 14.dp + statusBarHeight
-
-    listState.OnLoadMore(
-        hasMoreData = hasMoreData,
-        isLoading = isLoading,
-    ) {
-        onLoadMore()
-    }
 
     Column(
         modifier = modifier
@@ -214,39 +218,60 @@ internal fun AlarmBottomSheetContent(
             )
         } else {
             AlarmListTopBar(
-                menuExpanded = menuExpanded,
+                menuExpanded = dropDownMenuExpanded,
+                sortDropDownMenuExpanded = sortDropDownMenuExpanded,
+                sortOrder = sortOrder,
                 onClickAdd = onClickAdd,
                 onClickMore = onClickMore,
                 onDismissRequest = onDismissRequest,
                 onClickEdit = onClickEdit,
+                onClickSort = onClickSort,
+                onSetSortOrder = onSetSortOrder,
             )
         }
 
         LazyColumn(
             state = listState,
         ) {
-            itemsIndexed(alarms) { index, alarm ->
+            itemsIndexed(
+                items = alarms,
+                key = { _, alarm -> alarm.id },
+            ) { index, alarm ->
                 AlarmListItem(
+                    modifier = Modifier
+                        .animateItem(
+                            fadeInSpec = null,
+                            placementSpec = tween(durationMillis = 300),
+                            fadeOutSpec = null,
+                        ),
                     id = alarm.id,
                     repeatDays = alarm.repeatDays,
                     isHolidayAlarmOff = alarm.isHolidayAlarmOff,
+                    swipeable = !isSelectionMode,
                     selectable = isSelectionMode,
                     selected = selectedAlarmIds.contains(alarm.id),
                     onClick = onClickAlarm,
+                    onLongPress = onLongPressAlarm,
                     onToggleSelect = onToggleSelect,
                     isAm = alarm.isAm,
                     hour = alarm.hour,
                     minute = alarm.minute,
                     isActive = alarm.isAlarmActive,
                     onToggleActive = onToggleActive,
+                    onSwipe = onSwipe,
                 )
                 if (index != alarms.size - 1) {
                     Spacer(
                         modifier = Modifier
+                            .padding(horizontal = 24.dp)
                             .fillMaxWidth()
                             .height(1.dp)
                             .background(OrbitTheme.colors.gray_800)
-                            .padding(horizontal = 24.dp),
+                            .animateItem(
+                                fadeInSpec = null,
+                                placementSpec = tween(durationMillis = 300),
+                                fadeOutSpec = null,
+                            ),
                     )
                 }
             }
@@ -262,10 +287,14 @@ internal fun AlarmBottomSheetContent(
 private fun AlarmListTopBar(
     modifier: Modifier = Modifier,
     menuExpanded: Boolean,
+    sortDropDownMenuExpanded: Boolean,
+    sortOrder: HomeContract.AlarmSortOrder,
     onClickAdd: () -> Unit,
     onClickMore: () -> Unit,
     onDismissRequest: () -> Unit,
     onClickEdit: () -> Unit,
+    onClickSort: () -> Unit,
+    onSetSortOrder: (HomeContract.AlarmSortOrder) -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -301,6 +330,16 @@ private fun AlarmListTopBar(
                     expanded = menuExpanded,
                     onDismissRequest = onDismissRequest,
                     onClickEdit = onClickEdit,
+                    onClickSort = onClickSort,
+                )
+            }
+
+            if (sortDropDownMenuExpanded) {
+                AlarmSortDropDownMenu(
+                    expanded = sortDropDownMenuExpanded,
+                    sortOrder = sortOrder,
+                    onDismissRequest = onDismissRequest,
+                    onSetSortOrder = onSetSortOrder,
                 )
             }
         }

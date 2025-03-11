@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
@@ -47,9 +48,10 @@ fun OrbitTextField(
     modifier: Modifier = Modifier,
     showWarning: Boolean = false,
     isValid: Boolean = false,
-    warningMessage: String,
+    warningMessage: String? = null,
     focusRequester: FocusRequester? = null,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
     textAlign: TextAlign = TextAlign.Center,
     enabled: Boolean = true,
 ) {
@@ -87,15 +89,18 @@ fun OrbitTextField(
                     onFocusChanged = { isFocused = it },
                     focusRequester = actualFocusRequester,
                     keyboardOptions = keyboardOptions,
+                    keyboardActions = keyboardActions,
                     isValid = isValid,
                     isFocused = isFocused,
                     textAlign = textAlign,
                     enabled = enabled,
                 )
 
-                Box {
-                    if (showWarning) {
-                        WarningMessage(warningMessage, textAlign)
+                when (showWarning) {
+                    true -> warningMessage?.let {
+                        WarningMessage(it, textAlign)
+                    }
+                    false -> {
                     }
                 }
             }
@@ -134,30 +139,37 @@ private fun TextFieldContainer(
     focusRequester: FocusRequester,
     onFocusChanged: (Boolean) -> Unit,
     keyboardOptions: KeyboardOptions,
+    keyboardActions: KeyboardActions,
     textAlign: TextAlign,
     enabled: Boolean,
 ) {
+    val outerBorderColor = when {
+        isFocused && text.text.isEmpty() -> OrbitTheme.colors.main.copy(alpha = 0.2f)
+        isFocused && !isValid -> OrbitTheme.colors.alert.copy(alpha = 0.2f)
+        isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
+        !isValid -> OrbitTheme.colors.alert.copy(alpha = 0.2f)
+        else -> Color.Transparent
+    }
+
+    val innerBorderColor = when {
+        isFocused && text.text.isEmpty() -> OrbitTheme.colors.main.copy(alpha = 0.2f)
+        isFocused && !isValid -> OrbitTheme.colors.alert
+        isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
+        !isValid -> OrbitTheme.colors.alert
+        else -> OrbitTheme.colors.gray_700
+    }
+
     Box(
         modifier = Modifier
             .border(
                 width = 3.dp,
-                color = when {
-                    isValid -> Color.Transparent
-                    isFocused && showWarning -> OrbitTheme.colors.alert.copy(alpha = 0.2f)
-                    isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
-                    else -> Color.Transparent
-                },
+                color = outerBorderColor,
                 shape = RoundedCornerShape(18.dp),
             )
             .padding(2.dp)
             .border(
                 width = 1.dp,
-                color = when {
-                    isValid -> OrbitTheme.colors.gray_700
-                    isFocused && showWarning -> OrbitTheme.colors.alert
-                    isFocused -> OrbitTheme.colors.main.copy(alpha = 0.2f)
-                    else -> OrbitTheme.colors.gray_700
-                },
+                color = innerBorderColor,
                 shape = RoundedCornerShape(16.dp),
             )
             .background(OrbitTheme.colors.gray_800, shape = RoundedCornerShape(16.dp))
@@ -185,7 +197,9 @@ private fun TextFieldContainer(
                 },
                 textAlign = textAlign,
             ),
+            singleLine = true,
             keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
             cursorBrush = SolidColor(OrbitTheme.colors.white),
             enabled = enabled,
             decorationBox = { innerTextField ->
@@ -224,7 +238,7 @@ private fun TextFieldContainer(
                 },
         )
 
-        if (enabled && text.text.isNotEmpty()) {
+        if (enabled && text.text.isNotEmpty() && isFocused) {
             Icon(
                 painter = painterResource(id = core.designsystem.R.drawable.ic_circle_delete),
                 contentDescription = "delete",

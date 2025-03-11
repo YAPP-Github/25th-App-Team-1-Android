@@ -4,6 +4,7 @@ import com.yapp.ui.base.UiState
 
 sealed class SettingContract {
     data class State(
+        val initialLoading: Boolean = true,
         val name: String = "",
         val initialYear: String = "2000",
         val initialMonth: String = "01",
@@ -18,6 +19,7 @@ sealed class SettingContract {
         val isDialogVisible: Boolean = false,
         val isNameValid: Boolean = true,
         val isTimeValid: Boolean = true,
+        val shouldFetchUserInfo: Boolean = true,
     ) : UiState {
         val birthDateFormatted: String
             get() {
@@ -28,6 +30,13 @@ sealed class SettingContract {
 
                 return "$birthType $year $month $day"
             }
+        val timeOfBirthFormatted: String
+            get() = timeOfBirth.takeIf { it.length >= 5 }?.let {
+                "${it.substring(0, 2)}시 ${it.substring(3, 5)}분"
+            } ?: " "
+
+        val isActionEnabled: Boolean
+            get() = isNameValid && (isTimeUnknown || (timeOfBirth.length == 5 && isTimeValid)) && selectedGender != null
     }
 
     sealed class Action {
@@ -47,6 +56,7 @@ sealed class SettingContract {
         data object HideDialog : Action()
         data object SubmitUserInfo : Action()
         data class OpenWebView(val url: String) : Action()
+        data object RefreshUserInfo : Action()
     }
 
     enum class FieldType(val validationRegex: Regex) {
@@ -63,5 +73,6 @@ sealed class SettingContract {
 
         data object NavigateBack : SideEffect()
         data class OpenWebView(val url: String) : SideEffect()
+        data object UserInfoUpdated : SideEffect()
     }
 }

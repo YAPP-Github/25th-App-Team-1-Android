@@ -9,6 +9,9 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,7 +61,10 @@ fun EditBirthdayScreen(
     onCancelDialog: () -> Unit,
     onUpdateBirthDate: (String, Int, Int, Int) -> Unit,
 ) {
-    val (year, month, day) = state.birthDate.split("-")
+    var selectedLunar by remember { mutableStateOf(state.birthType) }
+    var selectedYear by remember { mutableStateOf(state.birthDate.split("-")[0].toInt()) }
+    var selectedMonth by remember { mutableStateOf(state.birthDate.split("-")[1].toInt()) }
+    var selectedDay by remember { mutableStateOf(state.birthDate.split("-")[2].toInt()) }
 
     Column(
         modifier = Modifier
@@ -72,7 +78,9 @@ fun EditBirthdayScreen(
             showTopAppBarActions = true,
             title = "생년월일 수정",
             actionTitle = "확인",
+            isActionEnabled = true,
             onActionClick = {
+                onUpdateBirthDate(selectedLunar, selectedYear, selectedMonth, selectedDay)
                 onConfirm()
             },
         )
@@ -85,12 +93,15 @@ fun EditBirthdayScreen(
         Spacer(modifier = Modifier.heightForScreenPercentage(0.16f))
 
         OrbitYearMonthPicker(
-            initialLunar = state.birthType,
-            initialYear = year,
-            initialMonth = month,
-            initialDay = day,
+            initialLunar = selectedLunar,
+            initialYear = selectedYear.toString(),
+            initialMonth = selectedMonth.toString(),
+            initialDay = selectedDay.toString(),
         ) { lunar, year, month, day ->
-            onUpdateBirthDate(lunar, year, month, day)
+            selectedLunar = lunar
+            selectedYear = year
+            selectedMonth = month
+            selectedDay = day
         }
     }
 

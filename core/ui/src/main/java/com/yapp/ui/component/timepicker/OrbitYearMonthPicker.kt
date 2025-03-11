@@ -10,13 +10,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -26,7 +24,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
-import kotlinx.coroutines.delay
 
 @Composable
 fun OrbitYearMonthPicker(
@@ -35,45 +32,51 @@ fun OrbitYearMonthPicker(
     initialLunar: String = "양력",
     initialYear: String = "2000",
     initialMonth: String = "1",
-    initialDay: String = "01",
+    initialDay: String = "1",
     onValueChange: (String, Int, Int, Int) -> Unit,
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val lunarState = remember { mutableStateOf(initialLunar) }
-    val yearState = remember { mutableStateOf(initialYear.toInt()) }
-    val monthState = remember { mutableStateOf(initialMonth.toInt()) }
-    val dayState = remember { mutableStateOf(initialDay.toInt()) }
-    val dayItems = remember { mutableStateListOf<String>() }
-    LaunchedEffect(yearState.value, monthState.value) {
-        val maxDay = getMaxDaysInMonth(yearState.value, monthState.value)
-        dayItems.clear()
-        dayItems.addAll((1..maxDay).map { it.toString().padStart(2, '0') })
 
-        if (dayState.value > maxDay) {
-            dayState.value = maxDay
+    val lunarState = remember { mutableStateOf(initialLunar) }
+    val yearState = remember { mutableIntStateOf(initialYear.toInt()) }
+    val monthState = remember { mutableIntStateOf(initialMonth.toInt()) }
+
+    val maxDay = getMaxDaysInMonth(yearState.intValue, monthState.intValue)
+    val dayItems = (1..maxDay).map { it.toString() }
+
+    val startIndexYear = (1900..2024).map { it.toString() }.indexOf(initialYear).takeIf { it >= 0 } ?: 0
+    val startIndexMonth = (1..12).map { it.toString() }.indexOf(initialMonth).takeIf { it >= 0 } ?: 0
+    val startIndexDay = dayItems.indexOf(initialDay).takeIf { it >= 0 } ?: 0
+
+    val dayState = remember { mutableIntStateOf(initialDay.toInt()) }
+
+    val yearPickerState = rememberPickerState(startIndex = startIndexYear)
+    val monthPickerState = rememberPickerState(startIndex = startIndexMonth)
+    val dayPickerState = rememberPickerState(startIndex = startIndexDay)
+
+    LaunchedEffect(yearState.intValue, monthState.intValue) {
+        val newMaxDay = getMaxDaysInMonth(yearState.intValue, monthState.intValue)
+        if (dayState.intValue > newMaxDay) {
+            dayState.intValue = newMaxDay
         }
     }
 
-    LaunchedEffect(lunarState.value, yearState.value, monthState.value, dayState.value) {
-        delay(300)
-        onValueChange(lunarState.value, yearState.value, monthState.value, dayState.value)
+    LaunchedEffect(lunarState.value, yearState.intValue, monthState.intValue, dayState.intValue) {
+        onValueChange(lunarState.value, yearState.intValue, monthState.intValue, dayState.intValue)
     }
 
     Surface(
-        modifier = modifier.fillMaxWidth().wrapContentHeight(),
+        modifier = modifier.fillMaxWidth(),
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Bottom,
-            modifier = Modifier.wrapContentSize().background(OrbitTheme.colors.gray_900),
+            modifier = Modifier.background(OrbitTheme.colors.gray_900),
         ) {
             val lunarItems = listOf("양력", "음력")
             val yearItems = (1900..2024).map { it.toString() }
-            val startIndex = yearItems.indexOf(initialYear).takeIf { it >= 0 } ?: 0
-            val yearPickerState = rememberPickerState(startIndex = startIndex)
             val monthItems = (1..12).map { it.toString() }
-            val dayStartIndex = remember { dayItems.indexOf(initialDay).takeIf { it >= 0 } ?: 0 }
-            val monthStartIndex = remember { monthItems.indexOf(initialMonth).takeIf { it >= 0 } ?: 0 }
+
             Box(
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -109,29 +112,29 @@ fun OrbitYearMonthPicker(
                         modifier = Modifier.width(screenWidth * 0.28f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
-                        onValueChange = { yearState.value = it.toInt() },
+                        onValueChange = { yearState.intValue = it.toInt() },
                     )
                     OrbitPickerItem(
                         items = monthItems,
+                        state = monthPickerState,
                         visibleItemsCount = 5,
                         itemSpacing = itemSpacing,
                         textStyle = OrbitTheme.typography.title2SemiBold,
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
-                        startIndex = monthStartIndex,
-                        onValueChange = { monthState.value = it.toInt() },
+                        onValueChange = { monthState.intValue = it.toInt() },
                     )
                     OrbitPickerItem(
                         items = dayItems,
+                        state = dayPickerState,
                         visibleItemsCount = 5,
                         itemSpacing = itemSpacing,
                         textStyle = OrbitTheme.typography.title2SemiBold,
                         modifier = Modifier.width(screenWidth * 0.16f),
                         textModifier = Modifier.padding(8.dp),
                         infiniteScroll = false,
-                        startIndex = dayStartIndex,
-                        onValueChange = { dayState.value = it.toInt() },
+                        onValueChange = { dayState.intValue = it.toInt() },
                     )
                 }
             }

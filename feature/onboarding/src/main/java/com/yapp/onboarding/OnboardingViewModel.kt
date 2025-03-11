@@ -3,6 +3,7 @@ package com.yapp.onboarding
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.navigation.destination.OnboardingDestination
 import com.yapp.datastore.UserPreferences
 import com.yapp.domain.model.Alarm
@@ -31,6 +32,9 @@ class OnboardingViewModel @Inject constructor(
         birthType = savedStateHandle["birthType"] ?: "양력",
     ),
 ) {
+    private val currentRoute: String?
+        get() = OnboardingDestination.routes.getOrNull(currentState.currentStep - 1)?.route
+
     fun processAction(action: OnboardingContract.Action) {
         when (action) {
             is OnboardingContract.Action.NextStep -> moveToNextStep()
@@ -45,6 +49,8 @@ class OnboardingViewModel @Inject constructor(
             is OnboardingContract.Action.ToggleBottomSheet -> toggleBottomSheet()
             is OnboardingContract.Action.CompleteOnboarding -> completeOnboarding()
             is OnboardingContract.Action.OpenWebView -> openWebView(action.url)
+            is OnboardingContract.Action.ShowWarningDialog -> showWarningDialog()
+            is OnboardingContract.Action.HideWarningDialog -> hideWarningDialog()
         }
     }
 
@@ -62,12 +68,14 @@ class OnboardingViewModel @Inject constructor(
 
             if (result.isSuccess) {
                 val userId = result.getOrNull() ?: return@launch
+                val userName = state.userName
                 userPreferences.saveUserId(userId)
+                userPreferences.saveUserName(userName)
 
                 updateState { copy(isBottomSheetOpen = false) }
                 moveToNextStep()
             } else {
-                emitSideEffect(OnboardingContract.SideEffect.NavigateBack)
+                processAction(OnboardingContract.Action.ShowWarningDialog)
             }
         }
     }
@@ -76,6 +84,9 @@ class OnboardingViewModel @Inject constructor(
         val currentStep = container.stateFlow.value.currentStep
         val nextStep = currentStep + 1
         val nextRoute = OnboardingDestination.nextRoute(currentStep)
+
+        savedStateHandle["birthDate"] = currentState.birthDate
+        savedStateHandle["birthType"] = currentState.birthType
 
         if (nextRoute != null) {
             savedStateHandle["currentStep"] = nextStep
@@ -160,14 +171,15 @@ class OnboardingViewModel @Inject constructor(
             }
 
             OnboardingContract.FieldType.NAME -> {
-                val isValid = value.matches(fieldType.validationRegex)
+                val truncatedValue = OnboardingContract.truncateTextToLimit(value)
+                val isValid = truncatedValue.matches(fieldType.validationRegex)
 
                 updateState {
                     copy(
-                        textFieldValue = value,
-                        userName = value,
-                        showWarning = value.isNotEmpty() && !isValid,
-                        isButtonEnabled = value.isNotEmpty() && isValid,
+                        textFieldValue = truncatedValue,
+                        userName = truncatedValue,
+                        showWarning = !isValid,
+                        isButtonEnabled = truncatedValue.isNotEmpty() && isValid,
                         isValid = isValid,
                     )
                 }
@@ -176,11 +188,10 @@ class OnboardingViewModel @Inject constructor(
     }
 
     private fun updateBirthDate(lunar: String, year: Int, month: Int, day: Int) {
+        if (currentRoute != OnboardingDestination.Birthday.route) return
+
         val formattedDate = "$year-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}"
 
-        if (currentState.birthDate == formattedDate && currentState.birthType == lunar) {
-            return
-        }
         hapticFeedbackManager.performHapticFeedback(HapticType.LIGHT_TICK)
         savedStateHandle["birthDate"] = formattedDate
         savedStateHandle["birthType"] = lunar
@@ -217,11 +228,25 @@ class OnboardingViewModel @Inject constructor(
     private fun completeOnboarding() {
         viewModelScope.launch {
             userPreferences.setOnboardingCompleted()
-            emitSideEffect(OnboardingContract.SideEffect.OnboardingCompleted)
+            emitSideEffect(
+                OnboardingContract.SideEffect.Navigate(
+                    route = HomeDestination.Route.route,
+                    popUpTo = OnboardingDestination.Route.route,
+                    inclusive = true,
+                ),
+            )
         }
     }
 
     private fun openWebView(url: String) {
         emitSideEffect(OnboardingContract.SideEffect.OpenWebView(url))
+    }
+
+    private fun showWarningDialog() {
+        updateState { copy(isShowWarningDialog = true) }
+    }
+
+    private fun hideWarningDialog() {
+        updateState { copy(isShowWarningDialog = false) }
     }
 }

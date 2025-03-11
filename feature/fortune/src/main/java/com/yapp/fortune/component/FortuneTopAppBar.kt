@@ -35,7 +35,12 @@ fun FortuneTopAppBar(
                 painter = painterResource(id = core.designsystem.R.drawable.ic_close),
                 contentDescription = "Close",
                 modifier = Modifier
-                    .customClickable(onClick = onCloseClick),
+                    .customClickable(
+                        rippleEnabled = false,
+                        fadeOnPress = true,
+                        pressedAlpha = 0.5f,
+                        onClick = onCloseClick,
+                    ),
                 tint = OrbitTheme.colors.white,
             )
             Spacer(modifier = Modifier.padding(end = 12.dp))
