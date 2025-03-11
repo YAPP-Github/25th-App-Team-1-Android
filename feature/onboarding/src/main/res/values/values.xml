@@ -11,7 +11,7 @@
 
     <string name="onboarding_step4_text_title">태어난 시간을 알려주세요</string>
     <string name="onboarding_step4_text_check">태어난 시간을 몰라요</string>
-    <string name="onboarding_step4_textfield_warning">입력한 숫자를 확인해 주세요</string>
+    <string name="onboarding_step4_textfield_warning">입력한 내용를 확인해 주세요</string>
 
     <string name="onboarding_step5_text_title">어떤 이름으로 불리길\n원하시나요?</string>
     <string name="onboarding_step5_textfield_warning">입력한 내용을 확인해 주세요</string>

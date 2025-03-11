@@ -20,70 +20,79 @@ class EditProfileViewModel @Inject constructor(
 ) : BaseViewModel<SettingContract.State, SettingContract.SideEffect>(
     SettingContract.State(),
 ) {
-
-    init {
-        viewModelScope.launch {
-            userPreferences.userIdFlow.collect { userId ->
-                if (userId != null) {
-                    fetchUserInfo(userId)
-                }
-            }
-        }
-    }
-
     fun onAction(action: SettingContract.Action) = intent {
         when (action) {
-            is SettingContract.Action.UpdateName -> updateState {
-                val isValid = SettingContract.FieldType.NAME.validationRegex.matches(action.name)
-                copy(name = action.name, isNameValid = isValid)
-            }
-
-            is SettingContract.Action.UpdateBirthDate -> {
-                val formattedDate = "${action.year}-${action.month.toString().padStart(2, '0')}-${action.day.toString().padStart(2, '0')}"
-                updateState { state.copy(birthDate = formattedDate) }
-            }
-
-            is SettingContract.Action.UpdateCalendarType -> {
-                Log.d("EditProfileViewModel", "Received new calendarType: ${action.calendarType}")
-                updateState { state.copy(birthType = action.calendarType) }
-            }
-
-            is SettingContract.Action.UpdateGender -> updateState { copy(selectedGender = action.gender) }
-            is SettingContract.Action.ToggleGender -> updateState {
-                copy(
-                    isMaleSelected = action.isMale,
-                    isFemaleSelected = !action.isMale,
-                    selectedGender = if (action.isMale) "남성" else "여성",
-                )
-            }
-
-            is SettingContract.Action.ToggleTimeUnknown -> updateState {
-                copy(
-                    isTimeUnknown = action.isChecked,
-                    timeOfBirth = if (action.isChecked) "시간모름" else "",
-                )
-            }
-
-            is SettingContract.Action.UpdateTimeOfBirth -> updateState {
-                val isValid = if (action.time.length == 5) {
-                    SettingContract.FieldType.TIME.validationRegex.matches(action.time)
-                } else {
-                    true
-                }
-                copy(timeOfBirth = action.time, isTimeValid = isValid)
-            }
-
-            is SettingContract.Action.ConfirmAndNavigateBack -> {
-                emitSideEffect(SettingContract.SideEffect.NavigateBack)
-            }
-
+            is SettingContract.Action.UpdateName -> updateName(action.name)
+            is SettingContract.Action.UpdateBirthDate -> updateBirthDate(action)
+            is SettingContract.Action.UpdateCalendarType -> updateCalendarType(action.calendarType)
+            is SettingContract.Action.UpdateGender -> updateGender(action.gender)
+            is SettingContract.Action.ToggleGender -> toggleGender(action.isMale)
+            is SettingContract.Action.ToggleTimeUnknown -> toggleTimeUnknown(action.isChecked)
+            is SettingContract.Action.UpdateTimeOfBirth -> updateTimeOfBirth(action.time)
+            is SettingContract.Action.ConfirmAndNavigateBack -> emitSideEffect(SettingContract.SideEffect.NavigateBack)
             is SettingContract.Action.Reset -> updateState { SettingContract.State() }
             SettingContract.Action.ShowDialog -> updateState { copy(isDialogVisible = true) }
             SettingContract.Action.HideDialog -> updateState { copy(isDialogVisible = false) }
-            SettingContract.Action.PreviousStep -> emitSideEffect(SettingContract.SideEffect.NavigateBack)
+            SettingContract.Action.PreviousStep -> previousStep()
             SettingContract.Action.SubmitUserInfo -> submitUserInfo()
-            SettingContract.Action.NavigateToEditBirthday -> navigateToEditBirthday()
+            is SettingContract.Action.NavigateToEditBirthday -> navigateToEditBirthday()
+            is SettingContract.Action.RefreshUserInfo -> {
+                if (currentState.shouldFetchUserInfo) {
+                    refreshUserInfo()
+                }
+            }
             else -> {}
+        }
+    }
+
+    private fun updateName(name: String) = updateState {
+        copy(name = name, isNameValid = validateName(name))
+    }
+
+    private fun validateName(name: String): Boolean {
+        return SettingContract.FieldType.NAME.validationRegex.matches(name)
+    }
+
+    private fun updateBirthDate(action: SettingContract.Action.UpdateBirthDate) = updateState {
+        val formattedDate = "${action.year}-${action.month.toString().padStart(2, '0')}-${
+        action.day.toString().padStart(2, '0')
+        }"
+        copy(birthDate = formattedDate)
+    }
+
+    private fun updateCalendarType(calendarType: String) = updateState {
+        copy(birthType = calendarType)
+    }
+
+    private fun updateGender(gender: String) = updateState {
+        copy(selectedGender = gender)
+    }
+
+    private fun toggleGender(isMale: Boolean) = updateState {
+        copy(
+            isMaleSelected = isMale,
+            isFemaleSelected = !isMale,
+            selectedGender = if (isMale) "남성" else "여성",
+        )
+    }
+
+    private fun toggleTimeUnknown(isChecked: Boolean) = updateState {
+        val newState = copy(
+            isTimeUnknown = isChecked,
+            timeOfBirth = if (isChecked) "시간모름" else "",
+        )
+        newState.copy(isTimeValid = validateTimeOfBirth(newState.timeOfBirth, isChecked))
+    }
+
+    private fun updateTimeOfBirth(time: String) = updateState {
+        copy(timeOfBirth = time, isTimeValid = validateTimeOfBirth(time, isTimeUnknown))
+    }
+
+    private fun validateTimeOfBirth(time: String, isTimeUnknown: Boolean): Boolean {
+        return if (isTimeUnknown) {
+            true
+        } else {
+            time.length == 5 && SettingContract.FieldType.TIME.validationRegex.matches(time)
         }
     }
 
@@ -93,14 +102,10 @@ class EditProfileViewModel @Inject constructor(
                 .onSuccess { user ->
                     val (initialYear, initialMonth, initialDay) = user.birthDate.split("-")
 
-                    Log.d(
-                        "EditProfileViewModel",
-                        "Fetched user data -> birthDate: ${user.birthDate}",
-                    )
-
                     updateState {
                         copy(
                             name = user.name,
+                            isNameValid = validateName(user.name),
                             initialYear = initialYear,
                             initialMonth = initialMonth,
                             initialDay = initialDay,
@@ -109,6 +114,10 @@ class EditProfileViewModel @Inject constructor(
                             selectedGender = user.gender,
                             timeOfBirth = user.birthTime ?: "99:99",
                             isTimeUnknown = user.birthTime == "시간모름",
+                            isTimeValid = validateTimeOfBirth(
+                                user.birthTime ?: "",
+                                user.birthTime == "시간모름",
+                            ),
                             isMaleSelected = user.gender == "남성",
                             isFemaleSelected = user.gender == "여성",
                         )
@@ -118,6 +127,11 @@ class EditProfileViewModel @Inject constructor(
                     Log.e("EditProfileViewModel", "사용자 정보 가져오기 실패: ${error.message}")
                 }
         }
+    }
+
+    private fun previousStep() {
+        updateState { copy(shouldFetchUserInfo = true) }
+        emitSideEffect(SettingContract.SideEffect.NavigateBack)
     }
 
     private fun submitUserInfo() = viewModelScope.launch {
@@ -135,7 +149,6 @@ class EditProfileViewModel @Inject constructor(
         val result = userInfoRepository.updateUserInfo(userId, updatedUser)
 
         if (result.isSuccess) {
-            Log.d("EditProfileViewModel", "사용자 정보 수정 성공")
             userPreferences.saveUserName(state.name)
             emitSideEffect(SettingContract.SideEffect.UserInfoUpdated)
 
@@ -154,9 +167,18 @@ class EditProfileViewModel @Inject constructor(
     private fun extractBirthDate(formattedDate: String): String {
         return formattedDate.replace(Regex("[^0-9-]"), "")
     }
-    // YYYY-MM-DD 형식으로 서버에 전송
 
     private fun navigateToEditBirthday() = intent {
+        updateState { copy(shouldFetchUserInfo = false) }
         emitSideEffect(SettingContract.SideEffect.Navigate(SettingDestination.EditBirthday.route))
+    }
+
+    private fun refreshUserInfo() {
+        viewModelScope.launch {
+            val userId = userPreferences.userIdFlow.firstOrNull()
+            if (userId != null) {
+                fetchUserInfo(userId)
+            }
+        }
     }
 }

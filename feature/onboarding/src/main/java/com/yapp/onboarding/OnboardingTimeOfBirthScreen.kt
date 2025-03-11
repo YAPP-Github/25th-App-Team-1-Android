@@ -3,13 +3,11 @@ package com.yapp.onboarding
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -23,7 +21,6 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
@@ -34,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
+import com.yapp.onboarding.component.UnknownBirthTimeButton
 import com.yapp.ui.component.textfield.OrbitTextField
 import com.yapp.ui.extensions.customClickable
 import com.yapp.ui.utils.heightForScreenPercentage
@@ -94,7 +92,6 @@ fun OnboardingTimeOfBirthScreen(
             ),
         )
     }
-    var isPressed by remember { mutableStateOf(false) }
 
     OnboardingScreen(
         currentStep = currentStep,
@@ -148,37 +145,16 @@ fun OnboardingTimeOfBirthScreen(
                 )
             }
 
-            Row(
+            UnknownBirthTimeButton(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
                     .align(Alignment.CenterHorizontally)
-                    .customClickable(
-                        rippleEnabled = false,
-                        onClick = {
-                            textFieldValue = TextFieldValue("시간모름")
-                            onTextChange("시간모름")
-                            onNextClick()
-                        },
-                        onPress = { isPressed = true },
-                        onRelease = { isPressed = false },
-                    ),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    painter = painterResource(id = core.designsystem.R.drawable.ic_check),
-                    contentDescription = "Check",
-                    tint = if (isPressed) OrbitTheme.colors.main else OrbitTheme.colors.white, // ✅ 클릭 여부에 따라 색상 변경
-                )
-                Text(
-                    text = stringResource(id = R.string.onboarding_step4_text_check),
-                    style = OrbitTheme.typography.body1Medium,
-                    color = if (isPressed) OrbitTheme.colors.main else OrbitTheme.colors.white, // ✅ 클릭 여부에 따라 색상 변경
-                    modifier = Modifier.padding(start = 4.dp),
-                    textAlign = TextAlign.Center,
-                )
-            }
+                    .padding(bottom = 20.dp),
+                onClick = {
+                    textFieldValue = TextFieldValue("시간모름")
+                    onTextChange("시간모름")
+                    onNextClick()
+                },
+            )
         }
     }
 }

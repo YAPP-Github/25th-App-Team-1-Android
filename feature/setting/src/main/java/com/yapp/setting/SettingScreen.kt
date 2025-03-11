@@ -40,10 +40,9 @@ fun SettingRoute(
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        viewModel.refreshUserInfo() // 이걸 어찌 할까요
+    LaunchedEffect(key1 = Unit) {
+        viewModel.onAction(SettingContract.Action.RefreshUserInfo)
     }
-
     SettingScreen(
         state = state,
         onNavigateToEditProfile = {

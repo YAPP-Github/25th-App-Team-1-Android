@@ -19,63 +19,12 @@ class SettingViewModel @Inject constructor(
 ) : BaseViewModel<SettingContract.State, SettingContract.SideEffect>(
     SettingContract.State(),
 ) {
-    fun refreshUserInfo() {
-        viewModelScope.launch {
-            val userId = userPreferences.userIdFlow.firstOrNull()
-            if (userId != null) {
-                fetchUserInfo(userId)
-            }
-        }
-    }
-
-//    init {
-//        viewModelScope.launch {
-//            container.sideEffectFlow.collect { sideEffect ->
-//                when (sideEffect) {
-//                    is SettingContract.SideEffect.UserInfoUpdated -> refreshUserInfo()
-//                    else -> {}
-//                }
-//            }
-//        }
-//    }
-
     fun onAction(action: SettingContract.Action) = intent {
         when (action) {
-            is SettingContract.Action.UpdateName -> updateState {
-                val isValid = SettingContract.FieldType.NAME.validationRegex.matches(action.name)
-                copy(name = action.name, isNameValid = isValid)
-            }
-            is SettingContract.Action.UpdateBirthDate -> {
-                val formattedDate = "${action.year}-${action.month.toString().padStart(2, '0')}-${action.day.toString().padStart(2, '0')}"
-                updateState { state.copy(birthDate = formattedDate) }
-            }
-            is SettingContract.Action.UpdateGender -> updateState { copy(selectedGender = action.gender) }
-            is SettingContract.Action.ToggleGender -> updateState {
-                copy(
-                    isMaleSelected = action.isMale,
-                    isFemaleSelected = !action.isMale,
-                )
-            }
-            is SettingContract.Action.ToggleTimeUnknown -> updateState {
-                copy(
-                    isTimeUnknown = action.isChecked,
-                    timeOfBirth = if (action.isChecked) "시간모름" else "",
-                )
-            }
-            is SettingContract.Action.UpdateTimeOfBirth -> updateState {
-                val isValid = if (action.time.length == 5) {
-                    SettingContract.FieldType.TIME.validationRegex.matches(action.time)
-                } else {
-                    true
-                }
-                copy(timeOfBirth = action.time, isTimeValid = isValid)
-            }
-            is SettingContract.Action.Reset -> updateState { SettingContract.State() }
-            SettingContract.Action.ShowDialog -> updateState { copy(isDialogVisible = true) }
-            SettingContract.Action.HideDialog -> updateState { copy(isDialogVisible = false) }
             SettingContract.Action.PreviousStep -> emitSideEffect(SettingContract.SideEffect.NavigateBack)
             SettingContract.Action.NavigateToEditProfile -> navigateToEditProfile()
             is SettingContract.Action.OpenWebView -> openWebView(action.url)
+            SettingContract.Action.RefreshUserInfo -> refreshUserInfo()
             else -> {}
         }
     }
@@ -90,6 +39,7 @@ class SettingViewModel @Inject constructor(
                             name = user.name,
                             birthDate = user.birthDate,
                             selectedGender = user.gender,
+                            timeOfBirth = user.birthTime.toString(),
                         )
                     }
                 }
@@ -105,5 +55,14 @@ class SettingViewModel @Inject constructor(
 
     private fun openWebView(url: String) {
         emitSideEffect(SettingContract.SideEffect.OpenWebView(url))
+    }
+
+    private fun refreshUserInfo() {
+        viewModelScope.launch {
+            val userId = userPreferences.userIdFlow.firstOrNull()
+            if (userId != null) {
+                fetchUserInfo(userId)
+            }
+        }
     }
 }
