@@ -19,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
 import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.SplashDestination
@@ -37,7 +38,7 @@ fun SplashRoute(
 
     LaunchedEffect(Unit) {
         // 테스트 로그
-        analyticsHelper.logEvent("TEST")
+        analyticsHelper.logEvent(AnalyticsEvent("TEST"))
     }
 
     LaunchedEffect(sideEffect) {
