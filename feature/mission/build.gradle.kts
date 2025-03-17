@@ -11,6 +11,7 @@ android {
 dependencies {
     implementation(projects.core.ui)
     implementation(projects.core.common)
+    implementation(projects.core.analytics)
     implementation(projects.core.media)
     implementation(projects.core.alarm)
     implementation(projects.domain)
