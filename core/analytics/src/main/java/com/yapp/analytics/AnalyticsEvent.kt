@@ -7,7 +7,7 @@ data class AnalyticsEvent(
     object OnboardingPropertiesKeys {
         const val STEP = "step"
         const val GENDER = "gender"
-        const val PERMISSION = "permission"
+        const val IS_PERMISSION_GRANTED = "permission"
     }
 
     object AlarmPropertiesKeys {

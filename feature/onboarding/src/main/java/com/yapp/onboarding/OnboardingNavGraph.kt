@@ -49,7 +49,7 @@ fun NavGraphBuilder.onboardingNavGraph(
                         OnboardingGenderRoute(viewModel)
                     }
                     OnboardingDestination.Access -> {
-                        OnboardingAccessRoute(navigator, viewModel)
+                        OnboardingAccessRoute(viewModel)
                     }
                     OnboardingDestination.Complete1 -> {
                         OnboardingCompleteRoute(viewModel)
