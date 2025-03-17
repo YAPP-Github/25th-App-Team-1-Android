@@ -30,6 +30,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.onboarding.component.UnknownBirthTimeButton
 import com.yapp.ui.component.textfield.OrbitTextField
@@ -47,9 +49,20 @@ fun OnboardingTimeOfBirthRoute(
     val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(key1 = Unit) {
+    val analyticsHelper = LocalAnalyticsHelper.current
+
+    LaunchedEffect(Unit) {
         focusRequester.requestFocus()
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = "onboarding_birthtime_view",
+                properties = mapOf(
+                    AnalyticsEvent.OnboardingPropertiesKeys.STEP to "태어난 시간",
+                ),
+            ),
+        )
     }
+
     BackHandler {
         viewModel.processAction(OnboardingContract.Action.PreviousStep)
     }
@@ -60,6 +73,14 @@ fun OnboardingTimeOfBirthRoute(
         totalSteps = 6,
         focusRequester = focusRequester,
         onNextClick = {
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "onboarding_birthtime_next",
+                    properties = mapOf(
+                        AnalyticsEvent.OnboardingPropertiesKeys.STEP to "태어난 시간",
+                    ),
+                ),
+            )
             viewModel.processAction(OnboardingContract.Action.Reset)
             viewModel.processAction(OnboardingContract.Action.NextStep)
             keyboardController?.hide()
@@ -83,6 +104,8 @@ fun OnboardingTimeOfBirthScreen(
     onBackClick: () -> Unit,
     onTextChange: (String) -> Unit,
 ) {
+    val analyticsHelper = LocalAnalyticsHelper.current
+
     val focusManager = LocalFocusManager.current
     var textFieldValue by remember {
         mutableStateOf(
@@ -150,6 +173,14 @@ fun OnboardingTimeOfBirthScreen(
                     .align(Alignment.CenterHorizontally)
                     .padding(bottom = 20.dp),
                 onClick = {
+                    analyticsHelper.logEvent(
+                        AnalyticsEvent(
+                            type = "onboarding_birthtime_unknown",
+                            properties = mapOf(
+                                AnalyticsEvent.OnboardingPropertiesKeys.STEP to "태어난 시간",
+                            ),
+                        ),
+                    )
                     textFieldValue = TextFieldValue("시간모름")
                     onTextChange("시간모름")
                     onNextClick()
