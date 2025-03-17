@@ -3,6 +3,8 @@ package com.yapp.onboarding
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.AnalyticsHelper
 import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.navigation.destination.OnboardingDestination
 import com.yapp.datastore.UserPreferences
@@ -20,6 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
+    private val analyticsHelper: AnalyticsHelper,
     private val signUpRepository: SignUpRepository,
     private val userPreferences: UserPreferences,
     private val alarmUseCase: AlarmUseCase,
@@ -71,6 +74,16 @@ class OnboardingViewModel @Inject constructor(
                 val userName = state.userName
                 userPreferences.saveUserId(userId)
                 userPreferences.saveUserName(userName)
+
+                analyticsHelper.setUserId("$userId")
+                analyticsHelper.logEvent(
+                    AnalyticsEvent(
+                        type = "onboarding_complete",
+                        properties = mapOf(
+                            AnalyticsEvent.OnboardingPropertiesKeys.STEP to "환영2",
+                        ),
+                    ),
+                )
 
                 updateState { copy(isBottomSheetOpen = false) }
                 moveToNextStep()
