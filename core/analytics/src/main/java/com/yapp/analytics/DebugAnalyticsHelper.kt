@@ -3,7 +3,14 @@ package com.yapp.analytics
 import android.util.Log
 
 class DebugAnalyticsHelper : AnalyticsHelper() {
+    private var userId: String = ""
+
     override fun logEvent(event: AnalyticsEvent) {
-        Log.d("DebugAnalyticsHelper", "logEvent: $event")
+        Log.d("DebugAnalyticsHelper", "userId: $userId logEvent: $event")
+    }
+
+    override fun setUserId(userId: String?) {
+        this.userId = userId ?: ""
+        Log.d("DebugAnalyticsHelper", "setUserId: $userId")
     }
 }
