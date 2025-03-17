@@ -2,7 +2,7 @@ package com.yapp.analytics
 
 data class AnalyticsEvent(
     val type: String,
-    val properties: MutableMap<String, Any?>? = null,
+    val properties: Map<String, Any?>? = null,
 ) {
     object OnboardingPropertiesKeys {
         const val STEP = "step"

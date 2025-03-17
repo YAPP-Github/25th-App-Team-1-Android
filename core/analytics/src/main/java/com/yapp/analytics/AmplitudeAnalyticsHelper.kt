@@ -14,7 +14,7 @@ class AmplitudeAnalyticsHelper @Inject constructor(
     private fun AnalyticsEvent.toAmplitudeEvent(): BaseEvent {
         return BaseEvent().apply {
             this.eventType = type
-            this.eventProperties = properties
+            this.eventProperties = properties?.toMutableMap()
         }
     }
 }
