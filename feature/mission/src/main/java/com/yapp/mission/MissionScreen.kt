@@ -127,6 +127,14 @@ fun MissionScreen(
                     style = OrbitTheme.typography.body1SemiBold,
                     clickable = true,
                     onClick = {
+                        analyticsHelper.logEvent(
+                            AnalyticsEvent(
+                                type = "mission_ready_skip",
+                                properties = mapOf(
+                                    "mission_type" to "shake",
+                                ),
+                            ),
+                        )
                         eventDispatcher(MissionContract.Action.ShowExitDialog)
                     },
                 )
