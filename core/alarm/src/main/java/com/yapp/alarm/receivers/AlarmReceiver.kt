@@ -58,7 +58,7 @@ class AlarmReceiver : BroadcastReceiver() {
                     AnalyticsEvent(
                         type = "alarm_ring",
                         properties = mapOf(
-                            AnalyticsEvent.AlarmPropertiesKeys.ALARM_ID to alarm?.id,
+                            AnalyticsEvent.AlarmPropertiesKeys.ALARM_ID to "${alarm?.id}",
                             AnalyticsEvent.AlarmPropertiesKeys.ALARM_TIME to alarm?.toTimeString(),
                         ),
                     ),
@@ -76,6 +76,14 @@ class AlarmReceiver : BroadcastReceiver() {
                     @Suppress("DEPRECATION")
                     intent.getParcelableExtra(AlarmConstants.EXTRA_ALARM)
                 }
+                analyticsHelper.logEvent(
+                    AnalyticsEvent(
+                        type = "alarm_snooze",
+                        properties = mapOf(
+                            AnalyticsEvent.AlarmPropertiesKeys.ALARM_ID to "${alarm?.id}",
+                        ),
+                    ),
+                )
                 alarm?.let { handleSnooze(context, it) }
 
                 Toast.makeText(context, "알람이 ${alarm?.snoozeInterval}분 후 다시 울려요", Toast.LENGTH_SHORT).show()
@@ -94,7 +102,7 @@ class AlarmReceiver : BroadcastReceiver() {
                             AnalyticsEvent(
                                 type = "alarm_dismiss",
                                 properties = mapOf(
-                                    AnalyticsEvent.AlarmPropertiesKeys.ALARM_ID to alarmId,
+                                    AnalyticsEvent.AlarmPropertiesKeys.ALARM_ID to "$alarmId",
                                     AnalyticsEvent.AlarmPropertiesKeys.DISMISS_IS_FIRST_ALARM to isFirstAlarm,
                                 ),
                             ),

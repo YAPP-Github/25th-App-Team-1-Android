@@ -262,7 +262,7 @@ class AlarmAddEditViewModel @Inject constructor(
                     AnalyticsEvent(
                         type = "alarm_create",
                         properties = mapOf(
-                            AnalyticsEvent.AlarmPropertiesKeys.ALARM_ID to it.id,
+                            AnalyticsEvent.AlarmPropertiesKeys.ALARM_ID to "${it.id}",
                             AnalyticsEvent.AlarmPropertiesKeys.REPEAT_DAYS to it.repeatDays.toAlarmDayNames(),
                             AnalyticsEvent.AlarmPropertiesKeys.SNOOZE_OPTION to listOf(it.snoozeInterval, it.snoozeCount),
                         ),
