@@ -14,11 +14,15 @@ data class AnalyticsEvent(
         const val ALARM_ID = "alarm_id"
         const val ALARM_TIME = "alarm_time"
         const val REPEAT_DAYS = "repeat_days"
-        const val SNOOZE_TIME = "snooze_time"
         const val SNOOZE_OPTION = "snooze_option"
         const val DISMISS_IS_FIRST_ALARM = "dismiss_is_first_alarm"
+    }
+
+    object MissionPropertiesKeys {
         const val MISSION_TYPE = "mission_type"
-        const val PAGE_NUMBER = "page_number"
-        const val DURATION = "duration"
+    }
+
+    object FortunePropertiesKeys {
+        const val FORTUNE_PAGE_NUMBER = "fortune_page_number"
     }
 }
