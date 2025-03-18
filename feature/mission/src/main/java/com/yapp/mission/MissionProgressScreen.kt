@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
 import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.mission.component.FlipCard
@@ -205,6 +206,14 @@ fun MissionProgressScreen(
                 confirmText = "나가기",
                 cancelText = "취소",
                 onConfirm = {
+                    analyticsHelper.logEvent(
+                        AnalyticsEvent(
+                            type = "mission_fail",
+                            properties = mapOf(
+                                AnalyticsEvent.MissionPropertiesKeys.MISSION_TYPE to "shake",
+                            ),
+                        ),
+                    )
                     (context as? androidx.activity.ComponentActivity)?.finish()
                 },
                 onCancel = {
