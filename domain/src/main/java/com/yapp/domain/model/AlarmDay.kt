@@ -24,3 +24,8 @@ fun Set<AlarmDay>.toRepeatDays(): Int {
 fun Int.toAlarmDays(): Set<AlarmDay> {
     return AlarmDay.entries.filterTo(mutableSetOf()) { (this and it.bitValue) != 0 }
 }
+
+fun Int.toAlarmDayNames(): List<String> {
+    return AlarmDay.entries.filter { (this and it.bitValue) != 0 }
+        .map { it.name.replaceFirstChar { char -> char.uppercase() } }
+}

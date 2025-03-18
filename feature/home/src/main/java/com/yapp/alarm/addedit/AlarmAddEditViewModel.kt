@@ -5,11 +5,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.yapp.alarm.AlarmHelper
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.AnalyticsHelper
 import com.yapp.common.util.ResourceProvider
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.AlarmSound
 import com.yapp.domain.model.copyFrom
+import com.yapp.domain.model.toAlarmDayNames
 import com.yapp.domain.model.toAlarmDays
 import com.yapp.domain.model.toDayOfWeek
 import com.yapp.domain.usecase.AlarmUseCase
@@ -25,6 +28,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AlarmAddEditViewModel @Inject constructor(
+    private val analyticsHelper: AnalyticsHelper,
     private val alarmUseCase: AlarmUseCase,
     private val resourceProvider: ResourceProvider,
     private val hapticFeedbackManager: HapticFeedbackManager,
@@ -254,6 +258,16 @@ class AlarmAddEditViewModel @Inject constructor(
     private suspend fun createNewAlarm(alarm: Alarm) {
         alarmUseCase.insertAlarm(alarm)
             .onSuccess {
+                analyticsHelper.logEvent(
+                    AnalyticsEvent(
+                        type = "alarm_create",
+                        properties = mapOf(
+                            AnalyticsEvent.AlarmPropertiesKeys.ALARM_ID to it.id,
+                            AnalyticsEvent.AlarmPropertiesKeys.REPEAT_DAYS to it.repeatDays.toAlarmDayNames(),
+                            AnalyticsEvent.AlarmPropertiesKeys.SNOOZE_OPTION to listOf(it.snoozeInterval, it.snoozeCount),
+                        ),
+                    ),
+                )
                 alarmHelper.scheduleAlarm(it)
                 emitSideEffect(AlarmAddEditContract.SideEffect.SaveAlarm(it.id))
             }
