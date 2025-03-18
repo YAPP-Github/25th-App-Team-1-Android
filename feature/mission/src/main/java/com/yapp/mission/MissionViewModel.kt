@@ -75,7 +75,9 @@ class MissionViewModel @Inject constructor(
             analyticsHelper.logEvent(
                 AnalyticsEvent(
                     type = "mission_success",
-                    properties = mapOf("mission_type" to "shake"),
+                    properties = mapOf(
+                        AnalyticsEvent.MissionPropertiesKeys.MISSION_TYPE to "shake",
+                    ),
                 ),
             )
             postFortune()

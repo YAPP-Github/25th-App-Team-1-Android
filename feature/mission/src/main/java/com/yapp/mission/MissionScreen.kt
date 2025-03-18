@@ -113,7 +113,7 @@ fun MissionScreen(
                             AnalyticsEvent(
                                 type = "mission_ready_start",
                                 properties = mapOf(
-                                    "mission_type" to "shake",
+                                    AnalyticsEvent.MissionPropertiesKeys.MISSION_TYPE to "shake",
                                 ),
                             ),
                         )
@@ -131,7 +131,7 @@ fun MissionScreen(
                             AnalyticsEvent(
                                 type = "mission_ready_skip",
                                 properties = mapOf(
-                                    "mission_type" to "shake",
+                                    AnalyticsEvent.MissionPropertiesKeys.MISSION_TYPE to "shake",
                                 ),
                             ),
                         )
