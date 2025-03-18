@@ -75,7 +75,7 @@ class OnboardingViewModel @Inject constructor(
                 userPreferences.saveUserId(userId)
                 userPreferences.saveUserName(userName)
 
-                analyticsHelper.setUserId("$userId")
+                analyticsHelper.setUserId(userId)
                 analyticsHelper.logEvent(
                     AnalyticsEvent(
                         type = "onboarding_complete",

@@ -9,8 +9,8 @@ class DebugAnalyticsHelper : AnalyticsHelper() {
         Log.d("DebugAnalyticsHelper", "userId: $userId logEvent: $event")
     }
 
-    override fun setUserId(userId: String?) {
-        this.userId = userId ?: ""
+    override fun setUserId(userId: Long?) {
+        this.userId = "Orbit_$userId"
         Log.d("DebugAnalyticsHelper", "setUserId: $userId")
     }
 }

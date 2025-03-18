@@ -11,8 +11,8 @@ class AmplitudeAnalyticsHelper @Inject constructor(
         amplitude.track(event.toAmplitudeEvent())
     }
 
-    override fun setUserId(userId: String?) {
-        amplitude.setUserId(userId)
+    override fun setUserId(userId: Long?) {
+        amplitude.setUserId("Orbit_$userId")
     }
 
     private fun AnalyticsEvent.toAmplitudeEvent(): BaseEvent {
