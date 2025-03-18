@@ -57,7 +57,14 @@ fun FortuneRewardRoute(
         state = state,
         onCloseClick = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
         onCompleteClick = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
-        onSaveImage = { viewModel.onAction(FortuneContract.Action.SaveImage(it)) },
+        onSaveImage = {
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "fortune_talisman_save",
+                ),
+            )
+            viewModel.onAction(FortuneContract.Action.SaveImage(it))
+        },
     )
 }
 
