@@ -52,7 +52,10 @@ fun NavGraphBuilder.fortuneNavGraph(
                 }
 
                 when (destination) {
-                    FortuneDestination.Fortune -> FortuneRoute(viewModel)
+                    FortuneDestination.Fortune -> FortuneRoute(
+                        viewModel = viewModel,
+                        navigator = navigator,
+                    )
                     FortuneDestination.Reward -> FortuneRewardRoute(viewModel)
                     else -> {}
                 }

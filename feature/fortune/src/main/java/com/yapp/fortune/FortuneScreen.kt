@@ -1,5 +1,6 @@
 package com.yapp.fortune
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.analytics.AnalyticsEvent
 import com.yapp.analytics.LocalAnalyticsHelper
+import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.FortuneTopAppBar
 import com.yapp.fortune.component.SlidingIndicator
@@ -32,6 +34,7 @@ import com.yapp.ui.component.lottie.LottieAnimation
 @Composable
 fun FortuneRoute(
     viewModel: FortuneViewModel = hiltViewModel(),
+    navigator: OrbitNavigator,
 ) {
     val analyticsHelper = LocalAnalyticsHelper.current
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
@@ -40,6 +43,18 @@ fun FortuneRoute(
         initialPage = state.currentStep,
         pageCount = { state.fortunePages.size + 2 },
     )
+
+    BackHandler {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = "fortune_exit",
+                properties = mapOf(
+                    AnalyticsEvent.FortunePropertiesKeys.FORTUNE_PAGE_NUMBER to pagerState.currentPage + 1,
+                ),
+            ),
+        )
+        navigator.navigateBack()
+    }
 
     LaunchedEffect(pagerState.currentPage) {
         val eventType = when (pagerState.currentPage) {
@@ -71,7 +86,17 @@ fun FortuneRoute(
         pagerState = pagerState,
         onNextStep = { viewModel.onAction(FortuneContract.Action.NextStep) },
         onNavigateToHome = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
-        onCloseClick = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
+        onCloseClick = {
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "fortune_exit",
+                    properties = mapOf(
+                        AnalyticsEvent.FortunePropertiesKeys.FORTUNE_PAGE_NUMBER to pagerState.currentPage + 1,
+                    ),
+                ),
+            )
+            viewModel.onAction(FortuneContract.Action.NavigateToHome)
+        },
     )
 }
 
