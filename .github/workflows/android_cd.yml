@@ -55,7 +55,9 @@ jobs:
             - name: Add Local Properties
               env:
                   BASE_URL: ${{ secrets.BASE_URL }}
-              run: echo "baseUrl=$BASE_URL" >> local.properties
+                  AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
+              run: |
+                  echo -e "baseUrl=$BASE_URL\namplitudeApiKey=$AMPLITUDE_API_KEY" >> local.properties
 
             # 7. Debug Local Properties Check
             -   name: Debug Local Properties

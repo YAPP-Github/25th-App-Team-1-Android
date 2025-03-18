@@ -79,6 +79,7 @@ lottie = "6.1.0"
 accompanist = "0.37.0"
 materialAndroid = "1.7.5"
 flexible-bottomsheet = "0.1.5"
+amplitude = "1.20.3"
 
 [libraries]
 
@@ -172,6 +173,8 @@ process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "p
 lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", version.ref= "lottie" }
 accompanist-permission = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 androidx-material-android = { group = "androidx.compose.material", name = "material-android", version.ref = "materialAndroid" }
+
+amplitude-analytics = { group = "com.amplitude", name = "analytics-android", version.ref = "amplitude" }
 
 [plugins]
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
