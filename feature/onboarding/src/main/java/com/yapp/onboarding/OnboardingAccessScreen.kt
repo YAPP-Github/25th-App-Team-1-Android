@@ -141,7 +141,7 @@ fun OnboardingAccessRoute(
     LaunchedEffect(Unit) {
         analyticsHelper.logEvent(
             AnalyticsEvent(
-                type = "onboarding_access_view",
+                type = "onboarding_permission_view",
                 properties = mapOf(
                     AnalyticsEvent.OnboardingPropertiesKeys.STEP to "권한 설정1",
                 ),
