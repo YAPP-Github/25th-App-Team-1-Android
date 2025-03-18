@@ -10,7 +10,7 @@ class DebugAnalyticsHelper : AnalyticsHelper() {
     }
 
     override fun setUserId(userId: Long?) {
-        this.userId = "Orbit_$userId"
+        this.userId = "ORBIT_$userId"
         Log.d("DebugAnalyticsHelper", "setUserId: $userId")
     }
 }

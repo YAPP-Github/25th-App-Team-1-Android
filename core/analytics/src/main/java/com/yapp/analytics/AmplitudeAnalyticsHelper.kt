@@ -12,7 +12,7 @@ class AmplitudeAnalyticsHelper @Inject constructor(
     }
 
     override fun setUserId(userId: Long?) {
-        amplitude.setUserId("Orbit_$userId")
+        amplitude.setUserId("ORBIT_$userId")
     }
 
     private fun AnalyticsEvent.toAmplitudeEvent(): BaseEvent {
