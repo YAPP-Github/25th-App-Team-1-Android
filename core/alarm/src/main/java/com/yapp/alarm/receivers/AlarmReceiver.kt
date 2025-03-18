@@ -9,11 +9,15 @@ import android.widget.Toast
 import com.yapp.alarm.AlarmConstants
 import com.yapp.alarm.AlarmHelper
 import com.yapp.alarm.services.AlarmService
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.AnalyticsHelper
 import com.yapp.datastore.UserPreferences
 import com.yapp.domain.model.Alarm
+import com.yapp.domain.usecase.AlarmUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -23,10 +27,16 @@ import javax.inject.Inject
 class AlarmReceiver : BroadcastReceiver() {
 
     @Inject
+    lateinit var analyticsHelper: AnalyticsHelper
+
+    @Inject
     lateinit var alarmHelper: AlarmHelper
 
     @Inject
     lateinit var userPreferences: UserPreferences
+
+    @Inject
+    lateinit var alarmUseCase: AlarmUseCase
 
     override fun onReceive(context: Context?, intent: Intent?) {
         context ?: return
@@ -56,7 +66,29 @@ class AlarmReceiver : BroadcastReceiver() {
                 Log.d("AlarmReceiver", "Alarm Dismissed")
                 val alarmId = intent.getLongExtra(AlarmConstants.EXTRA_NOTIFICATION_ID, -1L)
                 if (alarmId != -1L) {
-                    handleFirstAlarmDismissed(alarmId)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        val alarms = alarmUseCase.getAllAlarms().first().sortedBy { it.isAlarmActive }
+                        val isFirstAlarm = alarms.firstOrNull()?.id == alarmId
+
+                        analyticsHelper.logEvent(
+                            AnalyticsEvent(
+                                type = "alarm_dismiss",
+                                properties = mapOf(
+                                    AnalyticsEvent.AlarmPropertiesKeys.ALARM_ID to alarmId,
+                                    AnalyticsEvent.AlarmPropertiesKeys.DISMISS_IS_FIRST_ALARM to isFirstAlarm,
+                                ),
+                            ),
+                        )
+                        val existingId = userPreferences.firstDismissedAlarmIdFlow.firstOrNull()
+                        if (existingId == null) {
+                            // 첫 번째 알람 해제 기록
+                            userPreferences.saveFirstDismissedAlarmId(alarmId)
+                        } else if (existingId != alarmId) {
+                            // 두 번째 알람 해제 감지 - 기존 기록 삭제
+                            userPreferences.clearDismissedAlarmId()
+                        }
+                    }
+
                     alarmHelper.cancelSnoozedAlarm(alarmId)
                 } else {
                     Log.e("AlarmReceiver", "알람 ID 수신 실패")
@@ -108,19 +140,6 @@ class AlarmReceiver : BroadcastReceiver() {
 
         context.stopService(Intent(context, AlarmService::class.java))
         alarmHelper.scheduleAlarm(updatedAlarm)
-    }
-
-    private fun handleFirstAlarmDismissed(alarmId: Long) {
-        CoroutineScope(Dispatchers.IO).launch {
-            val existingId = userPreferences.firstDismissedAlarmIdFlow.firstOrNull()
-            if (existingId == null) {
-                // 첫 번째 알람 해제 기록
-                userPreferences.saveFirstDismissedAlarmId(alarmId)
-            } else if (existingId != alarmId) {
-                // 두 번째 알람 해제 감지 - 기존 기록 삭제
-                userPreferences.clearDismissedAlarmId()
-            }
-        }
     }
 
     private fun sendBroadCastToCloseAlarmInteractionActivity(context: Context) {
