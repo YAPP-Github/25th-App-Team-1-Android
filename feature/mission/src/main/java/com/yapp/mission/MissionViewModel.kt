@@ -5,6 +5,8 @@ import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.yapp.alarm.pendingIntent.interaction.createAlarmDismissIntent
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.AnalyticsHelper
 import com.yapp.common.navigation.destination.FortuneDestination
 import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.navigation.destination.MissionDestination
@@ -22,6 +24,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MissionViewModel @Inject constructor(
+    private val analyticsHelper: AnalyticsHelper,
     private val hapticFeedbackManager: HapticFeedbackManager,
     private val fortuneRepository: FortuneRepository,
     private val userPreferences: UserPreferences,
@@ -69,6 +72,12 @@ class MissionViewModel @Inject constructor(
             updateState { copy(shakeCount = currentCount + 1) }
         } else if (currentCount == 9 && !currentState.isFlipped) {
             hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "mission_success",
+                    properties = mapOf("mission_type" to "shake"),
+                ),
+            )
             postFortune()
             updateState {
                 copy(
