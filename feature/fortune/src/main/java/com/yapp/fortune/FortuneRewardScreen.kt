@@ -28,6 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.FortuneTopAppBar
 import com.yapp.ui.component.button.OrbitButton
@@ -37,9 +39,16 @@ import com.yapp.ui.utils.heightForScreenPercentage
 fun FortuneRewardRoute(
     viewModel: FortuneViewModel = hiltViewModel(),
 ) {
+    val analyticsHelper = LocalAnalyticsHelper.current
     val state = viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
     LaunchedEffect(state.value.fortuneImageId) {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = "fortune_talisman_view",
+            ),
+        )
+
         val imageId = state.value.fortuneImageId ?: viewModel.getRandomImage()
         viewModel.saveFortuneImageIdIfNeeded(imageId)
     }
