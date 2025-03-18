@@ -57,7 +57,7 @@ fun OnboardingExplainScreen(
         onNextClick = {
             analyticsHelper.logEvent(
                 AnalyticsEvent(
-                    type = "onboarding_intro_next_click",
+                    type = "onboarding_intro_next",
                     properties = mapOf(
                         AnalyticsEvent.OnboardingPropertiesKeys.STEP to "서비스 소개",
                     ),
