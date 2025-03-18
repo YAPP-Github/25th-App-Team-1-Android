@@ -58,3 +58,17 @@ fun Alarm.copyFrom(source: Alarm): Alarm {
         isAlarmActive = source.isAlarmActive,
     )
 }
+
+fun Alarm.toTimeString(): String {
+    val displayHour = if (isAm && hour == 12) {
+        0 // 오전 12시는 0으로 표시
+    } else if (!isAm && hour != 12) {
+        hour + 12 // 오후 1시~11시에는 12를 더함
+    } else {
+        hour // 오전 1시~11시 및 오후 12시는 그대로 사용
+    }
+    val formattedHour = displayHour.toString().padStart(2, '0')
+    val formattedMinute = minute.toString().padStart(2, '0')
+
+    return "$formattedHour:$formattedMinute"
+}

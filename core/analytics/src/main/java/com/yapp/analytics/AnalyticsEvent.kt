@@ -12,6 +12,7 @@ data class AnalyticsEvent(
 
     object AlarmPropertiesKeys {
         const val ALARM_ID = "alarm_id"
+        const val ALARM_TIME = "alarm_time"
         const val REPEAT_DAYS = "repeat_days"
         const val SNOOZE_TIME = "snooze_time"
         const val SNOOZE_OPTION = "snooze_option"

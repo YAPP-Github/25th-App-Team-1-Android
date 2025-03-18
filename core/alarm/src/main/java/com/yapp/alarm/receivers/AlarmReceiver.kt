@@ -13,6 +13,7 @@ import com.yapp.analytics.AnalyticsEvent
 import com.yapp.analytics.AnalyticsHelper
 import com.yapp.datastore.UserPreferences
 import com.yapp.domain.model.Alarm
+import com.yapp.domain.model.toTimeString
 import com.yapp.domain.usecase.AlarmUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -46,11 +47,29 @@ class AlarmReceiver : BroadcastReceiver() {
         when (intent.action) {
             AlarmConstants.ACTION_ALARM_TRIGGERED -> {
                 Log.d("AlarmReceiver", "Alarm Triggered")
+
+                val alarm: Alarm? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    alarmServiceIntent.getParcelableExtra(AlarmConstants.EXTRA_ALARM, Alarm::class.java)
+                } else {
+                    @Suppress("DEPRECATION")
+                    alarmServiceIntent.getParcelableExtra(AlarmConstants.EXTRA_ALARM)
+                }
+                analyticsHelper.logEvent(
+                    AnalyticsEvent(
+                        type = "alarm_ring",
+                        properties = mapOf(
+                            AnalyticsEvent.AlarmPropertiesKeys.ALARM_ID to alarm?.id,
+                            AnalyticsEvent.AlarmPropertiesKeys.ALARM_TIME to alarm?.toTimeString(),
+                        ),
+                    ),
+                )
+
                 context.startForegroundService(alarmServiceIntent)
             }
 
             AlarmConstants.ACTION_ALARM_SNOOZED -> {
                 Log.d("AlarmReceiver", "Alarm Snoozed")
+
                 val alarm: Alarm? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     intent.getParcelableExtra(AlarmConstants.EXTRA_ALARM, Alarm::class.java)
                 } else {
@@ -64,6 +83,7 @@ class AlarmReceiver : BroadcastReceiver() {
 
             AlarmConstants.ACTION_ALARM_DISMISSED -> {
                 Log.d("AlarmReceiver", "Alarm Dismissed")
+
                 val alarmId = intent.getLongExtra(AlarmConstants.EXTRA_NOTIFICATION_ID, -1L)
                 if (alarmId != -1L) {
                     CoroutineScope(Dispatchers.IO).launch {
