@@ -19,8 +19,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.yapp.analytics.AnalyticsEvent
-import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.SplashDestination
 import com.yapp.designsystem.theme.OrbitTheme
@@ -31,15 +29,8 @@ fun SplashRoute(
     navigator: OrbitNavigator,
     viewModel: SplashViewModel = hiltViewModel(),
 ) {
-    val analyticsHelper = LocalAnalyticsHelper.current
-
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val sideEffect = viewModel.container.sideEffectFlow
-
-    LaunchedEffect(Unit) {
-        // 테스트 로그
-        analyticsHelper.logEvent(AnalyticsEvent("TEST"))
-    }
 
     LaunchedEffect(sideEffect) {
         sideEffect.collectLatest { effect ->
