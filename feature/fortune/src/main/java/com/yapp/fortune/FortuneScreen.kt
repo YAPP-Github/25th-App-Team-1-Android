@@ -21,6 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.FortuneTopAppBar
 import com.yapp.fortune.component.SlidingIndicator
@@ -31,6 +33,7 @@ import com.yapp.ui.component.lottie.LottieAnimation
 fun FortuneRoute(
     viewModel: FortuneViewModel = hiltViewModel(),
 ) {
+    val analyticsHelper = LocalAnalyticsHelper.current
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
     val pagerState = rememberPagerState(
@@ -39,6 +42,25 @@ fun FortuneRoute(
     )
 
     LaunchedEffect(pagerState.currentPage) {
+        val eventType = when (pagerState.currentPage) {
+            0 -> "fortune_view_today"
+            1 -> "fortune_view_category1"
+            2 -> "fortune_view_category2"
+            3 -> "fortune_view_style"
+            4 -> "fortune_view_refer"
+            5 -> "fortune_view_end"
+            else -> ""
+        }
+
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = eventType,
+                properties = mapOf(
+                    AnalyticsEvent.FortunePropertiesKeys.FORTUNE_PAGE_NUMBER to pagerState.currentPage + 1,
+                ),
+            ),
+        )
+
         if (state.currentStep != pagerState.currentPage) {
             viewModel.onAction(FortuneContract.Action.UpdateStep(pagerState.currentPage))
         }
