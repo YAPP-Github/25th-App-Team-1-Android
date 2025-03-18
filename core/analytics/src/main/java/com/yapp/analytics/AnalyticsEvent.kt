@@ -24,5 +24,6 @@ data class AnalyticsEvent(
 
     object FortunePropertiesKeys {
         const val FORTUNE_PAGE_NUMBER = "fortune_page_number"
+        const val DURATION = "duration"
     }
 }

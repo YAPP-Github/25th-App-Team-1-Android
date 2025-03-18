@@ -13,6 +13,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -30,6 +34,8 @@ import com.yapp.fortune.component.FortuneTopAppBar
 import com.yapp.fortune.component.SlidingIndicator
 import com.yapp.fortune.page.FortunePager
 import com.yapp.ui.component.lottie.LottieAnimation
+import java.math.BigDecimal
+import java.math.RoundingMode
 
 @Composable
 fun FortuneRoute(
@@ -43,6 +49,9 @@ fun FortuneRoute(
         initialPage = state.currentStep,
         pageCount = { state.fortunePages.size + 2 },
     )
+
+    var startTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var previousPage by remember { mutableIntStateOf(pagerState.currentPage) }
 
     BackHandler {
         analyticsHelper.logEvent(
@@ -75,6 +84,25 @@ fun FortuneRoute(
                 ),
             ),
         )
+
+        if (pagerState.currentPage != previousPage) {
+            val endTime = System.currentTimeMillis()
+            val duration = ((endTime - startTime).toDouble() / 1000) // 초 단위로 변환
+            val truncatedDuration = BigDecimal(duration).setScale(2, RoundingMode.DOWN).toDouble()
+
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "fortune_time_spent",
+                    properties = mapOf(
+                        AnalyticsEvent.FortunePropertiesKeys.FORTUNE_PAGE_NUMBER to previousPage + 1,
+                        AnalyticsEvent.FortunePropertiesKeys.DURATION to truncatedDuration,
+                    ),
+                ),
+            )
+
+            startTime = endTime
+            previousPage = pagerState.currentPage
+        }
 
         if (state.currentStep != pagerState.currentPage) {
             viewModel.onAction(FortuneContract.Action.UpdateStep(pagerState.currentPage))
