@@ -23,6 +23,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.textfield.OrbitTextField
 import com.yapp.ui.extensions.customClickable
@@ -37,9 +39,20 @@ fun OnboardingNameRoute(
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(key1 = Unit) {
+    val analyticsHelper = LocalAnalyticsHelper.current
+
+    LaunchedEffect(Unit) {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = "onboarding_name_view",
+                properties = mapOf(
+                    AnalyticsEvent.OnboardingPropertiesKeys.STEP to "이름",
+                ),
+            ),
+        )
         focusRequester.requestFocus()
     }
+
     BackHandler {
         viewModel.processAction(OnboardingContract.Action.PreviousStep)
     }
@@ -49,7 +62,17 @@ fun OnboardingNameRoute(
         currentStep = 4,
         totalSteps = 6,
         focusRequester = focusRequester,
-        onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
+        onNextClick = {
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "onboarding_name_next",
+                    properties = mapOf(
+                        AnalyticsEvent.OnboardingPropertiesKeys.STEP to "이름",
+                    ),
+                ),
+            )
+            viewModel.processAction(OnboardingContract.Action.NextStep)
+        },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
         onTextChange = { value ->
             viewModel.processAction(

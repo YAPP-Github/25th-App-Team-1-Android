@@ -49,7 +49,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.shouldShowRationale
-import com.yapp.common.navigation.OrbitNavigator
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.onboarding.component.OnBoardingTopAppBar
 import com.yapp.ui.component.button.OrbitButton
@@ -61,10 +62,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun OnboardingAccessRoute(
-    navigator: OrbitNavigator,
     viewModel: OnboardingViewModel,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    val analyticsHelper = LocalAnalyticsHelper.current
+
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -93,6 +96,15 @@ fun OnboardingAccessRoute(
     val notificationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { granted ->
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "onboarding_permission_request",
+                    properties = mapOf(
+                        AnalyticsEvent.OnboardingPropertiesKeys.IS_PERMISSION_GRANTED to granted,
+                    ),
+                ),
+            )
+
             isNotificationPermissionGranted = granted
             if (!granted) hasRequestedPermission = true
         },
@@ -115,7 +127,7 @@ fun OnboardingAccessRoute(
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 isAlarmPermissionGranted = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as android.app.AlarmManager
+                    val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                     alarmManager.canScheduleExactAlarms()
                 } else {
                     true
@@ -127,6 +139,15 @@ fun OnboardingAccessRoute(
     }
 
     LaunchedEffect(Unit) {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = "onboarding_permission_view",
+                properties = mapOf(
+                    AnalyticsEvent.OnboardingPropertiesKeys.STEP to "권한 설정1",
+                ),
+            ),
+        )
+
         delay(1000)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
