@@ -3,12 +3,16 @@ package com.yapp.mission
 sealed class MissionContract {
 
     data class State(
+        val missionType: MissionType = MissionType.Click,
         val showOverlayText: Boolean = false,
         val showOverlay: Boolean = true,
         val missionProgress: Int = 0,
         val isMissionCompleted: Boolean = false,
-        val isFlipped: Boolean = false,
         val shakeCount: Int = 0,
+        val clickCount: Int = 0,
+        val playWhenClick: Boolean = false,
+        val showFinalAnimation: Boolean = false,
+        val isFlipped: Boolean = false,
         val rotationY: Float = 0f,
         val rotationZ: Float = 0f,
         val showExitDialog: Boolean = false,
@@ -24,6 +28,11 @@ sealed class MissionContract {
         object ShowExitDialog : Action()
         object HideExitDialog : Action()
         object RetryPostFortune : Action()
+    }
+
+    sealed class MissionType {
+        data object Shake : MissionType()
+        data object Click : MissionType()
     }
 
     sealed class SideEffect : com.yapp.ui.base.SideEffect {
