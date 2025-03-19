@@ -19,14 +19,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ripple.RippleAlpha
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalRippleConfiguration
+import androidx.compose.material3.RippleConfiguration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -63,6 +68,7 @@ import com.yapp.ui.component.snackbar.showCustomSnackBar
 import com.yapp.ui.component.switch.OrbitSwitch
 import com.yapp.ui.component.timepicker.OrbitPicker
 import feature.home.R
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
@@ -77,7 +83,7 @@ fun AlarmAddEditRoute(
     val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(sideEffect) {
-        sideEffect.collect { effect ->
+        sideEffect.collectLatest { effect ->
             when (effect) {
                 is AlarmAddEditContract.SideEffect.NavigateBack -> {
                     navigator.navigateBack()
@@ -456,7 +462,14 @@ private fun AlarmAddEditSettingsSection(
                     }.title
                     }"
                 }
-                state.soundState.isSoundEnabled -> state.soundState.sounds.getOrElse(state.soundState.soundIndex) { AlarmSound("", Uri.EMPTY) }.title
+
+                state.soundState.isSoundEnabled -> state.soundState.sounds.getOrElse(state.soundState.soundIndex) {
+                    AlarmSound(
+                        "",
+                        Uri.EMPTY,
+                    )
+                }.title
+
                 state.soundState.isVibrationEnabled -> stringResource(id = R.string.alarm_add_edit_vibration)
                 else -> stringResource(id = R.string.alarm_add_edit_alarm_selected_option_none)
             },
@@ -471,44 +484,63 @@ private fun AlarmAddEditSettingsSection(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AlarmAddEditSettingItem(
     label: String,
     description: String,
     onClick: () -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                onClick()
-            }
-            .padding(
-                horizontal = 20.dp,
-                vertical = 14.dp,
+    val interactionSource = remember { MutableInteractionSource() }
+
+    CompositionLocalProvider(
+        LocalRippleConfiguration provides RippleConfiguration(
+            rippleAlpha = RippleAlpha(
+                pressedAlpha = 1f,
+                focusedAlpha = 1f,
+                hoveredAlpha = 1f,
+                draggedAlpha = 1f,
             ),
-        verticalAlignment = Alignment.CenterVertically,
+        ),
     ) {
-        Text(
-            label,
-            modifier = Modifier.width(80.dp),
-            style = OrbitTheme.typography.body1SemiBold,
-            color = OrbitTheme.colors.white,
-        )
-        Text(
-            description,
-            modifier = Modifier.weight(1f),
-            style = OrbitTheme.typography.body2Regular,
-            color = OrbitTheme.colors.gray_50,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            textAlign = TextAlign.End,
-        )
-        Icon(
-            painter = painterResource(id = core.designsystem.R.drawable.ic_arrow_right),
-            contentDescription = "Arrow",
-            tint = OrbitTheme.colors.gray_300,
-        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    interactionSource = interactionSource,
+                    indication = ripple(
+                        color = OrbitTheme.colors.gray_700,
+                    ),
+                ) {
+                    onClick()
+                }
+                .padding(
+                    horizontal = 20.dp,
+                    vertical = 14.dp,
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                label,
+                modifier = Modifier.width(80.dp),
+                style = OrbitTheme.typography.body1SemiBold,
+                color = OrbitTheme.colors.white,
+            )
+            Text(
+                description,
+                modifier = Modifier.weight(1f),
+                style = OrbitTheme.typography.body2Regular,
+                color = OrbitTheme.colors.gray_50,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                textAlign = TextAlign.End,
+            )
+            Icon(
+                painter = painterResource(id = core.designsystem.R.drawable.ic_arrow_right),
+                contentDescription = "Arrow",
+                tint = OrbitTheme.colors.gray_300,
+            )
+        }
     }
 }
 

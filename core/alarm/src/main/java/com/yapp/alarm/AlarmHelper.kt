@@ -2,17 +2,17 @@ package com.yapp.alarm
 
 import android.app.AlarmManager
 import android.app.Application
-import android.content.Intent
 import android.util.Log
 import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForSchedule
 import com.yapp.alarm.pendingIntent.schedule.createAlarmReceiverPendingIntentForUnSchedule
-import com.yapp.alarm.services.AlarmService
 import com.yapp.domain.model.Alarm
 import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.model.toAlarmDays
 import com.yapp.domain.model.toDayOfWeek
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 class AlarmHelper @Inject constructor(
@@ -29,6 +29,21 @@ class AlarmHelper @Inject constructor(
                 setRepeatingAlarm(day, alarm)
             }
         }
+    }
+
+    fun scheduleWeeklyAlarm(alarm: Alarm, day: AlarmDay) {
+        val initialTriggerMillis = getNextAlarmTimeMillis(alarm, day) + AlarmConstants.WEEK_INTERVAL_MILLIS
+        val triggerMillis = findNextNonHolidayDate(initialTriggerMillis)
+
+        val pendingIntent = createAlarmReceiverPendingIntentForSchedule(app, alarm, day)
+
+        alarmManager.setExactAndAllowWhileIdle(
+            AlarmManager.RTC_WAKEUP,
+            triggerMillis,
+            pendingIntent,
+        )
+
+        Log.d("AlarmHelper", "Scheduled weekly alarm for $day at: $triggerMillis")
     }
 
     fun unScheduleAlarm(alarm: Alarm) {
@@ -53,8 +68,11 @@ class AlarmHelper @Inject constructor(
         }
     }
 
-    fun stopAlarm() {
-        app.stopService(Intent(app, AlarmService::class.java))
+    fun cancelSnoozedAlarm(alarmId: Long) {
+        val snoozedAlarmId = alarmId + AlarmConstants.SNOOZE_ID_OFFSET
+        val pendingIntent = createAlarmReceiverPendingIntentForUnSchedule(app, Alarm(id = snoozedAlarmId))
+        alarmManager.cancel(pendingIntent)
+        Log.d("AlarmHelper", "Canceled snoozed alarm with id: $snoozedAlarmId")
     }
 
     private fun setRepeatingAlarm(day: AlarmDay, alarm: Alarm) {
@@ -62,7 +80,7 @@ class AlarmHelper @Inject constructor(
             createAlarmReceiverPendingIntentForSchedule(app, alarm, day)
         val firstAlarmTriggerMillis = getNextAlarmTimeMillis(alarm, day)
 
-        Log.d("AlarmHelper", "Setting repeating alarm at: $firstAlarmTriggerMillis")
+        Log.d("AlarmHelper", "Setting repeating alarm id: ${alarm.id} at: $firstAlarmTriggerMillis")
 
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
@@ -113,5 +131,26 @@ class AlarmHelper @Inject constructor(
         Log.d("AlarmHelper", "Alarm scheduled at: $alarmDateTime (epochMillis=$epochMillis)")
 
         return epochMillis
+    }
+
+    private fun findNextNonHolidayDate(initialMillis: Long): Long {
+        val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+        var adjustedMillis = initialMillis
+
+        while (true) {
+            val localDate = Instant.ofEpochMilli(adjustedMillis)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate()
+
+            val dateString = localDate.format(dateFormatter)
+
+            if (!AlarmConstants.HOLIDAYS_2025.contains(dateString)) {
+                return adjustedMillis // 공휴일이 아니라면 해당 날짜 반환
+            }
+
+            // 공휴일이라면 다음 1주 뒤로 이동
+            adjustedMillis += AlarmConstants.WEEK_INTERVAL_MILLIS
+        }
     }
 }

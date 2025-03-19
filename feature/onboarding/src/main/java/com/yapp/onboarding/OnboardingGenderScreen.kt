@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,8 +21,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.onboarding.component.UserInfoBottomSheet
+import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.toggle.OrbitGenderToggle
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.paddingForScreenPercentage
@@ -32,9 +36,24 @@ fun OnboardingGenderRoute(
     viewModel: OnboardingViewModel,
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+
+    val analyticsHelper = LocalAnalyticsHelper.current
+
+    LaunchedEffect(Unit) {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = "onboarding_gender_view",
+                properties = mapOf(
+                    AnalyticsEvent.OnboardingPropertiesKeys.STEP to "성별",
+                ),
+            ),
+        )
+    }
+
     BackHandler {
         viewModel.processAction(OnboardingContract.Action.PreviousStep)
     }
+
     OnboardingGenderScreen(
         state = state,
         currentStep = 5,
@@ -42,11 +61,18 @@ fun OnboardingGenderRoute(
         onNextClick = { viewModel.processAction(OnboardingContract.Action.ToggleBottomSheet) },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
         onGenderSelect = { gender ->
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "onboarding_gender_select",
+                    properties = mapOf(
+                        AnalyticsEvent.OnboardingPropertiesKeys.GENDER to gender,
+                    ),
+                ),
+            )
             viewModel.processAction(OnboardingContract.Action.UpdateGender(gender))
         },
         onDismissRequest = {
             viewModel.processAction(OnboardingContract.Action.ToggleBottomSheet)
-            viewModel.processAction(OnboardingContract.Action.PreviousStep)
         },
         onConfirmRequest = {
             viewModel.processAction(OnboardingContract.Action.ToggleBottomSheet)
@@ -111,6 +137,17 @@ fun OnboardingGenderScreen(
                 }
             }
         }
+    }
+
+    if (state.isShowWarningDialog) {
+        OrbitDialog(
+            title = stringResource(id = R.string.onboarding_warning_dialog_title),
+            message = stringResource(id = R.string.onboarding_warning_dialog_message),
+            confirmText = stringResource(id = R.string.onboarding_warning_dialog_btn_confirm),
+            onConfirm = {
+                onConfirmRequest()
+            },
+        )
     }
 
     UserInfoBottomSheet(

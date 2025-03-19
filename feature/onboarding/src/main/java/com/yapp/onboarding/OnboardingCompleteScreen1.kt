@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -18,6 +19,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.lottie.LottieAnimation
 import com.yapp.ui.utils.heightForScreenPercentage
@@ -27,10 +30,25 @@ import feature.onboarding.R
 fun OnboardingCompleteRoute(
     viewModel: OnboardingViewModel,
 ) {
+    val analyticsHelper = LocalAnalyticsHelper.current
+
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
-    BackHandler {
-        viewModel.processAction(OnboardingContract.Action.PreviousStep) // ✅ ViewModel에서 처리
+
+    LaunchedEffect(Unit) {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = "onboarding_welcome1_view",
+                properties = mapOf(
+                    AnalyticsEvent.OnboardingPropertiesKeys.STEP to "환영1",
+                ),
+            ),
+        )
     }
+
+    BackHandler {
+        viewModel.processAction(OnboardingContract.Action.PreviousStep)
+    }
+
     OnboardingCompleteScreen1(
         state = state,
         onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },

@@ -9,7 +9,6 @@ class PickerState(
     val lazyListState: LazyListState,
     var selectedItem: String,
     var startIndex: Int,
-    var initialized: Boolean = false,
 )
 
 @Composable

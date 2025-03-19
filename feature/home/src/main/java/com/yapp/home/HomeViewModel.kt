@@ -15,6 +15,7 @@ import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.ui.base.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import feature.home.R
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -34,22 +35,28 @@ class HomeViewModel @Inject constructor(
 ) {
     init {
         loadAllAlarms()
+        loadDailyFortuneState()
+        loadUserName()
     }
 
     fun processAction(action: HomeContract.Action) {
         when (action) {
             HomeContract.Action.NavigateToAlarmCreation -> navigateToAlarmCreation()
             HomeContract.Action.ToggleMultiSelectionMode -> toggleMultiSelectionMode()
-            HomeContract.Action.ToggleDropdownMenuVisibility -> toggleDropdownMenuVisibility()
+            HomeContract.Action.ShowDropDownMenu -> showDropDownMenu()
+            HomeContract.Action.ShowSortDropDownMenu -> showSortDropDownMenu()
+            HomeContract.Action.HideDropDownMenu -> hideDropDownMenu()
             is HomeContract.Action.ToggleAlarmSelection -> toggleAlarmSelection(action.alarmId)
             HomeContract.Action.ToggleAllAlarmSelection -> toggleAllAlarmSelection()
             is HomeContract.Action.ToggleAlarmActivation -> toggleAlarmActivation(action.alarmId)
+            is HomeContract.Action.SwipeToDeleteAlarm -> deleteSingleAlarm(action.id)
             HomeContract.Action.ShowDeleteDialog -> showDeleteDialog()
             HomeContract.Action.HideDeleteDialog -> hideDeleteDialog()
             HomeContract.Action.ShowNoActivatedAlarmDialog -> showNoActivatedAlarmDialog()
             HomeContract.Action.HideNoActivatedAlarmDialog -> hideNoActivatedAlarmDialog()
             HomeContract.Action.ShowNoDailyFortuneDialog -> showNoDailyFortuneDialog()
             HomeContract.Action.HideNoDailyFortuneDialog -> hideNoDailyFortuneDialog()
+            HomeContract.Action.HideToolTip -> hideToolTip()
             HomeContract.Action.RollbackPendingAlarmToggle -> rollbackAlarmActivation()
             HomeContract.Action.ConfirmDeletion -> confirmDeletion()
             is HomeContract.Action.DeleteSingleAlarm -> deleteSingleAlarm(action.alarmId)
@@ -58,6 +65,9 @@ class HomeViewModel @Inject constructor(
             is HomeContract.Action.EditAlarm -> editAlarm(action.alarmId)
             HomeContract.Action.ShowDailyFortune -> loadDailyFortune()
             HomeContract.Action.NavigateToSetting -> navigateToSetting()
+            is HomeContract.Action.ShowItemMenu -> showItemMenu(action.alarmId, action.x, action.y)
+            HomeContract.Action.HideItemMenu -> hideItemMenu()
+            is HomeContract.Action.SetSortOrder -> setSortOrder(action.sortOrder)
         }
     }
 
@@ -106,8 +116,26 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun toggleDropdownMenuVisibility() {
-        updateState { copy(dropdownMenuExpanded = !currentState.dropdownMenuExpanded) }
+    private fun showDropDownMenu() {
+        updateState { copy(dropdownMenuExpanded = true) }
+    }
+
+    private fun showSortDropDownMenu() {
+        updateState {
+            copy(
+                dropdownMenuExpanded = false,
+                sortDropDownMenuExpanded = true,
+            )
+        }
+    }
+
+    private fun hideDropDownMenu() {
+        updateState {
+            copy(
+                dropdownMenuExpanded = false,
+                sortDropDownMenuExpanded = false,
+            )
+        }
     }
 
     private fun toggleAlarmSelection(alarmId: Long) {
@@ -170,6 +198,12 @@ class HomeViewModel @Inject constructor(
 
     private fun confirmDeletion() {
         deleteAlarms(currentState.selectedAlarmIds)
+        updateState {
+            copy(
+                selectedAlarmIds = emptySet(),
+                isDeleteDialogVisible = false,
+            )
+        }
     }
 
     private fun showNoActivatedAlarmDialog() {
@@ -225,49 +259,39 @@ class HomeViewModel @Inject constructor(
     private fun deleteAlarms(alarmIds: Set<Long>) {
         if (alarmIds.isEmpty()) return
 
-        val alarmsWithIndex = currentState.alarms.withIndex()
-            .filter { it.value.id in alarmIds }
-            .map { it.index to it.value }
+        val alarmsToDelete = currentState.alarms
+            .filter { it.id in alarmIds }
 
-        val alarmsToDelete = alarmsWithIndex.map { it.second }
-
-        updateState {
-            copy(
-                alarms = currentState.alarms - alarmsToDelete.toSet(),
-                selectedAlarmIds = emptySet(),
-                isDeleteDialogVisible = false,
-                isSelectionMode = false,
-            )
+        viewModelScope.launch {
+            alarmsToDelete.forEach { alarm ->
+                alarmUseCase.deleteAlarm(alarm.id)
+                alarmHelper.unScheduleAlarm(alarm)
+            }
         }
 
-        Log.d("HomeViewModel", "Deleting alarms: $alarmsToDelete")
+        if (currentState.activeItemMenu != null) {
+            hideItemMenu()
+        }
+
         emitSideEffect(
             HomeContract.SideEffect.ShowSnackBar(
                 message = resourceProvider.getString(R.string.alarm_deleted),
                 label = resourceProvider.getString(R.string.alarm_delete_dialog_btn_cancel),
                 iconRes = resourceProvider.getDrawable(core.designsystem.R.drawable.ic_check_green),
-                onDismiss = {
-                    viewModelScope.launch {
-                        alarmsToDelete.forEach { alarm ->
-                            alarmUseCase.deleteAlarm(alarm.id)
-                            alarmHelper.unScheduleAlarm(alarm)
-                        }
-                    }
-                },
+                onDismiss = { },
                 onAction = {
-                    restoreDeletedAlarms(alarmsWithIndex)
+                    restoreDeletedAlarms(alarmsToDelete)
                 },
             ),
         )
     }
 
-    private fun restoreDeletedAlarms(alarmsWithIndex: List<Pair<Int, Alarm>>) {
-        updateState {
-            val restoredAlarms = currentState.alarms.toMutableList()
-            alarmsWithIndex.forEach { (index, alarm) ->
-                restoredAlarms.add(index, alarm)
+    private fun restoreDeletedAlarms(alarmsWithIndex: List<Alarm>) {
+        viewModelScope.launch {
+            alarmsWithIndex.forEach { alarm ->
+                alarmUseCase.insertAlarm(alarm)
+                alarmHelper.scheduleAlarm(alarm)
             }
-            copy(alarms = restoredAlarms)
         }
     }
 
@@ -349,6 +373,8 @@ class HomeViewModel @Inject constructor(
             val tomorrow = today.plusDays(1)
 
             return when {
+                inputDateTime.toLocalDate() == today ->
+                    resourceProvider.getString(R.string.home_fortune_delivery_today, inputDateTime.format(DateTimeFormatter.ofPattern("a h:mm")))
                 inputDateTime.toLocalDate() == tomorrow ->
                     resourceProvider.getString(R.string.home_fortune_delivery_tomorrow, inputDateTime.format(DateTimeFormatter.ofPattern("a h:mm")))
                 inputDateTime.year == now.year ->
@@ -377,9 +403,43 @@ class HomeViewModel @Inject constructor(
             if (fortuneDate != todayDate) {
                 processAction(HomeContract.Action.ShowNoDailyFortuneDialog)
             } else {
+                userPreferences.markFortuneAsChecked()
                 emitSideEffect(
                     HomeContract.SideEffect.Navigate(FortuneDestination.Fortune.route),
                 )
+            }
+        }
+    }
+
+    private fun loadDailyFortuneState() {
+        viewModelScope.launch {
+            val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+
+            combine(
+                userPreferences.fortuneDateFlow,
+                userPreferences.fortuneScoreFlow,
+                userPreferences.hasNewFortuneFlow,
+            ) { fortuneDate, fortuneScore, hasNewFortune ->
+                val isTodayFortuneAvailable = fortuneDate == todayDate
+                val finalFortuneScore = if (isTodayFortuneAvailable) fortuneScore ?: -1 else -1
+
+                Pair(finalFortuneScore, hasNewFortune)
+            }.collect { (finalFortuneScore, hasNewFortune) ->
+                updateState {
+                    copy(
+                        lastFortuneScore = finalFortuneScore,
+                        hasNewFortune = hasNewFortune,
+                        isToolTipVisible = hasNewFortune,
+                    )
+                }
+            }
+        }
+    }
+
+    private fun loadUserName() {
+        viewModelScope.launch {
+            userPreferences.userNameFlow.collect { userName ->
+                updateState { copy(name = userName ?: "") }
             }
         }
     }
@@ -392,6 +452,10 @@ class HomeViewModel @Inject constructor(
         updateState { copy(isNoDailyFortuneDialogVisible = false) }
     }
 
+    private fun hideToolTip() {
+        updateState { copy(isToolTipVisible = false) }
+    }
+
     private fun navigateToSetting() {
         emitSideEffect(
             HomeContract.SideEffect.Navigate(
@@ -400,44 +464,26 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    /*
-    private fun loadMoreAlarms() {
-        val currentPage = currentState.paginationState.currentPage
-        if (currentState.paginationState.isLoading || !currentState.paginationState.hasMoreData) return
-
-        val pageSize = 10
-        val offset = currentPage * pageSize
-
+    private fun showItemMenu(alarmId: Long, x: Float, y: Float) {
         updateState {
             copy(
-                paginationState = currentState.paginationState.copy(isLoading = true),
+                activeItemMenu = alarmId,
+                activeItemMenuPosition = x to y,
             )
         }
+    }
 
-        viewModelScope.launch {
-            alarmUseCase.getPagedAlarms(limit = pageSize, offset = offset)
-                .onSuccess {
-                    updateState {
-                        copy(
-                            alarms = currentState.alarms + it,
-                            paginationState = currentState.paginationState.copy(
-                                currentPage = currentPage + 1,
-                                isLoading = false,
-                                hasMoreData = it.size == pageSize,
-                            ),
-                            initialLoading = false,
-                        )
-                    }
-                }
-                .onFailure {
-                    Log.e("HomeViewModel", "Failed to get paged alarms", it)
-                    updateState {
-                        copy(
-                            paginationState = currentState.paginationState.copy(isLoading = false),
-                            initialLoading = false,
-                        )
-                    }
-                }
+    private fun hideItemMenu() {
+        updateState {
+            copy(
+                activeItemMenu = null,
+                activeItemMenuPosition = null,
+            )
         }
-    }*/
+    }
+
+    private fun setSortOrder(sortOrder: HomeContract.AlarmSortOrder) {
+        updateState { copy(sortOrder = sortOrder) }
+        hideDropDownMenu()
+    }
 }

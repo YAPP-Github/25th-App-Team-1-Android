@@ -28,6 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.FortuneTopAppBar
 import com.yapp.ui.component.button.OrbitButton
@@ -37,9 +39,16 @@ import com.yapp.ui.utils.heightForScreenPercentage
 fun FortuneRewardRoute(
     viewModel: FortuneViewModel = hiltViewModel(),
 ) {
+    val analyticsHelper = LocalAnalyticsHelper.current
     val state = viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
     LaunchedEffect(state.value.fortuneImageId) {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = "fortune_talisman_view",
+            ),
+        )
+
         val imageId = state.value.fortuneImageId ?: viewModel.getRandomImage()
         viewModel.saveFortuneImageIdIfNeeded(imageId)
     }
@@ -48,7 +57,14 @@ fun FortuneRewardRoute(
         state = state,
         onCloseClick = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
         onCompleteClick = { viewModel.onAction(FortuneContract.Action.NavigateToHome) },
-        onSaveImage = { viewModel.onAction(FortuneContract.Action.SaveImage(it)) },
+        onSaveImage = {
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "fortune_talisman_save",
+                ),
+            )
+            viewModel.onAction(FortuneContract.Action.SaveImage(it))
+        },
     )
 }
 
@@ -97,7 +113,7 @@ fun FortuneRewardScreen(
                         .fillMaxWidth()
                         .padding(start = 30.dp)
                         .align(Alignment.Start),
-                    text = "$nickName\n부적에 소원을 적으면\n이루어질거야!",
+                    text = "$nickName\n부적을 가지고 있으면\n행운이 찾아올거야",
                     style = OrbitTheme.typography.H1,
                     color = OrbitTheme.colors.white,
                 )

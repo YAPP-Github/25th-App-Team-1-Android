@@ -7,12 +7,20 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.CompositionLocalProvider
+import com.yapp.analytics.AnalyticsHelper
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.common.navigation.rememberOrbitNavigator
 import com.yapp.designsystem.theme.OrbitTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var analyticsHelper: AnalyticsHelper
+
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,9 +39,11 @@ class MainActivity : ComponentActivity() {
             val navigator = rememberOrbitNavigator()
 
             OrbitTheme {
-                OrbitNavHost(
-                    navigator = navigator,
-                )
+                CompositionLocalProvider(LocalAnalyticsHelper provides analyticsHelper) {
+                    OrbitNavHost(
+                        navigator = navigator,
+                    )
+                }
             }
         }
     }

@@ -10,12 +10,7 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
-import android.os.Handler
-import android.os.HandlerThread
 import android.os.IBinder
-import android.os.Looper
-import android.os.Message
-import android.os.Process.THREAD_PRIORITY_BACKGROUND
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -26,20 +21,25 @@ import com.yapp.alarm.AlarmHelper
 import com.yapp.alarm.pendingIntent.interaction.createAlarmAlertPendingIntent
 import com.yapp.alarm.pendingIntent.interaction.createAlarmDismissPendingIntent
 import com.yapp.alarm.pendingIntent.interaction.createAlarmSnoozePendingIntent
+import com.yapp.alarm.pendingIntent.interaction.createNavigateToMissionPendingIntent
+import com.yapp.datastore.UserPreferences
 import com.yapp.domain.model.Alarm
+import com.yapp.domain.model.AlarmDay
 import com.yapp.domain.usecase.AlarmUseCase
 import com.yapp.media.sound.SoundPlayer
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class AlarmService : Service() {
-
-    private var serviceLooper: Looper? = null
-    private var serviceHandler: ServiceHandler? = null
 
     @Inject
     lateinit var alarmUseCase: AlarmUseCase
@@ -52,68 +52,20 @@ class AlarmService : Service() {
     @Inject
     lateinit var alarmHelper: AlarmHelper
 
-    private inner class ServiceHandler(looper: Looper) : Handler(looper) {
+    @Inject
+    lateinit var userPreferences: UserPreferences
 
-        override fun handleMessage(message: Message) {
-            super.handleMessage(message)
-
-            val bundle = message.data
-            val alarm: Alarm? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                bundle?.getParcelable(AlarmConstants.EXTRA_ALARM, Alarm::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                bundle?.getParcelable(AlarmConstants.EXTRA_ALARM)
-            }
-
-            if (alarm == null) {
-                Log.e("AlarmService", "Failed to retrieve Alarm object from intent")
-                return
-            }
-
-            val notificationId = alarm.id
-            val isDismiss = bundle.getBoolean(AlarmConstants.EXTRA_IS_DISMISS, false)
-            val isOneTimeAlarm = alarm.repeatDays == 0
-
-            when (isDismiss) {
-                true -> {
-                    stopSelf()
-                }
-
-                false -> {
-                    startForeground(
-                        notificationId.toInt(),
-                        createNotification(alarm),
-                    )
-                    if (alarm.isVibrationEnabled) startVibration()
-                    if (alarm.isSoundEnabled) startSound(alarm.soundUri, alarm.soundVolume)
-                }
-            }
-
-            if (isOneTimeAlarm) {
-                turnOffAlarm(alarmId = notificationId)
-            }
-        }
-    }
+    private val serviceScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     override fun onCreate() {
         super.onCreate()
-
         createNotificationChannel()
-
         setupVibrator()
-
-        HandlerThread("AlarmServiceThread", THREAD_PRIORITY_BACKGROUND).apply {
-            start()
-            serviceLooper = looper
-            serviceHandler = ServiceHandler(looper)
-        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        serviceHandler?.obtainMessage()?.also { message ->
-            message.arg1 = startId
-            message.data = intent?.extras
-            serviceHandler?.sendMessage(message)
+        serviceScope.launch {
+            handleIntent(intent ?: return@launch)
         }
         return START_NOT_STICKY
     }
@@ -123,31 +75,79 @@ class AlarmService : Service() {
     override fun onDestroy() {
         stopVibration()
         stopSound()
-        // remove notification
         stopForeground(STOP_FOREGROUND_REMOVE)
-        stopSelf()
+        serviceScope.cancel()
+        super.onDestroy()
     }
 
-    private fun createNotification(
-        alarm: Alarm,
-    ): Notification {
-        Log.d("AlarmForegroundService", "createNotification()")
-
-        val closeIntent = Intent(AlarmConstants.ACTION_ALARM_INTERACTION_ACTIVITY_CLOSE).apply {
-            putExtra(AlarmConstants.EXTRA_IS_SNOOZED, true)
+    private suspend fun handleIntent(intent: Intent) {
+        val alarm: Alarm? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(AlarmConstants.EXTRA_ALARM, Alarm::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            intent.getParcelableExtra(AlarmConstants.EXTRA_ALARM)
         }
-        applicationContext.sendBroadcast(closeIntent)
 
+        if (alarm == null) {
+            Log.e("AlarmService", "Failed to retrieve Alarm object from intent")
+            return
+        }
+
+        val notificationId = alarm.id
+        val isDismiss = intent.getBooleanExtra(AlarmConstants.EXTRA_IS_DISMISS, false)
+        val isOneTimeAlarm = alarm.repeatDays == 0
+
+        Log.d("AlarmService", "AlarmService started for alarm: $alarm")
+
+        // 반복 요일 알람 시, 다음 주 동일 요일 알람 예약
+        if (!isOneTimeAlarm) {
+            intent.getStringExtra(AlarmConstants.EXTRA_ALARM_DAY)?.let {
+                alarmHelper.scheduleWeeklyAlarm(alarm, AlarmDay.valueOf(it))
+            }
+        }
+
+        // 알람 해제 여부에 따른 처리
+        when (isDismiss) {
+            true -> stopSelf()
+            false -> {
+                startForeground(
+                    notificationId.toInt(),
+                    createNotification(alarm, shouldNavigateToMission()),
+                )
+                if (alarm.isVibrationEnabled) startVibration()
+                if (alarm.isSoundEnabled) startSound(alarm.soundUri, alarm.soundVolume)
+            }
+        }
+
+        if (isOneTimeAlarm) {
+            turnOffAlarm(alarmId = notificationId)
+        }
+    }
+
+    private suspend fun shouldNavigateToMission(): Boolean {
+        val fortuneDate = userPreferences.fortuneDateFlow.firstOrNull()
+        val todayDate = LocalDate.now().format(DateTimeFormatter.ISO_DATE)
+        return fortuneDate != todayDate
+    }
+
+    private fun createNotification(alarm: Alarm, shouldNavigateToMission: Boolean): Notification {
         val alarmAlertPendingIntent =
             createAlarmAlertPendingIntent(applicationContext, alarm)
-        val alarmDismissPendingIntent =
-            createAlarmDismissPendingIntent(applicationContext, pendingIntentId = alarm.id)
+
+        val alarmDismissPendingIntent = if (shouldNavigateToMission) {
+            createNavigateToMissionPendingIntent(
+                applicationContext = applicationContext,
+                notificationId = alarm.id,
+            )
+        } else {
+            createAlarmDismissPendingIntent(
+                applicationContext = applicationContext,
+                pendingIntentId = alarm.id,
+            )
+        }
 
         val snoozePendingIntent = if (alarm.isSnoozeEnabled && alarm.snoozeCount != 0) {
-            createAlarmSnoozePendingIntent(
-                applicationContext,
-                alarm,
-            )
+            createAlarmSnoozePendingIntent(applicationContext, alarm)
         } else {
             null
         }
@@ -160,10 +160,13 @@ class AlarmService : Service() {
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setFullScreenIntent(alarmAlertPendingIntent, true)
+            .setDeleteIntent(
+                snoozePendingIntent ?: alarmDismissPendingIntent,
+            )
             .addAction(core.designsystem.R.drawable.ic_cancel, "알람 해제", alarmDismissPendingIntent)
 
-        if (snoozePendingIntent != null) {
-            builder.addAction(core.designsystem.R.drawable.ic_cancel, "미루기", snoozePendingIntent)
+        snoozePendingIntent?.let {
+            builder.addAction(core.designsystem.R.drawable.ic_cancel, "미루기", it)
         }
 
         return builder.build()

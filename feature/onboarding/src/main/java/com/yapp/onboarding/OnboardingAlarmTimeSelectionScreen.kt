@@ -8,13 +8,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.timepicker.OrbitPicker
 import com.yapp.ui.utils.heightForScreenPercentage
@@ -24,15 +25,37 @@ import feature.onboarding.R
 fun OnboardingAlarmTimeSelectionRoute(
     viewModel: OnboardingViewModel,
 ) {
-    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val analyticsHelper = LocalAnalyticsHelper.current
+
     BackHandler {
-        viewModel.processAction(OnboardingContract.Action.PreviousStep) // ✅ ViewModel에서 처리
+        viewModel.processAction(OnboardingContract.Action.PreviousStep)
     }
+
+    LaunchedEffect(Unit) {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = "onboarding_alarm_view",
+                properties = mapOf(
+                    AnalyticsEvent.OnboardingPropertiesKeys.STEP to "초기 알람 생성",
+                ),
+            ),
+        )
+    }
+
     OnboardingAlarmTimeSelectionScreen(
-        state = state,
         currentStep = 1,
         totalSteps = 6,
-        onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
+        onNextClick = {
+            viewModel.processAction(OnboardingContract.Action.NextStep)
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "onboarding_alarm_create",
+                    properties = mapOf(
+                        AnalyticsEvent.OnboardingPropertiesKeys.STEP to "초기 알람 생성",
+                    ),
+                ),
+            )
+        },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
         setAlarmTime = { isAm, hour, minute ->
             viewModel.processAction(OnboardingContract.Action.SetAlarmTime(isAm, hour, minute))
@@ -42,7 +65,6 @@ fun OnboardingAlarmTimeSelectionRoute(
 
 @Composable
 fun OnboardingAlarmTimeSelectionScreen(
-    state: OnboardingContract.State,
     currentStep: Int,
     totalSteps: Int,
     onNextClick: () -> Unit,
@@ -90,7 +112,6 @@ fun OnboardingAlarmTimeSelectionScreen(
 fun OnboardingAlarmTimeSelectionScreenPreview() {
     OrbitTheme {
         OnboardingAlarmTimeSelectionScreen(
-            state = OnboardingContract.State(),
             currentStep = 0,
             totalSteps = 0,
             onNextClick = {},

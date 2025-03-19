@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +23,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.textfield.OrbitTextField
 import com.yapp.ui.extensions.customClickable
@@ -36,11 +39,22 @@ fun OnboardingNameRoute(
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
 
-    LaunchedEffect(key1 = Unit) {
+    val analyticsHelper = LocalAnalyticsHelper.current
+
+    LaunchedEffect(Unit) {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = "onboarding_name_view",
+                properties = mapOf(
+                    AnalyticsEvent.OnboardingPropertiesKeys.STEP to "이름",
+                ),
+            ),
+        )
         focusRequester.requestFocus()
     }
+
     BackHandler {
-        viewModel.processAction(OnboardingContract.Action.PreviousStep) // ✅ ViewModel에서 처리
+        viewModel.processAction(OnboardingContract.Action.PreviousStep)
     }
 
     OnboardingNameScreen(
@@ -48,10 +62,25 @@ fun OnboardingNameRoute(
         currentStep = 4,
         totalSteps = 6,
         focusRequester = focusRequester,
-        onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
+        onNextClick = {
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "onboarding_name_next",
+                    properties = mapOf(
+                        AnalyticsEvent.OnboardingPropertiesKeys.STEP to "이름",
+                    ),
+                ),
+            )
+            viewModel.processAction(OnboardingContract.Action.NextStep)
+        },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
         onTextChange = { value ->
-            viewModel.processAction(OnboardingContract.Action.UpdateField(value, OnboardingContract.FieldType.NAME))
+            viewModel.processAction(
+                OnboardingContract.Action.UpdateField(
+                    value,
+                    OnboardingContract.FieldType.NAME,
+                ),
+            )
         },
     )
 }
@@ -105,10 +134,13 @@ fun OnboardingNameScreen(
             OrbitTextField(
                 text = textFieldValue,
                 onTextChange = { newValue ->
+                    val truncatedText = OnboardingContract.truncateTextToLimit(newValue.text)
+
                     textFieldValue = newValue.copy(
-                        selection = TextRange(newValue.text.length),
+                        text = truncatedText,
+                        selection = TextRange(truncatedText.length),
                     )
-                    onTextChange(newValue.text)
+                    onTextChange(truncatedText)
                 },
                 hint = "이름 입력",
                 isValid = state.isValid,
@@ -117,7 +149,15 @@ fun OnboardingNameScreen(
                 focusRequester = focusRequester,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .paddingForScreenPercentage(horizontalPercentage = 0.192f, topPercentage = 0.086f),
+                    .paddingForScreenPercentage(
+                        horizontalPercentage = 0.192f,
+                        topPercentage = 0.086f,
+                    ),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        focusManager.clearFocus()
+                    },
+                ),
             )
         }
     }

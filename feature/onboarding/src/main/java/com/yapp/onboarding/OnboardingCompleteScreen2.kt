@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
@@ -23,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.onboarding.component.OnBoardingTopAppBar
 import com.yapp.ui.component.button.OrbitButton
@@ -35,12 +33,11 @@ import feature.onboarding.R
 fun OnboardingCompleteRoute2(
     viewModel: OnboardingViewModel,
 ) {
-    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
     BackHandler {
-        viewModel.processAction(OnboardingContract.Action.PreviousStep) // ✅ ViewModel에서 처리
+        viewModel.processAction(OnboardingContract.Action.PreviousStep)
     }
+
     OnboardingCompleteScreen2(
-        state = state,
         onNextClick = {
             viewModel.processAction(OnboardingContract.Action.CompleteOnboarding)
             viewModel.processAction(OnboardingContract.Action.CreateAlarm)
@@ -51,7 +48,6 @@ fun OnboardingCompleteRoute2(
 
 @Composable
 fun OnboardingCompleteScreen2(
-    state: OnboardingContract.State,
     onNextClick: () -> Unit,
     onBackClick: () -> Unit,
     currentStep: Int = 0,
@@ -122,7 +118,6 @@ fun OnboardingCompleteScreen2(
 fun OnboardingCompleteScreen2Preview() {
     OrbitTheme {
         OnboardingCompleteScreen2(
-            state = OnboardingContract.State(),
             onNextClick = {},
             onBackClick = {},
         )

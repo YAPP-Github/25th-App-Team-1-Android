@@ -14,6 +14,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.fortune.component.HillWithGradient
 import com.yapp.ui.component.button.OrbitButton
@@ -27,7 +29,10 @@ import com.yapp.ui.utils.paddingForScreenPercentage
 fun FortuneCompletePage(
     hasReward: Boolean,
     onCompleteClick: () -> Unit,
+    onNavigateToHome: () -> Unit,
 ) {
+    val analyticsHelper = LocalAnalyticsHelper.current
+
     val message = if (hasReward) {
         "첫 알람에 잘 일어났네!\n보상으로 행운 부적을 줄게"
     } else {
@@ -80,7 +85,18 @@ fun FortuneCompletePage(
             OrbitButton(
                 label = if (hasReward) "부적 보러가기" else "완료",
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-                onClick = onCompleteClick,
+                onClick = {
+                    analyticsHelper.logEvent(
+                        AnalyticsEvent(
+                            type = "fortune_complete",
+                        ),
+                    )
+                    if (hasReward) {
+                        onCompleteClick()
+                    } else {
+                        onNavigateToHome()
+                    }
+                },
                 enabled = true,
             )
         }
@@ -90,5 +106,5 @@ fun FortuneCompletePage(
 @Composable
 @Preview
 fun FortuneCompletePagePreview() {
-    FortuneCompletePage(hasReward = true, onCompleteClick = {})
+    FortuneCompletePage(hasReward = true, onCompleteClick = {}, onNavigateToHome = {})
 }

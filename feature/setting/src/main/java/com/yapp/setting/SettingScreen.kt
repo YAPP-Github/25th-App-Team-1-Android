@@ -1,7 +1,9 @@
 package com.yapp.setting
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,10 +11,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -24,13 +30,19 @@ import com.yapp.setting.component.SettingTopAppBar
 import com.yapp.setting.component.TableOfContentsText
 import com.yapp.setting.component.UserInfoCard
 import com.yapp.setting.component.VersionCodeText
+import com.yapp.ui.component.lottie.LottieAnimation
+import com.yapp.ui.extensions.customClickable
 
 @Composable
 fun SettingRoute(
     viewModel: SettingViewModel = hiltViewModel(),
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
+    LaunchedEffect(key1 = Unit) {
+        viewModel.onAction(SettingContract.Action.RefreshUserInfo)
+    }
     SettingScreen(
         state = state,
         onNavigateToEditProfile = {
@@ -40,9 +52,18 @@ fun SettingRoute(
         },
         onBackClick = { viewModel.onAction(SettingContract.Action.PreviousStep) },
         onInquiryClick = {
-            viewModel.onAction(
-                SettingContract.Action.OpenWebView("http://pf.kakao.com/_YxiPsn/chat"),
-            )
+            val kakaoUrl = "http://pf.kakao.com/_ykqxjn"
+            val kakaoSchemeUrl = "kakaoplus://plusfriend/home/_ykqxjn"
+
+            val kakaoIntent = Intent(Intent.ACTION_VIEW, Uri.parse(kakaoSchemeUrl))
+
+            try {
+                context.startActivity(kakaoIntent) // 카카오톡 앱으로 이동
+            } catch (e: Exception) {
+                viewModel.onAction(
+                    SettingContract.Action.OpenWebView(kakaoUrl), // 앱이 없으면 웹뷰로 열기
+                )
+            }
         },
         onTermsClick = {
             viewModel.onAction(
@@ -66,6 +87,35 @@ fun SettingScreen(
     onTermsClick: () -> Unit = {},
     onPrivacyPolicyClick: () -> Unit = {},
 ) {
+    if (state.initialLoading) {
+        SettingLoadingScreen()
+    } else {
+        SettingContent(
+            name = state.name,
+            selectedGender = state.selectedGender ?: "",
+            birthDate = state.birthDateFormatted,
+            timeOfBirth = state.timeOfBirthFormatted,
+            onNavigateToEditProfile = onNavigateToEditProfile,
+            onBackClick = onBackClick,
+            onInquiryClick = onInquiryClick,
+            onTermsClick = onTermsClick,
+            onPrivacyPolicyClick = onPrivacyPolicyClick,
+        )
+    }
+}
+
+@Composable
+private fun SettingContent(
+    name: String,
+    selectedGender: String,
+    birthDate: String,
+    timeOfBirth: String,
+    onNavigateToEditProfile: () -> Unit,
+    onBackClick: () -> Unit,
+    onInquiryClick: () -> Unit,
+    onTermsClick: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -80,12 +130,18 @@ fun SettingScreen(
         )
         Spacer(modifier = Modifier.height(12.dp))
         UserInfoCard(
-            name = state.name,
-            gender = state.selectedGender ?: "",
-            birth = state.birthDate,
+            name = name,
+            gender = selectedGender,
+            birth = birthDate,
+            timeOfBirth = timeOfBirth,
             modifier = Modifier
                 .padding(horizontal = 24.dp)
-                .clickable { onNavigateToEditProfile() },
+                .customClickable(
+                    rippleEnabled = true,
+                    fadeOnPress = true,
+                    pressedAlpha = 0.5f,
+                    onClick = { onNavigateToEditProfile() },
+                ),
         )
         Spacer(modifier = Modifier.height(24.dp))
         InquiryCard(
@@ -107,23 +163,46 @@ fun SettingScreen(
         SettingItem(
             itemTitle = "이용약관",
             modifier = Modifier
-                .clickable {
-                    onTermsClick()
-                }
+                .customClickable(
+                    rippleEnabled = true,
+                    fadeOnPress = true,
+                    pressedAlpha = 0.5f,
+                    onClick = onTermsClick,
+                )
                 .padding(horizontal = 24.dp),
         )
         Spacer(modifier = Modifier.height(24.dp))
         SettingItem(
             itemTitle = "개인정보 처리방침",
             modifier = Modifier
-                .clickable {
-                    onPrivacyPolicyClick()
-                }
+                .customClickable(
+                    rippleEnabled = true,
+                    fadeOnPress = true,
+                    pressedAlpha = 0.5f,
+                    onClick = onPrivacyPolicyClick,
+                )
                 .padding(horizontal = 24.dp),
         )
         Spacer(modifier = Modifier.weight(1f))
         VersionCodeText(versionCode = "v1.0.0")
         Spacer(modifier = Modifier.height(24.dp))
+    }
+}
+
+@Composable
+private fun SettingLoadingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(OrbitTheme.colors.gray_900),
+        contentAlignment = Alignment.Center,
+    ) {
+        LottieAnimation(
+            modifier = Modifier
+                .size(70.dp)
+                .align(Alignment.Center),
+            resId = core.designsystem.R.raw.star_loading,
+        )
     }
 }
 

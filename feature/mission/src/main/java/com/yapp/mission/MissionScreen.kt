@@ -26,6 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.ui.component.button.OrbitButton
 import com.yapp.ui.component.dialog.OrbitDialog
@@ -38,7 +40,6 @@ fun MissionRoute(viewModel: MissionViewModel = hiltViewModel()) {
     MissionScreen(
         stateProvider = { state },
         eventDispatcher = viewModel::processAction,
-        onNext = { viewModel.processAction(MissionContract.Action.NextStep) },
     )
 }
 
@@ -46,9 +47,10 @@ fun MissionRoute(viewModel: MissionViewModel = hiltViewModel()) {
 fun MissionScreen(
     stateProvider: () -> MissionContract.State,
     eventDispatcher: (MissionContract.Action) -> Unit,
-    onNext: () -> Unit,
 ) {
     val state = stateProvider()
+
+    val analyticsHelper = LocalAnalyticsHelper.current
     val context = LocalContext.current
 
     BackHandler {
@@ -106,7 +108,17 @@ fun MissionScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp),
                     label = "미션 시작",
-                    onClick = onNext,
+                    onClick = {
+                        analyticsHelper.logEvent(
+                            AnalyticsEvent(
+                                type = "mission_ready_start",
+                                properties = mapOf(
+                                    AnalyticsEvent.MissionPropertiesKeys.MISSION_TYPE to "shake",
+                                ),
+                            ),
+                        )
+                        eventDispatcher(MissionContract.Action.NextStep)
+                    },
                     enabled = true,
                 )
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.027f))
@@ -115,6 +127,14 @@ fun MissionScreen(
                     style = OrbitTheme.typography.body1SemiBold,
                     clickable = true,
                     onClick = {
+                        analyticsHelper.logEvent(
+                            AnalyticsEvent(
+                                type = "mission_ready_skip",
+                                properties = mapOf(
+                                    AnalyticsEvent.MissionPropertiesKeys.MISSION_TYPE to "shake",
+                                ),
+                            ),
+                        )
                         eventDispatcher(MissionContract.Action.ShowExitDialog)
                     },
                 )
@@ -174,6 +194,5 @@ fun MissionRoutePreview() {
     MissionScreen(
         stateProvider = { MissionContract.State() },
         eventDispatcher = { },
-        onNext = { },
     )
 }

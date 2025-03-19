@@ -14,7 +14,7 @@ jobs:
     steps:
       # Gradle Cache
       - name: Cache Gradle packages
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: |
             ~/.gradle/caches
@@ -55,8 +55,14 @@ jobs:
       # Add Local Properties
       - name: Add Local Properties
         env:
-          BASE_URL: ${{ secrets.BASE_URL }}
-        run: echo "baseUrl=$BASE_URL" >> local.properties
+            BASE_URL: ${{ secrets.BASE_URL }}
+            AMPLITUDE_API_KEY: ${{ secrets.AMPLITUDE_API_KEY }}
+        run: |
+            echo -e "baseUrl=$BASE_URL\namplitudeApiKey=$AMPLITUDE_API_KEY" >> local.properties
+
+      # Debug Local Properties Check
+      - name: Debug Local Properties
+        run: cat local.properties
 
       # Run Lint and Build
       - name: Run lint and build

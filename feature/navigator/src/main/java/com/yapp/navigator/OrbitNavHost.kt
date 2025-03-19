@@ -58,7 +58,7 @@ internal fun OrbitNavHost(
     ) {
         NavHost(
             navController = navigator.navController,
-            startDestination = SplashDestination.Route.route,
+            startDestination = navigator.startDestination,
             modifier = Modifier.navigationBarsPadding(),
         ) {
             composable(SplashDestination.Route.route) {

@@ -19,7 +19,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.yapp.designsystem.theme.OrbitTheme
-import feature.fortune.R
 
 @Composable
 fun SpeechBubble(
@@ -27,7 +26,7 @@ fun SpeechBubble(
     text: String,
     backGroundColor: Color = OrbitTheme.colors.white.copy(alpha = 0.2f),
     textColor: Color = OrbitTheme.colors.white,
-    textStyle: TextStyle = OrbitTheme.typography.body1Medium,
+    textStyle: TextStyle = OrbitTheme.typography.H3,
     verticalPadding: Dp = 10.dp,
     horizontalPadding: Dp = 16.dp,
 ) {

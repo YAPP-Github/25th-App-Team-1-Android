@@ -1,6 +1,5 @@
 package com.yapp.setting
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,15 +19,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,7 +53,11 @@ fun EditProfileRoute(
 ) {
     val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
 
-    Log.d("EditProfileRoute", "State: $state")
+    LaunchedEffect(state.shouldFetchUserInfo) {
+        if (state.shouldFetchUserInfo) {
+            viewModel.onAction(SettingContract.Action.RefreshUserInfo)
+        }
+    }
 
     EditProfileScreen(
         state = state,
@@ -95,17 +103,19 @@ fun EditProfileScreen(
 ) {
     val focusManager = LocalFocusManager.current
 
-    val nameTextFieldValue = remember(state.name) {
-        TextFieldValue(
-            text = state.name,
-            selection = TextRange(state.name.length),
-        )
+    val nameTextFieldValue = remember { mutableStateOf(TextFieldValue(state.name)) }
+    val birthTimeTextFieldValue = remember { mutableStateOf(TextFieldValue(state.timeOfBirth)) }
+
+    LaunchedEffect(state.name) {
+        if (state.name != nameTextFieldValue.value.text) {
+            nameTextFieldValue.value = TextFieldValue(state.name)
+        }
     }
-    val birthTimeTextFieldValue = remember(state.timeOfBirth) {
-        TextFieldValue(
-            text = state.timeOfBirth,
-            selection = TextRange(state.timeOfBirth.length),
-        )
+
+    LaunchedEffect(state.timeOfBirth) {
+        if (state.timeOfBirth != birthTimeTextFieldValue.value.text) {
+            birthTimeTextFieldValue.value = TextFieldValue(state.timeOfBirth)
+        }
     }
 
     Column(
@@ -124,6 +134,7 @@ fun EditProfileScreen(
             title = "프로필 수정",
             actionTitle = "저장",
             onActionClick = onSaveUserInfo,
+            isActionEnabled = state.isActionEnabled,
         )
 
         Column(
@@ -138,18 +149,22 @@ fun EditProfileScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
             OrbitTextField(
-                text = nameTextFieldValue,
+                text = nameTextFieldValue.value,
                 onTextChange = { newValue ->
+                    nameTextFieldValue.value = newValue
                     onUpdateName(newValue.text)
                 },
                 hint = "이름 입력",
                 isValid = state.isNameValid,
                 showWarning = !state.isNameValid,
-                warningMessage = "올바른 이름을 입력해주세요.",
+                warningMessage = "입력한 내용을 확인해 주세요.",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 18.dp),
                 textAlign = TextAlign.Start,
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.clearFocus() },
+                ),
             )
             Spacer(modifier = Modifier.height(18.dp))
             ContentsTitle(
@@ -183,6 +198,7 @@ fun EditProfileScreen(
                         onToggle = { onToggleGender(true) },
                         height = 52.dp,
                         textStyle = OrbitTheme.typography.body1Regular,
+                        shape = RoundedCornerShape(12.dp),
                     )
                 }
                 Box(modifier = Modifier.weight(1f)) {
@@ -192,6 +208,7 @@ fun EditProfileScreen(
                         onToggle = { onToggleGender(false) },
                         height = 52.dp,
                         textStyle = OrbitTheme.typography.body1Regular,
+                        shape = RoundedCornerShape(12.dp),
                     )
                 }
             }
@@ -210,19 +227,27 @@ fun EditProfileScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     OrbitTextField(
-                        text = birthTimeTextFieldValue,
+                        text = birthTimeTextFieldValue.value,
                         onTextChange = { newValue ->
-                            val formattedTime = formatTimeInput(newValue.text, state.timeOfBirth)
-                            onUpdateTimeOfBirth(formattedTime)
+                            val formattedValue = formatTimeInput(newValue.text, state.timeOfBirth)
+                            birthTimeTextFieldValue.value = formattedValue
+                            onUpdateTimeOfBirth(formattedValue.text)
                         },
-                        hint = "시간모름",
+                        hint = "23:59",
                         isValid = state.isTimeValid,
                         showWarning = !state.isTimeValid,
-                        warningMessage = "올바른 시간을 입력해주세요.",
                         enabled = !state.isTimeUnknown,
                         modifier = Modifier
                             .weight(1f),
                         textAlign = TextAlign.Start,
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Number,
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                focusManager.clearFocus()
+                            },
+                        ),
                     )
                     Spacer(modifier = Modifier.width(12.dp))
 
@@ -239,7 +264,7 @@ fun EditProfileScreen(
                         color = if (state.isTimeUnknown) OrbitTheme.colors.main else OrbitTheme.colors.white,
                     )
                 }
-                if (!state.isTimeValid) {
+                if (!state.isTimeUnknown && !state.isTimeValid) {
                     WarningMessage(
                         message = "올바른 시간을 입력해주세요.",
                         textAlign = TextAlign.Start,
@@ -261,11 +286,11 @@ fun EditProfileScreen(
     }
 }
 
-fun formatTimeInput(input: String, previousText: String): String {
+fun formatTimeInput(input: String, previousText: String): TextFieldValue {
     val sanitizedValue = input.filter { it.isDigit() }
     val isDeleting = sanitizedValue.length < previousText.filter { it.isDigit() }.length
 
-    return when {
+    val newText = when {
         isDeleting && previousText.endsWith(":") -> sanitizedValue
         sanitizedValue.length > 2 -> {
             val hours = sanitizedValue.take(2)
@@ -283,6 +308,13 @@ fun formatTimeInput(input: String, previousText: String): String {
 
         else -> sanitizedValue
     }
+    val cursorPosition = if (newText.length == 3 && newText.endsWith(":")) {
+        3
+    } else {
+        newText.length
+    }
+
+    return TextFieldValue(newText, TextRange(cursorPosition))
 }
 
 @Composable

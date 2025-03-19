@@ -9,6 +9,7 @@ import com.yapp.common.navigation.OrbitNavigator
 import com.yapp.common.navigation.destination.OnboardingDestination
 import com.yapp.common.navigation.destination.WebViewDestination
 import com.yapp.common.navigation.extensions.sharedHiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 
 fun NavGraphBuilder.onboardingNavGraph(
     navigator: OrbitNavigator,
@@ -23,7 +24,7 @@ fun NavGraphBuilder.onboardingNavGraph(
                 val viewModel = backStackEntry.sharedHiltViewModel<OnboardingViewModel>(navigator.navController)
 
                 LaunchedEffect(viewModel) {
-                    viewModel.container.sideEffectFlow.collect { sideEffect ->
+                    viewModel.container.sideEffectFlow.collectLatest { sideEffect ->
                         handleSideEffect(sideEffect, navigator, viewModel, onFinishOnboarding)
                     }
                 }
@@ -48,7 +49,7 @@ fun NavGraphBuilder.onboardingNavGraph(
                         OnboardingGenderRoute(viewModel)
                     }
                     OnboardingDestination.Access -> {
-                        OnboardingAccessRoute(navigator, viewModel)
+                        OnboardingAccessRoute(viewModel)
                     }
                     OnboardingDestination.Complete1 -> {
                         OnboardingCompleteRoute(viewModel)

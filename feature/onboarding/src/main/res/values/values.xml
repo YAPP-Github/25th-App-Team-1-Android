@@ -11,7 +11,7 @@
 
     <string name="onboarding_step4_text_title">태어난 시간을 알려주세요</string>
     <string name="onboarding_step4_text_check">태어난 시간을 몰라요</string>
-    <string name="onboarding_step4_textfield_warning">입력한 숫자를 확인해 주세요</string>
+    <string name="onboarding_step4_textfield_warning">입력한 내용를 확인해 주세요</string>
 
     <string name="onboarding_step5_text_title">어떤 이름으로 불리길\n원하시나요?</string>
     <string name="onboarding_step5_textfield_warning">입력한 내용을 확인해 주세요</string>
@@ -32,5 +32,9 @@
     <string name="onboarding_completed_step1_subtitle">환영해요!</string>
     <string name="onboarding_completed_step1_title">기상 미션을 수행하면\n운세를 확인 할 수 있어요</string>
     <string name="onboarding_completed_step2_title">오르비의 하루 운세로\n아침을 즐겁게 시작해 보세요!</string>
+
+    <string name="onboarding_warning_dialog_title">오류</string>
+    <string name="onboarding_warning_dialog_message">서비스가 일시적으로 사용 불가능합니다.\n잠시 후 다시 시도해주세요.</string>
+    <string name="onboarding_warning_dialog_btn_confirm">확인</string>
 
 </resources>

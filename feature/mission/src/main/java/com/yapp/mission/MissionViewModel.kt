@@ -1,7 +1,12 @@
 package com.yapp.mission
 
+import android.app.Application
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.yapp.alarm.pendingIntent.interaction.createAlarmDismissIntent
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.AnalyticsHelper
 import com.yapp.common.navigation.destination.FortuneDestination
 import com.yapp.common.navigation.destination.HomeDestination
 import com.yapp.common.navigation.destination.MissionDestination
@@ -19,12 +24,21 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MissionViewModel @Inject constructor(
+    private val analyticsHelper: AnalyticsHelper,
     private val hapticFeedbackManager: HapticFeedbackManager,
     private val fortuneRepository: FortuneRepository,
     private val userPreferences: UserPreferences,
+    private val app: Application,
+    savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<MissionContract.State, MissionContract.SideEffect>(
     MissionContract.State(),
 ) {
+    init {
+        val notificationId = savedStateHandle.get<String>("notificationId")?.toLong()
+        if (notificationId != null) {
+            sendAlarmDismissIntent(notificationId)
+        }
+    }
 
     fun processAction(action: MissionContract.Action) {
         when (action) {
@@ -52,17 +66,25 @@ class MissionViewModel @Inject constructor(
         if (currentState.showOverlay) updateState { copy(showOverlay = false) }
         if (currentState.showOverlayText) updateState { copy(showOverlayText = false) }
 
-        val currentCount = currentState.clickCount
+        val currentCount = currentState.shakeCount
         if (currentCount < 9) {
             hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
-            updateState { copy(clickCount = currentCount + 1) }
+            updateState { copy(shakeCount = currentCount + 1) }
         } else if (currentCount == 9 && !currentState.isFlipped) {
             hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "mission_success",
+                    properties = mapOf(
+                        AnalyticsEvent.MissionPropertiesKeys.MISSION_TYPE to "shake",
+                    ),
+                ),
+            )
             postFortune()
             updateState {
                 copy(
                     isMissionCompleted = true,
-                    clickCount = 10,
+                    shakeCount = 10,
                     isFlipped = true,
                 )
             }
@@ -81,6 +103,7 @@ class MissionViewModel @Inject constructor(
             fortuneResult.onSuccess { fortune ->
                 val fortuneData = fortune.getOrThrow()
                 userPreferences.saveFortuneId(fortuneData.id)
+                userPreferences.saveFortuneScore(fortuneData.avgFortuneScore)
 
                 emitSideEffect(
                     MissionContract.SideEffect.Navigate(
@@ -108,6 +131,7 @@ class MissionViewModel @Inject constructor(
             fortuneResult.onSuccess { fortune ->
                 val fortuneData = fortune.getOrThrow()
                 userPreferences.saveFortuneId(fortuneData.id)
+                userPreferences.saveFortuneScore(fortuneData.avgFortuneScore)
 
                 emitSideEffect(
                     MissionContract.SideEffect.Navigate(
@@ -139,5 +163,13 @@ class MissionViewModel @Inject constructor(
         updateState { copy(showOverlayText = true) }
         kotlinx.coroutines.delay(2000)
         updateState { copy(showOverlay = false, showOverlayText = false) }
+    }
+
+    private fun sendAlarmDismissIntent(id: Long) {
+        val alarmDismissIntent = createAlarmDismissIntent(
+            context = app,
+            notificationId = id,
+        )
+        app.sendBroadcast(alarmDismissIntent)
     }
 }

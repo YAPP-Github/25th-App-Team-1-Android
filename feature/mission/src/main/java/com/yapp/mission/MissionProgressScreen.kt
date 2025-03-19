@@ -8,7 +8,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,11 +35,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.mission.component.FlipCard
 import com.yapp.mission.component.MissionProgressBar
 import com.yapp.ui.component.dialog.OrbitDialog
 import com.yapp.ui.component.lottie.LottieAnimation
+import com.yapp.ui.extensions.customClickable
 import com.yapp.ui.utils.heightForScreenPercentage
 import com.yapp.ui.utils.paddingForScreenPercentage
 
@@ -71,6 +73,8 @@ fun MissionProgressScreen(
     eventDispatcher: (MissionContract.Action) -> Unit,
 ) {
     val state = stateProvider()
+
+    val analyticsHelper = LocalAnalyticsHelper.current
     val context = LocalContext.current
 
     BackHandler {
@@ -107,9 +111,12 @@ fun MissionProgressScreen(
                 ) {
                     Row(
                         modifier = Modifier
-                            .clickable {
-                                eventDispatcher(MissionContract.Action.ShowExitDialog)
-                            },
+                            .customClickable(
+                                rippleEnabled = false,
+                                fadeOnPress = true,
+                                pressedAlpha = 0.5f,
+                                onClick = { eventDispatcher(MissionContract.Action.ShowExitDialog) },
+                            ),
                     ) {
                         Icon(
                             painter = painterResource(id = core.designsystem.R.drawable.ic_cancel),
@@ -130,7 +137,7 @@ fun MissionProgressScreen(
 
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.0246f))
                 MissionProgressBar(
-                    currentProgress = state.clickCount,
+                    currentProgress = state.shakeCount,
                     totalProgress = 10,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -147,7 +154,7 @@ fun MissionProgressScreen(
                 )
                 Spacer(modifier = Modifier.heightForScreenPercentage(0.005f))
                 Text(
-                    text = state.clickCount.toString(),
+                    text = state.shakeCount.toString(),
                     color = OrbitTheme.colors.white,
                     style = OrbitTheme.typography.displaySemiBold,
                     modifier = Modifier.alpha(if (state.showOverlay) 0f else 1f),
@@ -199,6 +206,14 @@ fun MissionProgressScreen(
                 confirmText = "나가기",
                 cancelText = "취소",
                 onConfirm = {
+                    analyticsHelper.logEvent(
+                        AnalyticsEvent(
+                            type = "mission_fail",
+                            properties = mapOf(
+                                AnalyticsEvent.MissionPropertiesKeys.MISSION_TYPE to "shake",
+                            ),
+                        ),
+                    )
                     (context as? androidx.activity.ComponentActivity)?.finish()
                 },
                 onCancel = {

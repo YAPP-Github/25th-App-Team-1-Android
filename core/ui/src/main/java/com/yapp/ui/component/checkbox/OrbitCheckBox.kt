@@ -42,7 +42,7 @@ fun OrbitCheckBox(
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            painter = painterResource(core.designsystem.R.drawable.ic_check),
+            painter = painterResource(core.designsystem.R.drawable.ic_check_border_lined),
             contentDescription = "IC_CHECK",
             tint = OrbitTheme.colors.gray_700,
         )

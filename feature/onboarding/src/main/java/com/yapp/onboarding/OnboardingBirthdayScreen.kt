@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,7 +31,8 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.yapp.analytics.AnalyticsEvent
+import com.yapp.analytics.LocalAnalyticsHelper
 import com.yapp.designsystem.theme.OrbitTheme
 import com.yapp.onboarding.component.OnBoardingTopAppBar
 import com.yapp.ui.component.button.OrbitButton
@@ -40,15 +42,37 @@ import feature.onboarding.R
 
 @Composable
 fun OnboardingBirthdayRoute(viewModel: OnboardingViewModel) {
-    val state by viewModel.container.stateFlow.collectAsStateWithLifecycle()
+    val analyticsHelper = LocalAnalyticsHelper.current
+
     BackHandler {
         viewModel.processAction(OnboardingContract.Action.PreviousStep)
     }
+
+    LaunchedEffect(Unit) {
+        analyticsHelper.logEvent(
+            AnalyticsEvent(
+                type = "onboarding_birthdate_view",
+                properties = mapOf(
+                    AnalyticsEvent.OnboardingPropertiesKeys.STEP to "생년월일",
+                ),
+            ),
+        )
+    }
+
     OnboardingBirthdayScreen(
-        state = state,
         currentStep = 2,
         totalSteps = 6,
-        onNextClick = { viewModel.processAction(OnboardingContract.Action.NextStep) },
+        onNextClick = {
+            viewModel.processAction(OnboardingContract.Action.NextStep)
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "onboarding_birthdate_next",
+                    properties = mapOf(
+                        AnalyticsEvent.OnboardingPropertiesKeys.STEP to "생년월일",
+                    ),
+                ),
+            )
+        },
         onBackClick = { viewModel.processAction(OnboardingContract.Action.PreviousStep) },
         onBirthDateChange = { lunar, year, month, day ->
             viewModel.processAction(OnboardingContract.Action.UpdateBirthDate(lunar, year, month, day))
@@ -68,7 +92,6 @@ fun OnboardingBirthdayRoute(viewModel: OnboardingViewModel) {
 
 @Composable
 fun OnboardingBirthdayScreen(
-    state: OnboardingContract.State,
     currentStep: Int,
     totalSteps: Int,
     onNextClick: () -> Unit,
@@ -188,7 +211,6 @@ fun AnnotatedTermsText(
 fun OnboardingBirthdayScreenPreview() {
     OrbitTheme {
         OnboardingBirthdayScreen(
-            state = OnboardingContract.State(),
             currentStep = 3,
             totalSteps = 3,
             onNextClick = {},
