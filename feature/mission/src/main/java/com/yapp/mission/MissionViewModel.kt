@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.random.Random
 
 @HiltViewModel
 class MissionViewModel @Inject constructor(
@@ -31,7 +32,9 @@ class MissionViewModel @Inject constructor(
     private val app: Application,
     savedStateHandle: SavedStateHandle,
 ) : BaseViewModel<MissionContract.State, MissionContract.SideEffect>(
-    MissionContract.State(),
+    MissionContract.State(
+        missionType = if (Random.nextBoolean()) MissionContract.MissionType.Shake else MissionContract.MissionType.Click,
+    ),
 ) {
     init {
         val notificationId = savedStateHandle.get<String>("notificationId")?.toLong()
@@ -54,7 +57,8 @@ class MissionViewModel @Inject constructor(
 
             is MissionContract.Action.StartOverlayTimer -> startOverlayTimer()
 
-            is MissionContract.Action.ShakeCard, is MissionContract.Action.ClickCard -> handleIncreaseCount()
+            is MissionContract.Action.ShakeCard -> handleShake()
+            is MissionContract.Action.ClickCard -> handleClick()
 
             is MissionContract.Action.ShowExitDialog -> updateState { copy(showExitDialog = true) }
             is MissionContract.Action.HideExitDialog -> updateState { copy(showExitDialog = false) }
@@ -62,9 +66,10 @@ class MissionViewModel @Inject constructor(
         }
     }
 
-    private fun handleIncreaseCount() = viewModelScope.launch {
+    private fun handleShake() = viewModelScope.launch {
         if (currentState.showOverlay) updateState { copy(showOverlay = false) }
         if (currentState.showOverlayText) updateState { copy(showOverlayText = false) }
+        if (currentState.missionType !is MissionContract.MissionType.Shake) return@launch
 
         val currentCount = currentState.shakeCount
         if (currentCount < 9) {
@@ -89,6 +94,37 @@ class MissionViewModel @Inject constructor(
                 )
             }
             kotlinx.coroutines.delay(500)
+        }
+    }
+
+    private fun handleClick() = viewModelScope.launch {
+        if (currentState.missionType !is MissionContract.MissionType.Click) return@launch
+
+        val currentCount = currentState.clickCount
+        if (currentCount < 9) {
+            hapticFeedbackManager.performHapticFeedback(HapticType.SUCCESS)
+            analyticsHelper.logEvent(
+                AnalyticsEvent(
+                    type = "mission_success",
+                    properties = mapOf(
+                        AnalyticsEvent.MissionPropertiesKeys.MISSION_TYPE to "click",
+                    ),
+                ),
+            )
+            updateState { copy(clickCount = currentCount + 1, playWhenClick = true) }
+
+            kotlinx.coroutines.delay(500)
+            updateState { copy(playWhenClick = false) }
+        } else if (currentCount == 9) {
+            updateState {
+                copy(
+                    clickCount = 10,
+                    showFinalAnimation = true,
+                )
+            }
+            postFortune()
+            kotlinx.coroutines.delay(500)
+            updateState { copy(isMissionCompleted = true) }
         }
     }
 
